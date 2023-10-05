@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:nomo_app/screens/home_screen.dart';
 import 'package:nomo_app/screens/login_screen.dart';
 
+// this is test commit
+
 void main() async {
   // WidgetsFlutterBinding.ensureInitialized();
   // await Firebase.initializeApp(

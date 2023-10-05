@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:nomo/screens/home_screen.dart';
+import 'package:nomo_app/screens/home_screen.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});

@@ -10,16 +10,18 @@ class LoginScreen extends StatefulWidget {
   }
 }
 
-class _LoginScreenState extends State<LoginScreen> {
+class _LoginScreenState extends State<LoginScreen> {  
+  final _form = GlobalKey<FormState>();
+
   var _enteredEmail = '';
   var _isLogin = true;
   var _enteredUsername = '';
   var _enteredPass = '';
   var _isAuthenticating = false;
 
-  // void _submit() {
-  //   return HomeScreen();
-  // }
+  void _submit() {
+    _form.currentState!.validate();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -46,6 +48,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 child: Padding(
                   padding: const EdgeInsets.all(20),
                   child: Form(
+                    key: _form,
                     child: Column(
                       mainAxisSize: MainAxisSize.min,
                       children: [
@@ -89,8 +92,8 @@ class _LoginScreenState extends State<LoginScreen> {
                               const InputDecoration(labelText: "Password"),
                           obscureText: true,
                           validator: (value) {
-                            if (value == null || value.trim().length < 6) {
-                              return 'Pass must be at least 6 characters long.';
+                            if (value == null || value.trim().length < 8) {
+                              return 'Pass must be at least 8 characters long.';
                             }
                             return null;
                           },
@@ -105,7 +108,7 @@ class _LoginScreenState extends State<LoginScreen> {
                           const CircularProgressIndicator(),
                         if (!_isAuthenticating)
                           ElevatedButton(
-                            onPressed: () {}, //const HomeScreen(),
+                            onPressed: _submit,
                             style: ElevatedButton.styleFrom(
                               backgroundColor: Theme.of(context)
                                   .colorScheme
@@ -132,7 +135,8 @@ class _LoginScreenState extends State<LoginScreen> {
             )
           ],
         ),
-      )),
+      ),
+      ),
     );
   }
 }

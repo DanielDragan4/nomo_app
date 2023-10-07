@@ -24,12 +24,12 @@ class App extends StatelessWidget {
       theme: ThemeData().copyWith(
         useMaterial3: true,
         colorScheme: ColorScheme.fromSeed(
-            seedColor: const Color.fromARGB(255, 2, 42, 41)),
+            seedColor: const Color.fromARGB(255, 2, 27, 42)),
       ),
       home: StreamBuilder(
         stream: FirebaseAuth.instance.authStateChanges(),
-        builder: (ctx, snapshot) {  
-          if(snapshot.connectionState == ConnectionState.waiting) {
+        builder: (ctx, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
             return const SplashScreen();
           }
 

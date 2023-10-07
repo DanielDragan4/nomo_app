@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:nomo/widgets/event_tab.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -14,35 +15,42 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget build(BuildContext context) {
     final _pageViewController = PageController(initialPage: 1);
 
+    var navBarTheme = Theme.of(context).bottomNavigationBarTheme;
+
     int _index = 1;
 
     return Scaffold(
       appBar: AppBar(),
-      body: Column(
-        children: [SingleChildScrollView()],
+      body: const Column(
+        children: [SingleChildScrollView(child: EventTab())],
       ),
       bottomNavigationBar: BottomNavigationBar(
+        backgroundColor: Theme.of(context).primaryColorLight.withOpacity(0.6),
         currentIndex: _index,
         onTap: (index) {
           _pageViewController.animateToPage(index,
               duration: const Duration(milliseconds: 500),
               curve: Curves.decelerate);
         },
-        items: const [
+        items: [
           BottomNavigationBarItem(
-            icon: Icon(Icons.book_outlined),
-            activeIcon: Icon(Icons.book, color: Color.fromARGB(255, 0, 0, 0)),
-            label: "History",
+            icon: Icon(Icons.event_available_outlined,
+                color: navBarTheme.unselectedItemColor),
+            activeIcon: Icon(Icons.event_available,
+                color: navBarTheme.selectedItemColor),
+            label: "Events",
           ),
           BottomNavigationBarItem(
-              icon: Icon(Icons.add_box_outlined),
-              activeIcon:
-                  Icon(Icons.add_box, color: Color.fromARGB(255, 0, 0, 0)),
-              label: 'New'),
+              icon: Icon(Icons.add_box_outlined,
+                  color: navBarTheme.unselectedItemColor),
+              activeIcon: Icon(Icons.add_box,
+                  color: navBarTheme.selectedItemColor),
+              label: 'New Event'),
           BottomNavigationBarItem(
-              icon: Icon(Icons.person_2_outlined),
-              activeIcon:
-                  Icon(Icons.person_2, color: Color.fromARGB(255, 0, 0, 0)),
+              icon: Icon(Icons.person_2_outlined,
+                  color: navBarTheme.unselectedItemColor),
+              activeIcon: Icon(Icons.person_2,
+                  color: navBarTheme.selectedItemColor),
               label: "Profile"),
         ],
       ),

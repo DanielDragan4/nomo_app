@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "401558042377",
+    "project_id": "nomo-backend",
+    "storage_bucket": "nomo-backend.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:401558042377:android:b6e64d05033d678895c5d8",
+        "android_client_info": {
+          "package_name": "com.example.nomo_app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDZP4AfL8B14_kuVoeqlWFTO_PSBSUjltE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

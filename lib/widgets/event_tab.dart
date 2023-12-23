@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:nomo/models/events_model.dart';
+import 'package:nomo/widgets/event_info.dart';
 
 class EventTab extends StatelessWidget {
   const EventTab({super.key, required this.eventsData});
@@ -8,19 +9,39 @@ class EventTab extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    var formattedDate =
+        "${eventsData.date.month}/${eventsData.date.day}/${eventsData.date.year}";
     return Padding(
       padding: const EdgeInsets.all(5.0),
       child: Container(
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(3),
           border: Border.all(
-            color: Color.fromARGB(255, 26, 34, 38),
+            color: const Color.fromARGB(255, 26, 34, 38),
             width: 2,
           ),
         ),
         child: Column(
           children: [
-            Text(eventsData.title),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  eventsData.title,
+                  style: const TextStyle(
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                Text(
+                  eventsData.attending ? 'Attending' : 'Hosting',
+                  style: TextStyle(
+                      color: eventsData.attending
+                          ? const Color.fromARGB(255, 151, 136, 8)
+                          : const Color.fromARGB(255, 17, 114, 20)),
+                ),
+                Text(formattedDate),
+              ],
+            ),
             Container(
               width: double.infinity,
               decoration: const BoxDecoration(
@@ -37,9 +58,12 @@ class EventTab extends StatelessWidget {
               ),
             ),
             Container(
-              height: 100,
-
-            )
+              height: 5,
+            ),
+            EventInfo(eventsData: eventsData),
+            Container(
+              height: 70,
+            ),
           ],
         ),
       ),

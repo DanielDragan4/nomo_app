@@ -25,6 +25,10 @@ class App extends StatelessWidget {
         useMaterial3: true,
         colorScheme: ColorScheme.fromSeed(
             seedColor: const Color.fromARGB(255, 2, 27, 42)),
+        bottomNavigationBarTheme: const BottomNavigationBarThemeData(
+          selectedItemColor: Color.fromARGB(255, 0, 98, 255),
+          unselectedItemColor: Colors.grey,
+        ),
       ),
       home: StreamBuilder(
         stream: FirebaseAuth.instance.authStateChanges(),

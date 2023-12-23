@@ -37,6 +37,6 @@ final dummyEvents = [
     bookmarked: false,
     comments: ['I love nice click and clacks. Ears go burr'],
     orgainizer: 'Dan',
-    attending: true,
+    attending: false,
   ),
 ];

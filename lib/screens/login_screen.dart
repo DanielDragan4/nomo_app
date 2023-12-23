@@ -18,34 +18,33 @@ class _LoginScreenState extends State<LoginScreen> {
   var _enteredEmail = '';
   var _isLogin = true;
   var _enteredPass = '';
-  var _isAuthenticating = false;
+  final _isAuthenticating = false;
 
   void _submit() async {
     final isValid = _form.currentState!.validate();
 
-  try {
-    if (!isValid) {
-      return;
-    }
-    _form.currentState!.save();
+    try {
+      if (!isValid) {
+        return;
+      }
+      _form.currentState!.save();
 
-    if (_isLogin) {
-
-      final userCredentials = await _firebase.signInWithEmailAndPassword(
-        email: _enteredEmail, password: _enteredPass);
-    } else {
+      if (_isLogin) {
+        final userCredentials = await _firebase.signInWithEmailAndPassword(
+            email: _enteredEmail, password: _enteredPass);
+      } else {
         final UserCredentials = await _firebase.createUserWithEmailAndPassword(
             email: _enteredEmail, password: _enteredPass);
-      } 
-    } on FirebaseAuthException catch (error) {
-        ScaffoldMessenger.of(context).clearSnackBars();
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(error.message ?? 'Authentication Failed'),
-          ),
-        );
       }
+    } on FirebaseAuthException catch (error) {
+      ScaffoldMessenger.of(context).clearSnackBars();
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(error.message ?? 'Authentication Failed'),
+        ),
+      );
     }
+  }
 
   @override
   Widget build(BuildContext context) {

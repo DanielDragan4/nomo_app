@@ -18,7 +18,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
     var navBarTheme = Theme.of(context).bottomNavigationBarTheme;
 
-    int _index = 0;
+    int _index = 4;
 
     return Scaffold(
       appBar: AppBar(
@@ -136,7 +136,8 @@ class _HomeScreenState extends State<HomeScreen> {
                   color: navBarTheme.unselectedItemColor),
               activeIcon:
                   Icon(Icons.add_box, color: navBarTheme.selectedItemColor),
-              label: 'New Event'),
+              label: 'New Event',
+              ),
           BottomNavigationBarItem(
               icon: Icon(Icons.calendar_month_outlined,
                   color: navBarTheme.unselectedItemColor),

@@ -39,8 +39,8 @@ class _CalendarPageState extends State<CalendarPage> {
         child: Column(
           children: [
             TableCalendar(
-              firstDay: DateTime.utc(2022, 1, 1),
-              lastDay: DateTime.utc(2023, 12, 31),
+              firstDay: DateTime.utc(2000),
+              lastDay: DateTime.utc(2200, 12, 31),
               focusedDay: _focusedDay,
               calendarFormat: _calendarFormat,
               selectedDayPredicate: (day) {
@@ -58,11 +58,6 @@ class _CalendarPageState extends State<CalendarPage> {
                 });
               },
             ),
-            if (_selectedDay != null)
-              Text(
-                'Selected Day: ${_selectedDay!.toLocal()}',
-                style: TextStyle(fontSize: 18),
-              ),
           ],
         ),
       ),

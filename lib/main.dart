@@ -1,6 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:nomo/screens/home_screen.dart';
+import 'package:nomo/screens/NavBar.dart';
 import 'package:nomo/screens/login_screen.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:nomo/screens/splash.dart';
@@ -38,7 +38,7 @@ class App extends StatelessWidget {
           }
 
           if (snapshot.hasData) {
-            return const HomeScreen();
+            return const NavBar();
           }
 
           return const LoginScreen();

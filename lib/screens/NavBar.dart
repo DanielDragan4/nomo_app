@@ -72,7 +72,7 @@ class _NavBarState extends State<NavBar> {
         children: [
           RecommendedScreen(),
           NewEventScreen(),
-          CalendarPage(),
+          CalendarScreen(),
           FriendsScreen(),
           ProfileScreen(),
         ],

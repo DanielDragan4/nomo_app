@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:nomo/models/events_model.dart';
 
-enum options { itemOne, itemTwo, itemThree }
+enum options { itemOne, itemTwo, itemThree , itemFour}
 
 class EventInfo extends StatefulWidget {
   const EventInfo({super.key, required this.eventsData});
@@ -43,6 +43,10 @@ class _EventInfoState extends State<EventInfo> {
               const PopupMenuItem(
                 value: options.itemThree,
                 child: Text("Share Link"),
+              ),
+              const PopupMenuItem(
+                value: options.itemFour,
+                child: Text("View Details"),
               ),
             ],
           )

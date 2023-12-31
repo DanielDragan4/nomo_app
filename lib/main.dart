@@ -19,16 +19,23 @@ class App extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+
+    print(Theme.of(context).primaryColor);
+
+
+
     return MaterialApp(
       title: 'FlutterChat',
       theme: ThemeData().copyWith(
         useMaterial3: true,
         colorScheme: ColorScheme.fromSeed(
-            seedColor: const Color.fromARGB(255, 2, 27, 42)),
+            seedColor: Color.fromARGB(255, 0, 71, 79),
+            onPrimaryContainer:  Color.fromARGB(255, 0, 71, 79)),
         bottomNavigationBarTheme: const BottomNavigationBarThemeData(
-          selectedItemColor: Color.fromARGB(255, 0, 98, 255),
+          selectedItemColor: Color.fromARGB(255, 0, 71, 79),
           unselectedItemColor: Colors.grey,
         ),
+        primaryColor: Color.fromARGB(255, 0, 71, 79),
       ),
       home: StreamBuilder(
         stream: FirebaseAuth.instance.authStateChanges(),

@@ -39,6 +39,7 @@ dependencies:
   firebase_auth: ^4.10.1
   uuid: ^4.1.0
   table_calendar: ^3.0.9
+  image_picker: ^1.0.5
   scrollable_clean_calendar: ^1.4.1
 
 dev_dependencies:

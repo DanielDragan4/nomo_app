@@ -9,10 +9,7 @@ enum options {
 class ProfileDropdown extends StatefulWidget {
   ProfileDropdown({
     super.key,
-    required this.dropDownFunction(),
   });
-
-  Function() dropDownFunction;
 
   @override
   State<StatefulWidget> createState() {
@@ -21,6 +18,7 @@ class ProfileDropdown extends StatefulWidget {
 }
 
 class _ProfileDropdownState extends State<ProfileDropdown> {
+
   final AuthService authService = AuthService();
 
   @override
@@ -39,7 +37,9 @@ class _ProfileDropdownState extends State<ProfileDropdown> {
         PopupMenuItem(
           value: options.itemOne,
           child: Text("Sign Out"),
-          onTap: widget.dropDownFunction(),
+          onTap: (){
+            authService.signOut();
+          },
         ),
       ],
     );

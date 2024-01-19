@@ -19,10 +19,7 @@ class App extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-
     print(Theme.of(context).primaryColor);
-
-
 
     return MaterialApp(
       title: 'FlutterChat',
@@ -30,7 +27,7 @@ class App extends StatelessWidget {
         useMaterial3: true,
         colorScheme: ColorScheme.fromSeed(
             seedColor: Color.fromARGB(255, 0, 71, 79),
-            onPrimaryContainer:  Color.fromARGB(255, 0, 71, 79)),
+            onPrimaryContainer: Color.fromARGB(255, 0, 71, 79)),
         bottomNavigationBarTheme: const BottomNavigationBarThemeData(
           selectedItemColor: Color.fromARGB(255, 0, 71, 79),
           unselectedItemColor: Colors.grey,

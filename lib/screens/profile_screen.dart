@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:nomo/widgets/event_tab.dart';
 import 'package:nomo/data/dummy_data.dart';
+import 'package:nomo/widgets/profile_dropdown.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:nomo/screens/login_screen.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -12,9 +15,16 @@ class ProfileScreen extends StatefulWidget {
 }
 
 class _ProfileScreenState extends State<ProfileScreen> {
+  final FirebaseAuth auth = FirebaseAuth.instance;
+
+  logOut() async {
+    await auth.signOut();
+    Navigator.pushReplacement(
+        context, MaterialPageRoute(builder: (context) => LoginScreen()));
+  }
+
   @override
   Widget build(BuildContext context) {
-
     return Scaffold(
       appBar: AppBar(
         toolbarHeight: 120,
@@ -81,9 +91,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       ),
                     ],
                   ),
-                  IconButton(
-                    onPressed: () {},
-                    icon: const Icon(Icons.more_vert),
+                  ProfileDropdown(
+                    dropDownFunction: logOut(),
                   ),
                 ],
               )

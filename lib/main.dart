@@ -1,5 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:nomo/auth_service.dart';
 import 'package:nomo/screens/NavBar.dart';
 import 'package:nomo/screens/login_screen.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -11,18 +12,18 @@ void main() async {
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
-  runApp(const App());
+  runApp(App());
 }
 
 class App extends StatelessWidget {
-  const App({super.key});
+  App({super.key});
+
+  final AuthService authService = AuthService();
 
   @override
   Widget build(BuildContext context) {
-    print(Theme.of(context).primaryColor);
 
     return MaterialApp(
-      title: 'FlutterChat',
       theme: ThemeData().copyWith(
         useMaterial3: true,
         colorScheme: ColorScheme.fromSeed(
@@ -34,18 +35,21 @@ class App extends StatelessWidget {
         ),
         primaryColor: Color.fromARGB(255, 0, 71, 79),
       ),
-      home: StreamBuilder(
-        stream: FirebaseAuth.instance.authStateChanges(),
-        builder: (ctx, snapshot) {
+      home: StreamBuilder<User?>(
+        stream: authService.userStream,
+        builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const SplashScreen();
           }
 
           if (snapshot.hasData) {
-            return const NavBar();
+            return NavBar();
           }
 
-          return const LoginScreen();
+          else {
+            return const LoginScreen();
+
+          }
         },
       ),
     );

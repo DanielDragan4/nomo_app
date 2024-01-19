@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:nomo/models/events_model.dart';
+import 'package:nomo/auth_service.dart';
 
 enum options {
   itemOne,
@@ -8,10 +9,10 @@ enum options {
 class ProfileDropdown extends StatefulWidget {
   ProfileDropdown({
     super.key,
-    //required this.dropDownFunction(),
+    required this.dropDownFunction(),
   });
 
-  //Function() dropDownFunction;
+  Function() dropDownFunction;
 
   @override
   State<StatefulWidget> createState() {
@@ -20,6 +21,8 @@ class ProfileDropdown extends StatefulWidget {
 }
 
 class _ProfileDropdownState extends State<ProfileDropdown> {
+  final AuthService authService = AuthService();
+
   @override
   Widget build(BuildContext context) {
     options? selectedOption;
@@ -36,7 +39,7 @@ class _ProfileDropdownState extends State<ProfileDropdown> {
         PopupMenuItem(
           value: options.itemOne,
           child: Text("Sign Out"),
-          //onTap: widget.dropDownFunction(),
+          onTap: widget.dropDownFunction(),
         ),
       ],
     );

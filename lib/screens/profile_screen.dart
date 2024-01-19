@@ -15,12 +15,12 @@ class ProfileScreen extends StatefulWidget {
 }
 
 class _ProfileScreenState extends State<ProfileScreen> {
-  final FirebaseAuth auth = FirebaseAuth.instance;
+  //final FirebaseAuth auth = FirebaseAuth.instance;
 
   logOut() async {
-    await auth.signOut();
-    Navigator.pushReplacement(
-        context, MaterialPageRoute(builder: (context) => LoginScreen()));
+    // await auth.signOut();
+    // Navigator.pushReplacement(
+    //     context, MaterialPageRoute(builder: (context) => LoginScreen()));
   }
 
   @override
@@ -92,8 +92,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     ],
                   ),
                   ProfileDropdown(
-                    dropDownFunction: logOut(),
-                  ),
+                      //dropDownFunction: logOut(),
+                      ),
                 ],
               )
             ],

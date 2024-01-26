@@ -3,14 +3,23 @@ import 'package:nomo/models/events_model.dart';
 import 'package:nomo/widgets/event_info.dart';
 
 class EventTab extends StatelessWidget {
-  const EventTab({super.key, required this.eventsData});
+  const EventTab({super.key, required this.eventData});
 
-  final Event eventsData;
+  final Event eventData;
 
   @override
   Widget build(BuildContext context) {
+
+    bool attendingHosting;
+
+    if(eventData.attending == true || eventData.host) {
+      attendingHosting = true;
+    } else {
+      attendingHosting = false;
+    }
+
     var formattedDate =
-        "${eventsData.date.month}/${eventsData.date.day}/${eventsData.date.year}";
+        "${eventData.date.month}/${eventData.date.day}/${eventData.date.year}";
     return Padding(
       padding: const EdgeInsets.all(5.0),
       child: Container(
@@ -27,18 +36,18 @@ class EventTab extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                  eventsData.title,
+                  eventData.title,
                   style: const TextStyle(
                     fontWeight: FontWeight.bold,
                   ),
                 ),
-                Text(
-                  eventsData.attending ? 'Attending' : 'Hosting',
-                  style: TextStyle(
-                      color: eventsData.attending
-                          ? const Color.fromARGB(255, 151, 136, 8)
-                          : const Color.fromARGB(255, 17, 114, 20)),
-                ),
+                  Text(
+                    attendingHosting ? eventData.attending ? 'Attending' : 'Hosting' : '',
+                    style: TextStyle(
+                        color: eventData.attending
+                            ? const Color.fromARGB(255, 151, 136, 8)
+                            : const Color.fromARGB(255, 17, 114, 20)),
+                  ),
                 Text(formattedDate),
               ],
             ),
@@ -52,7 +61,7 @@ class EventTab extends StatelessWidget {
                 width: double.infinity,
                 height: 250,
                 child: Image.asset(
-                  eventsData.image,
+                  eventData.image,
                   fit: BoxFit.fill,
                 ),
               ),
@@ -60,7 +69,7 @@ class EventTab extends StatelessWidget {
             Container(
               height: 5,
             ),
-            EventInfo(eventsData: eventsData),
+            EventInfo(eventsData: eventData),
             Container(
               height: 70,
             ),

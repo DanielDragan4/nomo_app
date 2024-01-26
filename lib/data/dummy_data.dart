@@ -4,6 +4,20 @@ import 'package:nomo/models/events_model.dart';
 
 final dummyEvents = [
   Event(
+    id: '04',
+    image: 'tt',
+    title: 'test fyp',
+    date: DateTime.utc(2024, 5, 10),
+    attendies: 10,
+    friends: ['example'],
+    bookmarked: false,
+    comments: ['test comment'],
+    orgainizer: 'test',
+    attending: false,
+    host: false
+  ),
+
+  Event(
     id: '01',
     image: 'assets/images/BumBumBBQ.png',
     title: 'Bumbum\'s BBQ',
@@ -14,6 +28,7 @@ final dummyEvents = [
     comments: ['we go jim'],
     orgainizer: 'BumBum',
     attending: true,
+    host: false
   ),
   Event(
     id: '02',
@@ -26,6 +41,7 @@ final dummyEvents = [
     comments: ['we go jim'],
     orgainizer: 'ThiccCum',
     attending: true,
+    host: false
   ),
   Event(
     id: '03',
@@ -38,5 +54,6 @@ final dummyEvents = [
     comments: ['I love nice click and clacks. Ears go burr'],
     orgainizer: 'Dan',
     attending: false,
+    host: true
   ),
 ];

@@ -98,13 +98,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
               key: const PageStorageKey<String>('page'),
               children: [
                 EventTab(
-                  eventsData: dummyEvents[0],
+                  eventData: dummyEvents[0],
                 ),
                 EventTab(
-                  eventsData: dummyEvents[1],
+                  eventData: dummyEvents[1],
                 ),
                 EventTab(
-                  eventsData: dummyEvents[2],
+                  eventData: dummyEvents[2],
                 ),
               ],
             ),

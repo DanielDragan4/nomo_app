@@ -12,6 +12,7 @@ class Event {
     required this.comments,
     required this.orgainizer,
     required this.attending,
+    required this.host,
   });
 
   final String id;
@@ -24,4 +25,5 @@ class Event {
   final List<String> comments;
   final String orgainizer;
   final bool attending;
+  final bool host;
 }

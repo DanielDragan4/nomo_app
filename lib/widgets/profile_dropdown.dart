@@ -4,6 +4,7 @@ import 'package:nomo/auth_service.dart';
 
 enum options {
   itemOne,
+  itemTwo,
 }
 
 class ProfileDropdown extends StatefulWidget {
@@ -18,7 +19,6 @@ class ProfileDropdown extends StatefulWidget {
 }
 
 class _ProfileDropdownState extends State<ProfileDropdown> {
-
   final AuthService authService = AuthService();
 
   @override
@@ -36,8 +36,13 @@ class _ProfileDropdownState extends State<ProfileDropdown> {
       itemBuilder: (context) => <PopupMenuEntry<options>>[
         PopupMenuItem(
           value: options.itemOne,
+          child: Text("Settings"),
+          onTap: () {},
+        ),
+        PopupMenuItem(
+          value: options.itemTwo,
           child: Text("Sign Out"),
-          onTap: (){
+          onTap: () {
             authService.signOut();
           },
         ),

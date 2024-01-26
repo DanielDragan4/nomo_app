@@ -1,5 +1,7 @@
-import 'package:flutter/material.dart';
 import 'package:nomo/models/events_model.dart';
+import 'package:nomo/models/user_model.dart';
+import 'package:flutter/material.dart';
+
 //import 'package:uuid/uuid.dart';
 
 final dummyEvents = [
@@ -40,3 +42,101 @@ final dummyEvents = [
     attending: false,
   ),
 ];
+
+final dummyUsers = [
+  User(
+    uid: '01',
+    username: 'Daniel D',
+    avatar: Image.asset('assets/images/sadboi.png'),
+    friends: ['Daniel', 'Evan'],
+    attending: ['03'],
+    attended: ['01', '02'],
+    searches: [],
+    interests: [],
+    saved: [],
+    availability: [],
+    affiliates: [],
+  ),
+  User(
+    uid: '02',
+    username: 'Evan D',
+    avatar: Image.asset('assets/images/squat.jpg'),
+    friends: ['Daniel M', 'Daniel D'],
+    attending: [],
+    attended: ['01'],
+    searches: [],
+    interests: [],
+    saved: [],
+    availability: [],
+    affiliates: [],
+  ),
+  User(
+    uid: '03',
+    username: 'Daniel M',
+    avatar: Image.asset('assets/images/BumBumBBQ.jpg'),
+    friends: ['Daniel D', 'Evan D'],
+    attending: ['03'],
+    attended: ['02'],
+    searches: [],
+    interests: [],
+    saved: [],
+    availability: [],
+    affiliates: [],
+  ),
+];
+
+final dummyFriends = [
+  User(
+    uid: '01',
+    username: 'Daniel D',
+    avatar: Image.asset('assets/images/sadboi.png'),
+    friends: ['Daniel', 'Evan'],
+    attending: ['03'],
+    attended: ['01', '02'],
+    searches: [],
+    interests: [],
+    saved: [],
+    availability: [],
+    affiliates: [],
+  ),
+  User(
+    uid: '02',
+    username: 'Evan D',
+    avatar: Image.asset('assets/images/squat.jpg'),
+    friends: ['Daniel M', 'Daniel D'],
+    attending: [],
+    attended: ['01'],
+    searches: [],
+    interests: [],
+    saved: [],
+    availability: [],
+    affiliates: [],
+  ),
+  User(
+    uid: '03',
+    username: 'Daniel M',
+    avatar: Image.asset('assets/images/BumBumBBQ.jpg'),
+    friends: ['Daniel D', 'Evan D'],
+    attending: ['03'],
+    attended: ['02'],
+    searches: [],
+    interests: [],
+    saved: [],
+    availability: [],
+    affiliates: [],
+  ),
+];
+
+final dummyRequests = User(
+  uid: '-1',
+  username: 'dmukyy',
+  avatar: Image.asset(''),
+  friends: [],
+  attending: [],
+  attended: [],
+  searches: [],
+  interests: [],
+  saved: [],
+  availability: [],
+  affiliates: [],
+);

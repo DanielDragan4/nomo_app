@@ -10,7 +10,7 @@ class FriendsScreen extends StatefulWidget {
 class _FriendsScreenState extends State<FriendsScreen> {
   @override
   Widget build(BuildContext context) {
-    var friends = true;
+    var friends = true; //Start on friends list. If false, show requests list
 
     return Scaffold(
         appBar: AppBar(
@@ -58,6 +58,13 @@ class _FriendsScreenState extends State<FriendsScreen> {
                         friends = false;
                       },
                     ),
+                  ),
+                ),
+                SizedBox(
+                  width: 40,
+                  child: IconButton(
+                    onPressed: () {},
+                    icon: const Icon(Icons.search),
                   ),
                 ),
               ],

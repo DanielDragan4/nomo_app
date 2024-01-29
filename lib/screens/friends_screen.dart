@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:nomo/data/dummy_data.dart';
+import 'package:nomo/models/user_model.dart';
+import 'package:nomo/widgets/user_tab.dart';
 
 class FriendsScreen extends StatefulWidget {
   const FriendsScreen({super.key});
@@ -8,9 +11,11 @@ class FriendsScreen extends StatefulWidget {
 }
 
 class _FriendsScreenState extends State<FriendsScreen> {
+  var friends = true;
+
   @override
   Widget build(BuildContext context) {
-    var friends = true; //Start on friends list. If false, show requests list
+    //Start on friends list. If false, show requests list
 
     return Scaffold(
         appBar: AppBar(
@@ -41,7 +46,9 @@ class _FriendsScreenState extends State<FriendsScreen> {
                     child: TextButton(
                       child: Text("Friends"),
                       onPressed: () {
-                        friends = true;
+                        setState(() {
+                          friends = true;
+                        });
                       },
                     ),
                   ),
@@ -55,7 +62,9 @@ class _FriendsScreenState extends State<FriendsScreen> {
                     child: TextButton(
                       child: Text("Requests"),
                       onPressed: () {
-                        friends = false;
+                        setState(() {
+                          friends = false;
+                        });
                       },
                     ),
                   ),
@@ -72,7 +81,9 @@ class _FriendsScreenState extends State<FriendsScreen> {
             Expanded(
               child: ListView(
                 key: PageStorageKey('page'),
-                children: friends ? [] : [],
+                children: friends
+                    ? [for (User i in dummyFriends) UserTab(userData: i)]
+                    : [for (User i in dummyFriends) Text("Request Tab TBD")],
               ),
             )
           ],

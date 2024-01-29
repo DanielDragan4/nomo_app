@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:nomo/data/dummy_data.dart';
+import 'package:nomo/data/fyp_data.dart';
+import 'package:nomo/models/events_model.dart';
 import 'package:nomo/widgets/event_tab.dart';
 
 class RecommendedScreen extends StatelessWidget {
@@ -51,15 +52,7 @@ class RecommendedScreen extends StatelessWidget {
             child: ListView(
               key: const PageStorageKey<String>('page'),
               children: [
-                EventTab(
-                  eventData: dummyEvents[0],
-                ),
-                EventTab(
-                  eventData: dummyEvents[1],
-                ),
-                EventTab(
-                  eventData: dummyEvents[2],
-                ),
+                for(Event i in fypEvents) EventTab(eventData: i)
               ],
             ),
           ),

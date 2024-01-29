@@ -12,7 +12,7 @@ class EventTab extends StatelessWidget {
 
     bool attendingHosting;
 
-    if(eventData.attending == true || eventData.host) {
+    if(eventData.attending == true || eventData.host == true) {
       attendingHosting = true;
     } else {
       attendingHosting = false;
@@ -69,7 +69,7 @@ class EventTab extends StatelessWidget {
             Container(
               height: 5,
             ),
-            EventInfo(eventsData: eventData),
+            EventInfo(eventsData: eventData, attendOrHost: attendingHosting,),
             Container(
               height: 70,
             ),

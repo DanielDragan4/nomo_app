@@ -40,16 +40,21 @@ class CalendarScreen extends StatelessWidget {
         ),
       ),
       home: Scaffold(
+
         appBar: AppBar(
-          title: const Text('Scrollable Clean Calendar'),
-          actions: [
-            IconButton(
-              onPressed: () {
-                calendarController.clearSelectedDates();
-              },
-              icon: const Icon(Icons.clear),
-            )
-          ],
+          title: Column(
+            children: [
+              Center(child: const Text('Nomo')),
+            ],
+          ),
+          // actions: [
+          //   IconButton(
+          //     onPressed: () {
+          //       calendarController.clearSelectedDates();
+          //     },
+          //     icon: const Icon(Icons.clear),
+          //   )
+          // ],
         ),
         floatingActionButton: FloatingActionButton(
           child: const Icon(Icons.add),

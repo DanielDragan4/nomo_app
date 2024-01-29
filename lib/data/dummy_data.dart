@@ -6,20 +6,6 @@ import 'package:flutter/material.dart';
 
 final dummyEvents = [
   Event(
-    id: '04',
-    image: 'tt',
-    title: 'test fyp',
-    date: DateTime.utc(2024, 5, 10),
-    attendies: 10,
-    friends: ['example'],
-    bookmarked: false,
-    comments: ['test comment'],
-    orgainizer: 'test',
-    attending: false,
-    host: false
-  ),
-
-  Event(
     id: '01',
     image: 'assets/images/BumBumBBQ.png',
     title: 'Bumbum\'s BBQ',

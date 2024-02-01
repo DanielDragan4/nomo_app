@@ -3,9 +3,8 @@ import 'package:nomo/screens/calendar_screen.dart';
 import 'package:nomo/screens/friends_screen.dart';
 import 'package:nomo/screens/new_event_screen.dart';
 import 'package:nomo/screens/profile_screen.dart';
-import 'package:nomo/screens/reccomended_screen.dart';
+import 'package:nomo/screens/recommended_screen.dart';
 import 'package:nomo/auth_service.dart';
-
 
 class NavBar extends StatefulWidget {
   NavBar({super.key});

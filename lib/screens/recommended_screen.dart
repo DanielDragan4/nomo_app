@@ -33,7 +33,7 @@ class RecommendedScreen extends StatelessWidget {
                           color: Theme.of(context).primaryColor,
                           fontWeight: FontWeight.w400,
                         )),
-                      const SizedBox(width: 75,),
+                      const Spacer(),
                        IconButton(
                           onPressed: () {},
                           icon: const Icon(Icons.search),

@@ -14,6 +14,7 @@ class User {
     required this.saved,
     required this.availability,
     required this.affiliates,
+    required this.private,
   });
 
   final String uid;
@@ -27,4 +28,5 @@ class User {
   final List<Event> saved;
   final List<DateTime> availability;
   final List<String> affiliates;
+  final bool private;
 }

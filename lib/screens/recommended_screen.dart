@@ -26,23 +26,22 @@ class RecommendedScreen extends StatelessWidget {
                 height: 10,
               ),
               Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: [
-                    Text('Upcoming Events Near You',
-                        style: TextStyle(
-                          color: Theme.of(context).primaryColor,
-                          fontWeight: FontWeight.w400,
-                        )),
-                      const SizedBox(width: 75,),
-                       IconButton(
-                          onPressed: () {},
-                          icon: const Icon(Icons.search),
-                          iconSize: 35,
-                        ),
-                  ],
-                ),
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  Text('Upcoming Events Near You',
+                      style: TextStyle(
+                        color: Theme.of(context).primaryColor,
+                        fontWeight: FontWeight.w400,
+                      )),
+                  const Spacer(),
+                  IconButton(
+                    onPressed: () {},
+                    icon: const Icon(Icons.search),
+                    iconSize: 35,
+                  ),
+                ],
+              ),
             ],
-
           ),
         ),
       ),
@@ -51,9 +50,7 @@ class RecommendedScreen extends StatelessWidget {
           Expanded(
             child: ListView(
               key: const PageStorageKey<String>('page'),
-              children: [
-                for(Event i in fypEvents) EventTab(eventData: i)
-              ],
+              children: [for (Event i in fypEvents) EventTab(eventData: i)],
             ),
           ),
         ],

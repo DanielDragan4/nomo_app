@@ -2,8 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:nomo/models/user_model.dart';
 
 class UserTab extends StatelessWidget {
-  const UserTab({super.key, required this.userData});
+  const UserTab({super.key, required this.userData, required this.isRequest});
 
+  final bool isRequest;
   final User userData;
 
   @override
@@ -23,7 +24,26 @@ class UserTab extends StatelessWidget {
         SizedBox(width: 10),
         Text(username),
         Spacer(),
-        ElevatedButton(onPressed: () {}, child: const Text("View Calendar")),
+        !isRequest
+            ? ElevatedButton(
+                onPressed: () {}, child: const Text("View Calendar"))
+            : Row(children: [
+                IconButton(
+                    onPressed: () {},
+                    icon: Icon(
+                      Icons.check,
+                      color: Colors.green,
+                    ),
+                    splashRadius: 15),
+                SizedBox(width: 10),
+                IconButton(
+                    onPressed: () {},
+                    icon: Icon(
+                      Icons.close,
+                      color: Colors.red,
+                    ),
+                    splashRadius: 15),
+              ]),
       ]),
     );
   }

@@ -84,8 +84,20 @@ class _FriendsScreenState extends State<FriendsScreen> {
               child: ListView(
                 key: const PageStorageKey('page'),
                 children: friends
-                    ? [for (User i in dummyFriends) UserTab(userData: i)]
-                    : [for (User i in dummyFriends) Text("Request Tab TBD")],
+                    ? [
+                        for (User i in dummyFriends)
+                          UserTab(
+                            userData: i,
+                            isRequest: false,
+                          )
+                      ]
+                    : [
+                        for (User i in dummyRequests)
+                          UserTab(
+                            userData: i,
+                            isRequest: true,
+                          )
+                      ],
               ),
             )
           ],

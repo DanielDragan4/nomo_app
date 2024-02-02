@@ -1,0 +1,32 @@
+{
+    "u01": {
+        "userName" :"Daniel Martynovich",
+        "avatar" : "assets/images/BumBumBBQ.jpg",
+        "intrests" : [],
+        "privatePublic" : false,
+        "calendar" : [[]],
+        "cachedSearch" : [],
+        "affiliate" : false,
+        "friends" : ["u00","u04"],
+        "attending" : ["03"],
+        "hosting" : [],
+        "attended" : ["02"],
+        "bookmarked": [],
+        "FYPEvents" : []
+    },
+    "u01": {
+        "userName" :"Daniel Martynovich",
+        "avatar" : "assets/images/BumBumBBQ.jpg",
+        "intrests" : [],
+        "privatePublic" : false,
+        "calendar" : [[]],
+        "cachedSearch" : [],
+        "affiliate" : false,
+        "friends" : ["u00","u04"],
+        "attending" : ["03"],
+        "hosting" : [],
+        "attended" : ["02"],
+        "bookmarked": [],
+        "FYPEvents" : []
+    }
+}

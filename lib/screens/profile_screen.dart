@@ -16,6 +16,60 @@ class ProfileScreen extends StatefulWidget {
 }
 
 class _ProfileScreenState extends State<ProfileScreen> {
+  Widget optionalWidget = Row(
+    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+    children: [
+      const Column(
+        children: [
+          CircleAvatar(backgroundColor: Colors.blue, radius: 30),
+          Text(
+            "Dummy Account",
+            style: TextStyle(fontSize: 15),
+          ),
+        ],
+      ),
+      Column(
+        children: [
+          const Row(
+            children: [
+              Column(
+                children: [
+                  Text(
+                    "Friends",
+                    style: TextStyle(fontSize: 15),
+                  ),
+                  Text(
+                    "xxxx",
+                    style: TextStyle(fontSize: 15),
+                  ),
+                ],
+              ),
+              SizedBox(
+                width: 10,
+              ),
+              Column(
+                children: [
+                  Text(
+                    "Upcoming Events",
+                    style: TextStyle(fontSize: 15),
+                  ),
+                  Text(
+                    "xxxx",
+                    style: TextStyle(fontSize: 15),
+                  ),
+                ],
+              ),
+            ],
+          ),
+          ElevatedButton(
+            onPressed: () {},
+            child: const Text("Edit Profile"),
+          ),
+        ],
+      ),
+      ProfileDropdown(),
+    ],
+  );
 
   @override
   Widget build(BuildContext context) {
@@ -98,7 +152,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
             child: ListView(
               key: const PageStorageKey<String>('event'),
               children: [
-                for(Event i in dummyEvents) EventTab(eventData: i),
+                for (Event i in dummyEvents) EventTab(eventData: i),
               ],
             ),
           ),

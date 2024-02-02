@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:nomo/data/dummy_data.dart';
 import 'package:nomo/models/user_model.dart';
 import 'package:nomo/widgets/user_tab.dart';
+import 'package:nomo/widgets/app_bar.dart';
 
 class FriendsScreen extends StatefulWidget {
   const FriendsScreen({super.key});
@@ -18,19 +19,20 @@ class _FriendsScreenState extends State<FriendsScreen> {
     //Start on friends list. If false, show requests list
 
     return Scaffold(
-        appBar: AppBar(
-          toolbarHeight: 15,
-          titleTextStyle: Theme.of(context).appBarTheme.titleTextStyle,
-          title: Center(
-            child: Text(
-              'Nomo',
-              style: TextStyle(
-                color: Theme.of(context).primaryColor,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-          ),
-        ),
+        appBar: MainAppBar(),
+        // AppBar(
+        //   toolbarHeight: 15,
+        //   titleTextStyle: Theme.of(context).appBarTheme.titleTextStyle,
+        //   title: Center(
+        //     child: Text(
+        //       'Nomo',
+        //       style: TextStyle(
+        //         color: Theme.of(context).primaryColor,
+        //         fontWeight: FontWeight.bold,
+        //       ),
+        //     ),
+        //   ),
+        // ),
         body: Column(
           children: [
             const SizedBox(height: 10),
@@ -80,7 +82,7 @@ class _FriendsScreenState extends State<FriendsScreen> {
             ),
             Expanded(
               child: ListView(
-                key: PageStorageKey('page'),
+                key: const PageStorageKey('page'),
                 children: friends
                     ? [for (User i in dummyFriends) UserTab(userData: i)]
                     : [for (User i in dummyFriends) Text("Request Tab TBD")],

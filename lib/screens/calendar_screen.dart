@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:scrollable_clean_calendar/controllers/clean_calendar_controller.dart';
 import 'package:scrollable_clean_calendar/utils/enums.dart';
 import 'package:scrollable_clean_calendar/scrollable_clean_calendar.dart';
+import 'package:nomo/widgets/app_bar.dart';
 
 class CalendarScreen extends StatelessWidget {
   CalendarScreen({super.key});
@@ -18,7 +19,6 @@ class CalendarScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-
     final theme = Theme.of(context);
 
     return MaterialApp(
@@ -40,22 +40,22 @@ class CalendarScreen extends StatelessWidget {
         ),
       ),
       home: Scaffold(
-
-        appBar: AppBar(
-          title: Column(
-            children: [
-              Center(child: const Text('Nomo')),
-            ],
-          ),
-          // actions: [
-          //   IconButton(
-          //     onPressed: () {
-          //       calendarController.clearSelectedDates();
-          //     },
-          //     icon: const Icon(Icons.clear),
-          //   )
-          // ],
-        ),
+        appBar: MainAppBar(),
+        // AppBar(
+        //   title: Column(
+        //     children: [
+        //       Center(child: const Text('Nomo')),
+        //     ],
+        //   ),
+        // actions: [
+        //   IconButton(
+        //     onPressed: () {
+        //       calendarController.clearSelectedDates();
+        //     },
+        //     icon: const Icon(Icons.clear),
+        //   )
+        // ],
+        //),
         floatingActionButton: FloatingActionButton(
           child: const Icon(Icons.add),
           onPressed: () {

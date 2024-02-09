@@ -1,9 +1,14 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:nomo/widgets/app_bar.dart';
 import 'package:nomo/widgets/event_info.dart';
 import 'package:nomo/widgets/pick_image.dart';
 import 'dart:io';
+import 'package:nomo/widgets/pick_location.dart';
+import 'package:nomo/models/place.dart';
+import 'package:intl/intl.dart';
+
+const List<String> list = <String>['Public', 'Private', 'Selective'];
 
 class NewEventScreen extends StatefulWidget {
   const NewEventScreen({super.key});
@@ -13,21 +18,69 @@ class NewEventScreen extends StatefulWidget {
 }
 
 class _NewEventScreenState extends State<NewEventScreen> {
-  TimeOfDay? _selectedTime;
-
+  TimeOfDay? _selectedStartTime;
+  bool stime = false;
+  TimeOfDay? _selectedEndTime;
+  bool etime = false;
+  DateTime? _selectedDate;
+  bool date = false;
+  String? _formattedDate;
+  PlaceLocation? _selectedLocation;
   File? _selectedImage;
-  String dropdownValue = "";
+  String dropDownValue = list.first;
+  bool enableButton = false;
+  String? message;
 
-  Future<void> _selectTime(BuildContext context) async {
+  Future<void> _selectTime(BuildContext context, bool isStartTime) async {
+    final ThemeData theme = Theme.of(context);
     final TimeOfDay? picked = await showTimePicker(
+      initialEntryMode: TimePickerEntryMode.dial,
       context: context,
-      initialTime: TimeOfDay.now(),
+      initialTime: isStartTime
+          ? _selectedStartTime ?? TimeOfDay.now()
+          : _selectedEndTime ?? TimeOfDay.now(),
     );
-    if (picked != null && picked != TimeOfDay.now()) {
-      // Update the state with the selected time
+    if (picked != null) {
+      if (isStartTime) stime = true;
+      if (!isStartTime) etime = true;
+      _enableButton();
       setState(() {
-        // Assuming you have a variable to store the selected time
-        _selectedTime = picked;
+        if (isStartTime) {
+          _selectedStartTime = picked;
+          stime = true;
+        } else {
+          _selectedEndTime = picked;
+          etime = true;
+        }
+      });
+    }
+  }
+
+  Future<void> _selectDate(BuildContext context) async {
+    final DateTime? picked = await showDatePicker(
+      context: context,
+      initialDate: DateTime.now(),
+      firstDate: DateTime(2015, 8),
+      lastDate: DateTime(2101),
+    );
+    if (picked != null) {
+      date = true;
+      _enableButton();
+      setState(() {
+        _selectedDate = picked;
+        _formattedDate = DateFormat.yMd().format(_selectedDate!);
+        date = true;
+      });
+    }
+  }
+
+  void _enableButton() {
+    if (stime != false &&
+        etime != false &&
+        date != false &&
+        _selectedImage != null) {
+      setState(() {
+        enableButton = true;
       });
     }
   }
@@ -37,27 +90,14 @@ class _NewEventScreenState extends State<NewEventScreen> {
     options? selectedOption;
 
     return Scaffold(
-        appBar: MainAppBar(),
-        // AppBar(
-        //   toolbarHeight: 15,
-        //   titleTextStyle: Theme.of(context).appBarTheme.titleTextStyle,
-        //   title: Center(
-        //     child: Text(
-        //       'Nomo',
-        //       style: TextStyle(
-        //         color: Theme.of(context).primaryColor,
-        //         fontWeight: FontWeight.bold,
-        //       ),
-        //     ),
-        //   ),
-        // ),
-        body: Column(
+      appBar: MainAppBar(),
+      body: SingleChildScrollView(
+        child: Column(
           children: [
-            const SizedBox(height: 20),
             const Center(
-              child: Text("Create New Event+"),
+              child: Text("Create New Event +"),
             ),
-            const SizedBox(height: 20),
+            const SizedBox(height: 10),
             ImageInput(
               onPickImage: (image) {
                 _selectedImage = image;
@@ -129,29 +169,12 @@ class _NewEventScreenState extends State<NewEventScreen> {
                           "Invitation Type",
                           style: TextStyle(fontSize: 15),
                         ),
-                        PopupMenuButton<options>(
-                          onSelected: (options item) {
-                            setState(
-                              () {
-                                selectedOption = item;
-                              },
-                            );
-                          },
-                          itemBuilder: (context) => <PopupMenuEntry<options>>[
-                            const PopupMenuItem(
-                              value: options.itemOne,
-                              child: Text("Public"),
-                            ),
-                            const PopupMenuItem(
-                              value: options.itemTwo,
-                              child: Text("Private"),
-                            ),
-                            const PopupMenuItem(
-                              value: options.itemTwo,
-                              child: Text("Private"),
-                            ),
-                          ],
-                          child: Icon(Icons.add),
+                        TextButton(
+                          onPressed: () => _selectTime(context),
+                          child: const Text(
+                            "Type Dropdown Here",
+                            style: TextStyle(fontSize: 15),
+                          ),
                         ),
                       ],
                     ),
@@ -168,6 +191,8 @@ class _NewEventScreenState extends State<NewEventScreen> {
               ],
             )
           ],
-        ));
+        ),
+      ),
+    );
   }
 }

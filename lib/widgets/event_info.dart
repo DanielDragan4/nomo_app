@@ -33,7 +33,7 @@ class _EventInfoState extends State<EventInfo> {
             ],
           ),
           Expanded(
-            child: Row(
+            child: widget.attendOrHost? const Row() : Row(
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
                 ElevatedButton(
@@ -46,7 +46,7 @@ class _EventInfoState extends State<EventInfo> {
                   ),
                   child: const Text('Join'),
                 ),
-                IconButton(onPressed: () {}, icon: const Icon(Icons.square_sharp)),
+                IconButton(onPressed: () {}, icon: const Icon(Icons.bookmark_border_outlined)),
               ],
             ),
           ),

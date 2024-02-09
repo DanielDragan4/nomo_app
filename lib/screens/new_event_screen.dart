@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:nomo/widgets/app_bar.dart';
+import 'package:nomo/widgets/event_info.dart';
 import 'package:nomo/widgets/pick_image.dart';
 import 'dart:io';
 
@@ -26,13 +27,15 @@ class _NewEventScreenState extends State<NewEventScreen> {
       // Update the state with the selected time
       setState(() {
         // Assuming you have a variable to store the selected time
-        // _selectedTime = picked;
+        _selectedTime = picked;
       });
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    options? selectedOption;
+
     return Scaffold(
         appBar: MainAppBar(),
         // AppBar(
@@ -126,12 +129,29 @@ class _NewEventScreenState extends State<NewEventScreen> {
                           "Invitation Type",
                           style: TextStyle(fontSize: 15),
                         ),
-                        TextButton(
-                          onPressed: () => _selectTime(context),
-                          child: const Text(
-                            "Type Dropdown Here",
-                            style: TextStyle(fontSize: 15),
-                          ),
+                        PopupMenuButton<options>(
+                          onSelected: (options item) {
+                            setState(
+                              () {
+                                selectedOption = item;
+                              },
+                            );
+                          },
+                          itemBuilder: (context) => <PopupMenuEntry<options>>[
+                            const PopupMenuItem(
+                              value: options.itemOne,
+                              child: Text("Public"),
+                            ),
+                            const PopupMenuItem(
+                              value: options.itemTwo,
+                              child: Text("Private"),
+                            ),
+                            const PopupMenuItem(
+                              value: options.itemTwo,
+                              child: Text("Private"),
+                            ),
+                          ],
+                          child: Icon(Icons.add),
                         ),
                       ],
                     ),

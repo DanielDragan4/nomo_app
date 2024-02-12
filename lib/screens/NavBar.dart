@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:nomo/screens/calendar_screen.dart';
+import 'package:nomo/screens/calendar/calendar_screen.dart';
 import 'package:nomo/screens/friends_screen.dart';
 import 'package:nomo/screens/new_event_screen.dart';
 import 'package:nomo/screens/profile_screen.dart';

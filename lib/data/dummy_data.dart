@@ -6,44 +6,41 @@ import 'package:flutter/material.dart';
 
 final dummyEvents = [
   Event(
-    id: '01',
-    image: 'assets/images/BumBumBBQ.png',
-    title: 'Bumbum\'s BBQ',
-    date: DateTime.utc(2023, 6, 4),
-    attendies: 3,
-    friends: ['Daniel', 'Daniel'],
-    bookmarked: true,
-    comments: ['we go jim'],
-    orgainizer: 'BumBum',
-    attending: true,
-    host: false
-  ),
+      id: '01',
+      image: 'assets/images/BumBumBBQ.png',
+      title: 'Bumbum\'s BBQ',
+      date: DateTime.utc(2023, 6, 4),
+      attendies: 3,
+      friends: ['Daniel', 'Daniel'],
+      bookmarked: true,
+      comments: ['we go jim'],
+      orgainizer: 'BumBum',
+      attending: true,
+      host: false),
   Event(
-    id: '02',
-    image: 'assets/images/squat.jpg',
-    title: 'Lifting Comp',
-    date: DateTime.utc(2023, 3, 8),
-    attendies: 69,
-    friends: ['Daniel', 'Evan'],
-    bookmarked: true,
-    comments: ['we go jim'],
-    orgainizer: 'ThiccCum',
-    attending: true,
-    host: false
-  ),
+      id: '02',
+      image: 'assets/images/squat.jpg',
+      title: 'Lifting Comp',
+      date: DateTime.utc(2023, 3, 8),
+      attendies: 69,
+      friends: ['Daniel', 'Evan'],
+      bookmarked: true,
+      comments: ['we go jim'],
+      orgainizer: 'ThiccCum',
+      attending: true,
+      host: false),
   Event(
-    id: '03',
-    image: 'assets/images/keyboard.jpg',
-    title: 'Dan\'s Keyboard Tutorial',
-    date: DateTime.utc(2024, 9, 11),
-    attendies: 75,
-    friends: ['Evan', 'Daniel'],
-    bookmarked: false,
-    comments: ['I love nice click and clacks. Ears go burr'],
-    orgainizer: 'Dan',
-    attending: false,
-    host: true
-  ),
+      id: '03',
+      image: 'assets/images/keyboard.jpg',
+      title: 'Dan\'s Keyboard Tutorial',
+      date: DateTime.utc(2024, 9, 11),
+      attendies: 75,
+      friends: ['Evan', 'Daniel'],
+      bookmarked: false,
+      comments: ['I love nice click and clacks. Ears go burr'],
+      orgainizer: 'Dan',
+      attending: false,
+      host: true),
 ];
 
 final dummyUsers = [
@@ -59,6 +56,7 @@ final dummyUsers = [
     saved: [],
     availability: [],
     affiliates: [],
+    private: true,
   ),
   User(
     uid: '02',
@@ -72,6 +70,7 @@ final dummyUsers = [
     saved: [],
     availability: [],
     affiliates: [],
+    private: false,
   ),
   User(
     uid: '03',
@@ -85,6 +84,7 @@ final dummyUsers = [
     saved: [],
     availability: [],
     affiliates: [],
+    private: true,
   ),
 ];
 
@@ -101,6 +101,7 @@ final dummyFriends = [
     saved: [],
     availability: [],
     affiliates: [],
+    private: true,
   ),
   User(
     uid: '02',
@@ -114,6 +115,7 @@ final dummyFriends = [
     saved: [],
     availability: [],
     affiliates: [],
+    private: true,
   ),
   User(
     uid: '03',
@@ -127,19 +129,23 @@ final dummyFriends = [
     saved: [],
     availability: [],
     affiliates: [],
+    private: false,
   ),
 ];
 
-final dummyRequests = User(
-  uid: '-1',
-  username: 'dmukyy',
-  avatar: Image.asset(''),
-  friends: [],
-  attending: [],
-  attended: [],
-  searches: [],
-  interests: [],
-  saved: [],
-  availability: [],
-  affiliates: [],
-);
+final dummyRequests = [
+  User(
+    uid: '-1',
+    username: 'dmukyy',
+    avatar: Image.asset('assets/images/sadboi.png'),
+    friends: [],
+    attending: [],
+    attended: [],
+    searches: [],
+    interests: [],
+    saved: [],
+    availability: [],
+    affiliates: [],
+    private: false,
+  )
+];

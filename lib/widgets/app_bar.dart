@@ -1,22 +1,28 @@
 import 'package:flutter/material.dart';
 
 class MainAppBar extends StatelessWidget implements PreferredSizeWidget {
-  const MainAppBar({super.key});
+  const MainAppBar({
+    super.key,
+  });
   //TODO: implement a way to add more widgets (like profile screen user info) optionally
 
   @override
   Widget build(BuildContext context) {
     // TODO: implement build
     return AppBar(
-      toolbarHeight: 15,
+      //toolbarHeight: 15,
       titleTextStyle: Theme.of(context).appBarTheme.titleTextStyle,
       title: Center(
-        child: Text(
-          'Nomo',
-          style: TextStyle(
-            color: Theme.of(context).primaryColor,
-            fontWeight: FontWeight.bold,
-          ),
+        child: Column(
+          children: [
+            Text(
+              'Nomo',
+              style: TextStyle(
+                color: Theme.of(context).primaryColor,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ],
         ),
       ),
     );

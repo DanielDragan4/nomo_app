@@ -41,6 +41,7 @@ dependencies:
   table_calendar: ^3.0.9
   image_picker: ^1.0.5
   scrollable_clean_calendar: ^1.4.1
+  syncfusion_flutter_calendar: ^23.2.4
   google_maps_flutter: ^2.5.3
   location: ^5.0.3
 

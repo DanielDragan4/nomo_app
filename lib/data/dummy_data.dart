@@ -16,7 +16,8 @@ final dummyEvents = [
       comments: ['we go jim'],
       orgainizer: 'BumBum',
       attending: true,
-      host: false),
+      host: false,
+      type: 'Private'),
   Event(
       id: '02',
       image: 'assets/images/squat.jpg',
@@ -28,7 +29,8 @@ final dummyEvents = [
       comments: ['we go jim'],
       orgainizer: 'ThiccCum',
       attending: true,
-      host: false),
+      host: false,
+      type: 'Public'),
   Event(
       id: '03',
       image: 'assets/images/keyboard.jpg',
@@ -40,7 +42,8 @@ final dummyEvents = [
       comments: ['I love nice click and clacks. Ears go burr'],
       orgainizer: 'Dan',
       attending: false,
-      host: true),
+      host: true,
+      type: 'Selective'),
 ];
 
 final dummyUsers = [

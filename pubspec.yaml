@@ -41,7 +41,8 @@ dependencies:
   table_calendar: ^3.0.9
   image_picker: ^1.0.5
   scrollable_clean_calendar: ^1.4.1
-  auto_size_text: ^3.0.0
+  google_maps_flutter: ^2.5.3
+  location: ^5.0.3
 
 dev_dependencies:
   flutter_test:

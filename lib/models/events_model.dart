@@ -13,6 +13,7 @@ class Event {
     required this.orgainizer,
     required this.attending,
     required this.host,
+    required this.type,
   });
 
   final String id;
@@ -26,4 +27,5 @@ class Event {
   final String orgainizer;
   final bool attending;
   final bool host;
+  final String type;
 }

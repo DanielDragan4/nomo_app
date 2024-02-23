@@ -34,7 +34,7 @@ class _NewEventScreenState extends State<NewEventScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        appBar: MainAppBar(),
+        appBar: const MainAppBar(),
         // AppBar(
         //   toolbarHeight: 15,
         //   titleTextStyle: Theme.of(context).appBarTheme.titleTextStyle,

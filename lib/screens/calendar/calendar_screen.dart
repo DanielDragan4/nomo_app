@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:syncfusion_flutter_calendar/calendar.dart';
 
 class CalendarScreen extends StatefulWidget {
   @override
@@ -11,13 +10,12 @@ class _CalendarScreenState extends State<CalendarScreen> {
 
   @override
   Widget build(BuildContext context) {
-
     return Scaffold(
-      body: SfCalendar(
-        view: CalendarView.month,
-      ),
-    );
-   }
+        // body: SfCalendar(
+        //   view: CalendarView.month,
+        // ),
+        );
+  }
 }
 //     return ListView(
 //       // Fixed extent scroll for each month

@@ -84,17 +84,6 @@ class _NewEventScreenState extends State<NewEventScreen> {
     }
   }
 
-// else {
-//       if (_selectedImage == null) message = "Select an image for your event";
-//       if (_formattedDate == null) message = "Select a date for your event";
-//       if (_selectedStartTime == null)
-//         message = "Select a start time for your event";
-//       if (_selectedEndTime == null)
-//         message = "Select an end time for your event";
-//       if (_selectedLocation == null)
-//         message = "Select a location for your event";
-//     }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(

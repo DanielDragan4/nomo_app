@@ -3,6 +3,7 @@ import 'package:nomo/widgets/app_bar.dart';
 
 class SettingScreen extends StatefulWidget {
   const SettingScreen({super.key});
+  @override
   createState() {
     return _SettingScreenState();
   }
@@ -11,7 +12,7 @@ class SettingScreen extends StatefulWidget {
 class _SettingScreenState extends State<SettingScreen> {
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return const Scaffold(
       appBar: MainAppBar(),
     );
   }

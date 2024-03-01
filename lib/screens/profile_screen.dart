@@ -3,8 +3,6 @@ import 'package:nomo/models/events_model.dart';
 import 'package:nomo/widgets/event_tab.dart';
 import 'package:nomo/data/dummy_data.dart';
 import 'package:nomo/widgets/profile_dropdown.dart';
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:nomo/screens/login_screen.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -67,7 +65,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
           ),
         ],
       ),
-      ProfileDropdown(),
+      const ProfileDropdown(),
     ],
   );
 
@@ -139,7 +137,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       ),
                     ],
                   ),
-                  ProfileDropdown(),
+                  const ProfileDropdown(),
                 ],
               )
             ],

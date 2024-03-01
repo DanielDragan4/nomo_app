@@ -1,53 +1,40 @@
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:nomo/widgets/app_bar.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:nomo/providers/supabase_provider.dart';
 
-final _firebase = FirebaseAuth.instance;
-
-class LoginScreen extends StatefulWidget {
+class LoginScreen extends ConsumerStatefulWidget {
   const LoginScreen({super.key});
 
   @override
-  State<LoginScreen> createState() {
+  ConsumerState<LoginScreen> createState() {
     return _LoginScreenState();
   }
 }
 
-class _LoginScreenState extends State<LoginScreen> {
+class _LoginScreenState extends ConsumerState<LoginScreen> {
   final _form = GlobalKey<FormState>();
 
-  var _enteredEmail = '';
-  var _isLogin = true;
-  var _enteredPass = '';
-  final _isAuthenticating = false;
-
-  void _submit() async {
-    final isValid = _form.currentState!.validate();
+  void _submit(String email, bool login, String pass) {
+     final isValid = _form.currentState!.validate();
 
     try {
-      if (!isValid) {
-        return;
-      }
-      _form.currentState!.save();
-
-      if (_isLogin) {
-        final userCredentials = await _firebase.signInWithEmailAndPassword(
-            email: _enteredEmail, password: _enteredPass);
-      } else {
-        final UserCredentials = await _firebase.createUserWithEmailAndPassword(
-            email: _enteredEmail, password: _enteredPass);
-      }
-    } on FirebaseAuthException catch (error) {
+       var res = ref.watch(currentUserProvider.notifier).submit( email, login, pass, isValid);
+    } catch (error) {
       ScaffoldMessenger.of(context).clearSnackBars();
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(error.message ?? 'Authentication Failed'),
+        const SnackBar(
+          content: Text('Authentication Failed'),
         ),
       );
     }
   }
 
   @override
+  String? enteredEmail;
+  var isLogin = true;
+  String? enteredPass;
+  final isAuthenticating = false;
+
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Theme.of(context).colorScheme.primary,
@@ -82,6 +69,7 @@ class _LoginScreenState extends State<LoginScreen> {
                             keyboardType: TextInputType.emailAddress,
                             autocorrect: false,
                             textCapitalization: TextCapitalization.none,
+                            controller: TextEditingController(),
                             validator: (value) {
                               if (value == null ||
                                   value.trim().isEmpty ||
@@ -90,47 +78,49 @@ class _LoginScreenState extends State<LoginScreen> {
                               }
                               return null;
                             },
-                            onSaved: (value) {
-                              _enteredEmail = value!;
+                            onChanged: (value) {
+                              enteredEmail = value!;
                             },
                           ),
                           TextFormField(
                             decoration:
                                 const InputDecoration(labelText: "Password"),
                             obscureText: true,
+
+                            controller: TextEditingController(),
                             validator: (value) {
                               if (value == null || value.trim().length < 8) {
                                 return 'Pass must be at least 8 characters long.';
                               }
                               return null;
                             },
-                            onSaved: (value) {
-                              _enteredPass = value!;
+                            onChanged: (value) {
+                              enteredPass = value!;
                             },
                           ),
                           const SizedBox(
                             height: 12,
                           ),
-                          if (_isAuthenticating)
+                          if (isAuthenticating)
                             const CircularProgressIndicator(),
-                          if (!_isAuthenticating)
+                          if (!isAuthenticating)
                             ElevatedButton(
-                              onPressed: _submit,
+                              onPressed: (){_submit(enteredEmail!, isLogin, enteredPass!);},
                               style: ElevatedButton.styleFrom(
                                 backgroundColor: Theme.of(context)
                                     .colorScheme
                                     .primaryContainer,
                               ),
-                              child: Text(_isLogin ? 'Login' : 'Signup'),
+                              child: Text(isLogin ? 'Login' : 'Signup'),
                             ),
-                          if (!_isAuthenticating)
+                          if (!isAuthenticating)
                             TextButton(
                               onPressed: () {
                                 setState(() {
-                                  _isLogin = !_isLogin;
+                                  isLogin = !isLogin;
                                 });
                               },
-                              child: Text(_isLogin
+                              child: Text(isLogin
                                   ? 'Create an Account'
                                   : 'I already have an account.'),
                             )

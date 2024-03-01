@@ -64,7 +64,7 @@ class Month extends StatelessWidget {
     String dayToDisplay;
 
     if((cellIndex-firstDayOfWeek) < lastOfMonth && (cellIndex-firstDayOfWeek) >= 0) {
-      dayToDisplay = ((cellIndex-firstDayOfWeek) + 1).toString() + " ";
+      dayToDisplay = "${(cellIndex-firstDayOfWeek) + 1} ";
     } 
     else {
       dayToDisplay = '';
@@ -86,7 +86,7 @@ class Month extends StatelessWidget {
               Container(
                 alignment: Alignment.topLeft,
                 child: Text(
-                    monthName(selectedMonth) + " $yearDisplayed",
+                    "${monthName(selectedMonth)} $yearDisplayed",
                     style: TextStyle(
                       fontSize: 24,
                       fontWeight: FontWeight.bold,
@@ -142,7 +142,7 @@ class DayButton extends StatelessWidget {
             height: MediaQuery.sizeOf(context).height*0.0628,
             alignment: Alignment.topRight,
               decoration: BoxDecoration(
-                border: boarderWidth ? Border.all(width: 1) : Border.all(color: Color.fromARGB(0, 255, 255, 255)),
+                border: boarderWidth ? Border.all(width: 1) : Border.all(color: const Color.fromARGB(0, 255, 255, 255)),
                 color:  cellColor,
               ),
                   child:Text(dayDisplayed ,style: const TextStyle(fontSize: 20),),  

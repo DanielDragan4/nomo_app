@@ -1,10 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:nomo/widgets/app_bar.dart';
 import 'package:nomo/widgets/event_info.dart';
 import 'package:nomo/widgets/pick_image.dart';
 import 'dart:io';
-import 'package:nomo/widgets/pick_location.dart';
 import 'package:nomo/models/place.dart';
 import 'package:intl/intl.dart';
 
@@ -90,7 +88,7 @@ class _NewEventScreenState extends State<NewEventScreen> {
     options? selectedOption;
 
     return Scaffold(
-      appBar: MainAppBar(),
+      appBar: const MainAppBar(),
       body: SingleChildScrollView(
         child: Column(
           children: [
@@ -104,79 +102,84 @@ class _NewEventScreenState extends State<NewEventScreen> {
               },
             ),
             const SizedBox(height: 10),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    Row(
-                      children: [
-                        const Text(
-                          "Date ",
-                          style: TextStyle(fontSize: 15),
-                        ),
-                        TextButton(
-                          onPressed: () => _selectTime(context),
-                          child: const Text(
-                            "Calendar Dropdown",
-                            style: TextStyle(fontSize: 15),
-                          ),
-                        ),
-                      ],
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 8.0),
+              child: Row(
+                children: [
+                  const Text(
+                    "Date ",
+                    style: TextStyle(fontSize: 15),
+                  ),
+                  TextButton(
+                    onPressed: () => _selectDate(context),
+                    child: Text(
+                      _formattedDate ?? "Select Event Date",
+                      style: const TextStyle(fontSize: 15),
                     ),
-                    Row(
-                      children: [
-                        const Text(
-                          "Time",
-                          style: TextStyle(fontSize: 15),
-                        ),
-                        TextButton(
-                          onPressed: () => _selectTime(context),
-                          child: Text(
-                            _selectedTime.toString(),
-                            style: TextStyle(fontSize: 15),
-                          ),
-                        ),
-                        const Text("-"),
-                        TextButton(
-                          onPressed: () => _selectTime(context),
-                          child: Text(
-                            _selectedTime.toString(),
-                            style: TextStyle(fontSize: 15),
-                          ),
-                        ),
-                      ],
+                  ),
+                ],
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 8.0),
+              child: Row(
+                children: [
+                  const Text(
+                    "Time",
+                    style: TextStyle(fontSize: 15),
+                  ),
+                  TextButton(
+                    onPressed: () =>
+                        _selectTime(context, true), // Select start time
+                    child: Text(
+                      _selectedStartTime?.format(context) ??
+                          "Select Start Time", // Format start time
+                      style: const TextStyle(fontSize: 15),
                     ),
-                    Row(
-                      children: [
-                        const Text(
-                          "Location",
-                          style: TextStyle(fontSize: 15),
-                        ),
-                        TextButton(
-                          onPressed: () => _selectTime(context),
-                          child: const Text(
-                            "Location Picker Here",
-                            style: TextStyle(fontSize: 15),
-                          ),
-                        ),
-                      ],
+                  ),
+                  const Text("-"),
+                  TextButton(
+                    onPressed: () =>
+                        _selectTime(context, false), // Select end time
+                    child: Text(
+                      _selectedEndTime?.format(context) ??
+                          "Select End Time", // Format end time
+                      style: const TextStyle(fontSize: 15),
                     ),
-                    Row(
-                      children: [
-                        const Text(
-                          "Invitation Type",
-                          style: TextStyle(fontSize: 15),
-                        ),
-                        TextButton(
-                          onPressed: () => _selectTime(context),
-                          child: const Text(
-                            "Type Dropdown Here",
-                            style: TextStyle(fontSize: 15),
-                          ),
-                        ),
-                      ],
+                  ),
+                ],
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 8.0),
+              child: Row(
+                children: [
+                  const Text(
+                    "Invitation Type: ",
+                    style: TextStyle(fontSize: 15),
+                  ),
+                  const SizedBox(width: 10),
+                  DropdownButtonHideUnderline(
+                    child: DropdownButton<String>(
+                      value: dropDownValue,
+                      elevation: 16,
+                      icon: const SizedBox.shrink(),
+                      style: TextStyle(
+                          color: Theme.of(context).colorScheme.primary,
+                          fontSize: 15,
+                          fontWeight: FontWeight.w500),
+                      onChanged: (String? value) {
+                        // This is called when the user selects an item.
+                        setState(() {
+                          dropDownValue = value!;
+                        });
+                      },
+                      items: list.map<DropdownMenuItem<String>>((String value) {
+                        return DropdownMenuItem<String>(
+                          value: value,
+                          child: Text(value),
+                        );
+                      }).toList(),
                     ),
                     const Row(
                       children: [
@@ -188,8 +191,63 @@ class _NewEventScreenState extends State<NewEventScreen> {
                     ),
                   ],
                 ),
-              ],
-            )
+              ),
+            ),
+            // child: LocationInput(
+            //   onSelectedLocation: (location) {
+            //     _selectedLocation = location;
+            //   },
+            // ),
+
+            const Padding(
+              padding: EdgeInsets.symmetric(horizontal: 8.0),
+              child: Expanded(
+                child: TextField(
+                  decoration: InputDecoration(
+                    border: OutlineInputBorder(),
+                    labelText: "Enter Your Event Description",
+                    contentPadding: EdgeInsets.all(5),
+                  ),
+                  keyboardType: TextInputType.multiline,
+                  textInputAction: TextInputAction.done,
+                  maxLines: null,
+                  textAlign: TextAlign.start,
+                  textCapitalization: TextCapitalization.sentences,
+                  maxLength: 200,
+                ),
+              ),
+            ),
+            InkWell(
+              onTap: () {
+                if (_selectedImage == null) {
+                  const snackbar =
+                      SnackBar(content: Text('Select an image for your event'));
+                  ScaffoldMessenger.of(context).showSnackBar(snackbar);
+                } else if (date == false) {
+                  const snackbar =
+                      SnackBar(content: Text('Select a date for your event'));
+                  ScaffoldMessenger.of(context).showSnackBar(snackbar);
+                } else if (stime == false) {
+                  const snackbar = SnackBar(
+                      content: Text('Select a start time for your event'));
+                  ScaffoldMessenger.of(context).showSnackBar(snackbar);
+                } else if (etime == false) {
+                  const snackbar = SnackBar(
+                      content: Text('Select a end time for your event'));
+                  ScaffoldMessenger.of(context).showSnackBar(snackbar);
+                }
+              },
+              child: ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  textStyle: TextStyle(
+                      color: Theme.of(context).colorScheme.primary,
+                      fontSize: 15,
+                      fontWeight: FontWeight.w500),
+                ),
+                onPressed: enableButton ? () {} : null,
+                child: const Text('Create Event'),
+              ),
+            ),
           ],
         ),
       ),

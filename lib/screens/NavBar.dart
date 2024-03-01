@@ -4,20 +4,19 @@ import 'package:nomo/screens/friends_screen.dart';
 import 'package:nomo/screens/new_event_screen.dart';
 import 'package:nomo/screens/profile_screen.dart';
 import 'package:nomo/screens/recommended_screen.dart';
-import 'package:nomo/auth_service.dart';
 
 class NavBar extends StatefulWidget {
-  NavBar({super.key});
+  const NavBar({super.key});
 
   @override
   State<NavBar> createState() => _NavBarState();
 
-  final AuthService authService = AuthService();
+  //final AuthService authService = AuthService();
 
   // ... home screen content
 
   Future<void> signOut() async {
-    await authService.signOut();
+    //await authService.signOut();
   }
 }
 
@@ -78,7 +77,7 @@ class _NavBarState extends State<NavBar> {
             _index = index;
           });
         },
-        children: [
+        children: const [
           RecommendedScreen(),
           NewEventScreen(),
           CalendarScreen(),

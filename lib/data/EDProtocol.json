@@ -3,10 +3,9 @@
         "image" : "assets/images/BumBumBBQ.png",
         "title": "Bumbum's BBQ",
         "date": "0/04/2023",
-        "attendies": ["u01", "u02"],
-        "comments": [{"we go jim" : {}}],
         "orgainizer": "u02",
         "description" : "",
+        "bookmarked" : false,
         "PrivatePublicSelective" : "Selective"
     }
 }

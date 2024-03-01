@@ -3,6 +3,8 @@ import 'package:nomo/screens/calendar/month_widget.dart';
 import 'package:nomo/widgets/app_bar.dart';
 
 class CalendarScreen extends StatefulWidget {
+  const CalendarScreen({super.key});
+
   @override
   _CalendarScreenState createState() => _CalendarScreenState();
 }
@@ -54,7 +56,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
                   Expanded(
                     child: Month(
                       selectedMonth: monthDisplayed,
-                      eventsByDate: [],
+                      eventsByDate: const [],
                       firstDayOfWeek: firstDayOfWeek,
                       lastOfMonth: lastOfMonth,
                       yearDisplayed: yearDisplayed,

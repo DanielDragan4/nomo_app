@@ -15,30 +15,30 @@ class UserTab extends StatelessWidget {
 
     return Container(
       height: 60,
-      padding: EdgeInsets.symmetric(vertical: 5),
+      padding: const EdgeInsets.symmetric(vertical: 5),
       child: Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
         CircleAvatar(
           radius: 25,
           backgroundImage: avatar.image,
         ),
-        SizedBox(width: 10),
+        const SizedBox(width: 10),
         Text(username),
-        Spacer(),
+        const Spacer(),
         !isRequest
             ? ElevatedButton(
                 onPressed: () {}, child: const Text("View Calendar"))
             : Row(children: [
                 IconButton(
                     onPressed: () {},
-                    icon: Icon(
+                    icon: const Icon(
                       Icons.check,
                       color: Colors.green,
                     ),
                     splashRadius: 15),
-                SizedBox(width: 10),
+                const SizedBox(width: 10),
                 IconButton(
                     onPressed: () {},
-                    icon: Icon(
+                    icon: const Icon(
                       Icons.close,
                       color: Colors.red,
                     ),

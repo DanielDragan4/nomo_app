@@ -5,6 +5,9 @@ import 'package:nomo/widgets/event_tab.dart';
 
 class RecommendedScreen extends StatelessWidget {
   const RecommendedScreen({super.key});
+  
+
+// Print the data of the snapshot
 
   @override
   Widget build(BuildContext context) {

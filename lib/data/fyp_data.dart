@@ -3,19 +3,19 @@ import 'package:nomo/models/events_model.dart';
 //import 'package:uuid/uuid.dart';
 
 final fypEvents = [
-  Event(
-      id: '04',
-      image: 'tt',
-      title: 'test fyp',
-      date: DateTime.utc(2024, 5, 10),
-      attendies: 10,
-      friends: ['example'],
-      bookmarked: false,
-      comments: ['test comment'],
-      orgainizer: 'test',
-      attending: false,
-      host: false,
-      type: 'Selective'),
+  // Event(
+  //     id: '04',
+  //     image: ,
+  //     title: 'test fyp',
+  //     date: DateTime.utc(2024, 5, 10),
+  //     attendies: 10,
+  //     friends: ['example'],
+  //     bookmarked: false,
+  //     comments: ['test comment'],
+  //     orgainizer: 'test',
+  //     attending: false,
+  //     host: false,
+  //     type: 'Selective'),
   Event(
       id: '01',
       image: 'assets/images/BumBumBBQ.png',

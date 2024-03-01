@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:nomo/widgets/app_bar.dart';
-import 'package:nomo/widgets/event_info.dart';
 import 'package:nomo/widgets/pick_image.dart';
 import 'dart:io';
+import 'package:nomo/widgets/pick_location.dart';
 import 'package:nomo/models/place.dart';
 import 'package:intl/intl.dart';
 
@@ -85,10 +86,8 @@ class _NewEventScreenState extends State<NewEventScreen> {
 
   @override
   Widget build(BuildContext context) {
-    options? selectedOption;
-
     return Scaffold(
-      appBar: const MainAppBar(),
+      appBar: MainAppBar(),
       body: SingleChildScrollView(
         child: Column(
           children: [
@@ -114,7 +113,7 @@ class _NewEventScreenState extends State<NewEventScreen> {
                     onPressed: () => _selectDate(context),
                     child: Text(
                       _formattedDate ?? "Select Event Date",
-                      style: const TextStyle(fontSize: 15),
+                      style: TextStyle(fontSize: 15),
                     ),
                   ),
                 ],
@@ -134,7 +133,7 @@ class _NewEventScreenState extends State<NewEventScreen> {
                     child: Text(
                       _selectedStartTime?.format(context) ??
                           "Select Start Time", // Format start time
-                      style: const TextStyle(fontSize: 15),
+                      style: TextStyle(fontSize: 15),
                     ),
                   ),
                   const Text("-"),
@@ -144,7 +143,7 @@ class _NewEventScreenState extends State<NewEventScreen> {
                     child: Text(
                       _selectedEndTime?.format(context) ??
                           "Select End Time", // Format end time
-                      style: const TextStyle(fontSize: 15),
+                      style: TextStyle(fontSize: 15),
                     ),
                   ),
                 ],
@@ -163,7 +162,7 @@ class _NewEventScreenState extends State<NewEventScreen> {
                     child: DropdownButton<String>(
                       value: dropDownValue,
                       elevation: 16,
-                      icon: const SizedBox.shrink(),
+                      icon: SizedBox.shrink(),
                       style: TextStyle(
                           color: Theme.of(context).colorScheme.primary,
                           fontSize: 15,
@@ -181,15 +180,25 @@ class _NewEventScreenState extends State<NewEventScreen> {
                         );
                       }).toList(),
                     ),
-                    const Row(
-                      children: [
-                        Text(
-                          "Description",
-                          style: TextStyle(fontSize: 15),
-                        ),
-                      ],
-                    ),
-                  ],
+                  ),
+                ],
+              ),
+            ),
+            const Padding(
+              padding: EdgeInsets.symmetric(horizontal: 8.0),
+              child: Expanded(
+                child: TextField(
+                  decoration: InputDecoration(
+                    border: OutlineInputBorder(),
+                    labelText: "Enter Your Event Address",
+                    contentPadding: EdgeInsets.all(5),
+                  ),
+                  keyboardType: TextInputType.multiline,
+                  textInputAction: TextInputAction.done,
+                  maxLines: null,
+                  textAlign: TextAlign.start,
+                  textCapitalization: TextCapitalization.sentences,
+                  maxLength: 50,
                 ),
               ),
             ),
@@ -200,7 +209,7 @@ class _NewEventScreenState extends State<NewEventScreen> {
             // ),
 
             const Padding(
-              padding: EdgeInsets.symmetric(horizontal: 8.0),
+              padding: const EdgeInsets.symmetric(horizontal: 8.0),
               child: Expanded(
                 child: TextField(
                   decoration: InputDecoration(

@@ -15,7 +15,6 @@ class App extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    
     return MaterialApp(
         theme: ThemeData().copyWith(
           colorScheme: ColorScheme.fromSeed(
@@ -32,12 +31,10 @@ class App extends ConsumerWidget {
           builder: (context, snapshot) {
             if (snapshot.hasData) {
               return const NavBar();
-            } 
-            else {
+            } else {
               return const LoginScreen();
             }
           },
-        )
-    );
+        ));
   }
 }

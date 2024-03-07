@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:nomo/providers/saved_session_provider.dart';
 import 'package:nomo/providers/supabase_provider.dart';
 
 class LoginScreen extends ConsumerStatefulWidget {
@@ -14,11 +15,11 @@ class LoginScreen extends ConsumerStatefulWidget {
 class _LoginScreenState extends ConsumerState<LoginScreen> {
   final _form = GlobalKey<FormState>();
 
-  void _submit(String email, bool login, String pass) {
+  void _submit(String email, bool login, String pass) async{
      final isValid = _form.currentState!.validate();
 
     try {
-       var res = ref.watch(currentUserProvider.notifier).submit( email, login, pass, isValid);
+      ref.watch(currentUserProvider.notifier).submit( email, login, pass, isValid);
     } catch (error) {
       ScaffoldMessenger.of(context).clearSnackBars();
       ScaffoldMessenger.of(context).showSnackBar(
@@ -27,6 +28,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
         ),
       );
     }
+    ref.read(savedSessionProvider.notifier).changeSessionDataList();
   }
 
   @override
@@ -105,7 +107,9 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                             const CircularProgressIndicator(),
                           if (!isAuthenticating)
                             ElevatedButton(
-                              onPressed: (){_submit(enteredEmail!, isLogin, enteredPass!);},
+                              onPressed: (){
+                                _submit(enteredEmail!, isLogin, enteredPass!);
+                                },
                               style: ElevatedButton.styleFrom(
                                 backgroundColor: Theme.of(context)
                                     .colorScheme

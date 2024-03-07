@@ -1,4 +1,7 @@
+import 'dart:ffi';
+
 import 'package:flutter/material.dart';
+import 'package:nomo/providers/saved_session_provider.dart';
 import 'package:nomo/providers/supabase_provider.dart';
 import 'package:nomo/screens/NavBar.dart';
 import 'package:nomo/screens/login_screen.dart';
@@ -15,6 +18,10 @@ class App extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+
+    void loadData() {
+      ref.watch(savedSessionProvider.notifier).changeSessionDataList();
+    }
     
     return MaterialApp(
         theme: ThemeData().copyWith(
@@ -30,14 +37,16 @@ class App extends ConsumerWidget {
         home: StreamBuilder(
           stream: ref.watch(currentUserProvider.notifier).stream,
           builder: (context, snapshot) {
-            if (snapshot.hasData) {
-              return const NavBar();
-            } 
+            if(snapshot.data != null || (ref.watch(savedSessionProvider) != null && ref.watch(savedSessionProvider)!.isNotEmpty)) {
+                loadData();
+                return const NavBar();
+            }
             else {
+              loadData();
               return const LoginScreen();
             }
           },
-        )
+        ),
     );
   }
 }

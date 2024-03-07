@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:nomo/widgets/app_bar.dart';
 import 'package:nomo/widgets/pick_image.dart';
 import 'dart:io';
-import 'package:nomo/widgets/pick_location.dart';
 import 'package:nomo/models/place.dart';
 import 'package:intl/intl.dart';
 
@@ -87,7 +85,7 @@ class _NewEventScreenState extends State<NewEventScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: MainAppBar(),
+      appBar: const MainAppBar(),
       body: SingleChildScrollView(
         child: Column(
           children: [

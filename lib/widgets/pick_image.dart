@@ -6,18 +6,18 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:nomo/providers/supabase_provider.dart';
 import 'package:nomo/providers/saved_session_provider.dart';
 
-class ImageInput extends ConsumerStatefulWidget {
+class ImageInput extends StatefulWidget {
   const ImageInput({super.key, required this.onPickImage});
 
   final void Function(File image) onPickImage;
 
   @override
-  ConsumerState<ImageInput> createState() {
+  State<ImageInput> createState() {
     return _ImageInputState();
   }
 }
 
-class _ImageInputState extends ConsumerState<ImageInput> {
+class _ImageInputState extends State<ImageInput> {
   File? _selectedImage;
 
   void _takePicture() async {
@@ -34,25 +34,7 @@ class _ImageInputState extends ConsumerState<ImageInput> {
     setState(() {
       _selectedImage = File(pickedImage.path);
     });
-    uploadImage(_selectedImage!);
     widget.onPickImage(_selectedImage!);
-  }
-
-  //TO-DO: generate unique image name to replace '/anotherimage' otherwise error occurs
-  Future<void> uploadImage(File imageFile) async {
-    final supabase = ref.watch(supabaseInstance);
-    final userId = (await supabase).client.auth.currentUser!.id.toString();
-    final response = await (await supabase)
-        .client
-        .storage
-        .from('Images')
-        .upload('${userId}/anotherimage', imageFile);
-
-    // if (response.error == null) {
-    //   print('Image uploaded successfully');
-    // } else {
-    //   print('Upload error: ${response.error!.message}');
-    // }
   }
 
   @override

@@ -93,7 +93,7 @@ class _NewEventScreenState extends ConsumerState<NewEventScreen> {
         .client
         .storage
         .from('Images')
-        .upload('${userId}/images/image2', imageFile);
+        .upload('${userId}/images/image12', imageFile);
 
     // if (response.error == null) {
     //   print('Image uploaded successfully');
@@ -113,6 +113,16 @@ class _NewEventScreenState extends ConsumerState<NewEventScreen> {
     uploadImage(selectedImage);
     print('Location: $_selectedLocation');
     print('Description: $_description');
+    final supabase = (await ref.read(supabaseInstance)).client;
+
+
+    final newEventRowMap = {'time_start' : selectedStart, 'time_end' : selectedEnd,
+    'location' : location, 'description' : description, 'host': supabase.auth.currentUser!.id,
+    'invitationtype' : inviteType};
+
+
+    await supabase.from('Event').insert(newEventRowMap);
+
   }
 
   int _getInvite(String type) {

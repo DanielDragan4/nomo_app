@@ -4,17 +4,21 @@ import 'package:nomo/widgets/pick_image.dart';
 import 'dart:io';
 import 'package:nomo/models/place.dart';
 import 'package:intl/intl.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:nomo/providers/supabase_provider.dart';
+import 'package:nomo/providers/saved_session_provider.dart';
 
 const List<String> list = <String>['Public', 'Private', 'Selective'];
 
-class NewEventScreen extends StatefulWidget {
+class NewEventScreen extends ConsumerStatefulWidget {
   const NewEventScreen({super.key});
 
   @override
-  State<NewEventScreen> createState() => _NewEventScreenState();
+  ConsumerState<NewEventScreen> createState() => _NewEventScreenState();
 }
 
-class _NewEventScreenState extends State<NewEventScreen> {
+class _NewEventScreenState extends ConsumerState<NewEventScreen> {
   TimeOfDay? _selectedStartTime;
   bool stime = false;
   TimeOfDay? _selectedEndTime;
@@ -22,11 +26,21 @@ class _NewEventScreenState extends State<NewEventScreen> {
   DateTime? _selectedDate;
   bool date = false;
   String? _formattedDate;
-  PlaceLocation? _selectedLocation;
+  //PlaceLocation? _selectedLocation;
   File? _selectedImage;
   String dropDownValue = list.first;
   bool enableButton = false;
-  String? message;
+  int? _inviteType = 1;
+  final _selectedLocation = TextEditingController();
+  final _description = TextEditingController();
+
+  @override
+  void dispose() {
+    // Clean up the controller when the widget is disposed.
+    _selectedLocation.dispose();
+    _description.dispose();
+    super.dispose();
+  }
 
   Future<void> _selectTime(BuildContext context, bool isStartTime) async {
     final ThemeData theme = Theme.of(context);
@@ -69,6 +83,58 @@ class _NewEventScreenState extends State<NewEventScreen> {
         date = true;
       });
     }
+  }
+
+  //TO-DO: generate unique image name to replace '/anotherimage' otherwise error occurs
+  Future<void> uploadImage(File imageFile) async {
+    final supabase = ref.watch(supabaseInstance);
+    final userId = (await supabase).client.auth.currentUser!.id.toString();
+    final response = await (await supabase)
+        .client
+        .storage
+        .from('Images')
+        .upload('${userId}/images/image12', imageFile);
+
+    // if (response.error == null) {
+    //   print('Image uploaded successfully');
+    // } else {
+    //   print('Upload error: ${response.error!.message}');
+    // }
+  }
+
+  Future<void> createEvent(
+      TimeOfDay selectedStart,
+      TimeOfDay selectedEnd,
+      DateTime selectedDate,
+      File selectedImage,
+      int inviteType,
+      String location,
+      String description) async {
+    uploadImage(selectedImage);
+    print('Location: $_selectedLocation');
+    print('Description: $_description');
+    final supabase = (await ref.read(supabaseInstance)).client;
+
+
+    final newEventRowMap = {'time_start' : selectedStart, 'time_end' : selectedEnd,
+    'location' : location, 'description' : description, 'host': supabase.auth.currentUser!.id,
+    'invitationtype' : inviteType};
+
+
+    await supabase.from('Event').insert(newEventRowMap);
+
+  }
+
+  int _getInvite(String type) {
+    switch (type) {
+      case 'Public':
+        return 0;
+      case 'Private':
+        return 1;
+      case 'Selective':
+        return 2;
+    }
+    return -1;
   }
 
   void _enableButton() {
@@ -182,11 +248,12 @@ class _NewEventScreenState extends State<NewEventScreen> {
                 ],
               ),
             ),
-            const Padding(
-              padding: EdgeInsets.symmetric(horizontal: 8.0),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 8.0),
               child: Expanded(
                 child: TextField(
-                  decoration: InputDecoration(
+                  controller: _selectedLocation,
+                  decoration: const InputDecoration(
                     border: OutlineInputBorder(),
                     labelText: "Enter Your Event Address",
                     contentPadding: EdgeInsets.all(5),
@@ -206,11 +273,12 @@ class _NewEventScreenState extends State<NewEventScreen> {
             //   },
             // ),
 
-            const Padding(
+            Padding(
               padding: const EdgeInsets.symmetric(horizontal: 8.0),
               child: Expanded(
                 child: TextField(
-                  decoration: InputDecoration(
+                  controller: _description,
+                  decoration: const InputDecoration(
                     border: OutlineInputBorder(),
                     labelText: "Enter Your Event Description",
                     contentPadding: EdgeInsets.all(5),
@@ -251,7 +319,19 @@ class _NewEventScreenState extends State<NewEventScreen> {
                       fontSize: 15,
                       fontWeight: FontWeight.w500),
                 ),
-                onPressed: enableButton ? () {} : null,
+                onPressed: enableButton
+                    ? () {
+                        createEvent(
+                          _selectedStartTime!,
+                          _selectedEndTime!,
+                          _selectedDate!,
+                          _selectedImage!,
+                          _getInvite(dropDownValue),
+                          _selectedLocation.text,
+                          _description.text,
+                        );
+                      }
+                    : null,
                 child: const Text('Create Event'),
               ),
             ),

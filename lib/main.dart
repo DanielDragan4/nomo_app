@@ -16,11 +16,10 @@ class App extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-
     void loadData() {
       ref.watch(savedSessionProvider.notifier).changeSessionDataList();
     }
-    
+
     return MaterialApp(
         theme: ThemeData().copyWith(
           colorScheme: ColorScheme.fromSeed(
@@ -35,16 +34,16 @@ class App extends ConsumerWidget {
         home: StreamBuilder(
           stream: ref.watch(currentUserProvider.notifier).stream,
           builder: (context, snapshot) {
-            if(snapshot.data != null || (ref.watch(savedSessionProvider) != null && ref.watch(savedSessionProvider)!.isNotEmpty)) {
-                loadData();
-                return const NavBar();
-            }
-            else {
+            if (snapshot.data != null ||
+                (ref.watch(savedSessionProvider) != null &&
+                    ref.watch(savedSessionProvider)!.isNotEmpty)) {
+              loadData();
+              return const NavBar();
+            } else {
               loadData();
               return const LoginScreen();
             }
           },
-        ),
-    );
+        ));
   }
 }

@@ -38,6 +38,7 @@ class _ImageInputState extends ConsumerState<ImageInput> {
     widget.onPickImage(_selectedImage!);
   }
 
+  //TO-DO: generate unique image name to replace '/anotherimage' otherwise error occurs
   Future<void> uploadImage(File imageFile) async {
     final supabase = ref.watch(supabaseInstance);
     final userId = (await supabase).client.auth.currentUser!.id.toString();

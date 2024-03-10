@@ -111,8 +111,6 @@ class _NewEventScreenState extends ConsumerState<NewEventScreen> {
       String location,
       String description) async {
     uploadImage(selectedImage);
-    print('Location: $_selectedLocation');
-    print('Description: $_description');
   }
 
   int _getInvite(String type) {

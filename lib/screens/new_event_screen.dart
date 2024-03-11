@@ -4,11 +4,9 @@ import 'package:nomo/widgets/pick_image.dart';
 import 'dart:io';
 import 'package:nomo/models/place.dart';
 import 'package:intl/intl.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:nomo/providers/supabase_provider.dart';
 import 'package:nomo/providers/saved_session_provider.dart';
-import 'package:uuid/uuid.dart';
 
 const List<String> list = <String>['Public', 'Private', 'Selective'];
 
@@ -86,19 +84,19 @@ class _NewEventScreenState extends ConsumerState<NewEventScreen> {
     }
   }
 
+  // String get currentImageId() async{
+  //   final supabase;
+  // }
+
   //TO-DO: generate unique image name to replace '/anotherimage' otherwise error occurs
   Future<void> uploadImage(File imageFile) async {
     final supabase = ref.watch(supabaseInstance);
     final userId = (await supabase).client.auth.currentUser!.id.toString();
-
-    // var uuid = Uuid();
-    // var currentImageName = uuid.v4();
-
     final response = await (await supabase)
         .client
         .storage
         .from('Images')
-        .upload('$userId/images/pic1', imageFile);
+        .upload('${userId}/images/image12', imageFile);
 
     // if (response.error == null) {
     //   print('Image uploaded successfully');
@@ -115,38 +113,33 @@ class _NewEventScreenState extends ConsumerState<NewEventScreen> {
       String inviteType,
       String location,
       String description) async {
-    DateTime start = DateTime(selectedDate.year, selectedDate.month,
-        selectedDate.day, selectedStart.hour, selectedStart.minute);
-    DateTime end = DateTime(selectedDate.year, selectedDate.month,
-        selectedDate.day, selectedEnd.hour, selectedEnd.minute);
     uploadImage(selectedImage);
     print('Location: $_selectedLocation');
     print('Description: $_description');
     final supabase = (await ref.read(supabaseInstance)).client;
-
     final newEventRowMap = {
       'time_start': DateFormat('yyyy-MM-dd HH:mm:ss').format(start),
       'time_end': DateFormat('yyyy-MM-dd HH:mm:ss').format(end),
       'location': location,
       'description': description,
       'host': supabase.auth.currentUser!.id,
-      'invitationType': inviteType
+      'invitationtype': inviteType
     };
 
     await supabase.from('Event').insert(newEventRowMap);
   }
 
-  // int _getInvite(String type) {
-  //   switch (type) {
-  //     case 'Public':
-  //       return 0;
-  //     case 'Private':
-  //       return 1;
-  //     case 'Selective':
-  //       return 2;
-  //   }
-  //   return -1;
-  // }
+  int _getInvite(String type) {
+    switch (type) {
+      case 'Public':
+        return 0;
+      case 'Private':
+        return 1;
+      case 'Selective':
+        return 2;
+    }
+    return -1;
+  }
 
   void _enableButton() {
     if (stime != false &&

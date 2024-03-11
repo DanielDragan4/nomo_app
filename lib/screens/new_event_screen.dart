@@ -89,12 +89,12 @@ class _NewEventScreenState extends ConsumerState<NewEventScreen> {
   // }
 
   //TO-DO: generate unique image name to replace '/anotherimage' otherwise error occurs
-  Future<dynamic> uploadImage(File imageFile) async {
+  dynamic uploadImage(File imageFile) async {
     final supabase = (await ref.watch(supabaseInstance));
     final userId =  supabase.client.auth.currentUser!.id.toString();
 
-     var uuid = const Uuid();
-     final currentImageName = uuid.v4();
+    var uuid = const Uuid();
+    final currentImageName = uuid.v4();
 
     final response = await supabase
         .client
@@ -102,7 +102,9 @@ class _NewEventScreenState extends ConsumerState<NewEventScreen> {
         .from('Images')
         .upload('$userId/images/$currentImageName', imageFile);
 
-        return await supabase.client.from('Images').insert({'image_url': '$userId/images/$currentImageName'}).select('images_id');
+        var imgId = await supabase.client.from('Images').insert({'image_url': '$userId/images/$currentImageName'}).select('images_id');
+
+        return imgId[0]["images_id"];
 
     // if (response.error == null) {
     //   print('Image uploaded successfully');
@@ -124,7 +126,7 @@ class _NewEventScreenState extends ConsumerState<NewEventScreen> {
     DateTime end = DateTime(selectedDate.year, selectedDate.month,
         selectedDate.day, selectedEnd.hour, selectedEnd.minute);
 
-    var imageId = uploadImage(selectedImage);
+    var imageId = await uploadImage(selectedImage);
     final supabase = (await ref.read(supabaseInstance)).client;
     final newEventRowMap = {
       'time_start': DateFormat('yyyy-MM-dd HH:mm:ss').format(start),

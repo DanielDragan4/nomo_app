@@ -32,7 +32,6 @@ class _NewEventScreenState extends ConsumerState<NewEventScreen> {
   int? _inviteType = 1;
   final _selectedLocation = TextEditingController();
   final _description = TextEditingController();
-  var imageId;
 
   @override
   void dispose() {
@@ -90,20 +89,20 @@ class _NewEventScreenState extends ConsumerState<NewEventScreen> {
   // }
 
   //TO-DO: generate unique image name to replace '/anotherimage' otherwise error occurs
-  Future<void> uploadImage(File imageFile) async {
-    final supabase = ref.watch(supabaseInstance);
-    final userId = (await supabase).client.auth.currentUser!.id.toString();
+  Future<dynamic> uploadImage(File imageFile) async {
+    final supabase = (await ref.watch(supabaseInstance));
+    final userId =  supabase.client.auth.currentUser!.id.toString();
 
      var uuid = const Uuid();
      final currentImageName = uuid.v4();
 
-    final response = await (await supabase)
+    final response = await supabase
         .client
         .storage
         .from('Images')
-        .upload('${userId}/images/$currentImageName', imageFile);
+        .upload('$userId/images/$currentImageName', imageFile);
 
-    var res = await (await supabase).client.from('Images').insert({'image_url': '${userId}/images/$currentImageName'});
+        return await supabase.client.from('Images').insert({'image_url': '$userId/images/$currentImageName'}).select('images_id');
 
     // if (response.error == null) {
     //   print('Image uploaded successfully');
@@ -125,7 +124,7 @@ class _NewEventScreenState extends ConsumerState<NewEventScreen> {
     DateTime end = DateTime(selectedDate.year, selectedDate.month,
         selectedDate.day, selectedEnd.hour, selectedEnd.minute);
 
-    uploadImage(selectedImage);
+    var imageId = uploadImage(selectedImage);
     final supabase = (await ref.read(supabaseInstance)).client;
     final newEventRowMap = {
       'time_start': DateFormat('yyyy-MM-dd HH:mm:ss').format(start),
@@ -133,7 +132,8 @@ class _NewEventScreenState extends ConsumerState<NewEventScreen> {
       'location': location,
       'description': description,
       'host': supabase.auth.currentUser!.id,
-      'invitationType': inviteType
+      'invitationType': inviteType,
+      'image_id': imageId
     };
 
     await supabase.from('Event').insert(newEventRowMap);

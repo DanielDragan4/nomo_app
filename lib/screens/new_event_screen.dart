@@ -8,6 +8,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:nomo/providers/supabase_provider.dart';
 import 'package:nomo/providers/saved_session_provider.dart';
+import 'package:uuid/uuid.dart';
 
 const List<String> list = <String>['Public', 'Private', 'Selective'];
 
@@ -43,7 +44,7 @@ class _NewEventScreenState extends ConsumerState<NewEventScreen> {
   }
 
   Future<void> _selectTime(BuildContext context, bool isStartTime) async {
-    final ThemeData theme = Theme.of(context);
+    //final ThemeData theme = Theme.of(context);
     final TimeOfDay? picked = await showTimePicker(
       initialEntryMode: TimePickerEntryMode.dial,
       context: context,
@@ -89,11 +90,15 @@ class _NewEventScreenState extends ConsumerState<NewEventScreen> {
   Future<void> uploadImage(File imageFile) async {
     final supabase = ref.watch(supabaseInstance);
     final userId = (await supabase).client.auth.currentUser!.id.toString();
+
+    // var uuid = Uuid();
+    // var currentImageName = uuid.v4();
+
     final response = await (await supabase)
         .client
         .storage
         .from('Images')
-        .upload('${userId}/images/image12', imageFile);
+        .upload('$userId/images/pic1', imageFile);
 
     // if (response.error == null) {
     //   print('Image uploaded successfully');
@@ -107,37 +112,41 @@ class _NewEventScreenState extends ConsumerState<NewEventScreen> {
       TimeOfDay selectedEnd,
       DateTime selectedDate,
       File selectedImage,
-      int inviteType,
+      String inviteType,
       String location,
       String description) async {
+    DateTime start = DateTime(selectedDate.year, selectedDate.month,
+        selectedDate.day, selectedStart.hour, selectedStart.minute);
+    DateTime end = DateTime(selectedDate.year, selectedDate.month,
+        selectedDate.day, selectedEnd.hour, selectedEnd.minute);
     uploadImage(selectedImage);
     print('Location: $_selectedLocation');
     print('Description: $_description');
     final supabase = (await ref.read(supabaseInstance)).client;
 
     final newEventRowMap = {
-      'time_start': selectedStart,
-      'time_end': selectedEnd,
+      'time_start': DateFormat('yyyy-MM-dd HH:mm:ss').format(start),
+      'time_end': DateFormat('yyyy-MM-dd HH:mm:ss').format(end),
       'location': location,
       'description': description,
       'host': supabase.auth.currentUser!.id,
-      'invitationtype': inviteType
+      'invitationType': inviteType
     };
 
     await supabase.from('Event').insert(newEventRowMap);
   }
 
-  int _getInvite(String type) {
-    switch (type) {
-      case 'Public':
-        return 0;
-      case 'Private':
-        return 1;
-      case 'Selective':
-        return 2;
-    }
-    return -1;
-  }
+  // int _getInvite(String type) {
+  //   switch (type) {
+  //     case 'Public':
+  //       return 0;
+  //     case 'Private':
+  //       return 1;
+  //     case 'Selective':
+  //       return 2;
+  //   }
+  //   return -1;
+  // }
 
   void _enableButton() {
     if (stime != false &&
@@ -161,10 +170,14 @@ class _NewEventScreenState extends ConsumerState<NewEventScreen> {
               child: Text("Create New Event +"),
             ),
             const SizedBox(height: 10),
-            ImageInput(
-              onPickImage: (image) {
-                _selectedImage = image;
-              },
+            Container(
+              decoration:
+                  BoxDecoration(borderRadius: BorderRadius.circular(200)),
+              child: ImageInput(
+                onPickImage: (image) {
+                  _selectedImage = image;
+                },
+              ),
             ),
             const SizedBox(height: 10),
             Padding(
@@ -328,7 +341,7 @@ class _NewEventScreenState extends ConsumerState<NewEventScreen> {
                           _selectedEndTime!,
                           _selectedDate!,
                           _selectedImage!,
-                          _getInvite(dropDownValue),
+                          dropDownValue,
                           _selectedLocation.text,
                           _description.text,
                         );

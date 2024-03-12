@@ -77,6 +77,11 @@ class _CreateAccountScreenState extends ConsumerState<CreateAccountScreen> {
   Future _createProfile(String user) async {
     var avatarId = await uploadAvatar(_selectedImage!);
     final supabase = (await ref.read(supabaseInstance)).client;
+
+    if (user.replaceAll(' ', '') == '') {
+      user = 'User-${supabase.auth.currentUser!.id.substring(0, 10)}';
+    }
+
     final newProfileRowMap = {
       'profile_id': supabase.auth.currentUser!.id,
       'avatar_id': avatarId,

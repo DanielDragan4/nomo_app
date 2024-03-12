@@ -1,16 +1,16 @@
 import 'package:flutter/material.dart';
-import 'package:nomo/data/fyp_data.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:nomo/models/events_model.dart';
+import 'package:nomo/providers/events_provider.dart';
 import 'package:nomo/widgets/event_tab.dart';
 
-class RecommendedScreen extends StatelessWidget {
+class RecommendedScreen extends ConsumerWidget {
   const RecommendedScreen({super.key});
-  
-
-// Print the data of the snapshot
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    var eventsList = ref.read(eventsProvider.notifier).state;
+
     return Scaffold(
       appBar: AppBar(
         toolbarHeight: 75,
@@ -53,7 +53,9 @@ class RecommendedScreen extends StatelessWidget {
           Expanded(
             child: ListView(
               key: const PageStorageKey<String>('page'),
-              children: [for (Event i in fypEvents) EventTab(eventData: i)],
+              children: (ref.watch(eventsProvider.notifier).state == null
+                  ? [Text("is Empty")]
+                  : [for (Event i in eventsList!) EventTab(eventData: i)]),
             ),
           ),
         ],

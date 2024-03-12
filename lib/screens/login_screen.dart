@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:nomo/providers/saved_session_provider.dart';
 import 'package:nomo/providers/supabase_provider.dart';
+import 'package:nomo/providers/user_signup_provider.dart';
 
 class LoginScreen extends ConsumerStatefulWidget {
   const LoginScreen({super.key});
@@ -20,6 +21,10 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
 
     try {
       ref.watch(currentUserProvider.notifier).submit( email, login, pass, isValid);
+      
+      if(!login) {
+        ref.watch(onSignUp.notifier).notifyAccountCreation();
+      }
     } catch (error) {
       ScaffoldMessenger.of(context).clearSnackBars();
       ScaffoldMessenger.of(context).showSnackBar(

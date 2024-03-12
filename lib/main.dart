@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:nomo/providers/saved_session_provider.dart';
 import 'package:nomo/providers/supabase_provider.dart';
+import 'package:nomo/providers/user_signup_provider.dart';
 import 'package:nomo/screens/NavBar.dart';
+import 'package:nomo/screens/create_account_screen.dart';
 import 'package:nomo/screens/login_screen.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -34,7 +36,10 @@ class App extends ConsumerWidget {
         home: StreamBuilder(
           stream: ref.watch(currentUserProvider.notifier).stream,
           builder: (context, snapshot) {
-            if (snapshot.data != null ||
+            if (ref.watch(onSignUp.notifier).state == 1) {
+              return const CreateAccountScreen();
+            }
+            else if (snapshot.data != null ||
                 (ref.watch(savedSessionProvider) != null &&
                     ref.watch(savedSessionProvider)!.isNotEmpty)) {
               loadData();

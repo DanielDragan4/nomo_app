@@ -134,22 +134,11 @@ class _NewEventScreenState extends ConsumerState<NewEventScreen> {
       'location': location,
       'description': description,
       'host': supabase.auth.currentUser!.id,
-      'invitationtype': inviteType
+      'invitationType': inviteType,
+      'image_id': imageId
     };
 
     await supabase.from('Event').insert(newEventRowMap);
-  }
-
-  int _getInvite(String type) {
-    switch (type) {
-      case 'Public':
-        return 0;
-      case 'Private':
-        return 1;
-      case 'Selective':
-        return 2;
-    }
-    return -1;
   }
 
   void _enableButton() {
@@ -174,14 +163,10 @@ class _NewEventScreenState extends ConsumerState<NewEventScreen> {
               child: Text("Create New Event +"),
             ),
             const SizedBox(height: 10),
-            Container(
-              decoration:
-                  BoxDecoration(borderRadius: BorderRadius.circular(200)),
-              child: ImageInput(
-                onPickImage: (image) {
-                  _selectedImage = image;
-                },
-              ),
+            ImageInput(
+              onPickImage: (image) {
+                _selectedImage = image;
+              },
             ),
             const SizedBox(height: 10),
             Padding(

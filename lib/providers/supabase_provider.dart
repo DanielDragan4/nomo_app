@@ -42,7 +42,6 @@ class AuthProvider extends StateNotifier<Session?> {
       return;
     }
   }
-  
 
   void saveData() {
     SharedPreferences.getInstance().then((value) => value.setStringList("savedSession", [state!.accessToken, state!.user.id,]));

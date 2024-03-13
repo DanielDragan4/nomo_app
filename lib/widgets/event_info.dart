@@ -1,23 +1,41 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:nomo/models/events_model.dart';
+import 'package:nomo/providers/events_provider.dart';
+import 'package:nomo/providers/supabase_provider.dart';
 
 enum options { itemOne, itemTwo, itemThree, itemFour }
 
-class EventInfo extends StatefulWidget {
-  const EventInfo(
-      {super.key, required this.eventsData});
+class EventInfo extends ConsumerStatefulWidget {
+  const EventInfo({super.key, required this.eventsData});
   final Event eventsData;
 
   @override
-  State<StatefulWidget> createState() {
+  ConsumerState<EventInfo> createState() {
     return _EventInfoState();
   }
 }
 
-class _EventInfoState extends State<EventInfo> {
+class _EventInfoState extends ConsumerState<EventInfo> {
+
+  bool joinOrLeave = true;
+
+Future<void> attendeeJoinEvent() async{
+    final supabase = (await ref.watch(supabaseInstance)).client;
+    await ref.watch(eventsProvider.notifier).joinEvent(supabase.auth.currentUser!.id, widget.eventsData.eventId);
+}
+
+Future<void> isAttending() async {
+    final supabase = (await ref.watch(supabaseInstance)).client;
+    final attendee = await supabase.from('Attendees').select()
+    .eq('event_id', widget.eventsData.eventId,).eq('user_id', supabase.auth.currentUser!.id);
+    joinOrLeave = attendee.isEmpty;
+}
+
   @override
   Widget build(BuildContext context) {
     options? selectedOption;
+    isAttending();
 
     return Padding(
       padding: const EdgeInsets.all(5.0),
@@ -35,8 +53,8 @@ class _EventInfoState extends State<EventInfo> {
             child:  Row(
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
-                ElevatedButton(
-                  onPressed: () {},
+                (joinOrLeave) ?(ElevatedButton(
+                  onPressed: attendeeJoinEvent,
                   style: ButtonStyle(
                     backgroundColor: MaterialStateProperty.all<Color>(
                         Theme.of(context).primaryColor),
@@ -44,7 +62,17 @@ class _EventInfoState extends State<EventInfo> {
                         Theme.of(context).primaryColorLight),
                   ),
                   child: const Text('Join'),
-                ),
+                ))
+                : (ElevatedButton(
+                  onPressed: () {},
+                  style: ButtonStyle(
+                    backgroundColor: MaterialStateProperty.all<Color>(
+                        Theme.of(context).primaryColor),
+                    foregroundColor: MaterialStateProperty.all<Color>(
+                        Theme.of(context).primaryColorLight),
+                  ),
+                  child: const Text('Leave'),
+                )),
                 IconButton(onPressed: () {}, icon: const Icon(Icons.bookmark_border_outlined)),
               ],
             ),

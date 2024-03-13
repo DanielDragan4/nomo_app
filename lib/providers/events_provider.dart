@@ -10,7 +10,7 @@ class EventProvider extends StateNotifier<List?> {
 
   Future<List> readEvents() async {
     final supabaseClient = (await supabase).client;
-    var events = await supabaseClient.from('Event').select();
+    var events = await supabaseClient.from('Event').select().neq('host', supabaseClient.auth.currentUser!.id);
     return events.toList();
   }
 
@@ -18,6 +18,7 @@ class EventProvider extends StateNotifier<List?> {
     final codedList = await readEvents();
 
     List<Event> deCodedList = [];
+    final supabaseClient = (await supabase).client;
 
     for (int i = 0; i < codedList.length; i++) {
       Event deCodedEvent = Event(
@@ -30,7 +31,13 @@ class EventProvider extends StateNotifier<List?> {
           location: codedList[i]['location'],
           title: codedList[i]['title'],
           edate: codedList[i]['time_end']);
-      deCodedList.add(deCodedEvent);
+
+        final attendee = await supabaseClient.from('Attendees').select()
+        .eq('event_id', codedList[i]['event_id']).eq('user_id', supabaseClient.auth.currentUser!.id);
+      
+      if(attendee.isEmpty) {
+        deCodedList.add(deCodedEvent);
+      }
     }
     state = deCodedList;
   }
@@ -46,6 +53,15 @@ class EventProvider extends StateNotifier<List?> {
         .getPublicUrl(imgPath[0]['image_url']);
 
     return imgURL;
+  }
+
+  Future<void> joinEvent(currentUser, eventToJoin) async{
+    final supabaseClient = (await supabase).client;
+    final newAttendeeMap = {
+      'event_id' : eventToJoin,
+      'user_id' : currentUser
+    };
+    await supabaseClient.from('Attendees').insert(newAttendeeMap);
   }
 }
 

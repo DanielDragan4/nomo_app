@@ -4,7 +4,7 @@ import 'package:nomo/providers/supabase_provider.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 class EventProvider extends StateNotifier<List?> {
-  EventProvider({required this.supabase}) : super(null);
+  EventProvider({required this.supabase}) : super([]);
 
   Future<Supabase> supabase;
 

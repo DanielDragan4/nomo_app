@@ -9,7 +9,6 @@ class RecommendedScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    var eventsList = ref.read(eventsProvider.notifier).state;
 
     return Scaffold(
       appBar: AppBar(
@@ -51,11 +50,21 @@ class RecommendedScreen extends ConsumerWidget {
       body: Column(
         children: [
           Expanded(
-            child: ListView(
-              key: const PageStorageKey<String>('page'),
-              children: (ref.watch(eventsProvider.notifier).state == null
-                  ? [Text("is Empty")]
-                  : [for (Event i in eventsList!) EventTab(eventData: i)]),
+            child: StreamBuilder(
+              stream: ref.watch(eventsProvider.notifier).stream,
+              builder: (context, snapshot) {
+                if (snapshot.data != null) {
+                  return ListView(
+                    key: const PageStorageKey<String>('page'),
+                    children: 
+                    [for (Event i in ref.watch(eventsProvider.notifier).state!) EventTab(eventData: i)],
+                  );
+                }
+                else {
+                  return 
+                      Text("No Data Retreived");
+                }
+              }
             ),
           ),
         ],

@@ -79,7 +79,7 @@ class _CreateAccountScreenState extends ConsumerState<CreateAccountScreen> {
     final supabase = (await ref.read(supabaseInstance)).client;
 
     if (user.replaceAll(' ', '') == '') {
-      user = 'User-${supabase.auth.currentUser!.id.substring(0, 10)}';
+      user = 'User-${supabase.auth.currentUser!.id.replaceAll('-', '').substring(0, 10)}';
     }
 
     final newProfileRowMap = {

@@ -5,13 +5,42 @@ import 'package:nomo/providers/events_provider.dart';
 import 'package:nomo/providers/supabase_provider.dart';
 import 'package:nomo/widgets/event_info.dart';
 
-class EventTab extends ConsumerWidget {
-  const EventTab({super.key, required this.eventData});
+class EventTab extends ConsumerStatefulWidget {
+  const EventTab({super.key, required this.eventData,});
 
   final Event eventData;
 
+  ConsumerState<EventTab> createState() {
+    return _EventTabState();
+  }
+}
+
+class _EventTabState extends ConsumerState<EventTab> {
+
+  Future<String>? _event;
+
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  void initState() {
+    super.initState();
+    _fetchData();
+  }
+
+  Future<void> _fetchData() async {
+    await Future.delayed(Duration(seconds: 2));
+
+    setState(() {
+      _event = fetchData();
+    });
+  }
+
+  Future<String> fetchData() async {
+    // Your asynchronous operation here
+    await Future.delayed(Duration(seconds: 2));
+    return await ref.watch(eventsProvider.notifier).ImageURL(widget.eventData.imageId);
+  }
+
+  @override
+  Widget build(BuildContext context) {
     // bool attendingHosting;
 
     // if(eventData.attending == true || eventData.host == true) {
@@ -19,10 +48,11 @@ class EventTab extends ConsumerWidget {
     // } else {
     //   attendingHosting = false;
     // }
+    
 
     String imgurl;
 
-    var formattedDate = "${eventData.sdate}";
+    var formattedDate = "${widget.eventData.sdate}";
     return Padding(
       padding: const EdgeInsets.all(5.0),
       child: Container(
@@ -39,7 +69,7 @@ class EventTab extends ConsumerWidget {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                  eventData.title,
+                  widget.eventData.title,
                   style: const TextStyle(
                     fontWeight: FontWeight.bold,
                   ),
@@ -64,16 +94,14 @@ class EventTab extends ConsumerWidget {
                 width: double.infinity,
                 height: 250,
                 child: FutureBuilder<String>(
-                  future: ref
-                      .watch(eventsProvider.notifier)
-                      .ImageURL(eventData.imageId),
+                  future: _event,
                   builder: (context, snapshot) {
                     if (snapshot.hasData) {
                       return Image.network(snapshot.data!, fit: BoxFit.fill);
                     } else if (snapshot.hasError) {
                       return Text('Error loading image: ${snapshot.error}');
                     } else {
-                      return CircularProgressIndicator(); // Or any loading indicator
+                      return CircularProgressIndicator();
                     }
                   },
                 ),
@@ -83,12 +111,12 @@ class EventTab extends ConsumerWidget {
               height: 5,
             ),
             EventInfo(
-              eventsData: eventData, //attendOrHost: attendingHosting,
+              eventsData: widget.eventData, //attendOrHost: attendingHosting,
             ),
             Container(
               height: 80,
               child: Text(
-                eventData.description
+                widget.eventData.description
               ),
             ),
           ],

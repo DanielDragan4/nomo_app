@@ -26,7 +26,7 @@ class _EventTabState extends ConsumerState<EventTab> {
   }
 
   Future<void> _fetchData() async {
-    await Future.delayed(Duration(seconds: 2));
+    await Future.delayed(Duration(microseconds: 1));
 
     setState(() {
       _event = fetchData();
@@ -34,8 +34,7 @@ class _EventTabState extends ConsumerState<EventTab> {
   }
 
   Future<String> fetchData() async {
-    // Your asynchronous operation here
-    await Future.delayed(Duration(seconds: 2));
+    await Future.delayed(Duration(microseconds: 1));
     return await ref.watch(eventsProvider.notifier).ImageURL(widget.eventData.imageId);
   }
 
@@ -49,10 +48,18 @@ class _EventTabState extends ConsumerState<EventTab> {
     //   attendingHosting = false;
     // }
     
+    final DateTime date = DateTime.parse(widget.eventData.sdate);
 
-    String imgurl;
+    String getHour() {
+      if(date.hour > 12) {
+        return ('${(date.hour -12)} P.M.');
+      }
+      else {
+        return ("${date.hour} A.M.");
+      }
+    }
 
-    var formattedDate = "${widget.eventData.sdate}";
+    var formattedDate = "${date.month}/${date.day}/${date.year} at ${getHour()}";
     return Padding(
       padding: const EdgeInsets.all(5.0),
       child: Container(

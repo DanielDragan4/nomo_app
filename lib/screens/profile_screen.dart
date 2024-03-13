@@ -150,7 +150,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
             child: ListView(
               key: const PageStorageKey<String>('event'),
               children: [
-                for (Event i in dummyEvents) EventTab(eventData: i),
+                //for (Event i in dummyEvents) EventTab(eventData: i),
               ],
             ),
           ),

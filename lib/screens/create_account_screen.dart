@@ -1,17 +1,9 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:nomo/screens/NavBar.dart';
 import 'package:nomo/widgets/app_bar.dart';
-import 'package:nomo/widgets/pick_image.dart';
 import 'dart:io';
-import 'package:nomo/models/place.dart';
-import 'package:intl/intl.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:nomo/providers/supabase_provider.dart';
-import 'package:nomo/providers/saved_session_provider.dart';
 import 'package:uuid/uuid.dart';
 
 class CreateAccountScreen extends ConsumerStatefulWidget {
@@ -147,13 +139,27 @@ class _CreateAccountScreenState extends ConsumerState<CreateAccountScreen> {
                   );
                 },
                 child: CircleAvatar(
-                  backgroundColor: Colors.blueGrey,
+                  backgroundColor: const Color.fromARGB(255, 0, 0, 0),
                   radius: radius,
                   child: CircleAvatar(
                     radius: radius - 2,
                     backgroundImage: _selectedImage != null
                         ? FileImage(_selectedImage!)
-                        : Image.asset('assets/images/sadboi.png').image,
+                        : null,
+                    child: _selectedImage == null
+                        ? Container(
+                            decoration: BoxDecoration(
+                                gradient: const LinearGradient(
+                                    colors: [
+                                      Color.fromARGB(255, 63, 53, 78),
+                                      Color.fromARGB(255, 112, 9, 167),
+                                    ],
+                                    begin: Alignment.topLeft,
+                                    end: Alignment.bottomRight),
+                                borderRadius:
+                                    BorderRadius.circular(radius - 2)),
+                          )
+                        : null,
                   ),
                 ),
               ),
@@ -226,7 +232,9 @@ class _CreateAccountScreenState extends ConsumerState<CreateAccountScreen> {
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
                 TextButton(
-                  onPressed: () {},
+                  onPressed: () {
+                    //ToDO: Set default image and username (same as no username input)
+                  },
                   child: const Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [Text("Skip"), Icon(Icons.arrow_forward_rounded)],

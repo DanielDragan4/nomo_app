@@ -5,9 +5,8 @@ enum options { itemOne, itemTwo, itemThree, itemFour }
 
 class EventInfo extends StatefulWidget {
   const EventInfo(
-      {super.key, required this.eventsData, required this.attendOrHost});
+      {super.key, required this.eventsData});
   final Event eventsData;
-  final bool attendOrHost;
 
   @override
   State<StatefulWidget> createState() {
@@ -26,14 +25,14 @@ class _EventInfoState extends State<EventInfo> {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text("${widget.eventsData.attendies} Attending"),
-              Text("${widget.eventsData.friends.length} Friends Attending"),
-            ],
+            // crossAxisAlignment: CrossAxisAlignment.start,
+            // children: [
+            //   Text("${widget.eventsData.attendies} Attending"),
+            //   Text("${widget.eventsData.friends.length} Friends Attending"),
+            // ],
           ),
           Expanded(
-            child: widget.attendOrHost? const Row() : Row(
+            child:  Row(
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
                 ElevatedButton(

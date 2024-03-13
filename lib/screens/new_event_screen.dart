@@ -31,6 +31,7 @@ class _NewEventScreenState extends ConsumerState<NewEventScreen> {
   bool enableButton = false;
   int? _inviteType = 1;
   final _selectedLocation = TextEditingController();
+  final _title = TextEditingController();
   final _description = TextEditingController();
 
   @override
@@ -38,6 +39,7 @@ class _NewEventScreenState extends ConsumerState<NewEventScreen> {
     // Clean up the controller when the widget is disposed.
     _selectedLocation.dispose();
     _description.dispose();
+    _title.dispose();
     super.dispose();
   }
 
@@ -120,6 +122,7 @@ class _NewEventScreenState extends ConsumerState<NewEventScreen> {
       File selectedImage,
       String inviteType,
       String location,
+      String title,
       String description) async {
     DateTime start = DateTime(selectedDate.year, selectedDate.month,
         selectedDate.day, selectedStart.hour, selectedStart.minute);
@@ -127,7 +130,7 @@ class _NewEventScreenState extends ConsumerState<NewEventScreen> {
         selectedDate.day, selectedEnd.hour, selectedEnd.minute);
 
     var imageId = await uploadImage(selectedImage);
-    final supabase = (await ref.read(supabaseInstance)).client;
+    final supabase = (await ref.watch(supabaseInstance)).client;
     final newEventRowMap = {
       'time_start': DateFormat('yyyy-MM-dd HH:mm:ss').format(start),
       'time_end': DateFormat('yyyy-MM-dd HH:mm:ss').format(end),
@@ -135,7 +138,8 @@ class _NewEventScreenState extends ConsumerState<NewEventScreen> {
       'description': description,
       'host': supabase.auth.currentUser!.id,
       'invitationType': inviteType,
-      'image_id': imageId
+      'image_id': imageId,
+      'title' : title
     };
 
     await supabase.from('Event').insert(newEventRowMap);
@@ -254,12 +258,11 @@ class _NewEventScreenState extends ConsumerState<NewEventScreen> {
             ),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 8.0),
-              child: Expanded(
                 child: TextField(
                   controller: _selectedLocation,
                   decoration: const InputDecoration(
                     border: OutlineInputBorder(),
-                    labelText: "Enter Your Event Address",
+                    labelText: "Enter The Event's Address",
                     contentPadding: EdgeInsets.all(5),
                   ),
                   keyboardType: TextInputType.multiline,
@@ -269,17 +272,32 @@ class _NewEventScreenState extends ConsumerState<NewEventScreen> {
                   textCapitalization: TextCapitalization.sentences,
                   maxLength: 50,
                 ),
-              ),
             ),
             // child: LocationInput(
             //   onSelectedLocation: (location) {
             //     _selectedLocation = location;
             //   },
             // ),
-
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 8.0),
-              child: Expanded(
+           
+                child: TextField(
+                  controller: _title,
+                  decoration: const InputDecoration(
+                    border: OutlineInputBorder(),
+                    labelText: "Enter Your Event Title",
+                    contentPadding: EdgeInsets.all(5),
+                  ),
+                  keyboardType: TextInputType.multiline,
+                  textInputAction: TextInputAction.done,
+                  maxLines: null,
+                  textAlign: TextAlign.start,
+                  textCapitalization: TextCapitalization.sentences,
+                  maxLength: 200,
+                ),
+),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 8.0),    
                 child: TextField(
                   controller: _description,
                   decoration: const InputDecoration(
@@ -294,7 +312,6 @@ class _NewEventScreenState extends ConsumerState<NewEventScreen> {
                   textCapitalization: TextCapitalization.sentences,
                   maxLength: 200,
                 ),
-              ),
             ),
             InkWell(
               onTap: () {
@@ -332,6 +349,7 @@ class _NewEventScreenState extends ConsumerState<NewEventScreen> {
                           _selectedImage!,
                           dropDownValue,
                           _selectedLocation.text,
+                          _title.text,
                           _description.text,
                         );
                       }

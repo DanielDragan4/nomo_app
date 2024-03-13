@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:nomo/providers/saved_session_provider.dart';
+import 'package:nomo/providers/user_signup_provider.dart';
 import 'package:nomo/widgets/app_bar.dart';
 import 'dart:io';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -225,6 +227,8 @@ class _CreateAccountScreenState extends ConsumerState<CreateAccountScreen> {
                 child: const Text("Create Account"),
                 onPressed: () {
                   _createProfile(_userName.text);
+                  ref.watch(onSignUp.notifier).completeProfileCreation();
+                  ref.watch(savedSessionProvider.notifier).changeSessionDataList();
                 },
               ),
             ),
@@ -234,6 +238,8 @@ class _CreateAccountScreenState extends ConsumerState<CreateAccountScreen> {
                 TextButton(
                   onPressed: () {
                     //ToDO: Set default image and username (same as no username input)
+                  ref.watch(onSignUp.notifier).completeProfileCreation();
+                  ref.watch(savedSessionProvider.notifier).changeSessionDataList();
                   },
                   child: const Row(
                     mainAxisSize: MainAxisSize.min,

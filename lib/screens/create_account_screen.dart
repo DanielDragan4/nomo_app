@@ -220,7 +220,6 @@ class _CreateAccountScreenState extends ConsumerState<CreateAccountScreen> {
                 keyboardType: TextInputType.phone,
               ),
             ),
-            //SizedBox(height: 30),
             Padding(
               padding: const EdgeInsets.symmetric(vertical: 30),
               child: ElevatedButton(

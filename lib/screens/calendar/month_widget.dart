@@ -1,7 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:nomo/models/events_model.dart';
+import 'package:nomo/providers/events_provider.dart';
+import 'package:nomo/screens/calendar/event_cal_tab.dart';
 
-class Month extends StatelessWidget {
-   Month(
+class Month extends ConsumerWidget {
+  Month(
       {super.key,
       required this.selectedMonth,
       required this.eventsByDate,
@@ -17,42 +21,54 @@ class Month extends StatelessWidget {
   final int yearDisplayed;
 
   String monthName(int month) {
-    switch(month) {
-      case 1: return "January";
-      case 2: return "Febuary";
-      case 3: return "March";
-      case 4: return "April";
-      case 5: return "May";
-      case 6: return "June";
-      case 7: return "July";
-      case 8: return "August";
-      case 9: return "September";
-      case 10: return "October";
-      case 11: return "November";
-      case 12: return "December";
+    switch (month) {
+      case 1:
+        return "January";
+      case 2:
+        return "Febuary";
+      case 3:
+        return "March";
+      case 4:
+        return "April";
+      case 5:
+        return "May";
+      case 6:
+        return "June";
+      case 7:
+        return "July";
+      case 8:
+        return "August";
+      case 9:
+        return "September";
+      case 10:
+        return "October";
+      case 11:
+        return "November";
+      case 12:
+        return "December";
     }
     return "";
   }
-  
+
   bool findBoarderWidth(cellPosition) {
     bool boarderWidth;
 
-    if ((cellIndex-firstDayOfWeek) < lastOfMonth && (cellIndex-firstDayOfWeek) >= 0) {
+    if ((cellIndex - firstDayOfWeek) < lastOfMonth &&
+        (cellIndex - firstDayOfWeek) >= 0) {
       boarderWidth = true;
-      } 
-    else {
+    } else {
       boarderWidth = false;
     }
 
     return boarderWidth;
   }
-  Color findCellColor(cellPosition) {
 
+  Color findCellColor(cellPosition) {
     Color cellColor;
-    if((cellIndex-firstDayOfWeek) < lastOfMonth && (cellIndex-firstDayOfWeek) >= 0) {
-      cellColor = const Color.fromARGB(255, 221, 221, 221);    
-      } 
-    else {
+    if ((cellIndex - firstDayOfWeek) < lastOfMonth &&
+        (cellIndex - firstDayOfWeek) >= 0) {
+      cellColor = const Color.fromARGB(255, 221, 221, 221);
+    } else {
       cellColor = const Color.fromARGB(0, 255, 255, 255);
     }
 
@@ -60,13 +76,12 @@ class Month extends StatelessWidget {
   }
 
   String daysOfMonth() {
-
     String dayToDisplay;
 
-    if((cellIndex-firstDayOfWeek) < lastOfMonth && (cellIndex-firstDayOfWeek) >= 0) {
-      dayToDisplay = "${(cellIndex-firstDayOfWeek) + 1} ";
-    } 
-    else {
+    if ((cellIndex - firstDayOfWeek) < lastOfMonth &&
+        (cellIndex - firstDayOfWeek) >= 0) {
+      dayToDisplay = "${(cellIndex - firstDayOfWeek) + 1} ";
+    } else {
       dayToDisplay = '';
     }
 
@@ -74,44 +89,128 @@ class Month extends StatelessWidget {
     return dayToDisplay;
   }
 
-
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final List<Event> eventsOfMonth = ref.read(eventsProvider.notifier).eventsAttendingByMonth(yearDisplayed, selectedMonth);
+
     return Container(
       alignment: Alignment.center,
       child: Padding(
           padding: const EdgeInsets.all(10.0),
           child: Column(
             children: [
+              Row(
+                children: [
+                  Container(
+                    height: MediaQuery.sizeOf(context).height * 0.0528,
+                    width: MediaQuery.sizeOf(context).width * .95,
+                    decoration: BoxDecoration(
+                      color: Color.fromARGB(255, 135, 135, 135),
+                      border: Border.all(width: 1),
+                    ),
+                    child: const Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Spacer(),
+                        Text(
+                          'S',
+                          style: TextStyle(
+                              fontSize: 24, fontWeight: FontWeight.bold),
+                        ),
+                        Spacer(),
+                        Spacer(),
+                        Text(
+                          'M',
+                          style: TextStyle(
+                              fontSize: 24, fontWeight: FontWeight.bold),
+                        ),
+                        Spacer(),
+                        Spacer(),
+                        Text(
+                          'T',
+                          style: TextStyle(
+                              fontSize: 24, fontWeight: FontWeight.bold),
+                        ),
+                        Spacer(),
+                        Spacer(),
+                        Text(
+                          'W',
+                          style: TextStyle(
+                              fontSize: 24, fontWeight: FontWeight.bold),
+                        ),
+                        Spacer(),
+                        Spacer(),
+                        Text(
+                          'T',
+                          style: TextStyle(
+                              fontSize: 24, fontWeight: FontWeight.bold),
+                        ),
+                        Spacer(),
+                        Spacer(),
+                        Text(
+                          'F',
+                          style: TextStyle(
+                              fontSize: 24, fontWeight: FontWeight.bold),
+                        ),
+                        Spacer(),
+                        Spacer(),
+                        Text(
+                          'S',
+                          style: TextStyle(
+                              fontSize: 24, fontWeight: FontWeight.bold),
+                        ),
+                        Spacer(),
+                      ],
+                    ),
+                  )
+                ],
+              ),
               Container(
                 alignment: Alignment.topLeft,
                 child: Text(
-                    "${monthName(selectedMonth)} $yearDisplayed",
-                    style: TextStyle(
-                      fontSize: 24,
-                      fontWeight: FontWeight.bold,
-                      color: Theme.of(context).primaryColor,
-                      
-                    ),
+                  "${monthName(selectedMonth)} $yearDisplayed",
+                  style: TextStyle(
+                    fontSize: 24,
+                    fontWeight: FontWeight.bold,
+                    color: Theme.of(context).primaryColor,
                   ),
+                ),
               ),
               Expanded(
-                  child: GridView.builder( 
-                    physics: const NeverScrollableScrollPhysics(),
-                    gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                        crossAxisCount: 7),
-                    itemCount: 42, 
-                    itemBuilder: (context, index) => DayButton(
-                      isSelected: false,
-                      boarderWidth: findBoarderWidth(index),
-                      cellColor: findCellColor(index),
-                      dayDisplayed: daysOfMonth(),
-                    ),
+                child: GridView.builder(
+                  physics: const NeverScrollableScrollPhysics(),
+                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                      crossAxisCount: 7),
+                  itemCount: 42,
+                  itemBuilder: (context, index) => DayButton(
+                    isSelected: false,
+                    boarderWidth: findBoarderWidth(index),
+                    cellColor: findCellColor(index),
+                    dayDisplayed: daysOfMonth(),
                   ),
+                ),
               ),
+              Container(
+                alignment: Alignment.topLeft,
+                child: Text(
+                  "Attending Events",
+                  style: TextStyle(
+                    fontSize: 24,
+                    fontWeight: FontWeight.bold,
+                    color: Theme.of(context).primaryColor,
+                  ),
+                ),
+              ),
+                SizedBox(
+                  height: MediaQuery.sizeOf(context).height *0.1,
+                  child: ListView(
+                    key: const PageStorageKey<String>('cal'),
+                    children: 
+                      [for (Event i in eventsOfMonth) EventCalTab(eventData: i)],
+                  ),
+                ),
             ],
-          )
-        ),
+          )),
     );
   }
 }
@@ -137,17 +236,22 @@ class DayButton extends StatelessWidget {
     return Column(
       children: [
         GestureDetector(
-        onTap: () {},
+          onTap: () {},
           child: Container(
-            height: MediaQuery.sizeOf(context).height*0.0628,
+            height: MediaQuery.sizeOf(context).height * 0.0628,
             alignment: Alignment.topRight,
-              decoration: BoxDecoration(
-                border: boarderWidth ? Border.all(width: 1) : Border.all(color: const Color.fromARGB(0, 255, 255, 255)),
-                color:  cellColor,
-              ),
-                  child:Text(dayDisplayed ,style: const TextStyle(fontSize: 20),),  
-                ),
-      ),
+            decoration: BoxDecoration(
+              border: boarderWidth
+                  ? Border.all(width: 1)
+                  : Border.all(color: const Color.fromARGB(0, 255, 255, 255)),
+              color: cellColor,
+            ),
+            child: Text(
+              dayDisplayed,
+              style: const TextStyle(fontSize: 20),
+            ),
+          ),
+        ),
       ],
     );
   }

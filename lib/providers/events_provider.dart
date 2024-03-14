@@ -7,6 +7,7 @@ class EventProvider extends StateNotifier<List?> {
   EventProvider({required this.supabase}) : super([]);
 
   Future<Supabase> supabase;
+  List<Event> attendingEvents = [];
 
   Future<List> readEvents() async {
     final supabaseClient = (await supabase).client;
@@ -20,26 +21,52 @@ class EventProvider extends StateNotifier<List?> {
     List<Event> deCodedList = [];
     final supabaseClient = (await supabase).client;
 
-    for (int i = 0; i < codedList.length; i++) {
-      Event deCodedEvent = Event(
-          description: codedList[i]['description'],
-          sdate: codedList[i]['time_start'],
-          eventId: codedList[i]['event_id'],
-          eventType: codedList[i]['invitationType'],
-          host: codedList[i]['host'],
-          imageId: codedList[i]['image_id'],
-          location: codedList[i]['location'],
-          title: codedList[i]['title'],
-          edate: codedList[i]['time_end']);
+    for (var eventData in codedList) {
+      final Event deCodedEvent = Event(
+          description: eventData['description'],
+          sdate: eventData['time_start'],
+          eventId: eventData['event_id'],
+          eventType: eventData['invitationType'],
+          host: eventData['host'],
+          imageId: eventData['image_id'],
+          location: eventData['location'],
+          title: eventData['title'],
+          edate: eventData['time_end']);
 
         final attendee = await supabaseClient.from('Attendees').select()
-        .eq('event_id', codedList[i]['event_id']).eq('user_id', supabaseClient.auth.currentUser!.id);
+        .eq('event_id', eventData['event_id']).eq('user_id', supabaseClient.auth.currentUser!.id);
       
       if(attendee.isEmpty) {
         deCodedList.add(deCodedEvent);
       }
+      else if(attendee[0]['user_id'] == supabaseClient.auth.currentUser!.id) {
+        attendingEvents.add(deCodedEvent);
+      }
     }
     state = deCodedList;
+  }
+
+  List<Event> eventsAttendingByMonth(int year, int month) {
+
+    List<Event> eventsPerMonth = [];
+    final List<Event> allAttend = attendingEvents;
+
+    for(int i =0; i < allAttend.length; i++) {
+      int eventYear = DateTime.parse(allAttend[i].sdate).year;
+      int eventMonth = DateTime.parse(allAttend[i].sdate).month;
+      bool inList = false;
+
+      for(Event checkEvent in eventsPerMonth) {
+        if(checkEvent.eventId == allAttend[i].eventId) {
+          inList = true;
+        }
+      }
+
+      if((inList == false) && (eventYear == year) && (eventMonth == month)) {
+        eventsPerMonth.add(attendingEvents[i]);
+      }
+    }
+    return eventsPerMonth;
   }
 
   Future<String> ImageURL(imgId) async {

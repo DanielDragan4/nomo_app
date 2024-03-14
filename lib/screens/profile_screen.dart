@@ -1,73 +1,47 @@
 import 'package:flutter/material.dart';
-import 'package:nomo/models/events_model.dart';
-import 'package:nomo/widgets/event_tab.dart';
-import 'package:nomo/data/dummy_data.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:nomo/providers/profile_provider.dart';
 import 'package:nomo/widgets/profile_dropdown.dart';
+import 'package:nomo/models/profile_model.dart';
 
-class ProfileScreen extends StatefulWidget {
+class ProfileScreen extends ConsumerStatefulWidget {
   const ProfileScreen({super.key});
 
   @override
-  State<ProfileScreen> createState() {
+  ConsumerState<ProfileScreen> createState() {
     return _ProfileScreenState();
   }
 }
 
-class _ProfileScreenState extends State<ProfileScreen> {
-  Widget optionalWidget = Row(
-    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-    children: [
-      const Column(
-        children: [
-          CircleAvatar(backgroundColor: Colors.blue, radius: 30),
-          Text(
-            "Dummy Account",
-            style: TextStyle(fontSize: 15),
-          ),
-        ],
-      ),
-      Column(
-        children: [
-          const Row(
-            children: [
-              Column(
-                children: [
-                  Text(
-                    "Friends",
-                    style: TextStyle(fontSize: 15),
-                  ),
-                  Text(
-                    "xxxx",
-                    style: TextStyle(fontSize: 15),
-                  ),
-                ],
-              ),
-              SizedBox(
-                width: 10,
-              ),
-              Column(
-                children: [
-                  Text(
-                    "Upcoming Events",
-                    style: TextStyle(fontSize: 15),
-                  ),
-                  Text(
-                    "xxxx",
-                    style: TextStyle(fontSize: 15),
-                  ),
-                ],
-              ),
-            ],
-          ),
-          ElevatedButton(
-            onPressed: () {},
-            child: const Text("Edit Profile"),
-          ),
-        ],
-      ),
-      const ProfileDropdown(),
-    ],
-  );
+class _ProfileScreenState extends ConsumerState<ProfileScreen> {
+  Future<Map>? profileInfo;
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchData();
+  }
+
+  Future<void> _fetchData() async {
+    await Future.delayed(const Duration(microseconds: 1));
+
+    setState(() {
+      profileInfo = fetchInfo();
+    });
+  }
+
+  Future<Map> fetchInfo() async {
+    await Future.delayed(const Duration(microseconds: 1));
+    var avatar = await ref
+        .watch(profileProvider.notifier)
+        .imageURL(ref.watch(profileProvider.notifier).state![0].avatar);
+    var user = ref.watch(profileProvider.notifier).state![0].profile_name;
+    final infoMap = {
+      'profile_name': user,
+      'avatar': avatar,
+    };
+    return infoMap;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -89,15 +63,44 @@ class _ProfileScreenState extends State<ProfileScreen> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  const Column(
-                    children: [
-                      CircleAvatar(backgroundColor: Colors.blue, radius: 30),
-                      Text(
-                        "Dummy Account",
-                        style: TextStyle(fontSize: 15),
-                      ),
-                    ],
+                  FutureBuilder<Map>(
+                    future: profileInfo,
+                    builder: (context, snapshot) {
+                      if (snapshot.hasData) {
+                        return Column(
+                          children: [
+                            CircleAvatar(
+                              radius: 30,
+                              backgroundColor: Colors.white,
+                              child: Image.network(snapshot.data!['avatar'],
+                                  fit: BoxFit.fill),
+                            ),
+                            Text(
+                              snapshot.data!['profile_name'],
+                              style: const TextStyle(fontSize: 13),
+                            ),
+                          ],
+                        );
+                      } else if (snapshot.hasError) {
+                        return const Column(
+                          children: [
+                            CircleAvatar(
+                              radius: 30,
+                              child: Text("No Image"),
+                            ),
+                            Text(
+                              "No Username",
+                              style: TextStyle(fontSize: 13),
+                            ),
+                          ],
+                        );
+                      } else {
+                        return const CircularProgressIndicator();
+                      }
+                    },
                   ),
+                  //backgroundColor: Colors.blue,
+
                   Column(
                     children: [
                       const Row(

@@ -20,8 +20,7 @@ class CreateAccountScreen extends ConsumerStatefulWidget {
 class _CreateAccountScreenState extends ConsumerState<CreateAccountScreen> {
   File? _selectedImage;
   double radius = 75;
-  final _firstName = TextEditingController();
-  final _lastName = TextEditingController();
+  final _profileName = TextEditingController();
   final _userName = TextEditingController();
   final _phoneNum = TextEditingController();
 
@@ -45,35 +44,37 @@ class _CreateAccountScreenState extends ConsumerState<CreateAccountScreen> {
     });
   }
 
-  dynamic uploadAvatar(File imageFile) async {
+  dynamic uploadAvatar(File? imageFile) async {
     final supabase = (await ref.watch(supabaseInstance));
     final userId = supabase.client.auth.currentUser!.id.toString();
+    var imgId;
 
     var uuid = const Uuid();
     final currentImageName = uuid.v4();
 
-    final response = await supabase.client.storage
-        .from('Images')
-        .upload('$userId/avatar/$currentImageName', imageFile);
+    if (imageFile != null) {
+      final response = await supabase.client.storage
+          .from('Images')
+          .upload('$userId/avatar/$currentImageName', imageFile);
 
-    var imgId = await supabase.client.from('Images').insert(
-        {'image_url': '$userId/avatar/$currentImageName'}).select('images_id');
-
+      imgId = await supabase.client
+          .from('Images')
+          .insert({'image_url': '$userId/avatar/$currentImageName'}).select(
+              'images_id');
+    } else {
+      imgId = await supabase.client.from('Images').insert(
+          {'image_url': 'default/avatar/sadboi.png'}).select('images_id');
+    }
     return imgId[0]["images_id"];
-
-    // if (response.error == null) {
-    //   print('Image uploaded successfully');
-    // } else {
-    //   print('Upload error: ${response.error!.message}');
-    // }
   }
 
-  Future _createProfile(String user) async {
-    var avatarId = await uploadAvatar(_selectedImage!);
+  Future _createProfile(String user, File? _selectedImage) async {
     final supabase = (await ref.read(supabaseInstance)).client;
+    var avatarId = await uploadAvatar(_selectedImage);
 
     if (user.replaceAll(' ', '') == '') {
-      user = 'User-${supabase.auth.currentUser!.id.replaceAll('-', '').substring(0, 10)}';
+      user =
+          'User-${supabase.auth.currentUser!.id.replaceAll('-', '').substring(0, 10)}';
     }
 
     final newProfileRowMap = {
@@ -81,6 +82,10 @@ class _CreateAccountScreenState extends ConsumerState<CreateAccountScreen> {
       'avatar_id': avatarId,
       'username': user,
     };
+
+    if (_profileName.text.replaceAll(' ', '') != '') {
+      newProfileRowMap['profile_name'] = _profileName.text;
+    }
 
     await supabase.from('Profiles').insert(newProfileRowMap);
   }
@@ -171,29 +176,15 @@ class _CreateAccountScreenState extends ConsumerState<CreateAccountScreen> {
               padding: const EdgeInsets.all(7.0),
               child: TextField(
                 maxLength: 20,
-                controller: _firstName,
+                controller: _profileName,
                 decoration: const InputDecoration(
                   border: OutlineInputBorder(),
-                  labelText: "First Name",
+                  labelText: "Name",
                   contentPadding: EdgeInsets.all(5),
                 ),
               ),
             ),
-            //const SizedBox(height: 10),
-            Padding(
-              padding: const EdgeInsets.all(7.0),
-              child: TextField(
-                maxLength: 20,
-                controller: _lastName,
-                decoration: const InputDecoration(
-                  border: OutlineInputBorder(),
-                  labelText: "Last Name",
-                  contentPadding: EdgeInsets.all(5),
-                ),
-                keyboardType: TextInputType.phone,
-              ),
-            ),
-            //const SizedBox(height: 10),
+
             Padding(
               padding: const EdgeInsets.all(7.0),
               child: TextField(
@@ -225,10 +216,12 @@ class _CreateAccountScreenState extends ConsumerState<CreateAccountScreen> {
               padding: const EdgeInsets.symmetric(vertical: 30),
               child: ElevatedButton(
                 child: const Text("Create Account"),
-                onPressed: () {
-                  _createProfile(_userName.text);
+                onPressed: () async {
+                  await _createProfile(_userName.text, _selectedImage);
                   ref.watch(onSignUp.notifier).completeProfileCreation();
-                  ref.watch(savedSessionProvider.notifier).changeSessionDataList();
+                  ref
+                      .watch(savedSessionProvider.notifier)
+                      .changeSessionDataList();
                 },
               ),
             ),
@@ -236,10 +229,12 @@ class _CreateAccountScreenState extends ConsumerState<CreateAccountScreen> {
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
                 TextButton(
-                  onPressed: () {
-                    //ToDO: Set default image and username (same as no username input)
-                  ref.watch(onSignUp.notifier).completeProfileCreation();
-                  ref.watch(savedSessionProvider.notifier).changeSessionDataList();
+                  onPressed: () async {
+                    await _createProfile(_userName.text, null);
+                    ref.watch(onSignUp.notifier).completeProfileCreation();
+                    ref
+                        .watch(savedSessionProvider.notifier)
+                        .changeSessionDataList();
                   },
                   child: const Row(
                     mainAxisSize: MainAxisSize.min,

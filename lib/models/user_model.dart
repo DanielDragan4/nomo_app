@@ -4,8 +4,8 @@ import 'package:nomo/models/events_model.dart';
 class User {
   const User({
     required this.uid,
-    required this.username,
     required this.avatar,
+    required this.username,
     required this.friends,
     required this.attending,
     required this.attended,
@@ -18,8 +18,9 @@ class User {
   });
 
   final String uid;
-  final String username;
   final Image avatar;
+  final String username;
+
   final List<String> friends;
   final List<String> attending; //Event ids
   final List<String> attended; //Event ids

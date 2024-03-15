@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:nomo/providers/profile_provider.dart';
+import 'package:nomo/screens/create_account_screen.dart';
 import 'package:nomo/widgets/profile_dropdown.dart';
 import 'package:nomo/models/profile_model.dart';
 
@@ -35,10 +37,12 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
     var avatar = await ref
         .watch(profileProvider.notifier)
         .imageURL(ref.watch(profileProvider.notifier).state![0].avatar);
-    var user = ref.watch(profileProvider.notifier).state![0].profile_name;
+    var profN = ref.watch(profileProvider.notifier).state![0].profile_name;
+    var userN = ref.watch(profileProvider.notifier).state![0].username;
     final infoMap = {
-      'profile_name': user,
+      'profile_name': profN,
       'avatar': avatar,
+      'username': userN,
     };
     return infoMap;
   }
@@ -72,8 +76,9 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                             CircleAvatar(
                               radius: 30,
                               backgroundColor: Colors.white,
-                              backgroundImage: NetworkImage(snapshot.data!['avatar'],
-                                  ),
+                              backgroundImage: NetworkImage(
+                                snapshot.data!['avatar'],
+                              ),
                             ),
                             Text(
                               snapshot.data!['profile_name'],
@@ -134,9 +139,31 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                           ),
                         ],
                       ),
-                      ElevatedButton(
-                        onPressed: () {},
-                        child: const Text("Edit Profile"),
+                      FutureBuilder<Map>(
+                        future: profileInfo,
+                        builder: ((context, snapshot) {
+                          if (snapshot.hasData) {
+                            return ElevatedButton(
+                              onPressed: () {
+                                Navigator.of(context).push(MaterialPageRoute(
+                                  builder: ((context) => CreateAccountScreen(
+                                        isNew: false,
+                                        avatar: snapshot.data!['avatar'],
+                                        profilename:
+                                            snapshot.data!['profile_name'],
+                                        username: snapshot.data!['username'],
+                                      )),
+                                ));
+                              },
+                              child: const Text("Edit Profile"),
+                            );
+                          } else {
+                            return const ElevatedButton(
+                              onPressed: null,
+                              child: const Text("Edit Profile"),
+                            );
+                          }
+                        }),
                       ),
                     ],
                   ),

@@ -3,8 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 class SignUpProvider extends StateNotifier<int?> {
   SignUpProvider({initialSave}) : super(null);
 
-
-  void notifyAccountCreation(){
+  void notifyAccountCreation() {
     state = 1;
   }
 
@@ -12,7 +11,6 @@ class SignUpProvider extends StateNotifier<int?> {
     state = 2;
   }
 }
-
 
 final onSignUp = StateNotifierProvider<SignUpProvider, int?>((ref) {
   return SignUpProvider(initialSave: null);

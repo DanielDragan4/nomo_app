@@ -45,7 +45,9 @@ class App extends ConsumerWidget {
           stream: ref.watch(currentUserProvider.notifier).stream,
           builder: (context, snapshot) {
             if (ref.watch(onSignUp.notifier).state == 1) {
-              return const CreateAccountScreen();
+              return CreateAccountScreen(
+                isNew: true,
+              );
             } else if (snapshot.data != null ||
                 (ref.watch(savedSessionProvider) != null &&
                     ref.watch(savedSessionProvider)!.isNotEmpty)) {

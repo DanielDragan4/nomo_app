@@ -72,8 +72,8 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                             CircleAvatar(
                               radius: 30,
                               backgroundColor: Colors.white,
-                              child: Image.network(snapshot.data!['avatar'],
-                                  fit: BoxFit.fill),
+                              backgroundImage: NetworkImage(snapshot.data!['avatar'],
+                                  ),
                             ),
                             Text(
                               snapshot.data!['profile_name'],

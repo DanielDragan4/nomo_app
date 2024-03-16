@@ -9,7 +9,17 @@ import 'package:nomo/providers/supabase_provider.dart';
 import 'package:uuid/uuid.dart';
 
 class CreateAccountScreen extends ConsumerStatefulWidget {
-  const CreateAccountScreen({super.key});
+  CreateAccountScreen(
+      {super.key,
+      required this.isNew,
+      this.avatar,
+      this.profilename,
+      this.username});
+
+  bool isNew;
+  String? avatar;
+  String? username;
+  String? profilename;
 
   @override
   ConsumerState<CreateAccountScreen> createState() {
@@ -23,6 +33,17 @@ class _CreateAccountScreenState extends ConsumerState<CreateAccountScreen> {
   final _profileName = TextEditingController();
   final _userName = TextEditingController();
   final _phoneNum = TextEditingController();
+  String? avatar;
+
+  @override
+  void initState() {
+    if (!widget.isNew) {
+      avatar = widget.avatar!;
+      _profileName.text = widget.profilename!;
+      _userName.text = widget.username!;
+    }
+    super.initState();
+  }
 
   Future _pickImageFromGallery() async {
     final returnedImage =
@@ -81,13 +102,59 @@ class _CreateAccountScreenState extends ConsumerState<CreateAccountScreen> {
       'profile_id': supabase.auth.currentUser!.id,
       'avatar_id': avatarId,
       'username': user,
+      'profile_name': _profileName.text
     };
 
     if (_profileName.text.replaceAll(' ', '') != '') {
       newProfileRowMap['profile_name'] = _profileName.text;
     }
+    if (widget.isNew) {
+      await supabase.from('Profiles').insert(newProfileRowMap);
+    } else {
+      await supabase.from('Profiles').update(
+        {
+          'avatar_id': avatarId,
+          'username': user,
+          'profile_name': _profileName.text
+        },
+      ).eq('profile_id', newProfileRowMap['profile_id']);
+    }
+  }
 
-    await supabase.from('Profiles').insert(newProfileRowMap);
+  Future _updateProfile() async {
+    final supabase = (await ref.read(supabaseInstance)).client;
+    var avatarId = _selectedImage != null
+        ? await uploadAvatar(_selectedImage)
+        : await supabase
+            .from('Profile')
+            .select('avatar_id')
+            .eq('profile_id', supabase.auth.currentUser!.id);
+    var user = _userName.text;
+    final userId = (await ref.watch(supabaseInstance))
+        .client
+        .auth
+        .currentUser!
+        .id
+        .toString();
+
+    if (_selectedImage != null) {
+      await supabase.storage.from('Images').remove(['$userId/avatar/$avatar']);
+    }
+
+    if (user.replaceAll(' ', '') == '') {
+      user =
+          'User-${supabase.auth.currentUser!.id.replaceAll('-', '').substring(0, 10)}';
+    }
+    final updateProfileRowMap = {
+      'avatar_id': avatarId,
+      'username': user,
+      'profile_name': _profileName.text
+    };
+
+    await supabase
+        .from('Profiles')
+        .update(updateProfileRowMap)
+        .eq('profile_id', supabase.auth.currentUser!.id);
   }
 
   @override
@@ -152,8 +219,10 @@ class _CreateAccountScreenState extends ConsumerState<CreateAccountScreen> {
                     radius: radius - 2,
                     backgroundImage: _selectedImage != null
                         ? FileImage(_selectedImage!)
-                        : null,
-                    child: _selectedImage == null
+                        : (avatar != null
+                            ? NetworkImage(avatar!) as ImageProvider
+                            : null),
+                    child: _selectedImage == null && avatar == null
                         ? Container(
                             decoration: BoxDecoration(
                                 gradient: const LinearGradient(
@@ -215,33 +284,41 @@ class _CreateAccountScreenState extends ConsumerState<CreateAccountScreen> {
             Padding(
               padding: const EdgeInsets.symmetric(vertical: 30),
               child: ElevatedButton(
-                child: const Text("Create Account"),
+                child: widget.isNew ? Text("Create Account") : Text("Update"),
                 onPressed: () async {
                   await _createProfile(_userName.text, _selectedImage);
                   ref.watch(onSignUp.notifier).completeProfileCreation();
                   ref
                       .watch(savedSessionProvider.notifier)
                       .changeSessionDataList();
+                  Navigator.of(context).pop();
                 },
               ),
             ),
             Row(
               mainAxisAlignment: MainAxisAlignment.end,
-              children: [
-                TextButton(
-                  onPressed: () async {
-                    await _createProfile(_userName.text, null);
-                    ref.watch(onSignUp.notifier).completeProfileCreation();
-                    ref
-                        .watch(savedSessionProvider.notifier)
-                        .changeSessionDataList();
-                  },
-                  child: const Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [Text("Skip"), Icon(Icons.arrow_forward_rounded)],
-                  ),
-                ),
-              ],
+              children: widget.isNew
+                  ? [
+                      TextButton(
+                        onPressed: () async {
+                          await _createProfile(_userName.text, null);
+                          ref
+                              .watch(onSignUp.notifier)
+                              .completeProfileCreation();
+                          ref
+                              .watch(savedSessionProvider.notifier)
+                              .changeSessionDataList();
+                        },
+                        child: const Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Text("Skip"),
+                            Icon(Icons.arrow_forward_rounded)
+                          ],
+                        ),
+                      ),
+                    ]
+                  : [],
             ),
           ],
         ),

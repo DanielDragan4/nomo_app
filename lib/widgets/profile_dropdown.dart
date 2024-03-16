@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:nomo/providers/saved_session_provider.dart';
 import 'package:nomo/providers/supabase_provider.dart';
+import 'package:nomo/screens/setting_screen.dart';
 
 enum options {
   itemOne,
@@ -38,7 +39,12 @@ class _ProfileDropdownState extends ConsumerState<ProfileDropdown> {
         PopupMenuItem(
           value: options.itemOne,
           child: const Text("Settings"),
-          onTap: () {},
+          onTap: () {
+            Navigator.push(
+                context,
+                MaterialPageRoute(
+                    builder: ((context) => const SettingScreen())));
+          },
         ),
         PopupMenuItem(
           value: options.itemTwo,

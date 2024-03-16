@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:nomo/models/events_model.dart';
+import 'package:nomo/providers/attending_events_provider.dart';
 import 'package:nomo/providers/events_provider.dart';
 import 'package:nomo/screens/calendar/event_cal_tab.dart';
 
@@ -91,7 +92,8 @@ class Month extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final List<Event> eventsOfMonth = ref.read(eventsProvider.notifier).eventsAttendingByMonth(yearDisplayed, selectedMonth);
+
+    List<Event> calEvents = ref.watch(attendEventsProvider.notifier).eventsAttendingByMonth(yearDisplayed, selectedMonth);
 
     return Container(
       alignment: Alignment.center,
@@ -202,11 +204,11 @@ class Month extends ConsumerWidget {
                 ),
               ),
                 SizedBox(
-                  height: MediaQuery.sizeOf(context).height *0.1,
+                  height: MediaQuery.sizeOf(context).height *0.2,
                   child: ListView(
                     key: const PageStorageKey<String>('cal'),
                     children: 
-                      [for (Event i in eventsOfMonth) EventCalTab(eventData: i)],
+                      [for (Event i in calEvents) EventCalTab(eventData: i)],
                   ),
                 ),
             ],

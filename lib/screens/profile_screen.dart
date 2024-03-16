@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:nomo/models/events_model.dart';
+import 'package:nomo/providers/attending_events_provider.dart';
 import 'package:nomo/providers/profile_provider.dart';
+import 'package:nomo/widgets/event_tab.dart';
 import 'package:nomo/widgets/profile_dropdown.dart';
 import 'package:nomo/models/profile_model.dart';
 
@@ -153,7 +156,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
             child: ListView(
               key: const PageStorageKey<String>('event'),
               children: [
-                //for (Event i in dummyEvents) EventTab(eventData: i),
+                for (Event i in ref.watch(attendEventsProvider.notifier).state) EventTab(eventData: i),
               ],
             ),
           ),

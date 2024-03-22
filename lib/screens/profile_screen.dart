@@ -139,6 +139,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                           ),
                         ],
                       ),
+//TODO: refresh page after updating account info
                       FutureBuilder<Map>(
                         future: profileInfo,
                         builder: ((context, snapshot) {

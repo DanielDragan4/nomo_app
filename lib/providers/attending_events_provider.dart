@@ -1,22 +1,18 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:nomo/models/events_model.dart';
+import 'package:nomo/providers/events_provider.dart';
 import 'package:nomo/providers/supabase_provider.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
-class EventProvider extends StateNotifier<List?> {
-  EventProvider({required this.supabase}) : super([]);
+class AttendEventProvider extends StateNotifier<List<Event>> {
+  AttendEventProvider({required this.supabase, required this.readEvents}) : super([]);
 
   Future<Supabase> supabase;
+  final Future<List> readEvents;
   List<Event> attendingEvents = [];
 
-  Future<List> readEvents() async {
-    final supabaseClient = (await supabase).client;
-    var events = await supabaseClient.from('Event').select();
-    return events.toList();
-  }
-
   Future<void> deCodeData() async {
-    final codedList = await readEvents();
+    final codedList = await readEvents;
 
     List<Event> deCodedList = [];
     final supabaseClient = (await supabase).client;
@@ -36,11 +32,27 @@ class EventProvider extends StateNotifier<List?> {
         final attendee = await supabaseClient.from('Attendees').select()
         .eq('event_id', eventData['event_id']).eq('user_id', supabaseClient.auth.currentUser!.id);
       
-      if((attendee.isEmpty) && (deCodedEvent.host != supabaseClient.auth.currentUser!.id)) {
+      if(attendee.isNotEmpty) {
         deCodedList.add(deCodedEvent);
       }
     }
     state = deCodedList;
+  }
+
+  List<Event> eventsAttendingByMonth(int year, int month) {
+
+    List<Event> eventsPerMonth = [];
+    final List<Event> allAttend = state;
+
+    for(int i =0; i < allAttend.length; i++) {
+      int eventYear = DateTime.parse(allAttend[i].sdate).year;
+      int eventMonth = DateTime.parse(allAttend[i].sdate).month;
+
+      if((eventYear == year) && (eventMonth == month)) {
+        eventsPerMonth.add(allAttend[i]);
+      }
+    }
+    return eventsPerMonth;
   }
 
   Future<String> ImageURL(imgId) async {
@@ -56,29 +68,18 @@ class EventProvider extends StateNotifier<List?> {
     return imgURL;
   }
 
-  Future<void> joinEvent(currentUser, eventToJoin) async{
-    final supabaseClient = (await supabase).client;
-    final newAttendeeMap = {
-      'event_id' : eventToJoin,
-      'user_id' : currentUser
-    };
-    await supabaseClient.from('Attendees').insert(newAttendeeMap);
-  }
-  Future<bool> hasJoined(eventId) async{
-    final supabaseClient = (await supabase).client;
-    final attendee = await supabaseClient.from('Attendees').select()
-    .eq('event_id', eventId).eq('user_id', supabaseClient.auth.currentUser!.id);
-
-    if(attendee.isEmpty) {
-      return true;
-    }
-    else {
-      return false;
-    }
-  }
+  // Future<void> joinEvent(currentUser, eventToJoin) async{
+  //   final supabaseClient = (await supabase).client;
+  //   final newAttendeeMap = {
+  //     'event_id' : eventToJoin,
+  //     'user_id' : currentUser
+  //   };
+  //   await supabaseClient.from('Attendees').insert(newAttendeeMap);
+  // }
 }
 
-final eventsProvider = StateNotifierProvider<EventProvider, List?>((ref) {
+final attendEventsProvider = StateNotifierProvider<AttendEventProvider, List<Event>>((ref) {
   final supabase = ref.read(supabaseInstance);
-  return EventProvider(supabase: supabase);
+  final readEvents = ref.watch(eventsProvider.notifier).readEvents();
+  return AttendEventProvider(supabase: supabase, readEvents: readEvents);
 });

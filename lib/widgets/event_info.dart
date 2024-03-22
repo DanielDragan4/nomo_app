@@ -17,20 +17,27 @@ class EventInfo extends ConsumerStatefulWidget {
 }
 
 class _EventInfoState extends ConsumerState<EventInfo> {
-
   bool joinOrLeave = true;
 
-Future<void> attendeeJoinEvent() async{
+  Future<void> attendeeJoinEvent() async {
     final supabase = (await ref.watch(supabaseInstance)).client;
-    await ref.watch(eventsProvider.notifier).joinEvent(supabase.auth.currentUser!.id, widget.eventsData.eventId);
-}
+    await ref
+        .watch(eventsProvider.notifier)
+        .joinEvent(supabase.auth.currentUser!.id, widget.eventsData.eventId);
+  }
 
-Future<void> isAttending() async {
+  Future<void> isAttending() async {
     final supabase = (await ref.watch(supabaseInstance)).client;
-    final attendee = await supabase.from('Attendees').select()
-    .eq('event_id', widget.eventsData.eventId,).eq('user_id', supabase.auth.currentUser!.id);
+    final attendee = await supabase
+        .from('Attendees')
+        .select()
+        .eq(
+          'event_id',
+          widget.eventsData.eventId,
+        )
+        .eq('user_id', supabase.auth.currentUser!.id);
     joinOrLeave = attendee.isEmpty;
-}
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -43,37 +50,63 @@ Future<void> isAttending() async {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Column(
-            // crossAxisAlignment: CrossAxisAlignment.start,
-            // children: [
-            //   Text("${widget.eventsData.attendies} Attending"),
-            //   Text("${widget.eventsData.friends.length} Friends Attending"),
-            // ],
-          ),
+              // crossAxisAlignment: CrossAxisAlignment.start,
+              // children: [
+              //   Text("${widget.eventsData.attendies} Attending"),
+              //   Text("${widget.eventsData.friends.length} Friends Attending"),
+              // ],
+              ),
           Expanded(
-            child:  Row(
+            child: Row(
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
-                (joinOrLeave) ?(ElevatedButton(
-                  onPressed: attendeeJoinEvent,
-                  style: ButtonStyle(
-                    backgroundColor: MaterialStateProperty.all<Color>(
-                        Theme.of(context).primaryColor),
-                    foregroundColor: MaterialStateProperty.all<Color>(
-                        Theme.of(context).primaryColorLight),
-                  ),
-                  child: const Text('Join'),
-                ))
-                : (ElevatedButton(
-                  onPressed: () {},
-                  style: ButtonStyle(
-                    backgroundColor: MaterialStateProperty.all<Color>(
-                        Theme.of(context).primaryColor),
-                    foregroundColor: MaterialStateProperty.all<Color>(
-                        Theme.of(context).primaryColorLight),
-                  ),
-                  child: const Text('Leave'),
-                )),
-                IconButton(onPressed: () {}, icon: const Icon(Icons.bookmark_border_outlined)),
+                //(ref.read(eventsProvider.notifier).hasJoined(widget.eventsData.eventId))
+                FutureBuilder(
+                  future: (ref
+                      .read(eventsProvider.notifier)
+                      .hasJoined(widget.eventsData.eventId)),
+                  builder: (context, snapshot) {
+                    if (snapshot.hasData) {
+                      if (snapshot.data!) {
+                        return ElevatedButton(
+                          onPressed: attendeeJoinEvent,
+                          style: ButtonStyle(
+                            backgroundColor: MaterialStateProperty.all<Color>(
+                                Theme.of(context).primaryColor),
+                            foregroundColor: MaterialStateProperty.all<Color>(
+                                Theme.of(context).primaryColorLight),
+                          ),
+                          child: const Text('Join'),
+                        );
+                      } else {
+                        return ElevatedButton(
+                          onPressed: () {},
+                          style: ButtonStyle(
+                            backgroundColor: MaterialStateProperty.all<Color>(
+                                Theme.of(context).primaryColor),
+                            foregroundColor: MaterialStateProperty.all<Color>(
+                                Theme.of(context).primaryColorLight),
+                          ),
+                          child: const Text('Leave'),
+                        );
+                      }
+                    } else {
+                      return ElevatedButton(
+                        onPressed: () {},
+                        style: ButtonStyle(
+                          backgroundColor: MaterialStateProperty.all<Color>(
+                              Theme.of(context).primaryColor),
+                          foregroundColor: MaterialStateProperty.all<Color>(
+                              Theme.of(context).primaryColorLight),
+                        ),
+                        child: const Text('Join'),
+                      );
+                    }
+                  },
+                ),
+                IconButton(
+                    onPressed: () {},
+                    icon: const Icon(Icons.bookmark_border_outlined)),
               ],
             ),
           ),

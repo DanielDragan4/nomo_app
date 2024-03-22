@@ -26,7 +26,7 @@ class _EventTabState extends ConsumerState<EventTab> {
   }
 
   Future<void> _fetchData() async {
-    await Future.delayed(Duration(microseconds: 1));
+    await Future.delayed(Duration(milliseconds: 1));
 
     setState(() {
       _event = fetchData();
@@ -34,7 +34,7 @@ class _EventTabState extends ConsumerState<EventTab> {
   }
 
   Future<String> fetchData() async {
-    await Future.delayed(Duration(microseconds: 1));
+    await Future.delayed(Duration(milliseconds: 1));
     return await ref.watch(eventsProvider.notifier).ImageURL(widget.eventData.imageId);
   }
 

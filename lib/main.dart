@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:nomo/providers/attending_events_provider.dart';
 import 'package:nomo/providers/events_provider.dart';
 import 'package:nomo/providers/profile_provider.dart';
 import 'package:nomo/providers/saved_session_provider.dart';
@@ -24,6 +25,7 @@ class App extends ConsumerWidget {
     void loadData() {
       ref.watch(savedSessionProvider.notifier).changeSessionDataList();
       ref.watch(eventsProvider.notifier).deCodeData();
+      ref.watch(attendEventsProvider.notifier).deCodeData();
       ref.watch(profileProvider.notifier).decodeData();
     }
 

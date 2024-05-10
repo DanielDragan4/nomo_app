@@ -122,6 +122,7 @@ class _CreateAccountScreenState extends ConsumerState<CreateAccountScreen> {
     }
   }
 
+  //TODO: delete previous avatar to save space
   Future _updateProfile() async {
     final supabase = (await ref.read(supabaseInstance)).client;
     var avatarId = _selectedImage != null

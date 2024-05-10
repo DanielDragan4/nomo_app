@@ -6,7 +6,10 @@ import 'package:nomo/providers/supabase_provider.dart';
 import 'package:nomo/widgets/event_info.dart';
 
 class EventTab extends ConsumerStatefulWidget {
-  const EventTab({super.key, required this.eventData,});
+  const EventTab({
+    super.key,
+    required this.eventData,
+  });
 
   final Event eventData;
 
@@ -16,7 +19,6 @@ class EventTab extends ConsumerStatefulWidget {
 }
 
 class _EventTabState extends ConsumerState<EventTab> {
-
   Future<String>? _event;
 
   @override
@@ -35,7 +37,9 @@ class _EventTabState extends ConsumerState<EventTab> {
 
   Future<String> fetchData() async {
     await Future.delayed(Duration(milliseconds: 1));
-    return await ref.watch(eventsProvider.notifier).ImageURL(widget.eventData.imageId);
+    return await ref
+        .watch(eventsProvider.notifier)
+        .ImageURL(widget.eventData.imageId);
   }
 
   @override
@@ -47,19 +51,19 @@ class _EventTabState extends ConsumerState<EventTab> {
     // } else {
     //   attendingHosting = false;
     // }
-    
+
     final DateTime date = DateTime.parse(widget.eventData.sdate);
 
     String getHour() {
-      if(date.hour > 12) {
-        return ('${(date.hour -12)} P.M.');
-      }
-      else {
+      if (date.hour > 12) {
+        return ('${(date.hour - 12)} P.M.');
+      } else {
         return ("${date.hour} A.M.");
       }
     }
 
-    var formattedDate = "${date.month}/${date.day}/${date.year} at ${getHour()}";
+    var formattedDate =
+        "${date.month}/${date.day}/${date.year} at ${getHour()}";
     return Padding(
       padding: const EdgeInsets.all(5.0),
       child: Container(
@@ -122,9 +126,7 @@ class _EventTabState extends ConsumerState<EventTab> {
             ),
             Container(
               height: 80,
-              child: Text(
-                widget.eventData.description
-              ),
+              child: Text(widget.eventData.description),
             ),
           ],
         ),

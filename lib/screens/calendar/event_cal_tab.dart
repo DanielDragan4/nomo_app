@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:nomo/models/events_model.dart';
 
 class EventCalTab extends StatelessWidget {
-  EventCalTab({super.key, required this.eventData});
+  const EventCalTab({super.key, required this.eventData});
 
   final Event eventData;
 

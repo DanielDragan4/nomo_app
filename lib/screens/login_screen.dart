@@ -42,6 +42,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
   String? enteredPass;
   final isAuthenticating = false;
 
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Theme.of(context).colorScheme.primary,
@@ -86,7 +87,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                               return null;
                             },
                             onChanged: (value) {
-                              enteredEmail = value!;
+                              enteredEmail = value;
                             },
                           ),
                           TextFormField(
@@ -102,7 +103,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                               return null;
                             },
                             onChanged: (value) {
-                              enteredPass = value!;
+                              enteredPass = value;
                             },
                           ),
                           const SizedBox(

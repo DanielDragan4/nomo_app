@@ -15,8 +15,10 @@ class AttendEventProvider extends StateNotifier<List<Event>> {
     final codedList = await readEvents;
 
     List<Event> deCodedList = [];
+    bool attending = false; 
     final supabaseClient = (await supabase).client;
 
+  if(supabaseClient.auth.currentUser != null) {
     for (var eventData in codedList) {
       final Event deCodedEvent = Event(
           description: eventData['description'],
@@ -27,15 +29,21 @@ class AttendEventProvider extends StateNotifier<List<Event>> {
           imageId: eventData['image_id'],
           location: eventData['location'],
           title: eventData['title'],
-          edate: eventData['time_end']);
+          edate: eventData['time_end'],
+          attendees: eventData['Attendees']);
 
-        final attendee = await supabaseClient.from('Attendees').select()
-        .eq('event_id', eventData['event_id']).eq('user_id', supabaseClient.auth.currentUser!.id);
+
+        for( var i in deCodedEvent.attendees) {
+          if(i == supabaseClient.auth.currentUser!.id) {
+            attending = true;
+        }
+      }
       
-      if(attendee.isNotEmpty) {
+      if((attending) || (deCodedEvent.host == supabaseClient.auth.currentUser!.id)) {
         deCodedList.add(deCodedEvent);
       }
     }
+  }
     state = deCodedList;
   }
 

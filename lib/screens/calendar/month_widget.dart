@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:nomo/models/events_model.dart';
 import 'package:nomo/providers/attending_events_provider.dart';
-import 'package:nomo/providers/events_provider.dart';
 import 'package:nomo/screens/calendar/event_cal_tab.dart';
 
 class Month extends ConsumerWidget {
@@ -107,7 +106,7 @@ class Month extends ConsumerWidget {
                     height: MediaQuery.sizeOf(context).height * 0.0528,
                     width: MediaQuery.sizeOf(context).width * .95,
                     decoration: BoxDecoration(
-                      color: Color.fromARGB(255, 135, 135, 135),
+                      color: const Color.fromARGB(255, 135, 135, 135),
                       border: Border.all(width: 1),
                     ),
                     child: const Row(

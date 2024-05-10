@@ -54,7 +54,7 @@ class AuthProvider extends StateNotifier<Session?> {
       final removeSession = await SharedPreferences.getInstance();
       removeSession.remove("savedSession");
     } 
-    on AuthException catch (error) {
+    on AuthException {
       return;
     } 
     catch (error) {

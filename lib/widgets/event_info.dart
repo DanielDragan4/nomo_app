@@ -21,35 +21,33 @@ class _EventInfoState extends ConsumerState<EventInfo> {
 
   Future<void> attendeeJoinEvent() async {
     final supabase = (await ref.watch(supabaseInstance)).client;
-    await ref
-        .watch(eventsProvider.notifier)
-        .joinEvent(supabase.auth.currentUser!.id, widget.eventsData.eventId);
+    await ref.watch(eventsProvider.notifier).joinEvent(supabase.auth.currentUser!.id, widget.eventsData.eventId);
   }
 
-  Future<void> isAttending() async {
-    final supabase = (await ref.watch(supabaseInstance)).client;
-    final attendee = await supabase
-        .from('Attendees')
-        .select()
-        .eq(
-          'event_id',
-          widget.eventsData.eventId,
-        )
-        .eq('user_id', supabase.auth.currentUser!.id);
-    joinOrLeave = attendee.isEmpty;
-  }
+  // Future<void> isAttending() async {
+  //   final supabase = (await ref.watch(supabaseInstance)).client;
+  //   final attendee = await supabase
+  //       .from('Attendees')
+  //       .select()
+  //       .eq(
+  //         'event_id',
+  //         widget.eventsData.eventId,
+  //       )
+  //       .eq('user_id', supabase.auth.currentUser!.id);
+  //   joinOrLeave = attendee.isEmpty;
+  // }
 
   @override
   Widget build(BuildContext context) {
     options? selectedOption;
-    isAttending();
+    //isAttending();
 
     return Padding(
       padding: const EdgeInsets.all(5.0),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Column(
+          const Column(
               // crossAxisAlignment: CrossAxisAlignment.start,
               // children: [
               //   Text("${widget.eventsData.attendies} Attending"),

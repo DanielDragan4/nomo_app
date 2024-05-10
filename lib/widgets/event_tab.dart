@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:nomo/models/events_model.dart';
 import 'package:nomo/providers/events_provider.dart';
-import 'package:nomo/providers/supabase_provider.dart';
 import 'package:nomo/widgets/event_info.dart';
 
 class EventTab extends ConsumerStatefulWidget {
@@ -10,6 +9,7 @@ class EventTab extends ConsumerStatefulWidget {
 
   final Event eventData;
 
+  @override
   ConsumerState<EventTab> createState() {
     return _EventTabState();
   }
@@ -26,7 +26,7 @@ class _EventTabState extends ConsumerState<EventTab> {
   }
 
   Future<void> _fetchData() async {
-    await Future.delayed(Duration(milliseconds: 1));
+    await Future.delayed(const Duration(milliseconds: 1));
 
     setState(() {
       _event = fetchData();
@@ -34,7 +34,7 @@ class _EventTabState extends ConsumerState<EventTab> {
   }
 
   Future<String> fetchData() async {
-    await Future.delayed(Duration(milliseconds: 1));
+    await Future.delayed(const Duration(milliseconds: 1));
     return await ref.watch(eventsProvider.notifier).ImageURL(widget.eventData.imageId);
   }
 
@@ -108,7 +108,7 @@ class _EventTabState extends ConsumerState<EventTab> {
                     } else if (snapshot.hasError) {
                       return Text('Error loading image: ${snapshot.error}');
                     } else {
-                      return CircularProgressIndicator();
+                      return const CircularProgressIndicator();
                     }
                   },
                 ),
@@ -120,7 +120,7 @@ class _EventTabState extends ConsumerState<EventTab> {
             EventInfo(
               eventsData: widget.eventData, //attendOrHost: attendingHosting,
             ),
-            Container(
+            SizedBox(
               height: 80,
               child: Text(
                 widget.eventData.description

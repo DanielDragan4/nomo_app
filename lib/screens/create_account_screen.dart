@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:nomo/logic/create_account_functions.dart';
 import 'package:nomo/providers/saved_session_provider.dart';
 import 'package:nomo/providers/user_signup_provider.dart';
 import 'package:nomo/widgets/app_bar.dart';
@@ -15,12 +16,14 @@ class CreateAccountScreen extends ConsumerStatefulWidget {
       required this.isNew,
       this.avatar,
       this.profilename,
-      this.username});
+      this.username,
+      this.onUpdateProfile});
 
   bool isNew;
-  String? avatar;
-  String? username;
-  String? profilename;
+  final String? avatar;
+  final String? username;
+  final String? profilename;
+  final VoidCallback? onUpdateProfile;
 
   @override
   ConsumerState<CreateAccountScreen> createState() {
@@ -123,14 +126,16 @@ class _CreateAccountScreenState extends ConsumerState<CreateAccountScreen> {
   }
 
   //TODO: delete previous avatar to save space
-  Future _updateProfile() async {
+  Future<void> _updateProfile() async {
     final supabase = (await ref.read(supabaseInstance)).client;
     var avatarId = _selectedImage != null
         ? await uploadAvatar(_selectedImage)
         : await supabase
-            .from('Profile')
+            .from('Profiles')
             .select('avatar_id')
-            .eq('profile_id', supabase.auth.currentUser!.id);
+            .eq('profile_id', supabase.auth.currentUser!.id)
+            .single()
+            .then((response) => response['avatar_id'] as String?);
     var user = _userName.text;
     final userId = (await ref.watch(supabaseInstance))
         .client
@@ -157,6 +162,9 @@ class _CreateAccountScreenState extends ConsumerState<CreateAccountScreen> {
         .from('Profiles')
         .update(updateProfileRowMap)
         .eq('profile_id', supabase.auth.currentUser!.id);
+
+    //widget.onUpdateProfile!.call();
+    //Navigator.of(context).pop;
   }
 
   @override
@@ -286,14 +294,23 @@ class _CreateAccountScreenState extends ConsumerState<CreateAccountScreen> {
             Padding(
               padding: const EdgeInsets.symmetric(vertical: 30),
               child: ElevatedButton(
-                child: widget.isNew ? const Text("Create Account") : const Text("Update"),
+                child: widget.isNew
+                    ? const Text("Create Account")
+                    : const Text("Update"),
                 onPressed: () async {
-                  await _createProfile(_userName.text, _selectedImage);
-                  ref.watch(onSignUp.notifier).completeProfileCreation();
-                  ref
-                      .watch(savedSessionProvider.notifier)
-                      .changeSessionDataList();
-                  Navigator.of(context).pop();
+                  if (widget.isNew) {
+                    await _createProfile(_userName.text, _selectedImage);
+                    ref.watch(onSignUp.notifier).completeProfileCreation();
+                    ref
+                        .watch(savedSessionProvider.notifier)
+                        .changeSessionDataList();
+                    Navigator.of(context).pop();
+                  } else {
+                    await _updateProfile();
+
+                    widget.onUpdateProfile!.call();
+                    Navigator.of(context).pop();
+                  }
                 },
               ),
             ),

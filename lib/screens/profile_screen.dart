@@ -28,28 +28,38 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
   Future<void> _fetchData() async {
     await Future.delayed(const Duration(microseconds: 1));
 
-    setState(() {
-      profileInfo = fetchInfo();
-    });
+    if (mounted) {
+      setState(() {
+        profileInfo = fetchInfo();
+      });
+    }
   }
 
   Future<Map> fetchInfo() async {
     await Future.delayed(const Duration(microseconds: 1));
-    var avatar = await ref
-        .watch(profileProvider.notifier)
-        .imageURL(ref.watch(profileProvider.notifier).state![0].avatar);
-    var profN = ref.watch(profileProvider.notifier).state![0].profile_name;
-    var userN = ref.watch(profileProvider.notifier).state![0].username;
-    final infoMap = {
+    final profileState = ref.watch(profileProvider.notifier).state![0];
+    final avatar =
+        await ref.watch(profileProvider.notifier).imageURL(profileState.avatar);
+    final profN = profileState.profile_name;
+    final userN = profileState.username;
+
+    return {
       'profile_name': profN,
       'avatar': avatar,
       'username': userN,
     };
-    return infoMap;
- }
+  }
+
+  void updateProfileInfo() {
+    setState(() {
+      _fetchData();
+    });
+  }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext contex) {
+    final imageUrl = ref.watch(profileProvider.notifier).state?[0].avatar;
+
     return Scaffold(
       appBar: AppBar(
         toolbarHeight: 120,
@@ -75,6 +85,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                         return Column(
                           children: [
                             CircleAvatar(
+                              key: ValueKey<String>(imageUrl),
                               radius: 30,
                               backgroundColor: Colors.white,
                               backgroundImage: NetworkImage(
@@ -147,15 +158,20 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                           if (snapshot.hasData) {
                             return ElevatedButton(
                               onPressed: () {
-                                Navigator.of(context).push(MaterialPageRoute(
+                                Navigator.of(context)
+                                    .push(MaterialPageRoute(
                                   builder: ((context) => CreateAccountScreen(
                                         isNew: false,
                                         avatar: snapshot.data!['avatar'],
                                         profilename:
                                             snapshot.data!['profile_name'],
                                         username: snapshot.data!['username'],
+                                        onUpdateProfile: updateProfileInfo,
                                       )),
-                                ));
+                                ))
+                                    .then((_) {
+                                  updateProfileInfo();
+                                });
                               },
                               child: const Text("Edit Profile"),
                             );
@@ -182,7 +198,8 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
             child: ListView(
               key: const PageStorageKey<String>('event'),
               children: [
-                for (Event i in ref.watch(attendEventsProvider.notifier).state) EventTab(eventData: i),
+                for (Event i in ref.watch(attendEventsProvider.notifier).state)
+                  EventTab(eventData: i),
               ],
             ),
           ),

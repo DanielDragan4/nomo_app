@@ -1,4 +1,3 @@
-import 'package:nomo/models/events_model.dart';
 import 'package:nomo/models/user_model.dart';
 import 'package:flutter/material.dart';
 

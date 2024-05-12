@@ -1,5 +1,3 @@
-import 'package:flutter/material.dart';
-import 'package:nomo/models/events_model.dart';
 
 class Profile {
   const Profile({

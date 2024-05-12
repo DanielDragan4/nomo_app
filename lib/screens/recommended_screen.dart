@@ -64,7 +64,7 @@ class RecommendedScreen extends ConsumerWidget {
                 }
                 else {
                   return 
-                      Text("No Data Retreived");
+                      const Text("No Data Retreived");
                 }
               }
             ),

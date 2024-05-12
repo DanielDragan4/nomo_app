@@ -6,6 +6,7 @@ import 'package:nomo/widgets/app_bar.dart';
 import 'dart:io';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:nomo/providers/supabase_provider.dart';
+import 'package:postgrest/src/types.dart';
 import 'package:uuid/uuid.dart';
 
 class CreateAccountScreen extends ConsumerStatefulWidget {
@@ -68,7 +69,7 @@ class _CreateAccountScreenState extends ConsumerState<CreateAccountScreen> {
   dynamic uploadAvatar(File? imageFile) async {
     final supabase = (await ref.watch(supabaseInstance));
     final userId = supabase.client.auth.currentUser!.id.toString();
-    var imgId;
+    PostgrestList imgId;
 
     var uuid = const Uuid();
     final currentImageName = uuid.v4();
@@ -89,9 +90,9 @@ class _CreateAccountScreenState extends ConsumerState<CreateAccountScreen> {
     return imgId[0]["images_id"];
   }
 
-  Future _createProfile(String user, File? _selectedImage) async {
+  Future _createProfile(String user, File? selectedImage) async {
     final supabase = (await ref.read(supabaseInstance)).client;
-    var avatarId = await uploadAvatar(_selectedImage);
+    var avatarId = await uploadAvatar(selectedImage);
 
     if (user.replaceAll(' ', '') == '') {
       user =
@@ -161,7 +162,7 @@ class _CreateAccountScreenState extends ConsumerState<CreateAccountScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: MainAppBar(),
+      appBar: const MainAppBar(),
       body: SingleChildScrollView(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -189,21 +190,21 @@ class _CreateAccountScreenState extends ConsumerState<CreateAccountScreen> {
                             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                             children: [
                               TextButton(
-                                child: Text("Select from Gallery"),
+                                child: const Text("Select from Gallery"),
                                 onPressed: () {
                                   _pickImageFromGallery();
                                   Navigator.pop(context);
                                 },
                               ),
                               TextButton(
-                                child: Text("Take a Picture"),
+                                child: const Text("Take a Picture"),
                                 onPressed: () {
                                   _pickImageFromCamera();
                                   Navigator.pop(context);
                                 },
                               ),
                               TextButton(
-                                child: Text("Close"),
+                                child: const Text("Close"),
                                 onPressed: () {
                                   Navigator.pop(context);
                                 },
@@ -285,7 +286,7 @@ class _CreateAccountScreenState extends ConsumerState<CreateAccountScreen> {
             Padding(
               padding: const EdgeInsets.symmetric(vertical: 30),
               child: ElevatedButton(
-                child: widget.isNew ? Text("Create Account") : Text("Update"),
+                child: widget.isNew ? const Text("Create Account") : const Text("Update"),
                 onPressed: () async {
                   await _createProfile(_userName.text, _selectedImage);
                   ref.watch(onSignUp.notifier).completeProfileCreation();

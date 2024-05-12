@@ -10,6 +10,7 @@ class Event {
     required this.location,
     required this.description,
     required this.eventType,
+    required this.attendees,
   });
 
   final eventId;
@@ -21,4 +22,5 @@ class Event {
   final String location;
   final String description;
   final String eventType;
+  final List attendees;
 }

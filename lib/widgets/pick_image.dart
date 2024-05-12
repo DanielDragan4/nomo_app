@@ -1,10 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:io';
-import 'package:supabase_flutter/supabase_flutter.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:nomo/providers/supabase_provider.dart';
-import 'package:nomo/providers/saved_session_provider.dart';
 
 class ImageInput extends StatefulWidget {
   const ImageInput({super.key, required this.onPickImage});

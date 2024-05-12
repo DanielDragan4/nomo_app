@@ -19,7 +19,7 @@ class _FriendsScreenState extends State<FriendsScreen> {
     //Start on friends list. If false, show requests list
 
     return Scaffold(
-      appBar: MainAppBar(),
+      appBar: const MainAppBar(),
       // AppBar(
       //   toolbarHeight: 15,
       //   titleTextStyle: Theme.of(context).appBarTheme.titleTextStyle,
@@ -46,7 +46,7 @@ class _FriendsScreenState extends State<FriendsScreen> {
                     border: Border.all(style: BorderStyle.solid),
                   ),
                   child: TextButton(
-                    child: Text("Friends"),
+                    child: const Text("Friends"),
                     onPressed: () {
                       setState(() {
                         friends = true;
@@ -62,7 +62,7 @@ class _FriendsScreenState extends State<FriendsScreen> {
                     border: Border.all(style: BorderStyle.solid),
                   ),
                   child: TextButton(
-                    child: Text("Requests"),
+                    child: const Text("Requests"),
                     onPressed: () {
                       setState(() {
                         friends = false;
@@ -104,7 +104,7 @@ class _FriendsScreenState extends State<FriendsScreen> {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {},
-        child: Icon(Icons.chat),
+        child: const Icon(Icons.chat),
       ),
     );
   }

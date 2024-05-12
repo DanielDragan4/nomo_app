@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:nomo/widgets/app_bar.dart';
 import 'package:nomo/widgets/pick_image.dart';
 import 'dart:io';
-import 'package:nomo/models/place.dart';
 import 'package:intl/intl.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:nomo/providers/supabase_provider.dart';
@@ -29,7 +28,7 @@ class _NewEventScreenState extends ConsumerState<NewEventScreen> {
   File? _selectedImage;
   String dropDownValue = list.first;
   bool enableButton = false;
-  int? _inviteType = 1;
+  final int _inviteType = 1;
   final _selectedLocation = TextEditingController();
   final _title = TextEditingController();
   final _description = TextEditingController();
@@ -185,7 +184,7 @@ class _NewEventScreenState extends ConsumerState<NewEventScreen> {
                     onPressed: () => _selectDate(context),
                     child: Text(
                       _formattedDate ?? "Select Event Date",
-                      style: TextStyle(fontSize: 15),
+                      style: const TextStyle(fontSize: 15),
                     ),
                   ),
                 ],
@@ -205,7 +204,7 @@ class _NewEventScreenState extends ConsumerState<NewEventScreen> {
                     child: Text(
                       _selectedStartTime?.format(context) ??
                           "Select Start Time", // Format start time
-                      style: TextStyle(fontSize: 15),
+                      style: const TextStyle(fontSize: 15),
                     ),
                   ),
                   const Text("-"),
@@ -215,7 +214,7 @@ class _NewEventScreenState extends ConsumerState<NewEventScreen> {
                     child: Text(
                       _selectedEndTime?.format(context) ??
                           "Select End Time", // Format end time
-                      style: TextStyle(fontSize: 15),
+                      style: const TextStyle(fontSize: 15),
                     ),
                   ),
                 ],
@@ -234,7 +233,7 @@ class _NewEventScreenState extends ConsumerState<NewEventScreen> {
                     child: DropdownButton<String>(
                       value: dropDownValue,
                       elevation: 16,
-                      icon: SizedBox.shrink(),
+                      icon: const SizedBox.shrink(),
                       style: TextStyle(
                           color: Theme.of(context).colorScheme.primary,
                           fontSize: 15,

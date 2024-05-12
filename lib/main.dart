@@ -9,7 +9,6 @@ import 'package:nomo/screens/NavBar.dart';
 import 'package:nomo/screens/create_account_screen.dart';
 import 'package:nomo/screens/login_screen.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:nomo/screens/create_account_screen.dart';
 
 void main() async {
   runApp(

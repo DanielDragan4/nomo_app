@@ -11,18 +11,13 @@ class MainAppBar extends StatelessWidget implements PreferredSizeWidget {
     // TODO: implement build
     return AppBar(
       //toolbarHeight: 15,
+      centerTitle: true,
       titleTextStyle: Theme.of(context).appBarTheme.titleTextStyle,
-      title: Center(
-        child: Column(
-          children: [
-            Text(
-              'Nomo',
-              style: TextStyle(
-                color: Theme.of(context).primaryColor,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-          ],
+      title: Text(
+        'Nomo',
+        style: TextStyle(
+          color: Theme.of(context).primaryColor,
+          fontWeight: FontWeight.bold,
         ),
       ),
     );

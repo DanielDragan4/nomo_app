@@ -18,11 +18,13 @@ class ProfileScreen extends ConsumerStatefulWidget {
 
 class _ProfileScreenState extends ConsumerState<ProfileScreen> {
   Future<Map>? profileInfo;
+  
 
   @override
   void initState() {
     super.initState();
     _fetchData();
+    ref.read(attendEventsProvider.notifier).deCodeData();
   }
 
   Future<void> _fetchData() async {

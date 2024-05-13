@@ -19,7 +19,6 @@ class EventProvider extends StateNotifier<List?> {
     final codedList = await readEvents();
 
     List<Event> deCodedList = [];
-    bool attending = false;
     final supabaseClient = (await supabase).client;
 
     for (var eventData in codedList) {
@@ -36,14 +35,15 @@ class EventProvider extends StateNotifier<List?> {
           attendees: eventData['Attendees'] 
           );
 
-
-      for( var i in deCodedEvent.attendees) {
-        if(i == supabaseClient.auth.currentUser!.id) {
+      bool attending = false;
+      for(var i = 0; i < deCodedEvent.attendees.length; i++) {
+        if(deCodedEvent.attendees[i]['user_id'] == supabaseClient.auth.currentUser!.id) {
           attending = true;
+          break;
         }
       }
       
-      if((!attending) && (deCodedEvent.host != supabaseClient.auth.currentUser!.id)) {
+      if((attending == false) && (deCodedEvent.host != supabaseClient.auth.currentUser!.id)) {
         deCodedList.add(deCodedEvent);
       }
     }
@@ -70,18 +70,6 @@ class EventProvider extends StateNotifier<List?> {
       'user_id' : currentUser
     };
     await supabaseClient.from('Attendees').insert(newAttendeeMap);
-  }
-  Future<bool> hasJoined(eventId) async{
-    final supabaseClient = (await supabase).client;
-    final attendee = await supabaseClient.from('Attendees').select()
-    .eq('event_id', eventId).eq('user_id', supabaseClient.auth.currentUser!.id);
-
-    if(attendee.isEmpty) {
-      return true;
-    }
-    else {
-      return false;
-    }
   }
 }
 

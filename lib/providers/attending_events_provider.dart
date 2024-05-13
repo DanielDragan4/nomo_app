@@ -5,17 +5,21 @@ import 'package:nomo/providers/supabase_provider.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 class AttendEventProvider extends StateNotifier<List<Event>> {
-  AttendEventProvider({required this.supabase, required this.readEvents}) : super([]);
+  AttendEventProvider({required this.supabase}) : super([]);
 
   Future<Supabase> supabase;
-  final Future<List> readEvents;
   List<Event> attendingEvents = [];
 
+   Future<List> readEvents1() async {
+    final supabaseClient = (await supabase).client;
+    var events = await supabaseClient.from('Event').select('*, Attendees(user_id)');
+    return events.toList();
+  }
+
   Future<void> deCodeData() async {
-    final codedList = await readEvents;
+    final codedList = await readEvents1();
 
     List<Event> deCodedList = [];
-    bool attending = false; 
     final supabaseClient = (await supabase).client;
 
   if(supabaseClient.auth.currentUser != null) {
@@ -32,10 +36,11 @@ class AttendEventProvider extends StateNotifier<List<Event>> {
           edate: eventData['time_end'],
           attendees: eventData['Attendees']);
 
-
-        for( var i in deCodedEvent.attendees) {
-          if(i == supabaseClient.auth.currentUser!.id) {
-            attending = true;
+        bool attending = false; 
+        for(var i = 0; i < deCodedEvent.attendees.length; i++) {
+        if(deCodedEvent.attendees[i]['user_id'] == supabaseClient.auth.currentUser!.id) {
+          attending = true;
+          break;
         }
       }
       
@@ -76,18 +81,15 @@ class AttendEventProvider extends StateNotifier<List<Event>> {
     return imgURL;
   }
 
-  // Future<void> joinEvent(currentUser, eventToJoin) async{
-  //   final supabaseClient = (await supabase).client;
-  //   final newAttendeeMap = {
-  //     'event_id' : eventToJoin,
-  //     'user_id' : currentUser
-  //   };
-  //   await supabaseClient.from('Attendees').insert(newAttendeeMap);
-  // }
+  Future<void> leaveEvent(currentUser, eventToLeave) async{
+    final supabaseClient = (await supabase).client;
+
+    await supabaseClient.from('Attendees').delete().eq('user_id', currentUser).eq('event_id', eventToLeave);
+    deCodeData();
+  }
 }
 
 final attendEventsProvider = StateNotifierProvider<AttendEventProvider, List<Event>>((ref) {
   final supabase = ref.read(supabaseInstance);
-  final readEvents = ref.watch(eventsProvider.notifier).readEvents();
-  return AttendEventProvider(supabase: supabase, readEvents: readEvents);
+  return AttendEventProvider(supabase: supabase,);
 });

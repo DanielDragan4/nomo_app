@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:nomo/models/events_model.dart';
+import 'package:nomo/providers/attending_events_provider.dart';
 import 'package:nomo/providers/events_provider.dart';
 import 'package:nomo/providers/supabase_provider.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 enum options { itemOne, itemTwo, itemThree, itemFour }
 
@@ -17,29 +19,24 @@ class EventInfo extends ConsumerStatefulWidget {
 }
 
 class _EventInfoState extends ConsumerState<EventInfo> {
-  bool joinOrLeave = true;
-
   Future<void> attendeeJoinEvent() async {
     final supabase = (await ref.watch(supabaseInstance)).client;
-    await ref.watch(eventsProvider.notifier).joinEvent(supabase.auth.currentUser!.id, widget.eventsData.eventId);
+    await ref
+        .watch(eventsProvider.notifier)
+        .joinEvent(supabase.auth.currentUser!.id, widget.eventsData.eventId);
   }
 
-  // Future<void> isAttending() async {
-  //   final supabase = (await ref.watch(supabaseInstance)).client;
-  //   final attendee = await supabase
-  //       .from('Attendees')
-  //       .select()
-  //       .eq(
-  //         'event_id',
-  //         widget.eventsData.eventId,
-  //       )
-  //       .eq('user_id', supabase.auth.currentUser!.id);
-  //   joinOrLeave = attendee.isEmpty;
-  // }
+  Future<void> attendeeLeaveEvent() async {
+    final supabase = (await ref.watch(supabaseInstance)).client;
+    await ref
+        .watch(attendEventsProvider.notifier)
+        .leaveEvent(supabase.auth.currentUser!.id, widget.eventsData.eventId);
+  }
 
   @override
   Widget build(BuildContext context) {
     options? selectedOption;
+    String text = 'Join';
     //isAttending();
 
     return Padding(
@@ -58,37 +55,52 @@ class _EventInfoState extends ConsumerState<EventInfo> {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
-                //(ref.read(eventsProvider.notifier).hasJoined(widget.eventsData.eventId))
                 FutureBuilder(
-                  future: (ref
-                      .read(eventsProvider.notifier)
-                      .hasJoined(widget.eventsData.eventId)),
-                  builder: (context, snapshot) {
+                  future: ref.read(supabaseInstance),
+                  builder: ((context, snapshot) {
                     if (snapshot.hasData) {
-                      if (snapshot.data!) {
+                      if(snapshot.data != null) {
+                      bool joinOrLeave = false;
+                      final supabase = snapshot.data!.client;
+                      final currentUser = supabase.auth.currentUser!.id;
+
+                      for (var i = 0; i < widget.eventsData.attendees.length; i++) {
+                        if (widget.eventsData.attendees[i]['user_id'] == currentUser) {
+                          joinOrLeave = true;
+                          break;
+                        }
+                      }
+                      if (!joinOrLeave) {
+                        text = 'Join';
                         return ElevatedButton(
-                          onPressed: attendeeJoinEvent,
+                          onPressed: (){
+                            attendeeJoinEvent();
+                            },
                           style: ButtonStyle(
                             backgroundColor: MaterialStateProperty.all<Color>(
                                 Theme.of(context).primaryColor),
                             foregroundColor: MaterialStateProperty.all<Color>(
                                 Theme.of(context).primaryColorLight),
                           ),
-                          child: const Text('Join'),
+                          child: Text(text),
                         );
-                      } else {
+                      } else if(joinOrLeave){
+                        text = 'Leave';
                         return ElevatedButton(
-                          onPressed: () {},
+                          onPressed: (){
+                            attendeeLeaveEvent();
+                            },
                           style: ButtonStyle(
                             backgroundColor: MaterialStateProperty.all<Color>(
                                 Theme.of(context).primaryColor),
                             foregroundColor: MaterialStateProperty.all<Color>(
                                 Theme.of(context).primaryColorLight),
                           ),
-                          child: const Text('Leave'),
+                          child: Text(text),
                         );
                       }
-                    } else {
+                      }
+                    } 
                       return ElevatedButton(
                         onPressed: () {},
                         style: ButtonStyle(
@@ -97,10 +109,10 @@ class _EventInfoState extends ConsumerState<EventInfo> {
                           foregroundColor: MaterialStateProperty.all<Color>(
                               Theme.of(context).primaryColorLight),
                         ),
-                        child: const Text('Join'),
+                        child: const Text('test'),
                       );
-                    }
-                  },
+                  }
+                  ),
                 ),
                 IconButton(
                     onPressed: () {},

@@ -9,7 +9,6 @@ class RecommendedScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    ref.watch(eventsProvider.notifier).deCodeData();
 
     return Scaffold(
       appBar: AppBar(
@@ -52,14 +51,14 @@ class RecommendedScreen extends ConsumerWidget {
         children: [
           Expanded(
             child: StreamBuilder(
-                stream: ref.watch(eventsProvider.notifier).stream,
+                stream: ref.read(eventsProvider.notifier).stream,
                 builder: (context, snapshot) {
                   if (snapshot.data != null) {
                     return ListView(
                       key: const PageStorageKey<String>('page'),
                       children: [
                         for (Event i
-                            in ref.watch(eventsProvider.notifier).state!)
+                            in ref.read(eventsProvider.notifier).state!)
                           EventTab(eventData: i)
                       ],
                     );

@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:nomo/models/events_model.dart';
@@ -22,14 +24,14 @@ class _EventInfoState extends ConsumerState<EventInfo> {
   Future<void> attendeeJoinEvent() async {
     final supabase = (await ref.watch(supabaseInstance)).client;
     await ref
-        .watch(eventsProvider.notifier)
+        .read(eventsProvider.notifier)
         .joinEvent(supabase.auth.currentUser!.id, widget.eventsData.eventId);
   }
 
   Future<void> attendeeLeaveEvent() async {
     final supabase = (await ref.watch(supabaseInstance)).client;
     await ref
-        .watch(attendEventsProvider.notifier)
+        .read(attendEventsProvider.notifier)
         .leaveEvent(supabase.auth.currentUser!.id, widget.eventsData.eventId);
   }
 
@@ -88,7 +90,25 @@ class _EventInfoState extends ConsumerState<EventInfo> {
                         text = 'Leave';
                         return ElevatedButton(
                           onPressed: (){
-                            attendeeLeaveEvent();
+                            showDialog(
+                              context: context, 
+                              builder: (context) =>
+                                AlertDialog(
+                                  title: const Text('Are you sure you want to leave the event?'),
+                                  actions: [
+                                    TextButton(onPressed: () => Navigator.pop(context), child: const Text('CANCEL')),
+                                    TextButton(onPressed: (){
+                                      setState(() {
+                                        attendeeLeaveEvent();
+                                      });
+                                      
+                                      Navigator.pop(context);
+                                      }, 
+                                      child: const Text('YES')
+                                      ),
+                                  ],
+                                )
+                              );
                             },
                           style: ButtonStyle(
                             backgroundColor: MaterialStateProperty.all<Color>(

@@ -65,7 +65,7 @@ class _EventTabState extends ConsumerState<EventTab> {
     var formattedDate =
         "${date.month}/${date.day}/${date.year} at ${getHour()}";
     return Padding(
-      padding: const EdgeInsets.all(5.0),
+      padding: const EdgeInsets.only(top: 0, bottom: 10, left: 5, right: 5),
       child: Container(
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(3),

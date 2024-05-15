@@ -28,33 +28,35 @@ class _ProfileDropdownState extends ConsumerState<ProfileDropdown> {
     options? selectedOption;
 
     return PopupMenuButton<options>(
-      onSelected: (options item) {
-        setState(
-          () {
-            selectedOption = item;
-          },
-        );
-      },
-      itemBuilder: (context) => <PopupMenuEntry<options>>[
-        PopupMenuItem(
-          value: options.itemOne,
-          child: const Text("Settings"),
-          onTap: () {
-            Navigator.push(
-                context,
-                MaterialPageRoute(
-                    builder: ((context) => const SettingScreen())));
-          },
-        ),
-        PopupMenuItem(
-          value: options.itemTwo,
-          child: const Text("Sign Out"),
-          onTap: () {
-            ref.watch(currentUserProvider.notifier).signOut();
-            ref.read(savedSessionProvider.notifier).changeSessionDataList();
-          },
-        ),
-      ],
-    );
+        onSelected: (options item) {
+          setState(
+            () {
+              selectedOption = item;
+            },
+          );
+        },
+        itemBuilder: (context) => <PopupMenuEntry<options>>[
+              PopupMenuItem(
+                value: options.itemOne,
+                child: const Text("Settings"),
+                onTap: () {
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: ((context) => const SettingScreen())));
+                },
+              ),
+              PopupMenuItem(
+                value: options.itemTwo,
+                child: const Text("Sign Out"),
+                onTap: () {
+                  ref.watch(currentUserProvider.notifier).signOut();
+                  ref
+                      .read(savedSessionProvider.notifier)
+                      .changeSessionDataList();
+                },
+              ),
+            ],
+        iconSize: MediaQuery.sizeOf(context).height / 30);
   }
 }

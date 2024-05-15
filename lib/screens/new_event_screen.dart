@@ -92,20 +92,19 @@ class _NewEventScreenState extends ConsumerState<NewEventScreen> {
   //TO-DO: generate unique image name to replace '/anotherimage' otherwise error occurs
   dynamic uploadImage(File imageFile) async {
     final supabase = (await ref.watch(supabaseInstance));
-    final userId =  supabase.client.auth.currentUser!.id.toString();
+    final userId = supabase.client.auth.currentUser!.id.toString();
 
     var uuid = const Uuid();
     final currentImageName = uuid.v4();
 
-    final response = await supabase
-        .client
-        .storage
+    final response = await supabase.client.storage
         .from('Images')
         .upload('$userId/images/$currentImageName', imageFile);
 
-        var imgId = await supabase.client.from('Images').insert({'image_url': '$userId/images/$currentImageName'}).select('images_id');
+    var imgId = await supabase.client.from('Images').insert(
+        {'image_url': '$userId/images/$currentImageName'}).select('images_id');
 
-        return imgId[0]["images_id"];
+    return imgId[0]["images_id"];
 
     // if (response.error == null) {
     //   print('Image uploaded successfully');
@@ -138,7 +137,7 @@ class _NewEventScreenState extends ConsumerState<NewEventScreen> {
       'host': supabase.auth.currentUser!.id,
       'invitationType': inviteType,
       'image_id': imageId,
-      'title' : title
+      'title': title
     };
 
     await supabase.from('Event').insert(newEventRowMap);
@@ -158,14 +157,34 @@ class _NewEventScreenState extends ConsumerState<NewEventScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: const MainAppBar(),
+      appBar: AppBar(
+        flexibleSpace: PreferredSize(
+          preferredSize: Size.fromHeight(kToolbarHeight),
+          child: Container(
+            padding: const EdgeInsets.only(
+              top: 20,
+              bottom: 5,
+            ),
+            alignment: Alignment.bottomCenter,
+            child: Text('Create',
+                style: TextStyle(
+                  color: Theme.of(context).primaryColor,
+                  fontWeight: FontWeight.w800,
+                  fontSize: 30,
+                )),
+          ),
+        ),
+        bottom: PreferredSize(
+          preferredSize: const Size.fromHeight(4.0),
+          child: Container(
+            color: const Color.fromARGB(255, 69, 69, 69),
+            height: 1.0,
+          ),
+        ),
+      ),
       body: SingleChildScrollView(
         child: Column(
           children: [
-            const Center(
-              child: Text("Create New Event +"),
-            ),
-            const SizedBox(height: 10),
             ImageInput(
               onPickImage: (image) {
                 _selectedImage = image;
@@ -257,20 +276,20 @@ class _NewEventScreenState extends ConsumerState<NewEventScreen> {
             ),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                child: TextField(
-                  controller: _selectedLocation,
-                  decoration: const InputDecoration(
-                    border: OutlineInputBorder(),
-                    labelText: "Enter The Event's Address",
-                    contentPadding: EdgeInsets.all(5),
-                  ),
-                  keyboardType: TextInputType.multiline,
-                  textInputAction: TextInputAction.done,
-                  maxLines: null,
-                  textAlign: TextAlign.start,
-                  textCapitalization: TextCapitalization.sentences,
-                  maxLength: 50,
+              child: TextField(
+                controller: _selectedLocation,
+                decoration: const InputDecoration(
+                  border: OutlineInputBorder(),
+                  labelText: "Enter The Event's Address",
+                  contentPadding: EdgeInsets.all(5),
                 ),
+                keyboardType: TextInputType.multiline,
+                textInputAction: TextInputAction.done,
+                maxLines: null,
+                textAlign: TextAlign.start,
+                textCapitalization: TextCapitalization.sentences,
+                maxLength: 50,
+              ),
             ),
             // child: LocationInput(
             //   onSelectedLocation: (location) {
@@ -279,38 +298,37 @@ class _NewEventScreenState extends ConsumerState<NewEventScreen> {
             // ),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 8.0),
-           
-                child: TextField(
-                  controller: _title,
-                  decoration: const InputDecoration(
-                    border: OutlineInputBorder(),
-                    labelText: "Enter Your Event Title",
-                    contentPadding: EdgeInsets.all(5),
-                  ),
-                  keyboardType: TextInputType.multiline,
-                  textInputAction: TextInputAction.done,
-                  maxLines: null,
-                  textAlign: TextAlign.start,
-                  textCapitalization: TextCapitalization.sentences,
-                  maxLength: 200,
+              child: TextField(
+                controller: _title,
+                decoration: const InputDecoration(
+                  border: OutlineInputBorder(),
+                  labelText: "Enter Your Event Title",
+                  contentPadding: EdgeInsets.all(5),
                 ),
-),
+                keyboardType: TextInputType.multiline,
+                textInputAction: TextInputAction.done,
+                maxLines: null,
+                textAlign: TextAlign.start,
+                textCapitalization: TextCapitalization.sentences,
+                maxLength: 200,
+              ),
+            ),
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 8.0),    
-                child: TextField(
-                  controller: _description,
-                  decoration: const InputDecoration(
-                    border: OutlineInputBorder(),
-                    labelText: "Enter Your Event Description",
-                    contentPadding: EdgeInsets.all(5),
-                  ),
-                  keyboardType: TextInputType.multiline,
-                  textInputAction: TextInputAction.done,
-                  maxLines: null,
-                  textAlign: TextAlign.start,
-                  textCapitalization: TextCapitalization.sentences,
-                  maxLength: 200,
+              padding: const EdgeInsets.symmetric(horizontal: 8.0),
+              child: TextField(
+                controller: _description,
+                decoration: const InputDecoration(
+                  border: OutlineInputBorder(),
+                  labelText: "Enter Your Event Description",
+                  contentPadding: EdgeInsets.all(5),
                 ),
+                keyboardType: TextInputType.multiline,
+                textInputAction: TextInputAction.done,
+                maxLines: null,
+                textAlign: TextAlign.start,
+                textCapitalization: TextCapitalization.sentences,
+                maxLength: 200,
+              ),
             ),
             InkWell(
               onTap: () {

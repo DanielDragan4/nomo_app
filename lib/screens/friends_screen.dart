@@ -19,20 +19,31 @@ class _FriendsScreenState extends State<FriendsScreen> {
     //Start on friends list. If false, show requests list
 
     return Scaffold(
-      appBar: const MainAppBar(),
-      // AppBar(
-      //   toolbarHeight: 15,
-      //   titleTextStyle: Theme.of(context).appBarTheme.titleTextStyle,
-      //   title: Center(
-      //     child: Text(
-      //       'Nomo',
-      //       style: TextStyle(
-      //         color: Theme.of(context).primaryColor,
-      //         fontWeight: FontWeight.bold,
-      //       ),
-      //     ),
-      //   ),
-      // ),
+      appBar: AppBar(
+        flexibleSpace: PreferredSize(
+          preferredSize: Size.fromHeight(kToolbarHeight),
+          child: Container(
+            padding: const EdgeInsets.only(
+              top: 20,
+              bottom: 5,
+            ),
+            alignment: Alignment.bottomCenter,
+            child: Text('Friends',
+                style: TextStyle(
+                  color: Theme.of(context).primaryColor,
+                  fontWeight: FontWeight.w800,
+                  fontSize: 30,
+                )),
+          ),
+        ),
+        bottom: PreferredSize(
+          preferredSize: const Size.fromHeight(4.0),
+          child: Container(
+            color: const Color.fromARGB(255, 69, 69, 69),
+            height: 1.0,
+          ),
+        ),
+      ),
       body: Column(
         children: [
           const SizedBox(height: 10),

@@ -12,13 +12,6 @@ class NavBar extends ConsumerStatefulWidget {
   @override
   ConsumerState<NavBar> createState() => _NavBarState();
 
-  //final AuthService authService = AuthService();
-
-  // ... home screen content
-
-  Future<void> signOut() async {
-    //await authService.signOut();
-  }
 }
 
 class _NavBarState extends ConsumerState<NavBar> {

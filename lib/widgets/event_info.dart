@@ -11,7 +11,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 enum options { itemOne, itemTwo, itemThree, itemFour }
 
 class EventInfo extends ConsumerStatefulWidget {
-  const EventInfo({super.key, required this.eventsData});
+  EventInfo({super.key, required this.eventsData,});
   final Event eventsData;
 
   @override

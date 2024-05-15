@@ -22,7 +22,7 @@ class App extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     void loadData() {
-      ref.read(savedSessionProvider.notifier).changeSessionDataList();
+      ref.watch(savedSessionProvider.notifier).changeSessionDataList();
       ref.read(eventsProvider.notifier).deCodeData();
       ref.read(attendEventsProvider.notifier).deCodeData();
       ref.read(profileProvider.notifier).decodeData();
@@ -34,13 +34,13 @@ class App extends ConsumerWidget {
       child: MaterialApp(
         theme: ThemeData().copyWith(
           colorScheme: ColorScheme.fromSeed(
-              seedColor: const Color.fromARGB(255, 0, 71, 79),
-              onPrimaryContainer: const Color.fromARGB(255, 0, 71, 79)),
+              seedColor: Color.fromARGB(255, 80, 12, 122),
+              onPrimaryContainer: const Color.fromARGB(255, 80, 12, 122)),
           bottomNavigationBarTheme: const BottomNavigationBarThemeData(
-            selectedItemColor: Color.fromARGB(255, 0, 71, 79),
+            selectedItemColor: Color.fromARGB(255, 80, 12, 122),
             unselectedItemColor: Colors.grey,
           ),
-          primaryColor: const Color.fromARGB(255, 0, 71, 79),
+          primaryColor: const Color.fromARGB(255, 80, 12, 122),
         ),
         home: StreamBuilder(
           stream: ref.watch(currentUserProvider.notifier).stream,

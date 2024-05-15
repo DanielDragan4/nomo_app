@@ -1,8 +1,9 @@
 
 class Event {
-  const Event({
+  Event({
     required this.eventId,
     required this.imageId,
+    required this.imageUrl,
     required this.title,
     required this.sdate,
     required this.edate,
@@ -14,7 +15,8 @@ class Event {
   });
 
   final eventId;
-  final imageId;
+  var imageId;
+  late final imageUrl;
   final String title;
   final String sdate;
   final String edate;

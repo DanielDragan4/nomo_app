@@ -25,6 +25,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
   void initState() {
     super.initState();
     _fetchData();
+    //ref.read(attendEventsProvider.notifier).deCodeData();
   }
 
   Future<void> _fetchData() async {
@@ -39,9 +40,9 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
 
   Future<Map> fetchInfo() async {
     await Future.delayed(const Duration(microseconds: 1));
-    final profileState = ref.watch(profileProvider.notifier).state![0];
+    final profileState = ref.read(profileProvider.notifier).state![0];
     final avatar =
-        await ref.watch(profileProvider.notifier).imageURL(profileState.avatar);
+        await ref.read(profileProvider.notifier).imageURL(profileState.avatar);
     final profN = profileState.profile_name;
     final userN = profileState.username;
 
@@ -60,7 +61,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
 
   @override
   Widget build(BuildContext contex) {
-    final imageUrl = ref.watch(profileProvider.notifier).state?[0].avatar;
+    final imageUrl = ref.read(profileProvider.notifier).state![0].avatar;
 
     return Scaffold(
       body: NestedScrollView(

@@ -15,15 +15,30 @@ class AttendEventProvider extends StateNotifier<List<Event>> {
     var events = await supabaseClient.from('Event').select('*, Attendees(user_id)');
     return events.toList();
   }
-
+  Future<List> getEventImgs() async {
+    final supabaseClient = (await supabase).client;
+    var eventImgs = await supabaseClient.from('Images').select('*');
+    return eventImgs.toList();
+  }
   Future<void> deCodeData() async {
     final codedList = await readEvents1();
+    final eventImgs = await getEventImgs();
 
     List<Event> deCodedList = [];
     final supabaseClient = (await supabase).client;
+    final currentUser = supabaseClient.auth.currentUser!.id;
 
-  if(supabaseClient.auth.currentUser != null) {
+  if(currentUser != null) {
     for (var eventData in codedList) {
+      var url;             
+      for(var imgData in eventImgs) {
+            if(eventData['image_id'] == imgData['images_id']) {
+              url = supabaseClient.storage
+                .from('Images')
+                .getPublicUrl(imgData['image_url']);
+            }
+          }
+
       final Event deCodedEvent = Event(
           description: eventData['description'],
           sdate: eventData['time_start'],
@@ -31,10 +46,12 @@ class AttendEventProvider extends StateNotifier<List<Event>> {
           eventType: eventData['invitationType'],
           host: eventData['host'],
           imageId: eventData['image_id'],
+          imageUrl: url,
           location: eventData['location'],
           title: eventData['title'],
           edate: eventData['time_end'],
-          attendees: eventData['Attendees']);
+          attendees: eventData['Attendees'] 
+          );
 
         bool attending = false; 
         for(var i = 0; i < deCodedEvent.attendees.length; i++) {
@@ -44,7 +61,7 @@ class AttendEventProvider extends StateNotifier<List<Event>> {
         }
       }
       
-      if((attending) || (deCodedEvent.host == supabaseClient.auth.currentUser!.id)) {
+      if((attending) || (deCodedEvent.host == currentUser)) {
         deCodedList.add(deCodedEvent);
       }
     }
@@ -67,25 +84,10 @@ class AttendEventProvider extends StateNotifier<List<Event>> {
     }
     return eventsPerMonth;
   }
-
-  Future<String> ImageURL(imgId) async {
-    final supabaseClient = (await supabase).client;
-    final imgPath = await supabaseClient
-        .from('Images')
-        .select('image_url')
-        .eq('images_id', imgId);
-    final imgURL = supabaseClient.storage
-        .from('Images')
-        .getPublicUrl(imgPath[0]['image_url']);
-
-    return imgURL;
-  }
-
   Future<void> leaveEvent(currentUser, eventToLeave) async{
     final supabaseClient = (await supabase).client;
 
     await supabaseClient.from('Attendees').delete().eq('user_id', currentUser).eq('event_id', eventToLeave);
-    deCodeData();
   }
 }
 

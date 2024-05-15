@@ -70,7 +70,7 @@ class _CreateAccountScreenState extends ConsumerState<CreateAccountScreen> {
   }
 
   dynamic uploadAvatar(File? imageFile) async {
-    final supabase = (await ref.watch(supabaseInstance));
+    final supabase = (await ref.read(supabaseInstance));
     final userId = supabase.client.auth.currentUser!.id.toString();
     PostgrestList imgId;
 
@@ -137,8 +137,7 @@ class _CreateAccountScreenState extends ConsumerState<CreateAccountScreen> {
             .single()
             .then((response) => response['avatar_id'] as String?);
     var user = _userName.text;
-    final userId = (await ref.watch(supabaseInstance))
-        .client
+    final userId = supabase
         .auth
         .currentUser!
         .id
@@ -300,9 +299,9 @@ class _CreateAccountScreenState extends ConsumerState<CreateAccountScreen> {
                 onPressed: () async {
                   if (widget.isNew) {
                     await _createProfile(_userName.text, _selectedImage);
-                    ref.watch(onSignUp.notifier).completeProfileCreation();
+                    ref.read(onSignUp.notifier).completeProfileCreation();
                     ref
-                        .watch(savedSessionProvider.notifier)
+                        .read(savedSessionProvider.notifier)
                         .changeSessionDataList();
                     Navigator.of(context).pop();
                   } else {
@@ -322,10 +321,10 @@ class _CreateAccountScreenState extends ConsumerState<CreateAccountScreen> {
                         onPressed: () async {
                           await _createProfile(_userName.text, null);
                           ref
-                              .watch(onSignUp.notifier)
+                              .read(onSignUp.notifier)
                               .completeProfileCreation();
                           ref
-                              .watch(savedSessionProvider.notifier)
+                              .read(savedSessionProvider.notifier)
                               .changeSessionDataList();
                         },
                         child: const Row(

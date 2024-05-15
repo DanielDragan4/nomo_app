@@ -14,14 +14,29 @@ class EventProvider extends StateNotifier<List?> {
     var events = await supabaseClient.from('Event').select('*, Attendees(user_id)');
     return events.toList();
   }
-
+  Future<List> getEventImgs() async {
+    final supabaseClient = (await supabase).client;
+    var eventImgs = await supabaseClient.from('Images').select('*');
+    return eventImgs.toList();
+  }
+  
   Future<void> deCodeData() async {
     final codedList = await readEvents();
+    final eventImgs = await getEventImgs();
 
     List<Event> deCodedList = [];
     final supabaseClient = (await supabase).client;
 
     for (var eventData in codedList) {
+      var url;             
+      for(var imgData in eventImgs) {
+            if(eventData['image_id'] == imgData['images_id']) {
+              url = supabaseClient.storage
+                .from('Images')
+                .getPublicUrl(imgData['image_url']);
+            }
+          }
+
       final Event deCodedEvent = Event(
           description: eventData['description'],
           sdate: eventData['time_start'],
@@ -29,6 +44,7 @@ class EventProvider extends StateNotifier<List?> {
           eventType: eventData['invitationType'],
           host: eventData['host'],
           imageId: eventData['image_id'],
+          imageUrl: url,
           location: eventData['location'],
           title: eventData['title'],
           edate: eventData['time_end'],
@@ -49,20 +65,6 @@ class EventProvider extends StateNotifier<List?> {
     }
     state = deCodedList;
   }
-
-  Future<String> ImageURL(imgId) async {
-    final supabaseClient = (await supabase).client;
-    final imgPath = await supabaseClient
-        .from('Images')
-        .select('image_url')
-        .eq('images_id', imgId);
-    final imgURL = supabaseClient.storage
-        .from('Images')
-        .getPublicUrl(imgPath[0]['image_url']);
-
-    return imgURL;
-  }
-
   Future<void> joinEvent(currentUser, eventToJoin) async{
     final supabaseClient = (await supabase).client;
     final newAttendeeMap = {

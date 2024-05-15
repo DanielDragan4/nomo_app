@@ -15,8 +15,6 @@ class RecommendedScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    ref.watch(eventsProvider.notifier).deCodeData();
-
     return Scaffold(
       body: NestedScrollView(
         floatHeaderSlivers: true,

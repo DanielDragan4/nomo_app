@@ -200,11 +200,12 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
             child: StreamBuilder<Object>(
               stream: ref.read(attendEventsProvider.notifier).stream,
               builder: (context, snapshot) {
-                if (snapshot.data != null) {
+                if (snapshot.hasData) {
                     return ListView(
                     key: const PageStorageKey<String>('event'),
                     children: [
-                    for (Event i in ref.read(attendEventsProvider.notifier).state)
+                    for (Event i 
+                    in ref.read(attendEventsProvider.notifier).state)
                       EventTab(eventData: i),
                   ],
                 );

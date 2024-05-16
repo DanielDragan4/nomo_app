@@ -58,7 +58,7 @@ class RecommendedScreen extends ConsumerWidget {
                       key: const PageStorageKey<String>('page'),
                       children: [
                         for (Event i
-                            in ref.read(eventsProvider.notifier).state!)
+                            in snapshot.data!)
                           EventTab(eventData: i)
                       ],
                     );

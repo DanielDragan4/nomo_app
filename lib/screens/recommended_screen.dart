@@ -55,15 +55,15 @@ class RecommendedScreen extends ConsumerWidget {
           onRefresh: () => _onRefresh(context, ref),
           child: StreamBuilder(
             stream: ref.read(eventsProvider.notifier).stream,
-            builder: (context, snapshot) {
-              if (snapshot.data != null) {
-                return ListView(
-                  key: const PageStorageKey<String>('page'),
-                  children: [
+                builder: (context, snapshot) {
+                  if (snapshot.data != null) {
+                    return ListView(
+                      key: const PageStorageKey<String>('page'),
+                      children: [
                         for (Event i
                             in snapshot.data!)
-                      EventTab(eventData: i)
-                  ],
+                          EventTab(eventData: i)
+                      ],
                 );
               } else if (snapshot.hasError) {
                 return Text("Error: ${snapshot.error}");

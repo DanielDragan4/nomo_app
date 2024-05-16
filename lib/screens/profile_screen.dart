@@ -18,7 +18,7 @@ class ProfileScreen extends ConsumerStatefulWidget {
 
 class _ProfileScreenState extends ConsumerState<ProfileScreen> {
   Future<Map>? profileInfo;
-  
+
 
   @override
   void initState() {
@@ -63,160 +63,162 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
     final imageUrl = ref.read(profileProvider.notifier).state![0].avatar;
 
     return Scaffold(
-      appBar: AppBar(
-        toolbarHeight: 120,
-        titleTextStyle: Theme.of(context).appBarTheme.titleTextStyle,
-        title: Center(
-          child: Column(
-            children: [
-              Text(
-                'Nomo',
-                style: TextStyle(
-                  color: Theme.of(context).primaryColor,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              const SizedBox(height: 10),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  FutureBuilder<Map>(
-                    future: profileInfo,
-                    builder: (context, snapshot) {
-                      if (snapshot.hasData) {
-                        return Column(
-                          children: [
-                            CircleAvatar(
-                              key: ValueKey<String>(imageUrl),
-                              radius: 30,
-                              backgroundColor: Colors.white,
-                              backgroundImage: NetworkImage(
-                                snapshot.data!['avatar'],
-                              ),
-                            ),
-                            Text(
-                              snapshot.data!['profile_name'],
-                              style: const TextStyle(fontSize: 13),
-                            ),
-                          ],
-                        );
-                      } else if (snapshot.hasError) {
-                        return const Column(
-                          children: [
-                            CircleAvatar(
-                              radius: 30,
-                              child: Text("No Image"),
-                            ),
-                            Text(
-                              "No Username",
-                              style: TextStyle(fontSize: 13),
-                            ),
-                          ],
-                        );
-                      } else {
-                        return const CircularProgressIndicator();
-                      }
-                    },
-                  ),
-                  //backgroundColor: Colors.blue,
-
-                  Column(
-                    children: [
-                      const Row(
-                        children: [
-                          Column(
+      body: NestedScrollView(
+        floatHeaderSlivers: true,
+        headerSliverBuilder: (context, innerBoxIsScrolled) => [
+          SliverAppBar(
+            primary: false,
+            titleSpacing: BorderSide.strokeAlignCenter,
+            floating: true,
+            snap: true,
+            toolbarHeight: MediaQuery.sizeOf(context).width / 3,
+            title: Padding(
+              padding: const EdgeInsets.only(top: 40, bottom: 10),
+              child: Column(children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
+                    FutureBuilder<Map>(
+                      future: profileInfo,
+                      builder: (context, snapshot) {
+                        if (snapshot.hasData) {
+                          return Column(
                             children: [
-                              Text(
-                                "Friends",
-                                style: TextStyle(fontSize: 15),
+                              CircleAvatar(
+                                key: ValueKey<String>(imageUrl),
+                                radius: MediaQuery.sizeOf(context).width / 12,
+                                backgroundColor: Colors.white,
+                                backgroundImage: NetworkImage(
+                                  snapshot.data!['avatar'],
+                                ),
                               ),
+                              SizedBox(
+                                  height:
+                                      MediaQuery.sizeOf(context).height / 100),
                               Text(
-                                "xxxx",
-                                style: TextStyle(fontSize: 15),
+                                snapshot.data!['profile_name'],
+                                style: const TextStyle(fontSize: 18),
                               ),
                             ],
-                          ),
-                          SizedBox(
-                            width: 10,
-                          ),
-                          Column(
+                          );
+                        } else if (snapshot.hasError) {
+                          return Column(
                             children: [
-                              Text(
-                                "Upcoming Events",
-                                style: TextStyle(fontSize: 15),
+                              CircleAvatar(
+                                radius: MediaQuery.sizeOf(context).width / 5,
+                                child: const Text("No Image"),
                               ),
-                              Text(
-                                "xxxx",
-                                style: TextStyle(fontSize: 15),
+                              const Text(
+                                "No Username",
+                                style: TextStyle(fontSize: 13),
                               ),
                             ],
-                          ),
-                        ],
-                      ),
-//TODO: refresh page after updating account info
-                      FutureBuilder<Map>(
-                        future: profileInfo,
-                        builder: ((context, snapshot) {
-                          if (snapshot.hasData) {
-                            return ElevatedButton(
-                              onPressed: () {
-                                Navigator.of(context)
-                                    .push(MaterialPageRoute(
-                                  builder: ((context) => CreateAccountScreen(
-                                        isNew: false,
-                                        avatar: snapshot.data!['avatar'],
-                                        profilename:
-                                            snapshot.data!['profile_name'],
-                                        username: snapshot.data!['username'],
-                                        onUpdateProfile: updateProfileInfo,
-                                      )),
-                                ))
-                                    .then((_) {
-                                  updateProfileInfo();
-                                });
-                              },
-                              child: const Text("Edit Profile"),
-                            );
-                          } else {
-                            return const ElevatedButton(
-                              onPressed: null,
-                              child: Text("Edit Profile"),
-                            );
-                          }
-                        }),
-                      ),
-                    ],
-                  ),
-                  const ProfileDropdown(),
-                ],
-              )
-            ],
-          ),
-        ),
-      ),
-      body: Column(
-        children: [
-          Expanded(
-            child: StreamBuilder<Object>(
-              stream: ref.read(attendEventsProvider.notifier).stream,
-              builder: (context, snapshot) {
-                if (snapshot.hasData) {
-                    return ListView(
-                    key: const PageStorageKey<String>('event'),
-                    children: [
-                    for (Event i 
-                    in ref.read(attendEventsProvider.notifier).state)
-                      EventTab(eventData: i),
+                          );
+                        } else {
+                          return const CircularProgressIndicator();
+                        }
+                      },
+                    ),
+                    Column(
+                      children: [
+                        const Row(
+                          children: [
+                            Column(
+                              children: [
+                                Text(
+                                  "Friends",
+                                  style: TextStyle(fontSize: 15),
+                                ),
+                                Text(
+                                  "xxxx",
+                                  style: TextStyle(fontSize: 15),
+                                ),
+                              ],
+                            ),
+                            SizedBox(
+                              width: 10,
+                            ),
+                            Column(
+                              children: [
+                                Text(
+                                  "Upcoming Events",
+                                  style: TextStyle(fontSize: 15),
+                                ),
+                                Text(
+                                  "xxxx",
+                                  style: TextStyle(fontSize: 15),
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+                        //TODO: refresh page after updating account info
+                        FutureBuilder<Map>(
+                          future: profileInfo,
+                          builder: ((context, snapshot) {
+                            if (snapshot.hasData) {
+                              return ElevatedButton(
+                                onPressed: () {
+                                  Navigator.of(context)
+                                      .push(MaterialPageRoute(
+                                    builder: ((context) => CreateAccountScreen(
+                                          isNew: false,
+                                          avatar: snapshot.data!['avatar'],
+                                          profilename:
+                                              snapshot.data!['profile_name'],
+                                          username: snapshot.data!['username'],
+                                          onUpdateProfile: updateProfileInfo,
+                                        )),
+                                  ))
+                                      .then((_) {
+                                    updateProfileInfo();
+                                  });
+                                },
+                                child: const Text("Edit Profile"),
+                              );
+                            } else {
+                              return const ElevatedButton(
+                                onPressed: null,
+                                child: Text("Edit Profile"),
+                              );
+                            }
+                          }),
+                        ),
+                      ],
+                    ),
+                    const ProfileDropdown(),
                   ],
-                );
-              }
-              else {
-                return const Text("No Data Retreived");
-              }
-              }
+                ),
+                // SizedBox(
+                //   height: MediaQuery.sizeOf(context).height / 30,
+                // ),
+              ]),
             ),
+            centerTitle: true,
           ),
         ],
+        body: Column(
+          children: [
+            Expanded(
+              child: StreamBuilder<Object>(
+                  stream: ref.read(attendEventsProvider.notifier).stream,
+                  builder: (context, snapshot) {
+                    if (snapshot.hasData) {
+                      return ListView(
+                        key: const PageStorageKey<String>('event'),
+                        children: [
+                          for (Event i
+                              in ref.read(attendEventsProvider.notifier).state)
+                            EventTab(eventData: i),
+                        ],
+                      );
+                    } else {
+                      return const Text("No Data Retreived");
+                    }
+                  }),
+            ),
+          ],
+        ),
       ),
     );
   }

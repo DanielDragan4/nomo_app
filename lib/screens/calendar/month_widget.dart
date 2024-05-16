@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:nomo/models/events_model.dart';
 import 'package:nomo/providers/attending_events_provider.dart';
 import 'package:nomo/screens/calendar/event_cal_tab.dart';
+import 'package:nomo/screens/detailed_event_screen.dart';
 
 class Month extends ConsumerWidget {
   Month(
@@ -63,16 +64,39 @@ class Month extends ConsumerWidget {
     return boarderWidth;
   }
 
-  Color findCellColor(cellPosition) {
+  Color findCellColor(cellPosition, List events) {
     Color cellColor;
-    if ((cellIndex - firstDayOfWeek) < lastOfMonth &&
-        (cellIndex - firstDayOfWeek) >= 0) {
-      cellColor = const Color.fromARGB(255, 221, 221, 221);
+    var dayInGrid = cellIndex - firstDayOfWeek;
+    if ((dayInGrid) < lastOfMonth &&
+        (dayInGrid) >= 0) {
+          cellColor = const Color.fromARGB(255, 221, 221, 221);
+          for(var day in events) {
+            if((dayInGrid+1) == DateTime.parse(day.sdate).day){
+              cellColor = Color.fromARGB(136, 162, 24, 248);
+            }
+            }
     } else {
       cellColor = const Color.fromARGB(0, 255, 255, 255);
     }
 
     return cellColor;
+  }
+  List hasEvent(cellPosition, List events) {
+    List hasEvent;
+    var dayInGrid = cellIndex - firstDayOfWeek;
+    if ((dayInGrid) < lastOfMonth &&
+        (dayInGrid) >= 0) {
+          hasEvent = [false];
+          for(var day in events) {
+            if((dayInGrid) == DateTime.parse(day.sdate).day){
+              hasEvent = [true, day];
+            }
+            }
+    } else {
+      hasEvent = [false];
+    }
+
+    return hasEvent;
   }
 
   String daysOfMonth() {
@@ -92,7 +116,7 @@ class Month extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
 
-    List<Event> calEvents = ref.watch(attendEventsProvider.notifier).eventsAttendingByMonth(yearDisplayed, selectedMonth);
+    List<Event> calEvents = ref.read(attendEventsProvider.notifier).eventsAttendingByMonth(yearDisplayed, selectedMonth);
 
     return Container(
       alignment: Alignment.center,
@@ -183,11 +207,14 @@ class Month extends ConsumerWidget {
                   gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                       crossAxisCount: 7),
                   itemCount: 42,
-                  itemBuilder: (context, index) => DayButton(
+                  itemBuilder: (context, index) => 
+                    DayButton(
                     isSelected: false,
                     boarderWidth: findBoarderWidth(index),
-                    cellColor: findCellColor(index),
+                    cellColor: findCellColor(index, calEvents),
                     dayDisplayed: daysOfMonth(),
+                    index: index,
+                    hasEvent: hasEvent(index, calEvents),
                   ),
                 ),
               ),
@@ -202,6 +229,7 @@ class Month extends ConsumerWidget {
                   ),
                 ),
               ),
+              const Divider(),
                 SizedBox(
                   height: MediaQuery.sizeOf(context).height *0.2,
                   child: ListView(
@@ -223,21 +251,32 @@ class DayButton extends StatelessWidget {
     required this.boarderWidth,
     required this.cellColor,
     required this.dayDisplayed,
+    required this.index,
+    required this.hasEvent
     //required this.onPressed,
-  });
+  }
+  );
 
   final bool isSelected;
   final bool boarderWidth;
   final Color cellColor;
   final String dayDisplayed;
+  final int index;
+  final List hasEvent;
   //final void Function() onPressed;
+    
+  
 
   @override
   Widget build(BuildContext context) {
     return Column(
       children: [
         GestureDetector(
-          onTap: () {},
+          onTap: () {
+            if(hasEvent[0]) {
+              Navigator.of(context).push(MaterialPageRoute(builder: ((context) => DetailedEventScreen(eventData: hasEvent[1]))));
+            }
+          },
           child: Container(
             height: MediaQuery.sizeOf(context).height * 0.0628,
             alignment: Alignment.topRight,

@@ -4,8 +4,8 @@ import 'package:nomo/models/events_model.dart';
 import 'package:nomo/providers/supabase_provider.dart';
 import 'package:nomo/widgets/event_info.dart';
 
-class EventTab extends ConsumerStatefulWidget {
-  const EventTab({
+class DetailedEventScreen extends ConsumerStatefulWidget {
+  const DetailedEventScreen({
     super.key,
     required this.eventData,
   });
@@ -13,12 +13,12 @@ class EventTab extends ConsumerStatefulWidget {
   final Event eventData;
 
   @override
-  ConsumerState<EventTab> createState() {
-    return _EventTabState();
+  ConsumerState<DetailedEventScreen> createState() {
+    return _DetailedEventScreenState();
   }
 }
 
-class _EventTabState extends ConsumerState<EventTab> {
+class _DetailedEventScreenState extends ConsumerState<DetailedEventScreen> {
   @override
   Widget build(BuildContext context) {
     final DateTime date = DateTime.parse(widget.eventData.sdate);
@@ -33,27 +33,39 @@ class _EventTabState extends ConsumerState<EventTab> {
 
     var formattedDate =
         "${date.month}/${date.day}/${date.year} at ${getHour()}";
-    return Padding(
-      padding: const EdgeInsets.only(top: 0, bottom: 10, left: 5, right: 5),
-      child: Container(
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(3),
-          border: Border.all(
-            color: const Color.fromARGB(255, 0, 0, 0),
-            width: 2,
+    return  Scaffold(
+      appBar: AppBar(
+        toolbarHeight: 75,
+        titleTextStyle: Theme.of(context).appBarTheme.titleTextStyle,
+        title: Center(
+          child: Column(
+            children: [
+              const SizedBox(
+                height: 10,
+              ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  Text(widget.eventData.title,
+                      style: TextStyle(
+                        color: Theme.of(context).primaryColor,
+                        fontWeight: FontWeight.bold,
+                      )),
+                ],
+              ),
+            ],
           ),
         ),
+      ),
+      body: Column(
+        children: [ Padding(
+      padding: const EdgeInsets.all(2.0),
+      child: Container(
         child: Column(
           children: [
             Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              mainAxisAlignment: MainAxisAlignment.end,
               children: [
-                Text(
-                  widget.eventData.title,
-                  style: const TextStyle(
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
                 Text(formattedDate),
               ],
             ),
@@ -91,9 +103,14 @@ class _EventTabState extends ConsumerState<EventTab> {
               height: 80,
               child: Text(widget.eventData.description),
             ),
-          ],
+             Text('Comments',
+                      style: TextStyle(
+                        color: Theme.of(context).primaryColor,
+                        fontWeight: FontWeight.bold,
+                      )),
+            Divider(),
+  ])))]
         ),
-      ),
-    );
+      );
   }
 }

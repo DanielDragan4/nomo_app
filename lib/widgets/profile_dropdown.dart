@@ -43,7 +43,9 @@ class _ProfileDropdownState extends ConsumerState<ProfileDropdown> {
                   Navigator.push(
                       context,
                       MaterialPageRoute(
-                          builder: ((context) => const SettingScreen())));
+                          builder: ((context) => SettingScreen(
+                                isCorp: true,
+                              ))));
                 },
               ),
               PopupMenuItem(

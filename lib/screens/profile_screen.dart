@@ -1,10 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:nomo/models/events_model.dart';
 import 'package:nomo/providers/attending_events_provider.dart';
 import 'package:nomo/providers/profile_provider.dart';
-import 'package:nomo/widgets/app_bar.dart';
 import 'package:nomo/widgets/event_tab.dart';
 import 'package:nomo/screens/create_account_screen.dart';
 import 'package:nomo/widgets/profile_dropdown.dart';
@@ -201,14 +199,22 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
         body: Column(
           children: [
             Expanded(
-              child: ListView(
-                key: const PageStorageKey<String>('event'),
-                children: [
-                  for (Event i
-                      in ref.watch(attendEventsProvider.notifier).state)
-                    EventTab(eventData: i),
-                ],
-              ),
+              child: StreamBuilder<Object>(
+                  stream: ref.read(attendEventsProvider.notifier).stream,
+                  builder: (context, snapshot) {
+                    if (snapshot.hasData) {
+                      return ListView(
+                        key: const PageStorageKey<String>('event'),
+                        children: [
+                          for (Event i
+                              in ref.read(attendEventsProvider.notifier).state)
+                            EventTab(eventData: i),
+                        ],
+                      );
+                    } else {
+                      return const Text("No Data Retreived");
+                    }
+                  }),
             ),
           ],
         ),

@@ -1,6 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:nomo/models/events_model.dart';
-import 'package:nomo/providers/events_provider.dart';
 import 'package:nomo/providers/supabase_provider.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
@@ -28,42 +27,40 @@ class AttendEventProvider extends StateNotifier<List<Event>> {
     final supabaseClient = (await supabase).client;
     final currentUser = supabaseClient.auth.currentUser!.id;
 
-  if(currentUser != null) {
-    for (var eventData in codedList) {
-      var url;             
-      for(var imgData in eventImgs) {
-            if(eventData['image_id'] == imgData['images_id']) {
-              url = supabaseClient.storage
-                .from('Images')
-                .getPublicUrl(imgData['image_url']);
-            }
+  for (var eventData in codedList) {
+    String url='';             
+    for(var imgData in eventImgs) {
+          if(eventData['image_id'] == imgData['images_id']) {
+            url = supabaseClient.storage
+              .from('Images')
+              .getPublicUrl(imgData['image_url']);
           }
-
-      final Event deCodedEvent = Event(
-          description: eventData['description'],
-          sdate: eventData['time_start'],
-          eventId: eventData['event_id'],
-          eventType: eventData['invitationType'],
-          host: eventData['host'],
-          imageId: eventData['image_id'],
-          imageUrl: url,
-          location: eventData['location'],
-          title: eventData['title'],
-          edate: eventData['time_end'],
-          attendees: eventData['Attendees'] 
-          );
-
-        bool attending = false; 
-        for(var i = 0; i < deCodedEvent.attendees.length; i++) {
-        if(deCodedEvent.attendees[i]['user_id'] == supabaseClient.auth.currentUser!.id) {
-          attending = true;
-          break;
         }
+
+    final Event deCodedEvent = Event(
+        description: eventData['description'],
+        sdate: eventData['time_start'],
+        eventId: eventData['event_id'],
+        eventType: eventData['invitationType'],
+        host: eventData['host'],
+        imageId: eventData['image_id'],
+        imageUrl: url,
+        location: eventData['location'],
+        title: eventData['title'],
+        edate: eventData['time_end'],
+        attendees: eventData['Attendees'] 
+        );
+
+      bool attending = false; 
+      for(var i = 0; i < deCodedEvent.attendees.length; i++) {
+      if(deCodedEvent.attendees[i]['user_id'] == supabaseClient.auth.currentUser!.id) {
+        attending = true;
+        break;
       }
-      
-      if((attending) || (deCodedEvent.host == currentUser)) {
-        deCodedList.add(deCodedEvent);
-      }
+    }
+    
+    if((attending) || (deCodedEvent.host == currentUser)) {
+      deCodedList.add(deCodedEvent);
     }
   }
     state = deCodedList;
@@ -88,6 +85,7 @@ class AttendEventProvider extends StateNotifier<List<Event>> {
     final supabaseClient = (await supabase).client;
 
     await supabaseClient.from('Attendees').delete().eq('user_id', currentUser).eq('event_id', eventToLeave);
+    await deCodeData();
   }
 }
 

@@ -72,7 +72,7 @@ class Month extends ConsumerWidget {
           cellColor = const Color.fromARGB(255, 221, 221, 221);
           for(var day in events) {
             if((dayInGrid+1) == DateTime.parse(day.sdate).day){
-              cellColor = Color.fromARGB(136, 162, 24, 248);
+              cellColor = const Color.fromARGB(136, 162, 24, 248);
             }
             }
     } else {

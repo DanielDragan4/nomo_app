@@ -31,7 +31,7 @@ class _SettingScreenState extends ConsumerState<SettingScreen> {
     return Scaffold(
       appBar: AppBar(
         flexibleSpace: PreferredSize(
-          preferredSize: Size.fromHeight(kToolbarHeight),
+          preferredSize: const Size.fromHeight(kToolbarHeight),
           child: Container(
             padding: const EdgeInsets.only(
               top: 20,

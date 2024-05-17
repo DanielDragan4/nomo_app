@@ -1,7 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:nomo/providers/attending_events_provider.dart';
-import 'package:nomo/providers/events_provider.dart';
-import 'package:nomo/providers/profile_provider.dart';
 import 'package:nomo/providers/saved_session_provider.dart';
 import 'package:nomo/providers/supabase_provider.dart';
 import 'package:nomo/providers/user_signup_provider.dart';
@@ -26,7 +23,6 @@ class App extends ConsumerWidget {
       //ref.read(eventsProvider.notifier).deCodeData();
       //ref.read(attendEventsProvider.notifier).deCodeData();
       //ref.read(profileProvider.notifier).decodeData();
-      print('tttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttt');
     }
 
     return GestureDetector(
@@ -35,7 +31,7 @@ class App extends ConsumerWidget {
       child: MaterialApp(
         theme: ThemeData().copyWith(
           colorScheme: ColorScheme.fromSeed(
-              seedColor: Color.fromARGB(255, 80, 12, 122),
+              seedColor: const Color.fromARGB(255, 80, 12, 122),
               onPrimaryContainer: const Color.fromARGB(255, 80, 12, 122)),
           bottomNavigationBarTheme: const BottomNavigationBarThemeData(
             selectedItemColor: Color.fromARGB(255, 80, 12, 122),

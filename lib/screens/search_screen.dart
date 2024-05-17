@@ -41,7 +41,7 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
             ),
           ),
           ToggleButtons(
-            constraints: BoxConstraints(maxHeight: 250, minWidth: 90, maxWidth: 200),
+            constraints: const BoxConstraints(maxHeight: 250, minWidth: 90, maxWidth: 200),
                 borderColor: Colors.black,
                 fillColor: Theme.of(context).primaryColor,
                 borderWidth: 1,

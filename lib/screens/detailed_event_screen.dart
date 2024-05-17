@@ -108,7 +108,7 @@ class _DetailedEventScreenState extends ConsumerState<DetailedEventScreen> {
                         color: Theme.of(context).primaryColor,
                         fontWeight: FontWeight.bold,
                       )),
-            Divider(),
+            const Divider(),
   ])))]
         ),
       );

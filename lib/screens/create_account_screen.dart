@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:nomo/logic/create_account_functions.dart';
 import 'package:nomo/providers/saved_session_provider.dart';
 import 'package:nomo/providers/user_signup_provider.dart';
 import 'package:nomo/widgets/app_bar.dart';

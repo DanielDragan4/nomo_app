@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 class SettingButton extends StatefulWidget {
-  SettingButton({
+  const SettingButton({
     super.key,
     required this.title,
     required this.onPressed,
@@ -42,13 +42,13 @@ class _SettingButtonState extends State<SettingButton> {
                   setState(() {
                     _switchVal = newVal;
                   });
-                  if (widget.isSwitch == true && widget.onPressed != null) {
+                  if (widget.isSwitch == true) {
                     widget.onPressed();
                   }
                 },
               )
             else
-              Icon(Icons.arrow_forward_ios_rounded),
+              const Icon(Icons.arrow_forward_ios_rounded),
           ],
         ),
       ),

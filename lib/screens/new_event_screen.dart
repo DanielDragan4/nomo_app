@@ -33,7 +33,6 @@ class _NewEventScreenState extends ConsumerState<NewEventScreen> {
   File? _selectedImage;
   String dropDownValue = list.first;
   bool enableButton = false;
-  final int _inviteType = 1;
   final _selectedLocation = TextEditingController();
   final _title = TextEditingController();
   final _description = TextEditingController();
@@ -48,7 +47,6 @@ class _NewEventScreenState extends ConsumerState<NewEventScreen> {
   }
 
   Future<void> _selectDate(BuildContext context, bool isStartDate) async {
-    //final ThemeData theme = Theme.of(context);
     final DateTime? picked = await showDatePicker(
       context: context,
       initialDate: DateTime.now(),
@@ -56,9 +54,19 @@ class _NewEventScreenState extends ConsumerState<NewEventScreen> {
       lastDate: DateTime(2100),
     );
     if (picked != null) {
-      if (isStartDate) sdate = true;
-      if (!isStartDate) edate = true;
-      _enableButton();
+      setState(() {
+        if (isStartDate) {
+          _selectedStartDate = picked;
+          _formattedSDate = DateFormat.yMd().format(_selectedStartDate!);
+          sdate = true;
+        } else {
+          _selectedEndDate = picked;
+          _formattedEDate = DateFormat.yMd().format(_selectedEndDate!);
+          edate = true;
+        }
+        _enableButton();
+      });
+
       if ((_selectedEndDate != null &&
               isStartDate == true &&
               (!_selectedEndDate!.isAfter(picked) &&
@@ -75,24 +83,11 @@ class _NewEventScreenState extends ConsumerState<NewEventScreen> {
             content: Text('End time must be after start time.'),
           ),
         );
-      } else {
-        setState(() {
-          if (isStartDate) {
-            _selectedStartDate = picked;
-            _formattedSDate = DateFormat.yMd().format(_selectedStartDate!);
-            sdate = true;
-          } else {
-            _selectedEndDate = picked;
-            _formattedEDate = DateFormat.yMd().format(_selectedEndDate!);
-            edate = true;
-          }
-        });
       }
     }
   }
 
   Future<void> _selectTime(BuildContext context, bool isStartTime) async {
-    //final ThemeData theme = Theme.of(context);
     final TimeOfDay? picked = await showTimePicker(
       initialEntryMode: TimePickerEntryMode.dial,
       context: context,
@@ -101,9 +96,17 @@ class _NewEventScreenState extends ConsumerState<NewEventScreen> {
           : _selectedEndTime ?? TimeOfDay.now(),
     );
     if (picked != null) {
-      if (isStartTime) stime = true;
-      if (!isStartTime) etime = true;
-      _enableButton();
+      setState(() {
+        if (isStartTime) {
+          _selectedStartTime = picked;
+          stime = true;
+        } else {
+          _selectedEndTime = picked;
+          etime = true;
+        }
+        _enableButton();
+      });
+
       if (isStartTime &&
           _selectedEndTime != null &&
           _selectedStartDate!.isAtSameMomentAs(_selectedEndDate!)) {
@@ -130,17 +133,23 @@ class _NewEventScreenState extends ConsumerState<NewEventScreen> {
             ),
           );
         }
-      } else {
-        setState(() {
-          if (isStartTime) {
-            _selectedStartTime = picked;
-            stime = true;
-          } else {
-            _selectedEndTime = picked;
-            etime = true;
-          }
-        });
       }
+    }
+  }
+
+  void _enableButton() {
+    if ((stime &&
+        etime &&
+        sdate &&
+        edate &&
+        _selectedImage != null &&
+        _selectedStartDate != null &&
+        _selectedEndDate != null &&
+        _selectedStartTime != null &&
+        _selectedEndTime != null)) {
+      setState(() {
+        enableButton = true;
+      });
     }
   }
 
@@ -209,22 +218,6 @@ class _NewEventScreenState extends ConsumerState<NewEventScreen> {
     };
 
     await supabase.from('Event').insert(newEventRowMap);
-  }
-
-  void _enableButton() {
-    if ((stime &&
-        etime &&
-        sdate &&
-        edate &&
-        _selectedImage != null &&
-        _selectedStartDate != null &&
-        _selectedEndDate != null &&
-        _selectedStartTime != null &&
-        _selectedEndTime != null)) {
-      setState(() {
-        enableButton = true;
-      });
-    }
   }
 
   @override

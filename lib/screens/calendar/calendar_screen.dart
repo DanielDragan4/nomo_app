@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:nomo/screens/calendar/month_widget.dart';
+import 'package:nomo/screens/new_event_screen.dart';
 //import 'package:nomo/widgets/app_bar.dart';
 
 class CalendarScreen extends StatefulWidget {
@@ -87,6 +88,12 @@ class _CalendarScreenState extends State<CalendarScreen> {
               lastOfMonth: lastOfMonth,
               yearDisplayed: yearDisplayed,
             ),
+          ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: [
+              IconButton(onPressed: (){Navigator.of(context).push(MaterialPageRoute(builder: ((context) => NewEventScreen())));}, icon: const Icon(Icons.add_box_rounded, size: 45,)),
+            ],
           )
         ],
       ),

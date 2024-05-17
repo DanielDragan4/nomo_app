@@ -3,6 +3,7 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:nomo/models/events_model.dart';
 import 'package:nomo/providers/events_provider.dart';
+import 'package:nomo/screens/search_screen.dart';
 import 'package:nomo/widgets/app_bar.dart';
 import 'package:nomo/widgets/event_tab.dart';
 
@@ -43,7 +44,7 @@ class RecommendedScreen extends ConsumerWidget {
             centerTitle: true,
             actions: [
               IconButton(
-                onPressed: () {},
+                onPressed: () {Navigator.of(context).push(MaterialPageRoute(builder: ((context) => const SearchScreen())));},
                 icon: const Icon(Icons.search),
                 iconSize: 35,
                 padding: const EdgeInsets.only(top: 20, right: 20),

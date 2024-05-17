@@ -231,7 +231,7 @@ class Month extends ConsumerWidget {
               ),
               const Divider(),
                 SizedBox(
-                  height: MediaQuery.sizeOf(context).height *0.2,
+                  height: MediaQuery.sizeOf(context).height *0.14,
                   child: ListView(
                     key: const PageStorageKey<String>('cal'),
                     children: 

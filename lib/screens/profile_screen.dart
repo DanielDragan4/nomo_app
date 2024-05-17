@@ -19,7 +19,6 @@ class ProfileScreen extends ConsumerStatefulWidget {
 class _ProfileScreenState extends ConsumerState<ProfileScreen> {
   Future<Map>? profileInfo;
 
-
   @override
   void initState() {
     super.initState();

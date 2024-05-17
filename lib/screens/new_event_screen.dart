@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:nomo/screens/NavBar.dart';
+import 'package:nomo/screens/recommended_screen.dart';
 import 'package:nomo/widgets/app_bar.dart';
 import 'package:nomo/widgets/pick_image.dart';
 import 'dart:io';
@@ -21,9 +23,12 @@ class _NewEventScreenState extends ConsumerState<NewEventScreen> {
   bool stime = false;
   TimeOfDay? _selectedEndTime;
   bool etime = false;
-  DateTime? _selectedDate;
-  bool date = false;
-  String? _formattedDate;
+  DateTime? _selectedStartDate;
+  bool sdate = false;
+  DateTime? _selectedEndDate;
+  bool edate = false;
+  String? _formattedSDate;
+  String? _formattedEDate;
   //PlaceLocation? _selectedLocation;
   File? _selectedImage;
   String dropDownValue = list.first;
@@ -42,6 +47,50 @@ class _NewEventScreenState extends ConsumerState<NewEventScreen> {
     super.dispose();
   }
 
+  Future<void> _selectDate(BuildContext context, bool isStartDate) async {
+    //final ThemeData theme = Theme.of(context);
+    final DateTime? picked = await showDatePicker(
+      context: context,
+      initialDate: DateTime.now(),
+      firstDate: DateTime.now(),
+      lastDate: DateTime(2100),
+    );
+    if (picked != null) {
+      if (isStartDate) sdate = true;
+      if (!isStartDate) edate = true;
+      _enableButton();
+      if ((_selectedEndDate != null &&
+              isStartDate == true &&
+              (!_selectedEndDate!.isAfter(picked) &&
+                  !_selectedEndDate!.isAtSameMomentAs(picked))) ||
+          (_selectedStartDate != null &&
+              isStartDate == false &&
+              (_selectedStartDate!.isAfter(picked) &&
+                  !_selectedStartDate!.isAtSameMomentAs(picked)))) {
+        setState(() {
+          enableButton = false;
+        });
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('End time must be after start time.'),
+          ),
+        );
+      } else {
+        setState(() {
+          if (isStartDate) {
+            _selectedStartDate = picked;
+            _formattedSDate = DateFormat.yMd().format(_selectedStartDate!);
+            sdate = true;
+          } else {
+            _selectedEndDate = picked;
+            _formattedEDate = DateFormat.yMd().format(_selectedEndDate!);
+            edate = true;
+          }
+        });
+      }
+    }
+  }
+
   Future<void> _selectTime(BuildContext context, bool isStartTime) async {
     //final ThemeData theme = Theme.of(context);
     final TimeOfDay? picked = await showTimePicker(
@@ -55,34 +104,52 @@ class _NewEventScreenState extends ConsumerState<NewEventScreen> {
       if (isStartTime) stime = true;
       if (!isStartTime) etime = true;
       _enableButton();
-      setState(() {
-        if (isStartTime) {
-          _selectedStartTime = picked;
-          stime = true;
-        } else {
-          _selectedEndTime = picked;
-          etime = true;
+      if (isStartTime &&
+          _selectedEndTime != null &&
+          _selectedStartDate!.isAtSameMomentAs(_selectedEndDate!)) {
+        if (!checkTime(picked, _selectedEndTime!)) {
+          setState(() {
+            enableButton = false;
+          });
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('End time must be after start time.'),
+            ),
+          );
         }
-      });
+      } else if (!isStartTime &&
+          _selectedStartTime != null &&
+          _selectedStartDate!.isAtSameMomentAs(_selectedEndDate!)) {
+        if (!checkTime(_selectedStartTime!, picked)) {
+          setState(() {
+            enableButton = false;
+          });
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('End time must be after start time.'),
+            ),
+          );
+        }
+      } else {
+        setState(() {
+          if (isStartTime) {
+            _selectedStartTime = picked;
+            stime = true;
+          } else {
+            _selectedEndTime = picked;
+            etime = true;
+          }
+        });
+      }
     }
   }
 
-  Future<void> _selectDate(BuildContext context) async {
-    final DateTime? picked = await showDatePicker(
-      context: context,
-      initialDate: DateTime.now(),
-      firstDate: DateTime(2015, 8),
-      lastDate: DateTime(2101),
-    );
-    if (picked != null) {
-      date = true;
-      _enableButton();
-      setState(() {
-        _selectedDate = picked;
-        _formattedDate = DateFormat.yMd().format(_selectedDate!);
-        date = true;
-      });
-    }
+  //TODO: Create method to compare if start time is unable to be set before end time on matching date
+
+  bool checkTime(TimeOfDay time1, TimeOfDay time2) {
+    DateTime first = DateTime(time1.hour, time1.minute);
+    DateTime second = DateTime(time2.hour, time2.minute);
+    return second.isAfter(first);
   }
 
   // String get currentImageId() async{
@@ -116,16 +183,17 @@ class _NewEventScreenState extends ConsumerState<NewEventScreen> {
   Future<void> createEvent(
       TimeOfDay selectedStart,
       TimeOfDay selectedEnd,
-      DateTime selectedDate,
+      DateTime selectedStartDate,
+      DateTime selectedEndDate,
       File selectedImage,
       String inviteType,
       String location,
       String title,
       String description) async {
-    DateTime start = DateTime(selectedDate.year, selectedDate.month,
-        selectedDate.day, selectedStart.hour, selectedStart.minute);
-    DateTime end = DateTime(selectedDate.year, selectedDate.month,
-        selectedDate.day, selectedEnd.hour, selectedEnd.minute);
+    DateTime start = DateTime(selectedStartDate.year, selectedStartDate.month,
+        selectedStartDate.day, selectedStart.hour, selectedStart.minute);
+    DateTime end = DateTime(selectedEndDate.year, selectedEndDate.month,
+        selectedEndDate.day, selectedEnd.hour, selectedEnd.minute);
 
     var imageId = await uploadImage(selectedImage);
     final supabase = (await ref.watch(supabaseInstance)).client;
@@ -144,10 +212,15 @@ class _NewEventScreenState extends ConsumerState<NewEventScreen> {
   }
 
   void _enableButton() {
-    if (stime != false &&
-        etime != false &&
-        date != false &&
-        _selectedImage != null) {
+    if ((stime &&
+        etime &&
+        sdate &&
+        edate &&
+        _selectedImage != null &&
+        _selectedStartDate != null &&
+        _selectedEndDate != null &&
+        _selectedStartTime != null &&
+        _selectedEndTime != null)) {
       setState(() {
         enableButton = true;
       });
@@ -196,13 +269,26 @@ class _NewEventScreenState extends ConsumerState<NewEventScreen> {
               child: Row(
                 children: [
                   const Text(
-                    "Date ",
+                    "Start",
                     style: TextStyle(fontSize: 15),
                   ),
                   TextButton(
-                    onPressed: () => _selectDate(context),
+                    onPressed: () =>
+                        _selectDate(context, true), // Select start date
                     child: Text(
-                      _formattedDate ?? "Select Event Date",
+                      _formattedSDate ??
+                          "Select Start Date", // Format start date
+                      style: const TextStyle(fontSize: 15),
+                    ),
+                  ),
+                  const Text("-"),
+                  TextButton(
+                    onPressed: sdate
+                        ? () => _selectTime(context, true)
+                        : null, // Select start time
+                    child: Text(
+                      _selectedStartTime?.format(context) ??
+                          "Select Start Time", // Format start time
                       style: const TextStyle(fontSize: 15),
                     ),
                   ),
@@ -219,17 +305,17 @@ class _NewEventScreenState extends ConsumerState<NewEventScreen> {
                   ),
                   TextButton(
                     onPressed: () =>
-                        _selectTime(context, true), // Select start time
+                        _selectDate(context, false), // Select end date
                     child: Text(
-                      _selectedStartTime?.format(context) ??
-                          "Select Start Time", // Format start time
+                      _formattedEDate ?? "Select End Date", // Format end date
                       style: const TextStyle(fontSize: 15),
                     ),
                   ),
                   const Text("-"),
                   TextButton(
-                    onPressed: () =>
-                        _selectTime(context, false), // Select end time
+                    onPressed: edate
+                        ? () => _selectTime(context, false)
+                        : null, // Select end time
                     child: Text(
                       _selectedEndTime?.format(context) ??
                           "Select End Time", // Format end time
@@ -336,9 +422,13 @@ class _NewEventScreenState extends ConsumerState<NewEventScreen> {
                   const snackbar =
                       SnackBar(content: Text('Select an image for your event'));
                   ScaffoldMessenger.of(context).showSnackBar(snackbar);
-                } else if (date == false) {
-                  const snackbar =
-                      SnackBar(content: Text('Select a date for your event'));
+                } else if (sdate == false) {
+                  const snackbar = SnackBar(
+                      content: Text('Select a start date for your event'));
+                  ScaffoldMessenger.of(context).showSnackBar(snackbar);
+                } else if (edate == false) {
+                  const snackbar = SnackBar(
+                      content: Text('Select an end date for your event'));
                   ScaffoldMessenger.of(context).showSnackBar(snackbar);
                 } else if (stime == false) {
                   const snackbar = SnackBar(
@@ -362,12 +452,20 @@ class _NewEventScreenState extends ConsumerState<NewEventScreen> {
                         createEvent(
                           _selectedStartTime!,
                           _selectedEndTime!,
-                          _selectedDate!,
+                          _selectedStartDate!,
+                          _selectedEndDate!,
                           _selectedImage!,
                           dropDownValue,
                           _selectedLocation.text,
                           _title.text,
                           _description.text,
+                        );
+                        Navigator.of(context).push(MaterialPageRoute(
+                            builder: ((context) => const RecommendedScreen())));
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text('Event Created'),
+                          ),
                         );
                       }
                     : null,

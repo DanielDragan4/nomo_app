@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:nomo/screens/login_screen.dart';
 
 import 'package:nomo/widgets/setting_button.dart';
 
@@ -147,6 +148,8 @@ class _SettingScreenState extends ConsumerState<SettingScreen> {
             onPressed: () {
               ref.watch(currentUserProvider.notifier).signOut();
               ref.read(savedSessionProvider.notifier).changeSessionDataList();
+              Navigator.of(context).push(MaterialPageRoute(
+                  builder: ((context) => const LoginScreen())));
             },
             child: const Text(
               'Log Out',

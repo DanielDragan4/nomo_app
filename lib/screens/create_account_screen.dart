@@ -100,6 +100,9 @@ class _CreateAccountScreenState extends ConsumerState<CreateAccountScreen> {
     if (user.replaceAll(' ', '') == '') {
       user =
           'User-${supabase.auth.currentUser!.id.replaceAll('-', '').substring(0, 10)}';
+      if (_profileName.text.replaceAll(' ', '') == '') {
+        _profileName.text = user;
+      }
     }
 
     final newProfileRowMap = {
@@ -137,11 +140,7 @@ class _CreateAccountScreenState extends ConsumerState<CreateAccountScreen> {
             .single()
             .then((response) => response['avatar_id'] as String?);
     var user = _userName.text;
-    final userId = supabase
-        .auth
-        .currentUser!
-        .id
-        .toString();
+    final userId = supabase.auth.currentUser!.id.toString();
 
     if (_selectedImage != null) {
       await supabase.storage.from('Images').remove(['$userId/avatar/$avatar']);
@@ -303,12 +302,12 @@ class _CreateAccountScreenState extends ConsumerState<CreateAccountScreen> {
                     ref
                         .read(savedSessionProvider.notifier)
                         .changeSessionDataList();
-                    Navigator.of(context).pop();
+                    //Navigator.of(context).pop();
                   } else {
                     await _updateProfile();
 
                     widget.onUpdateProfile!.call();
-                    Navigator.of(context).pop();
+                    if (context.mounted) Navigator.of(context).pop();
                   }
                 },
               ),
@@ -320,9 +319,7 @@ class _CreateAccountScreenState extends ConsumerState<CreateAccountScreen> {
                       TextButton(
                         onPressed: () async {
                           await _createProfile(_userName.text, null);
-                          ref
-                              .read(onSignUp.notifier)
-                              .completeProfileCreation();
+                          ref.read(onSignUp.notifier).completeProfileCreation();
                           ref
                               .read(savedSessionProvider.notifier)
                               .changeSessionDataList();

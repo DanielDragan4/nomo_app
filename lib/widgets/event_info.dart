@@ -6,6 +6,8 @@ import 'package:nomo/models/events_model.dart';
 import 'package:nomo/providers/attending_events_provider.dart';
 import 'package:nomo/providers/events_provider.dart';
 import 'package:nomo/providers/supabase_provider.dart';
+import 'package:nomo/screens/new_event_screen.dart';
+import 'package:nomo/screens/setting_screen.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 enum options { itemOne, itemTwo, itemThree, itemFour }
@@ -66,6 +68,10 @@ class _EventInfoState extends ConsumerState<EventInfo> {
                       final supabase = snapshot.data!.client;
                       final currentUser = supabase.auth.currentUser!.id;
 
+                      if(widget.eventsData.host == currentUser) {
+                        joinOrLeave = true;
+                      }
+
                       for (var i = 0; i < widget.eventsData.attendees.length; i++) {
                         if (widget.eventsData.attendees[i]['user_id'] == currentUser) {
                           joinOrLeave = true;
@@ -77,6 +83,7 @@ class _EventInfoState extends ConsumerState<EventInfo> {
                         return ElevatedButton(
                           onPressed: (){
                             attendeeJoinEvent();
+                            ref.read(eventsProvider.notifier).deCodeData();
                             },
                           style: ButtonStyle(
                             backgroundColor: MaterialStateProperty.all<Color>(
@@ -87,6 +94,36 @@ class _EventInfoState extends ConsumerState<EventInfo> {
                           child: Text(text),
                         );
                       } else if(joinOrLeave){
+                        if(widget.eventsData.host == currentUser) {
+                          text = 'Edit';
+                          return ElevatedButton(
+                          onPressed: (){
+                            showDialog(
+                              context: context, 
+                              builder: (context) =>
+                                AlertDialog(
+                                  title: const Text('Are you sure you want to edit the event?'),
+                                  actions: [
+                                    TextButton(onPressed: () => Navigator.pop(context), child: const Text('CANCEL')),
+                                    TextButton(onPressed: (){
+                                        Navigator.of(context).push(MaterialPageRoute(builder: ((context) => NewEventScreen()))).then((result) => Navigator.pop(context));
+                                      }, 
+                                      child: const Text('YES')
+                                      ),
+                                  ],
+                                )
+                              );
+                            },
+                          style: ButtonStyle(
+                            backgroundColor: MaterialStateProperty.all<Color>(
+                                Theme.of(context).primaryColor),
+                            foregroundColor: MaterialStateProperty.all<Color>(
+                                Theme.of(context).primaryColorLight),
+                          ),
+                          child: Text(text),
+                        );
+                        }
+                        else {
                         text = 'Leave';
                         return ElevatedButton(
                           onPressed: (){
@@ -118,6 +155,7 @@ class _EventInfoState extends ConsumerState<EventInfo> {
                           ),
                           child: Text(text),
                         );
+                        }
                       }
                       }
                     } 

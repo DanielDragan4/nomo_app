@@ -39,7 +39,15 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
 
   Future<Map> fetchInfo() async {
     await Future.delayed(const Duration(microseconds: 1));
-    final profileState = ref.read(profileProvider.notifier).state![0];
+    
+    if(ref.read(profileProvider.notifier).state == null ||  ref.read(profileProvider.notifier).state!.isEmpty) {
+      return {
+      'profile_name': 'Unloaded Name',
+      'avatar': 'avatar',
+      'username': "userUnloaded",
+    };
+    }
+    final profileState = ref.read(profileProvider.notifier).state?[0];
     final avatar =
         await ref.read(profileProvider.notifier).imageURL(profileState.avatar);
     final profN = profileState.profile_name;
@@ -60,7 +68,16 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
 
   @override
   Widget build(BuildContext contex) {
-    final imageUrl = ref.read(profileProvider.notifier).state![0].avatar;
+    ref.read(attendEventsProvider.notifier).deCodeData();
+    ref.read(profileProvider.notifier).decodeData();
+    var imageUrl;
+
+    if(ref.read(profileProvider.notifier).state == null ||  ref.read(profileProvider.notifier).state!.isEmpty) {
+      imageUrl = '';
+    } else {
+      imageUrl = ref.read(profileProvider.notifier).state?[0].avatar;
+    }
+
 
     return Scaffold(
       body: NestedScrollView(
@@ -200,15 +217,15 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
         body: Column(
           children: [
             Expanded(
-              child: StreamBuilder<Object>(
+              child: StreamBuilder(
                   stream: ref.read(attendEventsProvider.notifier).stream,
                   builder: (context, snapshot) {
-                    if (snapshot.hasData) {
+                    if (snapshot.data != null) {
                       return ListView(
                         key: const PageStorageKey<String>('event'),
                         children: [
                           for (Event i
-                              in ref.read(attendEventsProvider.notifier).state)
+                              in snapshot.data!)
                             EventTab(eventData: i),
                         ],
                       );

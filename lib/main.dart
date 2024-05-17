@@ -22,10 +22,11 @@ class App extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     void loadData() {
-      ref.watch(savedSessionProvider.notifier).changeSessionDataList();
-      ref.read(eventsProvider.notifier).deCodeData();
-      ref.read(attendEventsProvider.notifier).deCodeData();
-      ref.read(profileProvider.notifier).decodeData();
+      ref.read(savedSessionProvider.notifier).changeSessionDataList();
+      //ref.read(eventsProvider.notifier).deCodeData();
+      //ref.read(attendEventsProvider.notifier).deCodeData();
+      //ref.read(profileProvider.notifier).decodeData();
+      print('tttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttt');
     }
 
     return GestureDetector(

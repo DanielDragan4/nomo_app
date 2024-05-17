@@ -65,7 +65,7 @@ class _NavBarState extends ConsumerState<NavBar> {
         ],
       ),
       body: PageView(
-        controller: _pageViewController,
+        controller: _pageViewController, 
         onPageChanged: (index) {
           setState(() {
             _index = index;

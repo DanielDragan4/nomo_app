@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:nomo/screens/NavBar.dart';
 import 'package:nomo/screens/recommended_screen.dart';
-import 'package:nomo/widgets/app_bar.dart';
 import 'package:nomo/widgets/pick_image.dart';
 import 'dart:io';
 import 'package:intl/intl.dart';
@@ -232,7 +230,7 @@ class _NewEventScreenState extends ConsumerState<NewEventScreen> {
     return Scaffold(
       appBar: AppBar(
         flexibleSpace: PreferredSize(
-          preferredSize: Size.fromHeight(kToolbarHeight),
+          preferredSize: const Size.fromHeight(kToolbarHeight),
           child: Container(
             padding: const EdgeInsets.only(
               top: 20,

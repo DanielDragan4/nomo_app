@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:nomo/data/dummy_data.dart';
 import 'package:nomo/models/user_model.dart';
 import 'package:nomo/widgets/user_tab.dart';
-import 'package:nomo/widgets/app_bar.dart';
 
 class FriendsScreen extends StatefulWidget {
   const FriendsScreen({super.key});
@@ -21,7 +20,7 @@ class _FriendsScreenState extends State<FriendsScreen> {
     return Scaffold(
       appBar: AppBar(
         flexibleSpace: PreferredSize(
-          preferredSize: Size.fromHeight(kToolbarHeight),
+          preferredSize: const Size.fromHeight(kToolbarHeight),
           child: Container(
             padding: const EdgeInsets.only(
               top: 20,

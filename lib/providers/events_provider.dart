@@ -28,7 +28,7 @@ class EventProvider extends StateNotifier<List?> {
     final supabaseClient = (await supabase).client;
 
     for (var eventData in codedList) {
-      var url;             
+      String url='';             
       for(var imgData in eventImgs) {
             if(eventData['image_id'] == imgData['images_id']) {
               url = supabaseClient.storage
@@ -72,6 +72,7 @@ class EventProvider extends StateNotifier<List?> {
       'user_id' : currentUser
     };
     await supabaseClient.from('Attendees').insert(newAttendeeMap);
+    await deCodeData();
   }
 }
 

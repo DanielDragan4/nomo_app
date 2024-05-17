@@ -1,4 +1,3 @@
-import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -7,13 +6,11 @@ import 'package:nomo/providers/attending_events_provider.dart';
 import 'package:nomo/providers/events_provider.dart';
 import 'package:nomo/providers/supabase_provider.dart';
 import 'package:nomo/screens/new_event_screen.dart';
-import 'package:nomo/screens/setting_screen.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
 
 enum options { itemOne, itemTwo, itemThree, itemFour }
 
 class EventInfo extends ConsumerStatefulWidget {
-  EventInfo({super.key, required this.eventsData,});
+  const EventInfo({super.key, required this.eventsData,});
   final Event eventsData;
 
   @override
@@ -83,7 +80,6 @@ class _EventInfoState extends ConsumerState<EventInfo> {
                         return ElevatedButton(
                           onPressed: (){
                             attendeeJoinEvent();
-                            ref.read(eventsProvider.notifier).deCodeData();
                             },
                           style: ButtonStyle(
                             backgroundColor: MaterialStateProperty.all<Color>(
@@ -106,7 +102,7 @@ class _EventInfoState extends ConsumerState<EventInfo> {
                                   actions: [
                                     TextButton(onPressed: () => Navigator.pop(context), child: const Text('CANCEL')),
                                     TextButton(onPressed: (){
-                                        Navigator.of(context).push(MaterialPageRoute(builder: ((context) => NewEventScreen()))).then((result) => Navigator.pop(context));
+                                        Navigator.of(context).push(MaterialPageRoute(builder: ((context) => const NewEventScreen()))).then((result) => Navigator.pop(context));
                                       }, 
                                       child: const Text('YES')
                                       ),

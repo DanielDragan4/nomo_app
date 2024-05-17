@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:nomo/providers/profile_provider.dart';
 import 'package:nomo/screens/calendar/calendar_screen.dart';
 import 'package:nomo/screens/friends_screen.dart';
 import 'package:nomo/screens/new_event_screen.dart';
@@ -21,6 +22,7 @@ class _NavBarState extends ConsumerState<NavBar> {
   @override
   Widget build(BuildContext context) {
     var navBarTheme = Theme.of(context).bottomNavigationBarTheme;
+    ref.read(profileProvider.notifier).decodeData();
 
     return Scaffold(
       bottomNavigationBar: BottomNavigationBar(

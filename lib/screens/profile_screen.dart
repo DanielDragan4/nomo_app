@@ -23,7 +23,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
   void initState() {
     super.initState();
     _fetchData();
-    //ref.read(attendEventsProvider.notifier).deCodeData();
+    ref.read(attendEventsProvider.notifier).deCodeData();
   }
 
   Future<void> _fetchData() async {
@@ -68,7 +68,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
   @override
   Widget build(BuildContext contex) {
     ref.read(attendEventsProvider.notifier).deCodeData();
-    ref.read(profileProvider.notifier).decodeData();
+    ref.watch(profileProvider.notifier).decodeData();
     var imageUrl;
 
     if(ref.read(profileProvider.notifier).state == null ||  ref.read(profileProvider.notifier).state!.isEmpty) {
@@ -217,7 +217,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
           children: [
             Expanded(
               child: StreamBuilder(
-                  stream: ref.read(attendEventsProvider.notifier).stream,
+                  stream: ref.watch(attendEventsProvider.notifier).stream,
                   builder: (context, snapshot) {
                     if (snapshot.data != null) {
                       return ListView(

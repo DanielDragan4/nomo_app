@@ -1,10 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:nomo/models/events_model.dart';
 import 'package:nomo/providers/events_provider.dart';
 import 'package:nomo/screens/search_screen.dart';
-import 'package:nomo/widgets/app_bar.dart';
 import 'package:nomo/widgets/event_tab.dart';
 
 class RecommendedScreen extends ConsumerWidget {
@@ -16,7 +14,7 @@ class RecommendedScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    ref.watch(eventsProvider.notifier).deCodeData();
+    ref.read(eventsProvider.notifier).deCodeData();
     return Scaffold(
       body: NestedScrollView(
         floatHeaderSlivers: true,
@@ -26,7 +24,7 @@ class RecommendedScreen extends ConsumerWidget {
             snap: true,
             expandedHeight: 10,
             flexibleSpace: FlexibleSpaceBar(
-              titlePadding: EdgeInsets.all(0),
+              titlePadding: const EdgeInsets.all(0),
               background: Padding(
                 padding: const EdgeInsets.only(
                     top: 35), // Add padding above the title

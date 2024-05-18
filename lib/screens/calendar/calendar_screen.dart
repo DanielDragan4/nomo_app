@@ -92,7 +92,8 @@ class _CalendarScreenState extends State<CalendarScreen> {
           Row(
             mainAxisAlignment: MainAxisAlignment.end,
             children: [
-              IconButton(onPressed: (){Navigator.of(context).push(MaterialPageRoute(builder: ((context) => const NewEventScreen())));}, icon: const Icon(Icons.add_box_rounded, size: 45,)),
+              IconButton(onPressed: (){Navigator.of(context).push(MaterialPageRoute(builder: ((context) => 
+              const NewEventScreen(isNewEvent: false, event: null))));}, icon: const Icon(Icons.add_box_rounded, size: 45,)),
             ],
           )
         ],

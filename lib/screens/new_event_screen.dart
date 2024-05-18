@@ -1,16 +1,22 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
+import 'package:nomo/models/events_model.dart';
 import 'package:nomo/screens/recommended_screen.dart';
 import 'package:nomo/widgets/pick_image.dart';
 import 'dart:io';
 import 'package:intl/intl.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:nomo/providers/supabase_provider.dart';
+import 'package:network_to_file_image/network_to_file_image.dart';
 import 'package:uuid/uuid.dart';
 
 const List<String> list = <String>['Public', 'Private', 'Selective'];
 
 class NewEventScreen extends ConsumerStatefulWidget {
-  const NewEventScreen({super.key});
+  const NewEventScreen({super.key, required this.isNewEvent, this.event});
+  final isNewEvent;
+  final Event? event;
 
   @override
   ConsumerState<NewEventScreen> createState() => _NewEventScreenState();
@@ -35,6 +41,34 @@ class _NewEventScreenState extends ConsumerState<NewEventScreen> {
   final _title = TextEditingController();
   final _description = TextEditingController();
 
+  @override
+  void initState() {
+    if(widget.isNewEvent) {
+      _title.text = widget.event!.title;
+      _description.text = widget.event!.description;
+      _selectedLocation.text = widget.event!.location;
+      //_selectedImage = widget.event!.imageUrl;
+      stime = true;
+      etime = true;
+      sdate = true;
+      edate = true;
+      _selectedStartTime = TimeOfDay.fromDateTime(DateTime.parse(widget.event!.sdate));
+      _selectedEndTime = TimeOfDay.fromDateTime(DateTime.parse(widget.event!.edate));
+      _selectedStartDate = DateTime.parse(widget.event!.sdate);
+      _selectedEndDate = DateTime.parse(widget.event!.edate);
+      _formattedEDate = widget.event!.edate;
+      _formattedSDate = widget.event!.sdate;
+      
+      for(int i = 0; i< list.length; i++) {
+        if(list[i] == widget.event!.eventType) {
+          dropDownValue = list[i];
+          break;
+        }
+      }
+    }
+    super.initState();
+  }
+  
   @override
   void dispose() {
     // Clean up the controller when the widget is disposed.
@@ -249,11 +283,12 @@ class _NewEventScreenState extends ConsumerState<NewEventScreen> {
       body: SingleChildScrollView(
         child: Column(
           children: [
-            ImageInput(
-              onPickImage: (image) {
+             ImageInput(
+              previousImage: widget.event?.imageUrl,
+              onPickImage: (image,) {
                 _selectedImage = image;
               },
-            ),
+             ),
             const SizedBox(height: 10),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 8.0),

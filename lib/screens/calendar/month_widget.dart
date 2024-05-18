@@ -67,31 +67,30 @@ class Month extends ConsumerWidget {
   Color findCellColor(cellPosition, List events) {
     Color cellColor;
     var dayInGrid = cellIndex - firstDayOfWeek;
-    if ((dayInGrid) < lastOfMonth &&
-        (dayInGrid) >= 0) {
-          cellColor = const Color.fromARGB(255, 221, 221, 221);
-          for(var day in events) {
-            if((dayInGrid+1) == DateTime.parse(day.sdate).day){
-              cellColor = const Color.fromARGB(136, 162, 24, 248);
-            }
-            }
+    if ((dayInGrid) < lastOfMonth && (dayInGrid) >= 0) {
+      cellColor = const Color.fromARGB(255, 221, 221, 221);
+      for (var day in events) {
+        if ((dayInGrid + 1) == DateTime.parse(day.sdate).day) {
+          cellColor = const Color.fromARGB(136, 162, 24, 248);
+        }
+      }
     } else {
       cellColor = const Color.fromARGB(0, 255, 255, 255);
     }
 
     return cellColor;
   }
+
   List hasEvent(cellPosition, List events) {
     List hasEvent;
     var dayInGrid = cellIndex - firstDayOfWeek;
-    if ((dayInGrid) < lastOfMonth &&
-        (dayInGrid) >= 0) {
-          hasEvent = [false];
-          for(var day in events) {
-            if((dayInGrid) == DateTime.parse(day.sdate).day){
-              hasEvent = [true, day];
-            }
-            }
+    if ((dayInGrid) < lastOfMonth && (dayInGrid) >= 0) {
+      hasEvent = [false];
+      for (var day in events) {
+        if ((dayInGrid) == DateTime.parse(day.sdate).day) {
+          hasEvent = [true, day];
+        }
+      }
     } else {
       hasEvent = [false];
     }
@@ -115,8 +114,9 @@ class Month extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-
-    List<Event> calEvents = ref.read(attendEventsProvider.notifier).eventsAttendingByMonth(yearDisplayed, selectedMonth);
+    List<Event> calEvents = ref
+        .read(attendEventsProvider.notifier)
+        .eventsAttendingByMonth(yearDisplayed, selectedMonth);
 
     return Container(
       alignment: Alignment.center,
@@ -207,8 +207,7 @@ class Month extends ConsumerWidget {
                   gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                       crossAxisCount: 7),
                   itemCount: 42,
-                  itemBuilder: (context, index) => 
-                    DayButton(
+                  itemBuilder: (context, index) => DayButton(
                     isSelected: false,
                     boarderWidth: findBoarderWidth(index),
                     cellColor: findCellColor(index, calEvents),
@@ -230,14 +229,15 @@ class Month extends ConsumerWidget {
                 ),
               ),
               const Divider(),
-                SizedBox(
-                  height: MediaQuery.sizeOf(context).height *0.14,
-                  child: ListView(
-                    key: const PageStorageKey<String>('cal'),
-                    children: 
-                      [for (Event i in calEvents) EventCalTab(eventData: i)],
-                  ),
+              SizedBox(
+                height: MediaQuery.sizeOf(context).height * 0.14,
+                child: ListView(
+                  key: const PageStorageKey<String>('cal'),
+                  children: [
+                    for (Event i in calEvents) EventCalTab(eventData: i)
+                  ],
                 ),
+              ),
             ],
           )),
     );
@@ -245,17 +245,16 @@ class Month extends ConsumerWidget {
 }
 
 class DayButton extends StatelessWidget {
-  const DayButton({
-    super.key,
-    required this.isSelected,
-    required this.boarderWidth,
-    required this.cellColor,
-    required this.dayDisplayed,
-    required this.index,
-    required this.hasEvent
-    //required this.onPressed,
-  }
-  );
+  const DayButton(
+      {super.key,
+      required this.isSelected,
+      required this.boarderWidth,
+      required this.cellColor,
+      required this.dayDisplayed,
+      required this.index,
+      required this.hasEvent
+      //required this.onPressed,
+      });
 
   final bool isSelected;
   final bool boarderWidth;
@@ -264,8 +263,6 @@ class DayButton extends StatelessWidget {
   final int index;
   final List hasEvent;
   //final void Function() onPressed;
-    
-  
 
   @override
   Widget build(BuildContext context) {
@@ -273,8 +270,10 @@ class DayButton extends StatelessWidget {
       children: [
         GestureDetector(
           onTap: () {
-            if(hasEvent[0]) {
-              Navigator.of(context).push(MaterialPageRoute(builder: ((context) => DetailedEventScreen(eventData: hasEvent[1]))));
+            if (hasEvent[0]) {
+              Navigator.of(context).push(MaterialPageRoute(
+                  builder: ((context) =>
+                      DetailedEventScreen(eventData: hasEvent[1]))));
             }
           },
           child: Container(

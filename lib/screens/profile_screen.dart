@@ -38,13 +38,14 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
 
   Future<Map> fetchInfo() async {
     await Future.delayed(const Duration(microseconds: 1));
-    
-    if(ref.read(profileProvider.notifier).state == null ||  ref.read(profileProvider.notifier).state!.isEmpty) {
+
+    if (ref.read(profileProvider.notifier).state == null ||
+        ref.read(profileProvider.notifier).state!.isEmpty) {
       return {
-      'profile_name': 'Unloaded Name',
-      'avatar': 'avatar',
-      'username': "userUnloaded",
-    };
+        'profile_name': 'Unloaded Name',
+        'avatar': 'avatar',
+        'username': "userUnloaded",
+      };
     }
     final profileState = ref.read(profileProvider.notifier).state?[0];
     final avatar =
@@ -71,12 +72,12 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
     ref.watch(profileProvider.notifier).decodeData();
     var imageUrl;
 
-    if(ref.read(profileProvider.notifier).state == null ||  ref.read(profileProvider.notifier).state!.isEmpty) {
+    if (ref.read(profileProvider.notifier).state == null ||
+        ref.read(profileProvider.notifier).state!.isEmpty) {
       imageUrl = '';
     } else {
       imageUrl = ref.read(profileProvider.notifier).state?[0].avatar;
     }
-
 
     return Scaffold(
       body: NestedScrollView(
@@ -137,9 +138,9 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                     ),
                     Column(
                       children: [
-                        const Row(
+                        Row(
                           children: [
-                            Column(
+                            const Column(
                               children: [
                                 Text(
                                   "Friends",
@@ -152,9 +153,9 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                               ],
                             ),
                             SizedBox(
-                              width: 10,
+                              width: MediaQuery.of(context).size.width / 20,
                             ),
-                            Column(
+                            const Column(
                               children: [
                                 Text(
                                   "Upcoming Events",
@@ -205,9 +206,6 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                     const ProfileDropdown(),
                   ],
                 ),
-                // SizedBox(
-                //   height: MediaQuery.sizeOf(context).height / 30,
-                // ),
               ]),
             ),
             centerTitle: true,
@@ -223,8 +221,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                       return ListView(
                         key: const PageStorageKey<String>('event'),
                         children: [
-                          for (Event i
-                              in snapshot.data!)
+                          for (Event i in snapshot.data!)
                             EventTab(eventData: i),
                         ],
                       );

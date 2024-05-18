@@ -173,7 +173,6 @@ class _CreateAccountScreenState extends ConsumerState<CreateAccountScreen> {
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            //const SizedBox(height: 20),
             const Padding(
               padding: EdgeInsets.only(left: 12.0),
               child: Text(
@@ -181,7 +180,6 @@ class _CreateAccountScreenState extends ConsumerState<CreateAccountScreen> {
                 style: TextStyle(fontSize: 20),
               ),
             ),
-            //const SizedBox(height: 20),
             Center(
               child: GestureDetector(
                 onTap: () {
@@ -189,7 +187,7 @@ class _CreateAccountScreenState extends ConsumerState<CreateAccountScreen> {
                     context: context,
                     builder: (BuildContext context) {
                       return SizedBox(
-                        height: 150,
+                        height: MediaQuery.of(context).size.height / 6,
                         width: double.infinity,
                         child: Column(
                             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -247,7 +245,7 @@ class _CreateAccountScreenState extends ConsumerState<CreateAccountScreen> {
                 ),
               ),
             ),
-            const SizedBox(height: 20),
+            SizedBox(height: MediaQuery.of(context).size.height / 15),
             Padding(
               padding: const EdgeInsets.all(7.0),
               child: TextField(
@@ -260,7 +258,6 @@ class _CreateAccountScreenState extends ConsumerState<CreateAccountScreen> {
                 ),
               ),
             ),
-
             Padding(
               padding: const EdgeInsets.all(7.0),
               child: TextField(
@@ -273,7 +270,6 @@ class _CreateAccountScreenState extends ConsumerState<CreateAccountScreen> {
                 ),
               ),
             ),
-            //const SizedBox(height: 10),
             Padding(
               padding: const EdgeInsets.all(7.0),
               child: TextField(
@@ -287,7 +283,6 @@ class _CreateAccountScreenState extends ConsumerState<CreateAccountScreen> {
                 keyboardType: TextInputType.phone,
               ),
             ),
-            //SizedBox(height: 30),
             Padding(
               padding: const EdgeInsets.symmetric(vertical: 30),
               child: ElevatedButton(

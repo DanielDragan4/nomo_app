@@ -82,7 +82,7 @@ class _FriendsScreenState extends State<FriendsScreen> {
                 ),
               ),
               SizedBox(
-                width: 40,
+                width: MediaQuery.of(context).size.width / 10,
                 child: IconButton(
                   onPressed: () {},
                   icon: const Icon(Icons.search),

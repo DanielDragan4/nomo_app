@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:nomo/providers/saved_session_provider.dart';
 import 'package:nomo/providers/supabase_provider.dart';
-import 'package:nomo/screens/setting_screen.dart';
+import 'package:nomo/screens/settings/setting_screen.dart';
 
 enum options {
   itemOne,

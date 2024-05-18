@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:nomo/screens/login_screen.dart';
-
+import 'package:nomo/screens/settings/setting_about.dart';
+import 'package:nomo/screens/settings/setting_template.dart';
 import 'package:nomo/widgets/setting_button.dart';
 
 import 'package:nomo/providers/saved_session_provider.dart';
@@ -24,6 +25,12 @@ class _SettingScreenState extends ConsumerState<SettingScreen> {
     setState(() {
       _switchVal = !_switchVal;
     });
+  }
+
+  redirect(String screen) {
+    return Navigator.of(context).push(MaterialPageRoute(
+      builder: (context) => SettingsTemplate(type: screen),
+    ));
   }
 
   @override
@@ -56,15 +63,21 @@ class _SettingScreenState extends ConsumerState<SettingScreen> {
           const Divider(),
           SettingButton(
             title: 'Data Management',
-            onPressed: () {},
+            onPressed: () {
+              redirect("Data");
+            },
           ),
           SettingButton(
             title: 'Authentication',
-            onPressed: () {},
+            onPressed: () {
+              redirect("Auth");
+            },
           ),
           SettingButton(
             title: 'Security',
-            onPressed: () {},
+            onPressed: () {
+              redirect("Security");
+            },
           ),
           const ListTile(
             title: Text('Privacy', style: TextStyle(fontSize: 25)),
@@ -77,25 +90,47 @@ class _SettingScreenState extends ConsumerState<SettingScreen> {
           ),
           SettingButton(
             title: 'Blocked Accounts',
-            onPressed: () {},
+            onPressed: () {
+              redirect("Blocked");
+            },
           ),
           const ListTile(
             title: Text('In-App Notifications', style: TextStyle(fontSize: 25)),
           ),
           const Divider(),
           //Sub-Toggles: New Event Created, New Event Joined, Availability Changes
-          SettingButton(title: 'Following Profiles', onPressed: () {}),
+          SettingButton(
+              title: 'Following Profiles',
+              onPressed: () {
+                redirect("Following");
+              }),
           //Sub-Toggles: New Event Created, New Event Joined, Availability Changes
-          SettingButton(title: 'Friends', onPressed: () {}),
+          SettingButton(
+              title: 'Friends',
+              onPressed: () {
+                redirect("Friends");
+              }),
           //Sub-Toggles: Has exact interest, Has similar interest
-          SettingButton(title: 'Recommended Events', onPressed: () {}),
+          SettingButton(
+              title: 'Recommended Events',
+              onPressed: () {
+                redirect("Recommended");
+              }),
           //Sub-Toggles: Friends, Not friends
-          SettingButton(title: 'Messages', onPressed: () {}),
+          SettingButton(
+              title: 'Messages',
+              onPressed: () {
+                redirect("Messages");
+              }),
           const ListTile(
             title: Text('Customization', style: TextStyle(fontSize: 25)),
           ),
           const Divider(),
-          SettingButton(title: 'Theme', onPressed: () {}),
+          SettingButton(
+              title: 'Theme',
+              onPressed: () {
+                redirect("Theme");
+              }),
           const ListTile(
             title: Text('Premissions', style: TextStyle(fontSize: 25)),
           ),
@@ -131,19 +166,43 @@ class _SettingScreenState extends ConsumerState<SettingScreen> {
             ),
           if (widget.isCorp != null && true) const Divider(),
           if (widget.isCorp != null && true)
-            SettingButton(title: 'Event Analytics', onPressed: () {}),
+            SettingButton(
+                title: 'Event Analytics',
+                onPressed: () {
+                  redirect("Analytics");
+                }),
           if (widget.isCorp != null && true)
-            SettingButton(title: 'Payment', onPressed: () {}),
+            SettingButton(
+                title: 'Payment',
+                onPressed: () {
+                  redirect("Payment");
+                }),
           if (widget.isCorp != null && true)
-            SettingButton(title: 'Customer Support', onPressed: () {}),
+            SettingButton(
+                title: 'Customer Support',
+                onPressed: () {
+                  redirect("Support");
+                }),
           const ListTile(
             title: Text('Support', style: TextStyle(fontSize: 25)),
           ),
           const Divider(),
-          SettingButton(title: 'About', onPressed: () {}),
+          SettingButton(
+              title: 'About',
+              onPressed: () {
+                redirect("About");
+              }),
           //Included: Helpful Links, Contact Info
-          SettingButton(title: 'Help', onPressed: () {}),
-          SettingButton(title: 'Account Status', onPressed: () {}),
+          SettingButton(
+              title: 'Help',
+              onPressed: () {
+                redirect("Help");
+              }),
+          SettingButton(
+              title: 'Account Status',
+              onPressed: () {
+                redirect("Status");
+              }),
           TextButton(
             onPressed: () {
               ref.watch(currentUserProvider.notifier).signOut();

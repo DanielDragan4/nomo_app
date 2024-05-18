@@ -33,7 +33,7 @@ class _DetailedEventScreenState extends ConsumerState<DetailedEventScreen> {
 
     var formattedDate =
         "${date.month}/${date.day}/${date.year} at ${getHour()}";
-    return  Scaffold(
+    return Scaffold(
       appBar: AppBar(
         toolbarHeight: 75,
         titleTextStyle: Theme.of(context).appBarTheme.titleTextStyle,
@@ -57,60 +57,60 @@ class _DetailedEventScreenState extends ConsumerState<DetailedEventScreen> {
           ),
         ),
       ),
-      body: Column(
-        children: [ Padding(
-      padding: const EdgeInsets.all(2.0),
-      child: Container(
-        child: Column(
-          children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: [
-                Text(formattedDate),
-              ],
-            ),
-            Container(
-              width: double.infinity,
-              decoration: const BoxDecoration(
-                  borderRadius: BorderRadius.only(
-                      bottomLeft: Radius.circular(15),
-                      bottomRight: Radius.circular(15))),
-              child: SizedBox(
+      body: Column(children: [
+        Padding(
+            padding: const EdgeInsets.all(2.0),
+            child: Container(
+                child: Column(children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  Text(formattedDate),
+                ],
+              ),
+              Container(
                 width: double.infinity,
-                height: 250,
-                child: FutureBuilder(
-                  future: ref.read(supabaseInstance),
-                  builder: (context, snapshot) {
-                    if (snapshot.hasData) {
-                      return Image.network(widget.eventData.imageUrl, fit: BoxFit.fill);
-                    } else if (snapshot.hasError) {
-                      return Text('Error loading image: ${snapshot.error}');
-                    } else if(snapshot.connectionState == ConnectionState.waiting){
-                      return const CircularProgressIndicator();
-                    }
-                    else {
-                      return const CircularProgressIndicator();
-                    }
-                  },
+                decoration: const BoxDecoration(
+                    borderRadius: BorderRadius.only(
+                        bottomLeft: Radius.circular(15),
+                        bottomRight: Radius.circular(15))),
+                child: SizedBox(
+                  width: double.infinity,
+                  height: 250,
+                  child: FutureBuilder(
+                    future: ref.read(supabaseInstance),
+                    builder: (context, snapshot) {
+                      if (snapshot.hasData) {
+                        return Image.network(widget.eventData.imageUrl,
+                            fit: BoxFit.fill);
+                      } else if (snapshot.hasError) {
+                        return Text('Error loading image: ${snapshot.error}');
+                      } else if (snapshot.connectionState ==
+                          ConnectionState.waiting) {
+                        return const CircularProgressIndicator();
+                      } else {
+                        return const CircularProgressIndicator();
+                      }
+                    },
+                  ),
                 ),
               ),
-            ),
-            Container(
-              height: 5,
-            ),
-            EventInfo(eventsData: widget.eventData),
-            SizedBox(
-              height: 80,
-              child: Text(widget.eventData.description),
-            ),
-             Text('Comments',
-                      style: TextStyle(
-                        color: Theme.of(context).primaryColor,
-                        fontWeight: FontWeight.bold,
-                      )),
-            const Divider(),
-  ])))]
-        ),
-      );
+              Container(
+                height: 5,
+              ),
+              EventInfo(eventsData: widget.eventData),
+              SizedBox(
+                height: MediaQuery.of(context).size.height / 20,
+                child: Text(widget.eventData.description),
+              ),
+              Text('Comments',
+                  style: TextStyle(
+                    color: Theme.of(context).primaryColor,
+                    fontWeight: FontWeight.bold,
+                  )),
+              const Divider(),
+            ])))
+      ]),
+    );
   }
 }

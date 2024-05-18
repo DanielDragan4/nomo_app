@@ -70,13 +70,14 @@ class _EventTabState extends ConsumerState<EventTab> {
                   future: ref.read(supabaseInstance),
                   builder: (context, snapshot) {
                     if (snapshot.hasData) {
-                      return Image.network(widget.eventData.imageUrl, fit: BoxFit.fill);
+                      return Image.network(widget.eventData.imageUrl,
+                          fit: BoxFit.fill);
                     } else if (snapshot.hasError) {
                       return Text('Error loading image: ${snapshot.error}');
-                    } else if(snapshot.connectionState == ConnectionState.waiting){
+                    } else if (snapshot.connectionState ==
+                        ConnectionState.waiting) {
                       return const CircularProgressIndicator();
-                    }
-                    else {
+                    } else {
                       return const CircularProgressIndicator();
                     }
                   },
@@ -88,7 +89,7 @@ class _EventTabState extends ConsumerState<EventTab> {
             ),
             EventInfo(eventsData: widget.eventData),
             SizedBox(
-              height: 80,
+              height: MediaQuery.of(context).size.height / 12,
               child: Text(widget.eventData.description),
             ),
           ],

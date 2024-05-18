@@ -254,7 +254,7 @@ class _NewEventScreenState extends ConsumerState<NewEventScreen> {
                 _selectedImage = image;
               },
             ),
-            const SizedBox(height: 10),
+            SizedBox(height: MediaQuery.of(context).size.height / 30),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 8.0),
               child: Row(

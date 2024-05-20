@@ -103,7 +103,7 @@ class _EventInfoState extends ConsumerState<EventInfo> {
                                     TextButton(onPressed: () => Navigator.pop(context), child: const Text('CANCEL')),
                                     TextButton(onPressed: (){
                                         Navigator.of(context).push(MaterialPageRoute(builder: 
-                                        ((context) => NewEventScreen(isNewEvent: true, event: widget.eventsData))))
+                                        ((context) => NewEventScreen(isNewEvent: false, event: widget.eventsData))))
                                         .then((result) => Navigator.pop(context));
                                       }, 
                                       child: const Text('YES')

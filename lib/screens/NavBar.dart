@@ -75,7 +75,7 @@ class _NavBarState extends ConsumerState<NavBar> {
         },
         children: const [
           RecommendedScreen(),
-          NewEventScreen(isNewEvent: false, event: null),
+          NewEventScreen(isNewEvent: true, event: null),
           CalendarScreen(),
           FriendsScreen(),
           ProfileScreen(),

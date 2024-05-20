@@ -1,8 +1,10 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart';
+import 'package:intl/date_symbol_data_file.dart';
 import 'package:nomo/models/events_model.dart';
 import 'package:nomo/screens/NavBar.dart';
+import 'package:nomo/providers/attending_events_provider.dart';
 import 'package:nomo/screens/recommended_screen.dart';
 import 'package:nomo/widgets/pick_image.dart';
 import 'dart:io';
@@ -10,13 +12,14 @@ import 'package:intl/intl.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:nomo/providers/supabase_provider.dart';
 import 'package:network_to_file_image/network_to_file_image.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:uuid/uuid.dart';
 
 const List<String> list = <String>['Public', 'Private', 'Selective'];
 
 class NewEventScreen extends ConsumerStatefulWidget {
   const NewEventScreen({super.key, required this.isNewEvent, this.event});
-  final isNewEvent;
+  final bool isNewEvent;
   final Event? event;
 
   @override
@@ -44,7 +47,7 @@ class _NewEventScreenState extends ConsumerState<NewEventScreen> {
 
   @override
   void initState() {
-    if (widget.isNewEvent) {
+    if (!widget.isNewEvent) {
       _title.text = widget.event!.title;
       _description.text = widget.event!.description;
       _selectedLocation.text = widget.event!.location;
@@ -59,8 +62,11 @@ class _NewEventScreenState extends ConsumerState<NewEventScreen> {
           TimeOfDay.fromDateTime(DateTime.parse(widget.event!.edate));
       _selectedStartDate = DateTime.parse(widget.event!.sdate);
       _selectedEndDate = DateTime.parse(widget.event!.edate);
-      _formattedEDate = widget.event!.edate;
-      _formattedSDate = widget.event!.sdate;
+      _formattedEDate =
+          DateFormat.yMd().format(DateTime.parse(widget.event!.edate));
+      _formattedSDate =
+          DateFormat.yMd().format(DateTime.parse(widget.event!.sdate));
+      enableButton = true;
 
       for (int i = 0; i < list.length; i++) {
         if (list[i] == widget.event!.eventType) {
@@ -177,7 +183,7 @@ class _NewEventScreenState extends ConsumerState<NewEventScreen> {
         etime &&
         sdate &&
         edate &&
-        _selectedImage != null &&
+        (_selectedImage != null || widget.isNewEvent == false) &&
         _selectedStartDate != null &&
         _selectedEndDate != null &&
         _selectedStartTime != null &&
@@ -196,10 +202,6 @@ class _NewEventScreenState extends ConsumerState<NewEventScreen> {
     return second.isAfter(first);
   }
 
-  // String get currentImageId() async{
-  //   final supabase;
-  // }
-
   //TO-DO: generate unique image name to replace '/anotherimage' otherwise error occurs
   dynamic uploadImage(File imageFile) async {
     final supabase = (await ref.watch(supabaseInstance));
@@ -216,12 +218,6 @@ class _NewEventScreenState extends ConsumerState<NewEventScreen> {
         {'image_url': '$userId/images/$currentImageName'}).select('images_id');
 
     return imgId[0]["images_id"];
-
-    // if (response.error == null) {
-    //   print('Image uploaded successfully');
-    // } else {
-    //   print('Upload error: ${response.error!.message}');
-    // }
   }
 
   Future<void> createEvent(
@@ -255,6 +251,61 @@ class _NewEventScreenState extends ConsumerState<NewEventScreen> {
     await supabase.from('Event').insert(newEventRowMap);
   }
 
+  Future<void> updateEvent(
+      TimeOfDay selectedStart,
+      TimeOfDay selectedEnd,
+      DateTime selectedStartDate,
+      DateTime selectedEndDate,
+      File? selectedImage,
+      String inviteType,
+      String location,
+      String title,
+      String description) async {
+    DateTime start = DateTime(selectedStartDate.year, selectedStartDate.month,
+        selectedStartDate.day, selectedStart.hour, selectedStart.minute);
+    DateTime end = DateTime(selectedEndDate.year, selectedEndDate.month,
+        selectedEndDate.day, selectedEnd.hour, selectedEnd.minute);
+
+    final newEventRowMap;
+    final supabase = (await ref.watch(supabaseInstance)).client;
+
+    if (selectedImage != null) {
+      final previousImage = await supabase
+          .from('Images')
+          .select('image_url')
+          .eq('images_id', widget.event?.imageId)
+          .single()
+          .then((response) => response['image_url'] as String);
+      await supabase.storage.from('Images').remove([previousImage]);
+      var imageId = await uploadImage(selectedImage);
+
+      newEventRowMap = {
+        'time_start': DateFormat('yyyy-MM-dd HH:mm:ss').format(start),
+        'time_end': DateFormat('yyyy-MM-dd HH:mm:ss').format(end),
+        'location': location,
+        'description': description,
+        'invitationType': inviteType,
+        'image_id': imageId,
+        'title': title
+      };
+    } else {
+      newEventRowMap = {
+        'time_start': DateFormat('yyyy-MM-dd HH:mm:ss').format(start),
+        'time_end': DateFormat('yyyy-MM-dd HH:mm:ss').format(end),
+        'location': location,
+        'description': description,
+        'invitationType': inviteType,
+        'title': title
+      };
+    }
+
+    await supabase
+        .from('Event')
+        .update(newEventRowMap)
+        .eq('event_id', widget.event?.eventId);
+    ref.read(attendEventsProvider.notifier).deCodeData();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -267,7 +318,7 @@ class _NewEventScreenState extends ConsumerState<NewEventScreen> {
               bottom: 5,
             ),
             alignment: Alignment.bottomCenter,
-            child: Text('Create',
+            child: Text(widget.isNewEvent ? 'Create' : 'Update',
                 style: TextStyle(
                   color: Theme.of(context).primaryColor,
                   fontWeight: FontWeight.w800,
@@ -449,7 +500,7 @@ class _NewEventScreenState extends ConsumerState<NewEventScreen> {
             ),
             InkWell(
               onTap: () {
-                if (_selectedImage == null) {
+                if (_selectedImage == null && widget.isNewEvent) {
                   const snackbar =
                       SnackBar(content: Text('Select an image for your event'));
                   ScaffoldMessenger.of(context).showSnackBar(snackbar);
@@ -479,28 +530,51 @@ class _NewEventScreenState extends ConsumerState<NewEventScreen> {
                       fontWeight: FontWeight.w500),
                 ),
                 onPressed: enableButton
-                    ? () {
-                        createEvent(
-                          _selectedStartTime!,
-                          _selectedEndTime!,
-                          _selectedStartDate!,
-                          _selectedEndDate!,
-                          _selectedImage!,
-                          dropDownValue,
-                          _selectedLocation.text,
-                          _title.text,
-                          _description.text,
-                        ).then((value) => Navigator.of(context).pushReplacement(
-                            MaterialPageRoute(
-                                builder: ((context) => const NavBar()))));
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                            content: Text('Event Created'),
-                          ),
-                        );
-                      }
+                    ? widget.isNewEvent
+                        ? () {
+                            createEvent(
+                              _selectedStartTime!,
+                              _selectedEndTime!,
+                              _selectedStartDate!,
+                              _selectedEndDate!,
+                              _selectedImage!,
+                              dropDownValue,
+                              _selectedLocation.text,
+                              _title.text,
+                              _description.text,
+                            ).then((value) => Navigator.of(context)
+                                .pushReplacement(MaterialPageRoute(
+                                    builder: ((context) => const NavBar()))));
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text('Event Created'),
+                              ),
+                            );
+                          }
+                        : () {
+                            updateEvent(
+                              _selectedStartTime!,
+                              _selectedEndTime!,
+                              _selectedStartDate!,
+                              _selectedEndDate!,
+                              _selectedImage,
+                              dropDownValue,
+                              _selectedLocation.text,
+                              _title.text,
+                              _description.text,
+                            );
+                            Navigator.of(context).push(MaterialPageRoute(
+                                builder: ((context) =>
+                                    const RecommendedScreen())));
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text('Event Updated'),
+                              ),
+                            );
+                          }
                     : null,
-                child: const Text('Create Event'),
+                child:
+                    Text(widget.isNewEvent ? 'Create Event' : 'Update Event'),
               ),
             ),
           ],

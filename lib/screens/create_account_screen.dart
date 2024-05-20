@@ -48,23 +48,23 @@ class _CreateAccountScreenState extends ConsumerState<CreateAccountScreen> {
     super.initState();
   }
 
-  Future _pickImageFromGallery() async {
-    final returnedImage =
+  Future<void> _pickImageFromGallery() async {
+    final XFile? pickedFile =
         await ImagePicker().pickImage(source: ImageSource.gallery);
+    if (pickedFile == null) return;
 
-    if (returnedImage == null) return;
     setState(() {
-      _selectedImage = File(returnedImage.path);
+      _selectedImage = File(pickedFile.path);
     });
   }
 
-  Future _pickImageFromCamera() async {
-    final returnedImage =
+  Future<void> _pickImageFromCamera() async {
+    final XFile? pickedFile =
         await ImagePicker().pickImage(source: ImageSource.camera);
+    if (pickedFile == null) return;
 
-    if (returnedImage == null) return;
     setState(() {
-      _selectedImage = File(returnedImage.path);
+      _selectedImage = File(pickedFile.path);
     });
   }
 

@@ -2,6 +2,7 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:nomo/models/events_model.dart';
+import 'package:nomo/screens/NavBar.dart';
 import 'package:nomo/screens/recommended_screen.dart';
 import 'package:nomo/widgets/pick_image.dart';
 import 'dart:io';
@@ -489,9 +490,9 @@ class _NewEventScreenState extends ConsumerState<NewEventScreen> {
                           _selectedLocation.text,
                           _title.text,
                           _description.text,
-                        );
-                        Navigator.of(context).push(MaterialPageRoute(
-                            builder: ((context) => const RecommendedScreen())));
+                        ).then((value) => Navigator.of(context).pushReplacement(
+                            MaterialPageRoute(
+                                builder: ((context) => const NavBar()))));
                         ScaffoldMessenger.of(context).showSnackBar(
                           const SnackBar(
                             content: Text('Event Created'),

@@ -1,6 +1,8 @@
+import 'dart:html';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:nomo/models/events_model.dart';
-import 'package:nomo/models/profile_model.dart';
+import 'package:nomo/models/comments_model.dart';
 import 'package:nomo/providers/supabase_provider.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
@@ -96,6 +98,38 @@ class EventProvider extends StateNotifier<List?> {
   Future<void> unBookmark(eventToMark, currentUser) async{
     final supabaseClient = (await supabase).client;
     await supabaseClient.from('Bookmarked').delete().eq('event_id', eventToMark).eq('user_id', currentUser);
+  }
+
+  Future<List> readComments(String eventId) async {
+      final supabaseClient = (await supabase).client;
+      var comments = await supabaseClient.from('event_comments').select('*');
+      return comments.toList();
+    }
+  Future<List<Comment>> getComments(String eventId) async{
+    final codedList = await readComments(eventId);
+
+    List<Comment> deCodedList = [];
+    final supabaseClient = (await supabase).client;
+
+    for(var commentData in codedList) {
+
+      String profileUrl = supabaseClient.storage
+      .from('Images')
+      .getPublicUrl(commentData['profile_path']);
+
+      final Comment decodedComment = Comment(
+        comment_id: commentData['comments_id'],
+        comment_text: commentData['comment_text'],
+        profile_id: commentData['user_id'],
+        reply_comments: commentData['reply_id'],
+        timeStamp: commentData['commented_at'],
+        username: commentData['username'],
+        profileUrl: profileUrl
+      );
+
+      deCodedList.add(decodedComment);
+    }
+    return deCodedList;
   }
 
 }

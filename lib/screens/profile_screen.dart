@@ -19,6 +19,7 @@ class ProfileScreen extends ConsumerStatefulWidget {
 
 class _ProfileScreenState extends ConsumerState<ProfileScreen> {
   Future<Map>? profileInfo;
+  UniqueKey _futureBuilderKey = UniqueKey();
 
   late List<bool> isSelected;
 
@@ -34,8 +35,9 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
   Future<void> _fetchData() async {
     await Future.delayed(const Duration(microseconds: 1));
     if (mounted) {
+      final newProfileInfo = await fetchInfo();
       setState(() {
-        profileInfo = fetchInfo();
+        profileInfo = Future.value(newProfileInfo);
       });
     }
   }
@@ -67,6 +69,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
   void updateProfileInfo() {
     setState(() {
       _fetchData();
+      _futureBuilderKey = UniqueKey();
     });
   }
 
@@ -100,9 +103,43 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: [
                     FutureBuilder<Map>(
+                      key: _futureBuilderKey,
                       future: profileInfo,
                       builder: (context, snapshot) {
-                        if (snapshot.hasData) {
+                        if (snapshot.hasError) {
+                          return Column(
+                            children: [
+                              CircleAvatar(
+                                radius: MediaQuery.sizeOf(context).width / 5,
+                                child: const Text("No Image"),
+                              ),
+                              const Text(
+                                "No Username",
+                                style: TextStyle(fontSize: 13),
+                              ),
+                            ],
+                          );
+                        } else if (snapshot.connectionState !=
+                            ConnectionState.done) {
+                          return const CircularProgressIndicator();
+                        } else if (!snapshot.hasData) {
+                          return Column(
+                            children: [
+                              CircleAvatar(
+                                radius: MediaQuery.sizeOf(context).width / 5,
+                                child: const Text("No Image"),
+                              ),
+                              const Text(
+                                "No Username",
+                                style: TextStyle(fontSize: 13),
+                              ),
+                            ],
+                          );
+                        }
+                        //if (snapshot.hasData) {
+                        else {
+                          print(
+                              '---------------------------${snapshot.data!['profile_name']}----------------------------------');
                           return Column(
                             children: [
                               CircleAvatar(
@@ -122,22 +159,10 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                               ),
                             ],
                           );
-                        } else if (snapshot.hasError) {
-                          return Column(
-                            children: [
-                              CircleAvatar(
-                                radius: MediaQuery.sizeOf(context).width / 5,
-                                child: const Text("No Image"),
-                              ),
-                              const Text(
-                                "No Username",
-                                style: TextStyle(fontSize: 13),
-                              ),
-                            ],
-                          );
-                        } else {
-                          return const CircularProgressIndicator();
                         }
+                        //}  else {
+
+                        // }
                       },
                     ),
                     Column(
@@ -175,6 +200,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                         ),
                         //TODO: refresh page after updating account info
                         FutureBuilder<Map>(
+                          key: _futureBuilderKey,
                           future: profileInfo,
                           builder: ((context, snapshot) {
                             if (snapshot.hasData) {

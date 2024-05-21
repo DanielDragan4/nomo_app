@@ -296,10 +296,8 @@ class _CreateAccountScreenState extends ConsumerState<CreateAccountScreen> {
                     ref
                         .read(savedSessionProvider.notifier)
                         .changeSessionDataList();
-                    //Navigator.of(context).pop();
                   } else {
                     await _updateProfile();
-
                     widget.onUpdateProfile!.call();
                     if (context.mounted) Navigator.of(context).pop();
                   }

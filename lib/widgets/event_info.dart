@@ -48,24 +48,35 @@ class _EventInfoState extends ConsumerState<EventInfo> {
     final supabase = (await ref.read(supabaseInstance)).client;
     await ref
         .read(eventsProvider.notifier)
-        .unBookmark(supabase.auth.currentUser!.id, widget.eventsData.eventId);
+        .unBookmark(widget.eventsData.eventId, supabase.auth.currentUser!.id);
+  }
+  bool isBookmarked() {
+    late bool leBool;
+
+    if(widget.eventsData.bookmarked != null) {
+        if(widget.eventsData.bookmarked) {
+          leBool = true;
+        }   else if(!widget.eventsData.bookmarked) {
+          leBool = false;
+        }
+    }
+    return leBool;
   }
   late bool bookmarkBool;
-
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    setState(() {
+      bookmarkBool = isBookmarked();
+    });
+  }
   @override
   Widget build(BuildContext context) {
     options? selectedOption;
     String text = 'Join';
-
-    if(widget.eventsData.bookmarked != null) {
-        if(widget.eventsData.bookmarked == false) {
-          bookmarkBool = false;
-        }   else {
-          bookmarkBool = true;
-        }
-
-    }
     
+
     //isAttending();
 
     return Padding(
@@ -239,7 +250,7 @@ class _EventInfoState extends ConsumerState<EventInfo> {
                     onPressed: () {
                           if(bookmarkBool) {
                           deBookmarkEvent();
-                        } else {
+                        } else if(!bookmarkBool) {
                           bookmarkEvent();
                         }
                       setState(() {
@@ -247,7 +258,9 @@ class _EventInfoState extends ConsumerState<EventInfo> {
                       }
                       );
                     },
-                    icon: bookmarkBool ? const Icon(Icons.bookmark) : const Icon(Icons.bookmark_border_outlined)),
+                    isSelected: bookmarkBool,
+                    selectedIcon: const Icon(Icons.bookmark),
+                    icon: const Icon(Icons.bookmark_border_outlined)),
               ],
             ),
           ),

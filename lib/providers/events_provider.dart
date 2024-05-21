@@ -31,9 +31,10 @@ class EventProvider extends StateNotifier<List?> {
                 .getPublicUrl(eventData['event_path']);
       bool bookmarked = false;
       for(var bookmark in eventData['Bookmarked']) {
-        if(bookmark['user_id'] == supabaseClient.auth.currentUser!.id);
-          bookmark = true;
+        if(bookmark['user_id'] == supabaseClient.auth.currentUser!.id) {
+          bookmarked = true;
           break;
+        }
       }
 
       final Event deCodedEvent = Event(
@@ -52,17 +53,21 @@ class EventProvider extends StateNotifier<List?> {
           hostUsername: eventData['username'],
           profileName: eventData['profile_name'],
           bookmarked: bookmarked,
+          attending: false,
+          isHost: false,
           );
 
       bool attending = false;
       for(var i = 0; i < deCodedEvent.attendees.length; i++) {
         if(deCodedEvent.attendees[i]['user_id'] == supabaseClient.auth.currentUser!.id) {
           attending = true;
+          deCodedEvent.attending = true;
           break;
         }
       }
       
       if((attending == false) && (deCodedEvent.host != supabaseClient.auth.currentUser!.id)) {
+        deCodedEvent.isHost = false;
         deCodedList.add(deCodedEvent);
       }
     }

@@ -16,6 +16,8 @@ class Event {
     required this.hostProfileUrl,
     required this.profileName,
     this.bookmarked,
+    required this.attending,
+    required this.isHost,
   });
 
   final eventId;
@@ -32,5 +34,7 @@ class Event {
   final String hostUsername;
   late final hostProfileUrl;
   final String profileName;
-  final bookmarked;
+  late final bookmarked;
+  late bool attending;
+  late bool isHost;
 }

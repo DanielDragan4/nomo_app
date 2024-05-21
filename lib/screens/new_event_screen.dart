@@ -1,19 +1,14 @@
-import 'dart:math';
-
 import 'package:flutter/material.dart';
-import 'package:intl/date_symbol_data_file.dart';
 import 'package:nomo/models/events_model.dart';
 import 'package:nomo/screens/NavBar.dart';
 import 'package:nomo/providers/attending_events_provider.dart';
 import 'package:nomo/screens/recommended_screen.dart';
-import 'package:nomo/widgets/pick_image.dart';
 import 'dart:io';
 import 'package:intl/intl.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:nomo/providers/supabase_provider.dart';
-import 'package:network_to_file_image/network_to_file_image.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:uuid/uuid.dart';
+import 'package:image_picker/image_picker.dart';
 
 const List<String> list = <String>['Public', 'Private', 'Selective'];
 
@@ -80,7 +75,6 @@ class _NewEventScreenState extends ConsumerState<NewEventScreen> {
 
   @override
   void dispose() {
-    // Clean up the controller when the widget is disposed.
     _selectedLocation.dispose();
     _description.dispose();
     _title.dispose();
@@ -306,6 +300,26 @@ class _NewEventScreenState extends ConsumerState<NewEventScreen> {
     ref.read(attendEventsProvider.notifier).deCodeData();
   }
 
+  Future<void> _pickImageFromGallery() async {
+    final XFile? pickedFile =
+        await ImagePicker().pickImage(source: ImageSource.gallery);
+    if (pickedFile == null) return;
+
+    setState(() {
+      _selectedImage = File(pickedFile.path);
+    });
+  }
+
+  Future<void> _pickImageFromCamera() async {
+    final XFile? pickedFile =
+        await ImagePicker().pickImage(source: ImageSource.camera);
+    if (pickedFile == null) return;
+
+    setState(() {
+      _selectedImage = File(pickedFile.path);
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -326,24 +340,82 @@ class _NewEventScreenState extends ConsumerState<NewEventScreen> {
                 )),
           ),
         ),
-        bottom: PreferredSize(
-          preferredSize: const Size.fromHeight(4.0),
-          child: Container(
-            color: const Color.fromARGB(255, 69, 69, 69),
-            height: 1.0,
-          ),
-        ),
+        // bottom: PreferredSize(
+        //   preferredSize: const Size.fromHeight(4.0),
+        //   child: Container(
+        //     color: const Color.fromARGB(255, 69, 69, 69),
+        //     height: 1.0,
+        //   ),
+        // ),
       ),
       body: SingleChildScrollView(
         child: Column(
           children: [
-            ImageInput(
-              previousImage: widget.event?.imageUrl,
-              onPickImage: (
-                image,
-              ) {
-                _selectedImage = image;
+            GestureDetector(
+              onTap: () {
+                showModalBottomSheet(
+                  context: context,
+                  builder: (BuildContext context) {
+                    return SizedBox(
+                      height: MediaQuery.of(context).size.height / 6,
+                      width: double.infinity,
+                      child: Column(
+                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                          children: [
+                            TextButton(
+                              child: const Text("Select from Gallery"),
+                              onPressed: () {
+                                _pickImageFromGallery();
+                                Navigator.pop(context);
+                              },
+                            ),
+                            TextButton(
+                              child: const Text("Take a Picture"),
+                              onPressed: () {
+                                _pickImageFromCamera();
+                                Navigator.pop(context);
+                              },
+                            ),
+                            TextButton(
+                              child: const Text("Close"),
+                              onPressed: () {
+                                Navigator.pop(context);
+                              },
+                            ),
+                          ]),
+                    );
+                  },
+                );
               },
+              child: Container(
+                height: MediaQuery.of(context).size.height / 3,
+                //color: Colors.grey.shade200,
+                decoration: _selectedImage != null
+                    ? BoxDecoration(
+                        border: Border.all(color: Colors.black87, width: 2),
+                        color: Colors.grey.shade200,
+                        image: DecorationImage(
+                            image: FileImage(_selectedImage!),
+                            fit: BoxFit.fill))
+                    : BoxDecoration(
+                        border: Border.all(color: Colors.black87, width: 2),
+                        color: Colors.grey.shade200,
+                      ),
+                child: _selectedImage == null
+                    ? Center(
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(
+                              Icons.add,
+                              size: MediaQuery.of(context).size.height / 15,
+                            ),
+                            const Text("Add An Image")
+                          ],
+                        ),
+                      )
+                    : null,
+              ),
             ),
             SizedBox(height: MediaQuery.of(context).size.height / 30),
             Padding(

@@ -72,7 +72,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
   @override
   Widget build(BuildContext contex) {
     ref.read(attendEventsProvider.notifier).deCodeData();
-    ref.watch(profileProvider.notifier).decodeData();
+    ref.read(profileProvider.notifier).decodeData();
     var imageUrl;
 
     if (ref.read(profileProvider.notifier).state == null ||

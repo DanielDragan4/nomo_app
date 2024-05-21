@@ -9,47 +9,49 @@ class AttendEventProvider extends StateNotifier<List<Event>> {
   Future<Supabase> supabase;
   List<Event> attendingEvents = [];
 
-   Future<List> readEvents1() async {
+   Future<List> readEvents() async {
     final supabaseClient = (await supabase).client;
-    var events = await supabaseClient.from('Event').select('*, Attendees(user_id)');
+    var events = await supabaseClient.from('recommended_events').select('*, Attendees(user_id), Bookmarked(user_id)');
     return events.toList();
   }
-  Future<List> getEventImgs() async {
-    final supabaseClient = (await supabase).client;
-    var eventImgs = await supabaseClient.from('Images').select('*');
-    return eventImgs.toList();
-  }
   Future<void> deCodeData() async {
-    final codedList = await readEvents1();
-    final eventImgs = await getEventImgs();
+    final codedList = await readEvents();
 
     List<Event> deCodedList = [];
     final supabaseClient = (await supabase).client;
-    final currentUser = supabaseClient.auth.currentUser!.id;
 
-  for (var eventData in codedList) {
-    String url='';             
-    for(var imgData in eventImgs) {
-          if(eventData['image_id'] == imgData['images_id']) {
-            url = supabaseClient.storage
-              .from('Images')
-              .getPublicUrl(imgData['image_url']);
-          }
-        }
+    for (var eventData in codedList) {
+      String profileUrl = supabaseClient.storage
+                .from('Images')
+                .getPublicUrl(eventData['profile_path']);
+      String eventUrl = supabaseClient.storage
+                .from('Images')
+                .getPublicUrl(eventData['event_path']);
 
-    final Event deCodedEvent = Event(
-        description: eventData['description'],
-        sdate: eventData['time_start'],
-        eventId: eventData['event_id'],
-        eventType: eventData['invitationType'],
-        host: eventData['host'],
-        imageId: eventData['image_id'],
-        imageUrl: url,
-        location: eventData['location'],
-        title: eventData['title'],
-        edate: eventData['time_end'],
-        attendees: eventData['Attendees'] 
-        );
+      bool bookmarked = false;
+      for(var bookmark in eventData['Bookmarked']) {
+        if(bookmark['user_id'] == supabaseClient.auth.currentUser!.id);
+          bookmark = true;
+          break;
+      }
+
+      final Event deCodedEvent = Event(
+          description: eventData['description'],
+          sdate: eventData['time_start'],
+          eventId: eventData['event_id'],
+          eventType: eventData['invitationType'],
+          host: eventData['host'],
+          imageId: eventData['image_id'],
+          imageUrl: eventUrl,
+          location: eventData['location'],
+          title: eventData['title'],
+          edate: eventData['time_end'],
+          attendees: eventData['Attendees'],
+          hostProfileUrl: profileUrl,
+          hostUsername: eventData['username'],
+          profileName: eventData['profile_name'],
+          bookmarked: bookmarked
+          );
 
       bool attending = false; 
       for(var i = 0; i < deCodedEvent.attendees.length; i++) {
@@ -59,7 +61,7 @@ class AttendEventProvider extends StateNotifier<List<Event>> {
       }
     }
     
-    if((attending) || (deCodedEvent.host == currentUser)) {
+    if((attending) || (deCodedEvent.host == supabaseClient.auth.currentUser!.id || (bookmarked))) {
       deCodedList.add(deCodedEvent);
     }
   }

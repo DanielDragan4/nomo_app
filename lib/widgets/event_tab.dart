@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:nomo/models/events_model.dart';
+import 'package:nomo/models/profile_model.dart';
+import 'package:nomo/providers/events_provider.dart';
 import 'package:nomo/providers/supabase_provider.dart';
 import 'package:nomo/widgets/event_info.dart';
 
@@ -34,7 +36,7 @@ class _EventTabState extends ConsumerState<EventTab> {
     var formattedDate =
         "${date.month}/${date.day}/${date.year} at ${getHour()}";
     return Padding(
-      padding: const EdgeInsets.only(top: 0, bottom: 10, left: 5, right: 5),
+      padding: const EdgeInsets.only(top: 1, bottom: 10, left: 5, right: 5),
       child: Container(
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(3),
@@ -45,17 +47,41 @@ class _EventTabState extends ConsumerState<EventTab> {
         ),
         child: Column(
           children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(
-                  widget.eventData.title,
-                  style: const TextStyle(
-                    fontWeight: FontWeight.bold,
+            Padding(
+              padding:  EdgeInsets.all(MediaQuery.sizeOf(context).width / 100),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.start,
+                children: [
+                  FutureBuilder(
+                    future: ref.read(supabaseInstance),
+                    builder: (context, snapshot) {
+                      if (snapshot.hasData) {
+                        return CircleAvatar(
+                          radius: MediaQuery.sizeOf(context).width / 20,
+                          backgroundColor: Colors.white,
+                          backgroundImage: NetworkImage(
+                            widget.eventData.hostProfileUrl,
+                          ),
+                        );
+                      } else if (snapshot.hasError) {
+                        return Text('Error loading image: ${snapshot.error}');
+                      } else if (snapshot.connectionState ==
+                          ConnectionState.waiting) {
+                        return const CircularProgressIndicator();
+                      } else {
+                        return const CircularProgressIndicator();
+                      }
+                    },
                   ),
-                ),
-                Text(formattedDate),
-              ],
+                  SizedBox(width: MediaQuery.sizeOf(context).height / 150),
+                  Text(
+                    widget.eventData.hostUsername,
+                    style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: MediaQuery.of(context).size.width * .04),
+                  )
+                ],
+              ),
             ),
             Container(
               width: double.infinity,
@@ -83,6 +109,21 @@ class _EventTabState extends ConsumerState<EventTab> {
                   },
                 ),
               ),
+            ),
+            Container(
+              height: 5,
+            ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  widget.eventData.title,
+                  style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: MediaQuery.of(context).size.width * .04),
+                ),
+                Text(formattedDate),
+              ],
             ),
             Container(
               height: 5,

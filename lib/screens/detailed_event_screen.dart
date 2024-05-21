@@ -65,6 +65,43 @@ class _DetailedEventScreenState extends ConsumerState<DetailedEventScreen> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [
+                  Padding(
+              padding:  EdgeInsets.all(MediaQuery.sizeOf(context).width / 100),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.start,
+                children: [
+                  FutureBuilder(
+                    future: ref.read(supabaseInstance),
+                    builder: (context, snapshot) {
+                      if (snapshot.hasData) {
+                        return CircleAvatar(
+                          radius: MediaQuery.sizeOf(context).width / 24,
+                          backgroundColor: Colors.white,
+                          backgroundImage: NetworkImage(
+                            widget.eventData.hostProfileUrl,
+                          ),
+                        );
+                      } else if (snapshot.hasError) {
+                        return Text('Error loading image: ${snapshot.error}');
+                      } else if (snapshot.connectionState ==
+                          ConnectionState.waiting) {
+                        return const CircularProgressIndicator();
+                      } else {
+                        return const CircularProgressIndicator();
+                      }
+                    },
+                  ),
+                  SizedBox(width: MediaQuery.sizeOf(context).width / 150),
+                  Text(
+                    widget.eventData.hostUsername,
+                    style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: MediaQuery.of(context).size.width * .047),
+                  )
+                ],
+              ),
+            ),
+            SizedBox(width: MediaQuery.sizeOf(context).width / 2.5),
                   Text(formattedDate),
                 ],
               ),

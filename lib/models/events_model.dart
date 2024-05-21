@@ -12,6 +12,10 @@ class Event {
     required this.description,
     required this.eventType,
     required this.attendees,
+    required this.hostUsername,
+    required this.hostProfileUrl,
+    required this.profileName,
+    this.bookmarked,
   });
 
   final eventId;
@@ -25,4 +29,8 @@ class Event {
   final String description;
   final String eventType;
   final List attendees;
+  final String hostUsername;
+  late final hostProfileUrl;
+  final String profileName;
+  final bookmarked;
 }

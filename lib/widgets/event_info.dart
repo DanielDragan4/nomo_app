@@ -248,12 +248,12 @@ class _EventInfoState extends ConsumerState<EventInfo> {
                 ),
                 IconButton(
                     onPressed: () {
-                          if(bookmarkBool) {
+                      setState(() {
+                         if(bookmarkBool) {
                           deBookmarkEvent();
                         } else if(!bookmarkBool) {
                           bookmarkEvent();
                         }
-                      setState(() {
                         bookmarkBool = !bookmarkBool;
                       }
                       );

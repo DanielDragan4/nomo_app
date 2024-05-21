@@ -29,13 +29,7 @@ class EventProvider extends StateNotifier<List?> {
       String eventUrl = supabaseClient.storage
                 .from('Images')
                 .getPublicUrl(eventData['event_path']);
-      bool bookmarked = false;
-      for(var bookmark in eventData['Bookmarked']) {
-        if(bookmark['user_id'] == supabaseClient.auth.currentUser!.id) {
-          bookmarked = true;
-          break;
-        }
-      }
+      bool bookmarked;
 
       final Event deCodedEvent = Event(
           description: eventData['description'],
@@ -52,10 +46,16 @@ class EventProvider extends StateNotifier<List?> {
           hostProfileUrl: profileUrl,
           hostUsername: eventData['username'],
           profileName: eventData['profile_name'],
-          bookmarked: bookmarked,
+          bookmarked: false,
           attending: false,
           isHost: false,
           );
+        for(var bookmark in eventData['Bookmarked']) {
+        if(bookmark['user_id'] == supabaseClient.auth.currentUser!.id) {
+          deCodedEvent.bookmarked = true;
+          break;
+        }
+      }
 
       bool attending = false;
       for(var i = 0; i < deCodedEvent.attendees.length; i++) {

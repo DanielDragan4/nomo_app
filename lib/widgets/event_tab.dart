@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:nomo/models/events_model.dart';
-import 'package:nomo/models/profile_model.dart';
-import 'package:nomo/providers/events_provider.dart';
 import 'package:nomo/providers/supabase_provider.dart';
 import 'package:nomo/widgets/event_info.dart';
 

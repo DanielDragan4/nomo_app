@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:nomo/models/events_model.dart';
 import 'package:nomo/providers/attending_events_provider.dart';
@@ -301,7 +300,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                   },)
                   : 
                   StreamBuilder(
-                  stream: ref.watch(attendEventsProvider.notifier).stream,
+                  stream: ref.read(attendEventsProvider.notifier).stream,
                   builder: (context, snapshot) {
                     if (snapshot.data != null) {
                       return ListView(

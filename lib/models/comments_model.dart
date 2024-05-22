@@ -7,7 +7,7 @@ class Comment {
     required this.username,
     required this.comment_text,
     required this.profile_id,
-    required this.reply_comments,
+    this.reply_comments,
     required this.timeStamp,
   });
 
@@ -16,7 +16,7 @@ class Comment {
   final String username;
   final String comment_text;
   final String profile_id;
-  final List<Comment> reply_comments; 
+  final reply_comments; 
   final String timeStamp;
   
 }

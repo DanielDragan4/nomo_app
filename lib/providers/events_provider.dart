@@ -1,5 +1,3 @@
-import 'dart:html';
-
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:nomo/models/events_model.dart';
 import 'package:nomo/models/comments_model.dart';
@@ -127,9 +125,21 @@ class EventProvider extends StateNotifier<List?> {
         profileUrl: profileUrl
       );
 
-      deCodedList.add(decodedComment);
+      if(eventId == commentData['event_id']) {
+        deCodedList.add(decodedComment);
+      }
     }
     return deCodedList;
+  }
+  Future<void> postComment(currentUser, eventIid, String comment, replyId) async{
+    final supabaseClient = (await supabase).client;
+    final newCommentMap = {
+      'reply_id' : replyId,
+      'user_id' : currentUser,
+      'comment_text' : comment,
+      'event_id' : eventIid
+    };
+    await supabaseClient.from('Comments').insert(newCommentMap);
   }
 
 }

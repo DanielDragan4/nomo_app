@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:nomo/models/events_model.dart';
 import 'package:nomo/providers/attending_events_provider.dart';
@@ -50,25 +49,13 @@ class _EventInfoState extends ConsumerState<EventInfo> {
         .read(eventsProvider.notifier)
         .unBookmark(widget.eventsData.eventId, supabase.auth.currentUser!.id);
   }
-  bool isBookmarked() {
-    late bool leBool;
-
-    if(widget.eventsData.bookmarked != null) {
-        if(widget.eventsData.bookmarked) {
-          leBool = true;
-        }   else if(!widget.eventsData.bookmarked) {
-          leBool = false;
-        }
-    }
-    return leBool;
-  }
   late bool bookmarkBool;
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
     setState(() {
-      bookmarkBool = isBookmarked();
+      bookmarkBool = widget.eventsData.bookmarked;
     });
   }
   @override

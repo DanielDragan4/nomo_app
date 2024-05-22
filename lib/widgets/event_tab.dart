@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:nomo/models/events_model.dart';
 import 'package:nomo/providers/supabase_provider.dart';
+import 'package:nomo/screens/detailed_event_screen.dart';
 import 'package:nomo/widgets/event_info.dart';
 
 class EventTab extends ConsumerStatefulWidget {
@@ -81,30 +83,33 @@ class _EventTabState extends ConsumerState<EventTab> {
                 ],
               ),
             ),
-            Container(
-              width: double.infinity,
-              decoration: const BoxDecoration(
-                  borderRadius: BorderRadius.only(
-                      bottomLeft: Radius.circular(15),
-                      bottomRight: Radius.circular(15))),
-              child: SizedBox(
+            GestureDetector(
+              onTap: () => Navigator.of(context).push(MaterialPageRoute(builder: ((context) => DetailedEventScreen(eventData: widget.eventData)))),
+              child: Container(
                 width: double.infinity,
-                height: 250,
-                child: FutureBuilder(
-                  future: ref.read(supabaseInstance),
-                  builder: (context, snapshot) {
-                    if (snapshot.hasData) {
-                      return Image.network(widget.eventData.imageUrl,
-                          fit: BoxFit.fill);
-                    } else if (snapshot.hasError) {
-                      return Text('Error loading image: ${snapshot.error}');
-                    } else if (snapshot.connectionState ==
-                        ConnectionState.waiting) {
-                      return const CircularProgressIndicator();
-                    } else {
-                      return const CircularProgressIndicator();
-                    }
-                  },
+                decoration: const BoxDecoration(
+                    borderRadius: BorderRadius.only(
+                        bottomLeft: Radius.circular(15),
+                        bottomRight: Radius.circular(15))),
+                child: SizedBox(
+                  width: double.infinity,
+                  height: 250,
+                  child: FutureBuilder(
+                    future: ref.read(supabaseInstance),
+                    builder: (context, snapshot) {
+                      if (snapshot.hasData) {
+                        return Image.network(widget.eventData.imageUrl,
+                            fit: BoxFit.fill);
+                      } else if (snapshot.hasError) {
+                        return Text('Error loading image: ${snapshot.error}');
+                      } else if (snapshot.connectionState ==
+                          ConnectionState.waiting) {
+                        return const CircularProgressIndicator();
+                      } else {
+                        return const CircularProgressIndicator();
+                      }
+                    },
+                  ),
                 ),
               ),
             ),
@@ -127,10 +132,13 @@ class _EventTabState extends ConsumerState<EventTab> {
               height: 5,
             ),
             EventInfo(eventsData: widget.eventData),
-            SizedBox(
-              child: Text(widget.eventData.description,
-              overflow: TextOverflow.ellipsis,
-              maxLines: 3,
+            GestureDetector(
+              onTap: () => Navigator.of(context).push(MaterialPageRoute(builder: ((context) => DetailedEventScreen(eventData: widget.eventData)))),
+              child: SizedBox(
+                child: Text(widget.eventData.description,
+                overflow: TextOverflow.ellipsis,
+                maxLines: 3,
+                ),
               ),
             ),
           ],

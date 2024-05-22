@@ -16,13 +16,15 @@ class LoginScreen extends ConsumerStatefulWidget {
 class _LoginScreenState extends ConsumerState<LoginScreen> {
   final _form = GlobalKey<FormState>();
 
-  void _submit(String email, bool login, String pass) async{
-     final isValid = _form.currentState!.validate();
+  void _submit(String email, bool login, String pass) async {
+    final isValid = _form.currentState!.validate();
 
     try {
-      ref.watch(currentUserProvider.notifier).submit( email, login, pass, isValid);
-      
-      if(!login) {
+      ref
+          .watch(currentUserProvider.notifier)
+          .submit(email, login, pass, isValid);
+
+      if (!login) {
         ref.watch(onSignUp.notifier).notifyAccountCreation();
       }
     } catch (error) {
@@ -94,7 +96,6 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                             decoration:
                                 const InputDecoration(labelText: "Password"),
                             obscureText: true,
-
                             controller: TextEditingController(),
                             validator: (value) {
                               if (value == null || value.trim().length < 8) {
@@ -113,9 +114,9 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                             const CircularProgressIndicator(),
                           if (!isAuthenticating)
                             ElevatedButton(
-                              onPressed: (){
+                              onPressed: () {
                                 _submit(enteredEmail!, isLogin, enteredPass!);
-                                },
+                              },
                               style: ElevatedButton.styleFrom(
                                 backgroundColor: Theme.of(context)
                                     .colorScheme

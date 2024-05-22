@@ -43,7 +43,10 @@ class RecommendedScreen extends ConsumerWidget {
             centerTitle: true,
             actions: [
               IconButton(
-                onPressed: () {Navigator.of(context).push(MaterialPageRoute(builder: ((context) => const SearchScreen())));},
+                onPressed: () {
+                  Navigator.of(context).push(MaterialPageRoute(
+                      builder: ((context) => const SearchScreen())));
+                },
                 icon: const Icon(Icons.search),
                 iconSize: 35,
                 padding: const EdgeInsets.only(top: 20, right: 20),
@@ -58,6 +61,8 @@ class RecommendedScreen extends ConsumerWidget {
             builder: (context, snapshot) {
               if (snapshot.data != null) {
                 return ListView(
+                  shrinkWrap: true,
+                  physics: const BouncingScrollPhysics(),
                   key: const PageStorageKey<String>('page'),
                   children: [
                     for (Event i in snapshot.data!) EventTab(eventData: i)

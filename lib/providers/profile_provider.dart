@@ -24,11 +24,11 @@ class ProfileProvider extends StateNotifier<List?> {
     List<Profile> profile = [];
 
     profile.add(Profile(
-      profile_id: userProfile[0]['profile_id'],
-      avatar: userProfile[0]['avatar_id'],
-      username: userProfile[0]['username'],
-      profile_name: userProfile[0]['profile_name'],
-    ));
+        profile_id: userProfile[0]['profile_id'],
+        avatar: userProfile[0]['avatar_id'],
+        username: userProfile[0]['username'],
+        profile_name: userProfile[0]['profile_name'],
+        interests: []));
     state = profile;
   }
 

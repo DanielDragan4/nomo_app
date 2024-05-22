@@ -113,6 +113,7 @@ class _NewEventScreenState extends ConsumerState<NewEventScreen> {
         setState(() {
           enableButton = false;
         });
+        ScaffoldMessenger.of(context).hideCurrentSnackBar();
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
             content: Text('End time must be after start time.'),
@@ -149,6 +150,7 @@ class _NewEventScreenState extends ConsumerState<NewEventScreen> {
           setState(() {
             enableButton = false;
           });
+          ScaffoldMessenger.of(context).hideCurrentSnackBar();
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
               content: Text('End time must be after start time.'),
@@ -162,6 +164,7 @@ class _NewEventScreenState extends ConsumerState<NewEventScreen> {
           setState(() {
             enableButton = false;
           });
+          ScaffoldMessenger.of(context).hideCurrentSnackBar();
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
               content: Text('End time must be after start time.'),
@@ -260,7 +263,7 @@ class _NewEventScreenState extends ConsumerState<NewEventScreen> {
     DateTime end = DateTime(selectedEndDate.year, selectedEndDate.month,
         selectedEndDate.day, selectedEnd.hour, selectedEnd.minute);
 
-    final newEventRowMap;
+    final Map newEventRowMap;
     final supabase = (await ref.watch(supabaseInstance)).client;
 
     if (selectedImage != null) {
@@ -575,22 +578,27 @@ class _NewEventScreenState extends ConsumerState<NewEventScreen> {
                 if (_selectedImage == null && widget.isNewEvent) {
                   const snackbar =
                       SnackBar(content: Text('Select an image for your event'));
+                  ScaffoldMessenger.of(context).hideCurrentSnackBar();
                   ScaffoldMessenger.of(context).showSnackBar(snackbar);
                 } else if (sdate == false) {
                   const snackbar = SnackBar(
                       content: Text('Select a start date for your event'));
+                  ScaffoldMessenger.of(context).hideCurrentSnackBar();
                   ScaffoldMessenger.of(context).showSnackBar(snackbar);
                 } else if (edate == false) {
                   const snackbar = SnackBar(
                       content: Text('Select an end date for your event'));
+                  ScaffoldMessenger.of(context).hideCurrentSnackBar();
                   ScaffoldMessenger.of(context).showSnackBar(snackbar);
                 } else if (stime == false) {
                   const snackbar = SnackBar(
                       content: Text('Select a start time for your event'));
+                  ScaffoldMessenger.of(context).hideCurrentSnackBar();
                   ScaffoldMessenger.of(context).showSnackBar(snackbar);
                 } else if (etime == false) {
                   const snackbar = SnackBar(
                       content: Text('Select a end time for your event'));
+                  ScaffoldMessenger.of(context).hideCurrentSnackBar();
                   ScaffoldMessenger.of(context).showSnackBar(snackbar);
                 }
               },
@@ -638,6 +646,7 @@ class _NewEventScreenState extends ConsumerState<NewEventScreen> {
                             Navigator.of(context).push(MaterialPageRoute(
                                 builder: ((context) =>
                                     const RecommendedScreen())));
+                            ScaffoldMessenger.of(context).hideCurrentSnackBar();
                             ScaffoldMessenger.of(context).showSnackBar(
                               const SnackBar(
                                 content: Text('Event Updated'),

@@ -1,6 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:nomo/models/events_model.dart';
-import 'package:nomo/models/profile_model.dart';
+import 'package:nomo/models/comments_model.dart';
 import 'package:nomo/providers/supabase_provider.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
@@ -31,12 +31,7 @@ class EventProvider extends StateNotifier<List?> {
       String eventUrl = supabaseClient.storage
           .from('Images')
           .getPublicUrl(eventData['event_path']);
-      bool bookmarked = false;
-      for (var bookmark in eventData['Bookmarked']) {
-        if (bookmark['user_id'] == supabaseClient.auth.currentUser!.id) ;
-        bookmark = true;
-        break;
-      }
+      bool bookmarked;
 
       final Event deCodedEvent = Event(
         description: eventData['description'],
@@ -53,20 +48,30 @@ class EventProvider extends StateNotifier<List?> {
         hostProfileUrl: profileUrl,
         hostUsername: eventData['username'],
         profileName: eventData['profile_name'],
-        bookmarked: bookmarked,
+        bookmarked: false,
+        attending: false,
+        isHost: false,
       );
+      for (var bookmark in eventData['Bookmarked']) {
+        if (bookmark['user_id'] == supabaseClient.auth.currentUser!.id) {
+          deCodedEvent.bookmarked = true;
+          break;
+        }
+      }
 
       bool attending = false;
       for (var i = 0; i < deCodedEvent.attendees.length; i++) {
         if (deCodedEvent.attendees[i]['user_id'] ==
             supabaseClient.auth.currentUser!.id) {
           attending = true;
+          deCodedEvent.attending = true;
           break;
         }
       }
 
       if ((attending == false) &&
           (deCodedEvent.host != supabaseClient.auth.currentUser!.id)) {
+        deCodedEvent.isHost = false;
         deCodedList.add(deCodedEvent);
       }
     }
@@ -93,6 +98,51 @@ class EventProvider extends StateNotifier<List?> {
         .delete()
         .eq('event_id', eventToMark)
         .eq('user_id', currentUser);
+  }
+
+  Future<List> readComments(String eventId) async {
+    final supabaseClient = (await supabase).client;
+    var comments = await supabaseClient.from('event_comments').select('*');
+    return comments.toList();
+  }
+
+  Future<List<Comment>> getComments(String eventId) async {
+    final codedList = await readComments(eventId);
+
+    List<Comment> deCodedList = [];
+    final supabaseClient = (await supabase).client;
+
+    for (var commentData in codedList) {
+      String profileUrl = supabaseClient.storage
+          .from('Images')
+          .getPublicUrl(commentData['profile_path']);
+
+      final Comment decodedComment = Comment(
+          comment_id: commentData['comments_id'],
+          comment_text: commentData['comment_text'],
+          profile_id: commentData['user_id'],
+          reply_comments: commentData['reply_id'],
+          timeStamp: commentData['commented_at'],
+          username: commentData['username'],
+          profileUrl: profileUrl);
+
+      if (eventId == commentData['event_id']) {
+        deCodedList.add(decodedComment);
+      }
+    }
+    return deCodedList;
+  }
+
+  Future<void> postComment(
+      currentUser, eventIid, String comment, replyId) async {
+    final supabaseClient = (await supabase).client;
+    final newCommentMap = {
+      'reply_id': replyId,
+      'user_id': currentUser,
+      'comment_text': comment,
+      'event_id': eventIid
+    };
+    await supabaseClient.from('Comments').insert(newCommentMap);
   }
 }
 

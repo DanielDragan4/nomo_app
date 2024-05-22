@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:nomo/models/events_model.dart';
 import 'package:nomo/providers/attending_events_provider.dart';
@@ -48,24 +47,23 @@ class _EventInfoState extends ConsumerState<EventInfo> {
     final supabase = (await ref.read(supabaseInstance)).client;
     await ref
         .read(eventsProvider.notifier)
-        .unBookmark(supabase.auth.currentUser!.id, widget.eventsData.eventId);
+        .unBookmark(widget.eventsData.eventId, supabase.auth.currentUser!.id);
   }
   late bool bookmarkBool;
-
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    setState(() {
+      bookmarkBool = widget.eventsData.bookmarked;
+    });
+  }
   @override
   Widget build(BuildContext context) {
     options? selectedOption;
     String text = 'Join';
-
-    if(widget.eventsData.bookmarked != null) {
-        if(widget.eventsData.bookmarked == false) {
-          bookmarkBool = false;
-        }   else {
-          bookmarkBool = true;
-        }
-
-    }
     
+
     //isAttending();
 
     return Padding(
@@ -237,17 +235,19 @@ class _EventInfoState extends ConsumerState<EventInfo> {
                 ),
                 IconButton(
                     onPressed: () {
-                          if(bookmarkBool) {
+                      setState(() {
+                         if(bookmarkBool) {
                           deBookmarkEvent();
-                        } else {
+                        } else if(!bookmarkBool) {
                           bookmarkEvent();
                         }
-                      setState(() {
                         bookmarkBool = !bookmarkBool;
                       }
                       );
                     },
-                    icon: bookmarkBool ? const Icon(Icons.bookmark) : const Icon(Icons.bookmark_border_outlined)),
+                    isSelected: bookmarkBool,
+                    selectedIcon: const Icon(Icons.bookmark),
+                    icon: const Icon(Icons.bookmark_border_outlined)),
               ],
             ),
           ),

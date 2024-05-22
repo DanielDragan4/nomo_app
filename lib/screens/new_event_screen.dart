@@ -400,20 +400,27 @@ class _NewEventScreenState extends ConsumerState<NewEventScreen> {
                         image: DecorationImage(
                             image: FileImage(_selectedImage!),
                             fit: BoxFit.fill))
-                    : BoxDecoration(
+                    : (widget.isNewEvent) ?
+                      BoxDecoration(
+                          border: Border.all(color: Colors.black87, width: 2),
+                          color: Colors.grey.shade200,
+                        ) 
+                      : BoxDecoration(
                         border: Border.all(color: Colors.black87, width: 2),
                         color: Colors.grey.shade200,
+                        image: DecorationImage(image: NetworkImage(widget.event?.imageUrl)),
                       ),
+
                 child: _selectedImage == null
                     ? Center(
                         child: Column(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            Icon(
+                             Icon(
                               Icons.add,
                               size: MediaQuery.of(context).size.height / 15,
                             ),
-                            const Text("Add An Image")
+                            widget.isNewEvent ? const Text("Add An Image") : const Text('Add a Different Image?')
                           ],
                         ),
                       )

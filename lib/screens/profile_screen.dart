@@ -20,16 +20,19 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
   Future<Map>? profileInfo;
   UniqueKey _futureBuilderKey = UniqueKey();
 
+  late List<bool> isSelected;
+
   @override
   void initState() {
     super.initState();
     _fetchData();
     ref.read(attendEventsProvider.notifier).deCodeData();
+    isSelected = [true, false];
+
   }
 
   Future<void> _fetchData() async {
     await Future.delayed(const Duration(microseconds: 1));
-
     if (mounted) {
       final newProfileInfo = await fetchInfo();
       setState(() {
@@ -91,9 +94,9 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
             titleSpacing: BorderSide.strokeAlignCenter,
             floating: true,
             snap: true,
-            toolbarHeight: MediaQuery.sizeOf(context).width / 3,
+            toolbarHeight: MediaQuery.sizeOf(context).height / 4.2,
             title: Padding(
-              padding: const EdgeInsets.only(top: 40, bottom: 10),
+              padding: const EdgeInsets.only(top: 40, bottom: 1),
               child: Column(children: [
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -232,6 +235,44 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                     const ProfileDropdown(),
                   ],
                 ),
+                ToggleButtons(
+                  constraints: BoxConstraints(
+                      maxHeight: MediaQuery.of(context).size.height * .05,
+                      minWidth: MediaQuery.of(context).size.width * .4,
+                      maxWidth: MediaQuery.of(context).size.width * .55),
+                  borderColor: Colors.black,
+                  fillColor: Theme.of(context).primaryColor,
+                  borderWidth: 1,
+                  selectedBorderColor: Colors.black,
+                  selectedColor: Colors.grey,
+                  borderRadius: BorderRadius.circular(15),
+                  onPressed: (int index) {
+                    setState(() {
+                      for (int i = 0; i < isSelected.length; i++) {
+                        isSelected[i] = i == index;
+                      }
+                    });
+                  },
+                  isSelected: isSelected,
+                  children: const [
+                    Padding(
+                        padding: EdgeInsets.fromLTRB(3, 3, 3, 3),
+                        child: Text(
+                          'Your Events',
+                          style: TextStyle(
+                              fontSize: 14, fontWeight: FontWeight.w700),
+                        )),
+                    Padding(
+                      padding: EdgeInsets.fromLTRB(3, 3, 3, 3),
+                      child: Text(
+                        'Bookmarked',
+                        style: TextStyle(
+                            fontSize: 14, fontWeight: FontWeight.w700),
+                      ),
+                    ),
+                  ],
+                ),
+                const Divider(),
               ]),
             ),
             centerTitle: true,
@@ -240,7 +281,8 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
         body: Column(
           children: [
             Expanded(
-              child: StreamBuilder(
+              child: isSelected.first ? 
+              StreamBuilder(
                   stream: ref.watch(attendEventsProvider.notifier).stream,
                   builder: (context, snapshot) {
                     if (snapshot.data != null) {
@@ -248,7 +290,25 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                         key: const PageStorageKey<String>('event'),
                         children: [
                           for (Event i in snapshot.data!)
-                            EventTab(eventData: i),
+                            if(i.attending || i.isHost)
+                              EventTab(eventData: i),
+                        ],
+                      );
+                    } else {
+                      return const Text("No Data Retreived");
+                    }
+                  },)
+                  : 
+                  StreamBuilder(
+                  stream: ref.read(attendEventsProvider.notifier).stream,
+                  builder: (context, snapshot) {
+                    if (snapshot.data != null) {
+                      return ListView(
+                        key: const PageStorageKey<String>('event'),
+                        children: [
+                          for (Event i in snapshot.data!)
+                            if(i.bookmarked)
+                              EventTab(eventData: i),
                         ],
                       );
                     } else {

@@ -128,8 +128,10 @@ class _EventTabState extends ConsumerState<EventTab> {
             ),
             EventInfo(eventsData: widget.eventData),
             SizedBox(
-              height: MediaQuery.of(context).size.height / 12,
-              child: Text(widget.eventData.description),
+              child: Text(widget.eventData.description,
+              overflow: TextOverflow.ellipsis,
+              maxLines: 3,
+              ),
             ),
           ],
         ),

@@ -12,7 +12,6 @@ class NavBar extends ConsumerStatefulWidget {
 
   @override
   ConsumerState<NavBar> createState() => _NavBarState();
-
 }
 
 class _NavBarState extends ConsumerState<NavBar> {
@@ -68,18 +67,20 @@ class _NavBarState extends ConsumerState<NavBar> {
         ],
       ),
       body: PageView(
-        controller: _pageViewController, 
+        controller: _pageViewController,
         onPageChanged: (index) {
           setState(() {
             _index = index;
           });
         },
-        children: const [
-          RecommendedScreen(),
-          NewEventScreen(isNewEvent: true, event: null),
-          CalendarScreen(),
-          FriendsScreen(),
-          ProfileScreen(),
+        children: [
+          const RecommendedScreen(),
+          const NewEventScreen(isNewEvent: true, event: null),
+          const CalendarScreen(),
+          const FriendsScreen(),
+          ProfileScreen(
+            isUser: true,
+          ),
         ],
       ),
     );

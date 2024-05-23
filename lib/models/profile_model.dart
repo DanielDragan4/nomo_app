@@ -1,5 +1,5 @@
 class Profile {
-  const Profile(
+  Profile(
       {required this.profile_id,
       required this.avatar,
       required this.username,
@@ -10,5 +10,5 @@ class Profile {
   final avatar;
   final String username;
   final String profile_name;
-  final List interests;
+  List interests;
 }

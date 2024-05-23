@@ -1,59 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:nomo/screens/NavBar.dart';
+import 'package:nomo/providers/profile_provider.dart';
 import 'package:nomo/providers/supabase_provider.dart';
-
-enum Interests {
-  Outdoors,
-  Indoors,
-  Biking,
-  Hiking,
-  Running,
-  Swimming,
-  Sports,
-  Skateboarding,
-  Skiing,
-  Snowboarding,
-  Beach,
-  Surfing,
-  Coding,
-  Photography,
-  Cinematography,
-  DomesticTravel,
-  InternationalTravel,
-  Gardening,
-  Cooking,
-  Art,
-  Reading,
-  Writing,
-  Concerts,
-  Raves,
-  MakingMusic,
-  Gaming,
-  Sowing,
-  Knitting,
-  Crocheting,
-  Camping,
-  Chess,
-  CasinoGames,
-  Movies,
-  PersonalDevelopment,
-  Hunting,
-  Yoga,
-  Pilates,
-  RockClimbing,
-  Boating,
-  Motorcycles,
-  Cars,
-  Mushrooming,
-  BBQ,
-  Pets,
-  Powerlifting,
-  Bodybuilding,
-  Fishing,
-  Food,
-  AdultBeverages
-}
+import 'package:nomo/models/interests_enum.dart';
 
 class InterestsScreen extends ConsumerStatefulWidget {
   InterestsScreen({super.key, required this.isEditing});
@@ -67,101 +17,28 @@ class InterestsScreen extends ConsumerStatefulWidget {
 }
 
 class _InterestsScreenState extends ConsumerState<InterestsScreen> {
-  late Map<Interests, bool> _selectedOptions;
+  late Map<Interests, bool> _selectedOptions = {};
   late int _selectedCount;
 
   @override
   void initState() {
     super.initState();
-    _selectedOptions = {};
-    _selectedCount = 0;
+    initializeSelectedOptions();
   }
 
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    if (widget.isEditing) {
-      _fetchExistingInterests();
-    } else {
-      _initializeSelectedOptions();
-    }
-  }
+  Future<void> initializeSelectedOptions() async {
+    final existingInterests =
+        await ref.read(profileProvider.notifier).fetchExistingInterests();
 
-  void _initializeSelectedOptions() {
     _selectedOptions = {
-      for (var option in Interests.values) option: false,
+      for (var option in Interests.values)
+        option: existingInterests.contains(ref
+            .read(profileProvider.notifier)
+            .enumToString(option.toString().split('.')[1])),
     };
-  }
 
-  Future<void> _fetchExistingInterests() async {
-    final supabase = await ref.watch(supabaseInstance);
-    final userId = supabase.client.auth.currentUser!.id;
-
-    supabase.client
-        .from('Interests')
-        .select('Interests')
-        .eq('user_id', userId)
-        .then((response) {
-      final List<dynamic> rows = response.toList();
-      final List<String> existingInterests =
-          rows.map((row) => row['Interests'].toString()).toList();
-
-      setState(() {
-        _selectedOptions = {
-          for (var option in Interests.values)
-            option: existingInterests.contains(_enumToString(option)),
-        };
-        _selectedCount = existingInterests.length;
-      });
-    }).catchError((error) {
-      print('Error fetching existing interests: $error');
-    });
-  }
-
-  String _enumToString(Interests interest) {
-    final str = interest.toString().split('.').last;
-    return str.replaceAllMapped(RegExp(r"((?<!^)([A-Z][a-z]|(?<=[a-z])[A-Z]))"),
-        (match) => ' ${match.group(1)}');
-  }
-
-  void _updateSelectedOptions(Interests interest, bool isSelected) {
-    setState(() {
-      _selectedOptions[interest] = isSelected;
-      _selectedCount =
-          _selectedOptions.values.where((selected) => selected).length;
-    });
-  }
-
-  void updateInterests() async {
-    final supabase = (await ref.watch(supabaseInstance)).client;
-    final userId = supabase.auth.currentUser!.id;
-    final selectedInterests = _selectedOptions.entries
-        .where((entry) => entry.value)
-        .map((entry) => _enumToString(entry.key))
-        .toList();
-
-    // Clear existing interests if editing
-    if (widget.isEditing) {
-      await supabase.from('Interests').delete().eq('user_id', userId);
-    }
-
-    // Insert new interests
-    final newInterestsRows = selectedInterests
-        .map((interest) => {
-              'user_id': userId,
-              'Interests': interest,
-            })
-        .toList();
-
-    await supabase.from('Interests').insert(newInterestsRows);
-  }
-
-  void skipInterests() async {
-    final supabase = (await ref.watch(supabaseInstance)).client;
-    final userId = supabase.auth.currentUser!.id;
-
-    // Clear existing interests if skipping
-    await supabase.from('Interests').delete().eq('user_id', userId);
+    _selectedCount = _selectedOptions.values.where((value) => value).length;
+    setState(() {}); // Trigger a rebuild after data is fetched
   }
 
   @override
@@ -222,7 +99,7 @@ class _InterestsScreenState extends ConsumerState<InterestsScreen> {
                     final option = Interests.values[index];
                     return ElevatedButton(
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: _selectedOptions[option]!
+                        backgroundColor: _selectedOptions[option] ?? false
                             ? Theme.of(context).colorScheme.primary
                             : Theme.of(context).colorScheme.background,
                         shape: RoundedRectangleBorder(
@@ -251,10 +128,10 @@ class _InterestsScreenState extends ConsumerState<InterestsScreen> {
                       },
                       child: Text(
                         textAlign: TextAlign.center,
-                        _enumToString(option),
+                        ref.read(profileProvider.notifier).enumToString(option),
                         style: TextStyle(
                           fontSize: 18,
-                          color: _selectedOptions[option]!
+                          color: _selectedOptions[option] ?? false
                               ? Colors.white
                               : Colors.black,
                         ),
@@ -291,7 +168,9 @@ class _InterestsScreenState extends ConsumerState<InterestsScreen> {
                               ),
                             ),
                             onPressed: () {
-                              updateInterests();
+                              ref
+                                  .watch(profileProvider.notifier)
+                                  .updateInterests(_selectedOptions);
                               Navigator.of(context).pushReplacement(
                                 MaterialPageRoute(
                                   builder: ((context) => const NavBar()),
@@ -310,7 +189,9 @@ class _InterestsScreenState extends ConsumerState<InterestsScreen> {
                             ? [
                                 TextButton(
                                   onPressed: () {
-                                    skipInterests();
+                                    ref
+                                        .watch(profileProvider.notifier)
+                                        .skipInterests();
                                     Navigator.of(context).pushReplacement(
                                       MaterialPageRoute(
                                         builder: ((context) => const NavBar()),

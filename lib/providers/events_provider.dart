@@ -102,7 +102,10 @@ class EventProvider extends StateNotifier<List?> {
 
   Future<List> readComments(String eventId) async {
     final supabaseClient = (await supabase).client;
-    var comments = await supabaseClient.from('event_comments').select('*').eq("event_id", eventId);
+    var comments = await supabaseClient
+        .from('event_comments')
+        .select('*')
+        .eq("event_id", eventId);
     return comments.toList();
   }
 
@@ -126,7 +129,7 @@ class EventProvider extends StateNotifier<List?> {
           username: commentData['username'],
           profileUrl: profileUrl);
 
-        deCodedList.add(decodedComment);
+      deCodedList.add(decodedComment);
     }
     return deCodedList;
   }

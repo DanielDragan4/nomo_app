@@ -39,6 +39,35 @@ class ProfileProvider extends StateNotifier<Profile?> {
     state = profile;
   }
 
+  Future<Map> readProfileById(String userId) async {
+    final supabaseClient = (await supabase).client;
+    Map profile = {};
+    profile = (await supabaseClient
+        .from('profile_view')
+        .select('*, Interests(interests)')
+        .eq('profile_id', userId)
+        .single());
+    return profile;
+  }
+
+  Future<Profile> fetchProfileById(String userId) async {
+    final userProfile = await readProfileById(userId);
+    final supabaseClient = (await supabase).client;
+
+    String profileUrl = supabaseClient.storage
+        .from('Images')
+        .getPublicUrl(userProfile['profile_path']);
+
+    final profile = Profile(
+        profile_id: userProfile['profile_id'],
+        avatar: profileUrl,
+        username: userProfile['username'],
+        profile_name: userProfile['profile_name'],
+        interests: userProfile['Interests']);
+    print("fetched Info");
+    return profile;
+  }
+
   Future<List> fetchExistingInterests() async {
     final supabaseClient = (await supabase).client;
     final userId = supabaseClient.auth.currentUser!.id;

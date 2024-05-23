@@ -73,10 +73,12 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
     }
 
     return Scaffold(
+      backgroundColor: Theme.of(context).colorScheme.background,
       body: NestedScrollView(
         floatHeaderSlivers: true,
         headerSliverBuilder: (context, innerBoxIsScrolled) => [
           SliverAppBar(
+            backgroundColor: Theme.of(context).colorScheme.background,
             primary: false,
             titleSpacing: BorderSide.strokeAlignCenter,
             floating: true,

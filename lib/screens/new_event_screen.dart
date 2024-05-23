@@ -326,6 +326,7 @@ class _NewEventScreenState extends ConsumerState<NewEventScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Theme.of(context).colorScheme.background,
       appBar: AppBar(
         flexibleSpace: PreferredSize(
           preferredSize: const Size.fromHeight(kToolbarHeight),
@@ -432,9 +433,9 @@ class _NewEventScreenState extends ConsumerState<NewEventScreen> {
               padding: const EdgeInsets.symmetric(horizontal: 8.0),
               child: Row(
                 children: [
-                  const Text(
+                   Text(
                     "Start",
-                    style: TextStyle(fontSize: 15),
+                    style: TextStyle(fontSize: 15, color: Theme.of(context).colorScheme.onSecondary ),
                   ),
                   TextButton(
                     onPressed: () =>
@@ -442,7 +443,7 @@ class _NewEventScreenState extends ConsumerState<NewEventScreen> {
                     child: Text(
                       _formattedSDate ??
                           "Select Start Date", // Format start date
-                      style: const TextStyle(fontSize: 15),
+                      style:  TextStyle(fontSize: 15, color: Theme.of(context).colorScheme.onSecondary),
                     ),
                   ),
                   const Text("-"),
@@ -453,7 +454,7 @@ class _NewEventScreenState extends ConsumerState<NewEventScreen> {
                     child: Text(
                       _selectedStartTime?.format(context) ??
                           "Select Start Time", // Format start time
-                      style: const TextStyle(fontSize: 15),
+                      style: TextStyle(fontSize: 15, color: Theme.of(context).colorScheme.onSecondary),
                     ),
                   ),
                 ],
@@ -463,19 +464,19 @@ class _NewEventScreenState extends ConsumerState<NewEventScreen> {
               padding: const EdgeInsets.symmetric(horizontal: 8.0),
               child: Row(
                 children: [
-                  const Text(
+                  Text(
                     "Time",
-                    style: TextStyle(fontSize: 15),
+                    style: TextStyle(fontSize: 15, color: Theme.of(context).colorScheme.onSecondary),
                   ),
                   TextButton(
                     onPressed: () =>
                         _selectDate(context, false), // Select end date
                     child: Text(
                       _formattedEDate ?? "Select End Date", // Format end date
-                      style: const TextStyle(fontSize: 15),
+                      style: TextStyle(fontSize: 15, color: Theme.of(context).colorScheme.onSecondary),
                     ),
                   ),
-                  const Text("-"),
+                   Text("-", style: TextStyle(color: Theme.of(context).colorScheme.onSecondary),),
                   TextButton(
                     onPressed: edate
                         ? () => _selectTime(context, false)
@@ -483,7 +484,7 @@ class _NewEventScreenState extends ConsumerState<NewEventScreen> {
                     child: Text(
                       _selectedEndTime?.format(context) ??
                           "Select End Time", // Format end time
-                      style: const TextStyle(fontSize: 15),
+                      style:  TextStyle(fontSize: 15, color: Theme.of(context).colorScheme.onSecondary),
                     ),
                   ),
                 ],
@@ -493,9 +494,9 @@ class _NewEventScreenState extends ConsumerState<NewEventScreen> {
               padding: const EdgeInsets.symmetric(horizontal: 8.0),
               child: Row(
                 children: [
-                  const Text(
+                  Text(
                     "Invitation Type: ",
-                    style: TextStyle(fontSize: 15),
+                    style: TextStyle(fontSize: 15, color: Theme.of(context).colorScheme.onSecondary),
                   ),
                   const SizedBox(width: 10),
                   DropdownButtonHideUnderline(

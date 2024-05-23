@@ -24,7 +24,9 @@ class _CalendarScreenState extends State<CalendarScreen> {
     final int lastOfMonth = DateTime(yearDisplayed, monthDisplayed + 1, 0).day;
 
     return Scaffold(
+      backgroundColor: Theme.of(context).colorScheme.background,
       appBar: AppBar(
+      backgroundColor: Theme.of(context).colorScheme.background,
         flexibleSpace: PreferredSize(
           preferredSize: const Size.fromHeight(kToolbarHeight),
           child: Container(
@@ -66,7 +68,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
                       }
                     });
                   },
-                  icon: const Icon(Icons.arrow_back_ios)),
+                  icon:  Icon(Icons.arrow_back_ios, color: Theme.of(context).colorScheme.onSecondary)),
               IconButton(
                   onPressed: () {
                     setState(() {
@@ -77,7 +79,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
                       }
                     });
                   },
-                  icon: const Icon(Icons.arrow_forward_ios))
+                  icon:  Icon(Icons.arrow_forward_ios, color: Theme.of(context).colorScheme.onSecondary))
             ],
           ),
           Expanded(
@@ -93,7 +95,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
             mainAxisAlignment: MainAxisAlignment.end,
             children: [
               IconButton(onPressed: (){Navigator.of(context).push(MaterialPageRoute(builder: ((context) => 
-              const NewEventScreen(isNewEvent: true, event: null))));}, icon: const Icon(Icons.add_box_rounded, size: 45,)),
+              const NewEventScreen(isNewEvent: true, event: null))));}, icon:  Icon(Icons.add_box_rounded, size: 45, color: Theme.of(context).colorScheme.onSecondary)),
             ],
           )
         ],

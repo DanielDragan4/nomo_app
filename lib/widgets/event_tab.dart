@@ -80,7 +80,8 @@ class _EventTabState extends ConsumerState<EventTab> {
                     widget.eventData.hostUsername,
                     style: TextStyle(
                         fontWeight: FontWeight.bold,
-                        fontSize: MediaQuery.of(context).size.width * .04),
+                        fontSize: MediaQuery.of(context).size.width * .04,
+                        color: Theme.of(context).colorScheme.onSecondary),
                   )
                 ],
               ),
@@ -125,9 +126,11 @@ class _EventTabState extends ConsumerState<EventTab> {
                   widget.eventData.title,
                   style: TextStyle(
                       fontWeight: FontWeight.bold,
-                      fontSize: MediaQuery.of(context).size.width * .04),
+                      color: Theme.of(context).colorScheme.onSecondary,
+                      fontSize: MediaQuery.of(context).size.width * .04,
+                      ),
                 ),
-                Text(formattedDate),
+                Text(formattedDate, style: TextStyle(color: Theme.of(context).colorScheme.onSecondary),),
               ],
             ),
             Container(
@@ -140,6 +143,7 @@ class _EventTabState extends ConsumerState<EventTab> {
                 child: Text(widget.eventData.description,
                 overflow: TextOverflow.ellipsis,
                 maxLines: 3,
+                style: TextStyle(color: Theme.of(context).colorScheme.onSecondary),
                 ),
               ),
             ),

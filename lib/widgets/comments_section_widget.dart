@@ -1,6 +1,7 @@
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:nomo/models/comments_model.dart';
 import 'package:nomo/providers/events_provider.dart';
@@ -72,7 +73,7 @@ class _CommentsSectionState extends ConsumerState<CommentsSection> {
           ),
         )
         :  
-        const Text("No Comments Avalible")),
+        Text("No Comments Avalible", style: TextStyle(color: Theme.of(context).colorScheme.onSecondary))),
         Row(
           children: [
               TextField(
@@ -85,7 +86,10 @@ class _CommentsSectionState extends ConsumerState<CommentsSection> {
                       borderRadius: BorderRadius.all(Radius.circular(30)),
                     ),
                     hintText: 'Add a Comment',
+                    hintStyle: TextStyle(color: Theme.of(context).colorScheme.onSecondary),
+                    focusColor:Theme.of(context).colorScheme.onSecondary
                   ),
+                  style: TextStyle(color: Theme.of(context).colorScheme.onSecondary),
                 ),
               inputComment ?
                 IconButton(onPressed: () {
@@ -93,7 +97,7 @@ class _CommentsSectionState extends ConsumerState<CommentsSection> {
                   setState(() {
                     newComment.text = "";
                   });
-                }, icon: Icon(Icons.send_rounded),)
+                }, icon: Icon(Icons.send_rounded),color: Theme.of(context).colorScheme.onSecondary)
                 :
                 SizedBox(
                   width: MediaQuery.of(context).size.width * .1,

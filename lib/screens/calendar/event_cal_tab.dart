@@ -34,9 +34,9 @@ class EventCalTab extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text(eventData.title,
-                    style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18, color: Theme.of(context).colorScheme.onSecondary),
                   ),
-                  Text(formattedDate)
+                  Text(formattedDate, style: TextStyle(color: Theme.of(context).colorScheme.onSecondary))
                 ]
           )
         ),

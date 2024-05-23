@@ -40,7 +40,9 @@ class _DetailedEventScreenState extends ConsumerState<DetailedEventScreen> {
         "${date.month}/${date.day}/${date.year} at ${getHour()}";
 
     return Scaffold(
+      backgroundColor: Theme.of(context).colorScheme.background,
       appBar: AppBar(
+        backgroundColor: Theme.of(context).colorScheme.background,
         toolbarHeight: 75,
         titleTextStyle: Theme.of(context).appBarTheme.titleTextStyle,
         title: Center(
@@ -103,13 +105,14 @@ class _DetailedEventScreenState extends ConsumerState<DetailedEventScreen> {
                       widget.eventData.hostUsername,
                       style: TextStyle(
                           fontWeight: FontWeight.bold,
+                          color: Theme.of(context).colorScheme.onSecondary,
                           fontSize: MediaQuery.of(context).size.width * .047),
                     )
                   ],
                 ),
               ),
               SizedBox(width: MediaQuery.sizeOf(context).width / 2.75),
-                    Text(formattedDate),
+                    Text(formattedDate, style: TextStyle(color: Theme.of(context).colorScheme.onSecondary),),
                   ],
                 ),
                 Container(
@@ -145,7 +148,7 @@ class _DetailedEventScreenState extends ConsumerState<DetailedEventScreen> {
                 EventInfo(eventsData: widget.eventData),
                 SizedBox(
                   height: MediaQuery.of(context).size.height / 20,
-                  child: Text(widget.eventData.description),
+                  child: Text(widget.eventData.description, style: TextStyle(color: Theme.of(context).colorScheme.onSecondary),),
                 ),
                 Text('Comments',
                     style: TextStyle(

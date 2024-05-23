@@ -32,6 +32,7 @@ class App extends ConsumerWidget {
         themeMode: ThemeMode.system,
         theme: ThemeData().copyWith(
           colorScheme: ColorScheme.fromSeed(
+            onSecondary: Colors.black,
               seedColor: const Color.fromARGB(255, 80, 12, 122),
               onPrimaryContainer: const Color.fromARGB(255, 80, 12, 122)),
           bottomNavigationBarTheme: const BottomNavigationBarThemeData(
@@ -42,15 +43,19 @@ class App extends ConsumerWidget {
         ),
         darkTheme: ThemeData().copyWith(
           bottomNavigationBarTheme: const BottomNavigationBarThemeData(
-            selectedItemColor: Color.fromARGB(255, 80, 12, 122),
+            selectedItemColor: Color.fromARGB(255, 109, 51, 146),
             unselectedItemColor: Color.fromARGB(255, 206, 206, 206),
-            backgroundColor: Colors.black
+            backgroundColor: Colors.black,
           ),
-          primaryColor: const Color.fromARGB(255, 80, 12, 122),
-          brightness: Brightness.dark, colorScheme: ColorScheme.fromSeed(
+          primaryColor: Color.fromARGB(255, 109, 51, 146),
+          canvasColor: Colors.black,
+          brightness: Brightness.dark, 
+          colorScheme: ColorScheme.fromSeed(
+            onSecondary: Color.fromARGB(255, 206, 206, 206),
             background: Colors.black,
-              seedColor: const Color.fromARGB(255, 80, 12, 122),
-              onPrimaryContainer: const Color.fromARGB(255, 80, 12, 122)).copyWith(background: Colors.black)
+              brightness: Brightness.dark,
+              seedColor: Color.fromARGB(255, 109, 51, 146),
+              onPrimaryContainer: Color.fromARGB(255, 109, 51, 146)).copyWith(background: Colors.black)
         ),
         home: StreamBuilder(
           stream: ref.watch(currentUserProvider.notifier).stream,

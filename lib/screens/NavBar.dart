@@ -76,7 +76,12 @@ class _NavBarState extends ConsumerState<NavBar> {
           const NewEventScreen(isNewEvent: true, event: null),
           const CalendarScreen(),
           const FriendsScreen(),
-          ProfileScreen(isUser: true,),
+          ProfileScreen(
+            isUser: true,
+          ),
+          ProfileScreen(
+            isUser: true,
+          ),
         ],
       ),
     );

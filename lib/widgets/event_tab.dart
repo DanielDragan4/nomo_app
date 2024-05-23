@@ -4,14 +4,11 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:nomo/models/events_model.dart';
 import 'package:nomo/providers/supabase_provider.dart';
 import 'package:nomo/screens/detailed_event_screen.dart';
+import 'package:nomo/screens/profile_screen.dart';
 import 'package:nomo/widgets/event_info.dart';
 
 class EventTab extends ConsumerStatefulWidget {
-  EventTab({
-    super.key,
-    required this.eventData,
-    this.bookmarkSet
-  });
+  EventTab({super.key, required this.eventData, this.bookmarkSet});
 
   final Event eventData;
   bool? bookmarkSet;
@@ -50,44 +47,55 @@ class _EventTabState extends ConsumerState<EventTab> {
         child: Column(
           children: [
             Padding(
-              padding:  EdgeInsets.all(MediaQuery.sizeOf(context).width / 100),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.start,
-                children: [
-                  FutureBuilder(
-                    future: ref.read(supabaseInstance),
-                    builder: (context, snapshot) {
-                      if (snapshot.hasData) {
-                        return CircleAvatar(
-                          radius: MediaQuery.sizeOf(context).width / 20,
-                          backgroundColor: Colors.white,
-                          backgroundImage: NetworkImage(
-                            widget.eventData.hostProfileUrl,
-                          ),
-                        );
-                      } else if (snapshot.hasError) {
-                        return Text('Error loading image: ${snapshot.error}');
-                      } else if (snapshot.connectionState ==
-                          ConnectionState.waiting) {
-                        return const CircularProgressIndicator();
-                      } else {
-                        return const CircularProgressIndicator();
-                      }
-                    },
-                  ),
-                  SizedBox(width: MediaQuery.sizeOf(context).height / 150),
-                  Text(
-                    widget.eventData.hostUsername,
-                    style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: MediaQuery.of(context).size.width * .04,
-                        color: Theme.of(context).colorScheme.onSecondary),
-                  )
-                ],
+              padding: EdgeInsets.all(MediaQuery.sizeOf(context).width / 100),
+              child: GestureDetector(
+                onTap: () {
+                  Navigator.of(context).push(MaterialPageRoute(
+                      builder: ((context) => ProfileScreen(
+                            isUser: false,
+                            userId: widget.eventData.host,
+                          ))));
+                },
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  children: [
+                    FutureBuilder(
+                      future: ref.read(supabaseInstance),
+                      builder: (context, snapshot) {
+                        if (snapshot.hasData) {
+                          return CircleAvatar(
+                            radius: MediaQuery.sizeOf(context).width / 20,
+                            backgroundColor: Colors.white,
+                            backgroundImage: NetworkImage(
+                              widget.eventData.hostProfileUrl,
+                            ),
+                          );
+                        } else if (snapshot.hasError) {
+                          return Text('Error loading image: ${snapshot.error}');
+                        } else if (snapshot.connectionState ==
+                            ConnectionState.waiting) {
+                          return const CircularProgressIndicator();
+                        } else {
+                          return const CircularProgressIndicator();
+                        }
+                      },
+                    ),
+                    SizedBox(width: MediaQuery.sizeOf(context).height / 150),
+                    Text(
+                      widget.eventData.hostUsername,
+                      style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: MediaQuery.of(context).size.width * .04,
+                          color: Theme.of(context).colorScheme.onSecondary),
+                    )
+                  ],
+                ),
               ),
             ),
             GestureDetector(
-              onTap: () => Navigator.of(context).push(MaterialPageRoute(builder: ((context) => DetailedEventScreen(eventData: widget.eventData)))),
+              onTap: () => Navigator.of(context).push(MaterialPageRoute(
+                  builder: ((context) =>
+                      DetailedEventScreen(eventData: widget.eventData)))),
               child: Container(
                 width: double.infinity,
                 decoration: const BoxDecoration(
@@ -125,25 +133,34 @@ class _EventTabState extends ConsumerState<EventTab> {
                 Text(
                   widget.eventData.title,
                   style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                      color: Theme.of(context).colorScheme.onSecondary,
-                      fontSize: MediaQuery.of(context).size.width * .04,
-                      ),
+                    fontWeight: FontWeight.bold,
+                    color: Theme.of(context).colorScheme.onSecondary,
+                    fontSize: MediaQuery.of(context).size.width * .04,
+                  ),
                 ),
-                Text(formattedDate, style: TextStyle(color: Theme.of(context).colorScheme.onSecondary),),
+                Text(
+                  formattedDate,
+                  style: TextStyle(
+                      color: Theme.of(context).colorScheme.onSecondary),
+                ),
               ],
             ),
             Container(
               height: 5,
             ),
-            EventInfo(eventsData: widget.eventData, bookmarkSet: widget.bookmarkSet),
+            EventInfo(
+                eventsData: widget.eventData, bookmarkSet: widget.bookmarkSet),
             GestureDetector(
-              onTap: () => Navigator.of(context).push(MaterialPageRoute(builder: ((context) => DetailedEventScreen(eventData: widget.eventData)))),
+              onTap: () => Navigator.of(context).push(MaterialPageRoute(
+                  builder: ((context) =>
+                      DetailedEventScreen(eventData: widget.eventData)))),
               child: SizedBox(
-                child: Text(widget.eventData.description,
-                overflow: TextOverflow.ellipsis,
-                maxLines: 3,
-                style: TextStyle(color: Theme.of(context).colorScheme.onSecondary),
+                child: Text(
+                  widget.eventData.description,
+                  overflow: TextOverflow.ellipsis,
+                  maxLines: 3,
+                  style: TextStyle(
+                      color: Theme.of(context).colorScheme.onSecondary),
                 ),
               ),
             ),

@@ -9,9 +9,11 @@ import 'package:nomo/screens/create_account_screen.dart';
 import 'package:nomo/widgets/profile_dropdown.dart';
 
 class ProfileScreen extends ConsumerStatefulWidget {
-  ProfileScreen({super.key, required this.isUser});
+  ProfileScreen({super.key, required this.isUser, this.userId});
 
   bool isUser;
+  String? userId;
+
   @override
   ConsumerState<ProfileScreen> createState() {
     return _ProfileScreenState();
@@ -21,6 +23,7 @@ class ProfileScreen extends ConsumerStatefulWidget {
 class _ProfileScreenState extends ConsumerState<ProfileScreen> {
   Future<Profile>? profileInfo;
   UniqueKey _futureBuilderKey = UniqueKey();
+  final TextEditingController searchController = TextEditingController();
 
   late List<bool> isSelected;
 
@@ -35,26 +38,30 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
   Future<void> _fetchData() async {
     await Future.delayed(const Duration(microseconds: 1));
     if (mounted) {
-      final newProfileInfo = await fetchInfo();
+      final newProfileInfo = await fetchInfo(widget.userId);
       setState(() {
         profileInfo = Future.value(newProfileInfo);
       });
     }
   }
 
-  Future<Profile> fetchInfo() async {
+  Future<Profile> fetchInfo(String? userId) async {
     await Future.delayed(const Duration(microseconds: 1));
     final profileState;
 
-    if (ref.read(profileProvider.notifier).state == null) {
-      profileState = Profile(
-          profile_id: 'example',
-          avatar: null,
-          username: 'User-404',
-          profile_name: 'User-404',
-          interests: []);
+    if (userId == null) {
+      // Fetch the current user's profile
+      profileState = ref.read(profileProvider.notifier).state ??
+          Profile(
+              profile_id: 'example',
+              avatar: null,
+              username: 'User-404',
+              profile_name: 'User-404',
+              interests: []);
     } else {
-      profileState = ref.read(profileProvider.notifier).state;
+      // Fetch the profile for the specified user ID
+      profileState =
+          await ref.read(profileProvider.notifier).fetchProfileById(userId);
     }
     return profileState;
   }
@@ -68,8 +75,10 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
 
   @override
   Widget build(BuildContext contex) {
-    ref.read(attendEventsProvider.notifier).deCodeData();
-    ref.read(profileProvider.notifier).decodeData();
+    if (widget.isUser) {
+      ref.read(attendEventsProvider.notifier).deCodeData();
+      ref.read(profileProvider.notifier).decodeData();
+    }
     var imageUrl;
 
     if (ref.read(profileProvider.notifier).state == null) {
@@ -104,7 +113,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                           return Column(
                             children: [
                               CircleAvatar(
-                                radius: MediaQuery.sizeOf(context).width / 5,
+                                radius: MediaQuery.sizeOf(context).width / 6,
                                 child: const Text("No Image"),
                               ),
                               const Text(
@@ -120,7 +129,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                           return Column(
                             children: [
                               CircleAvatar(
-                                radius: MediaQuery.sizeOf(context).width / 5,
+                                radius: MediaQuery.sizeOf(context).width / 6,
                                 child: const Text("No Image"),
                               ),
                               const Text(
@@ -191,38 +200,68 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                           ],
                         ),
                         //TODO: refresh page after updating account info
-                        FutureBuilder<Profile>(
-                          key: _futureBuilderKey,
-                          future: profileInfo,
-                          builder: ((context, snapshot) {
-                            if (snapshot.hasData) {
-                              return ElevatedButton(
-                                onPressed: () {
-                                  Navigator.of(context)
-                                      .push(MaterialPageRoute(
-                                    builder: ((context) => CreateAccountScreen(
-                                          isNew: false,
-                                          avatar: snapshot.data!.avatar,
-                                          profilename:
-                                              snapshot.data!.profile_name,
-                                          username: snapshot.data!.username,
-                                          onUpdateProfile: updateProfileInfo,
-                                        )),
-                                  ))
-                                      .then((_) {
-                                    updateProfileInfo();
-                                  });
-                                },
-                                child: const Text("Edit Profile"),
-                              );
-                            } else {
-                              return const ElevatedButton(
-                                onPressed: null,
-                                child: Text("Edit Profile"),
-                              );
-                            }
-                          }),
-                        ),
+                        if (widget.isUser)
+                          FutureBuilder<Profile>(
+                            key: _futureBuilderKey,
+                            future: profileInfo,
+                            builder: ((context, snapshot) {
+                              if (snapshot.hasData) {
+                                return ElevatedButton(
+                                  onPressed: () {
+                                    Navigator.of(context)
+                                        .push(MaterialPageRoute(
+                                      builder: ((context) =>
+                                          CreateAccountScreen(
+                                            isNew: false,
+                                            avatar: snapshot.data!.avatar,
+                                            profilename:
+                                                snapshot.data!.profile_name,
+                                            username: snapshot.data!.username,
+                                            onUpdateProfile: updateProfileInfo,
+                                          )),
+                                    ))
+                                        .then((_) {
+                                      updateProfileInfo();
+                                    });
+                                  },
+                                  child: const Text("Edit Profile"),
+                                );
+                              } else {
+                                return const ElevatedButton(
+                                  onPressed: null,
+                                  child: Text("Edit Profile"),
+                                );
+                              }
+                            }),
+                          ),
+                        if (!widget.isUser)
+                          Row(
+                            children: [
+                              Padding(
+                                padding: const EdgeInsets.symmetric(
+                                    vertical: 15.0, horizontal: 8),
+                                child: SizedBox(
+                                  width:
+                                      MediaQuery.of(context).size.width * 0.5,
+                                  height: 40,
+                                  child: SearchBar(
+                                    controller: searchController,
+                                    hintText: 'Message',
+                                    padding: const MaterialStatePropertyAll<
+                                            EdgeInsets>(
+                                        EdgeInsets.symmetric(horizontal: 10.0)),
+                                    trailing: const [
+                                      Icon(Icons.arrow_forward_rounded)
+                                    ],
+                                  ),
+                                ),
+                              ),
+                              ElevatedButton(
+                                onPressed: () {},
+                                child: const Text("Friend"),
+                              ),
+                            ],
+                          ),
                       ],
                     ),
                     if (widget.isUser) const ProfileDropdown(),

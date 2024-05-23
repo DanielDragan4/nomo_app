@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:nomo/providers/saved_session_provider.dart';
 import 'package:nomo/providers/user_signup_provider.dart';
+import 'package:nomo/screens/interests_screen.dart';
 import 'package:nomo/widgets/app_bar.dart';
 import 'dart:io';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -293,10 +294,9 @@ class _CreateAccountScreenState extends ConsumerState<CreateAccountScreen> {
                 onPressed: () async {
                   if (widget.isNew) {
                     await _createProfile(_userName.text, _selectedImage);
-                    ref.read(onSignUp.notifier).completeProfileCreation();
-                    ref
-                        .read(savedSessionProvider.notifier)
-                        .changeSessionDataList();
+                    Navigator.of(context).pushReplacement(MaterialPageRoute(
+                        builder: (context) =>
+                            InterestsScreen(isEditing: false)));
                   } else {
                     await _updateProfile();
                     widget.onUpdateProfile!.call();
@@ -312,10 +312,10 @@ class _CreateAccountScreenState extends ConsumerState<CreateAccountScreen> {
                       TextButton(
                         onPressed: () async {
                           await _createProfile(_userName.text, null);
-                          ref.read(onSignUp.notifier).completeProfileCreation();
-                          ref
-                              .read(savedSessionProvider.notifier)
-                              .changeSessionDataList();
+                          Navigator.of(context).pushReplacement(
+                              MaterialPageRoute(
+                                  builder: (context) =>
+                                      InterestsScreen(isEditing: false)));
                         },
                         child: const Row(
                           mainAxisSize: MainAxisSize.min,

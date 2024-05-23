@@ -72,12 +72,12 @@ class _NavBarState extends ConsumerState<NavBar> {
             _index = index;
           });
         },
-        children: const [
-          RecommendedScreen(),
-          NewEventScreen(isNewEvent: true, event: null),
-          CalendarScreen(),
-          FriendsScreen(),
-          ProfileScreen(),
+        children: [
+          const RecommendedScreen(),
+          const NewEventScreen(isNewEvent: true, event: null),
+          const CalendarScreen(),
+          const FriendsScreen(),
+          ProfileScreen(isUser: false),
         ],
       ),
     );

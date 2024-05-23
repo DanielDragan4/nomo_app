@@ -29,6 +29,7 @@ class App extends ConsumerWidget {
       //tapping outside of textField closes keyboard (all screens)
       onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
       child: MaterialApp(
+        themeMode: ThemeMode.system,
         theme: ThemeData().copyWith(
           colorScheme: ColorScheme.fromSeed(
               seedColor: const Color.fromARGB(255, 80, 12, 122),
@@ -38,6 +39,18 @@ class App extends ConsumerWidget {
             unselectedItemColor: Colors.grey,
           ),
           primaryColor: const Color.fromARGB(255, 80, 12, 122),
+        ),
+        darkTheme: ThemeData().copyWith(
+          bottomNavigationBarTheme: const BottomNavigationBarThemeData(
+            selectedItemColor: Color.fromARGB(255, 80, 12, 122),
+            unselectedItemColor: Color.fromARGB(255, 206, 206, 206),
+            backgroundColor: Colors.black
+          ),
+          primaryColor: const Color.fromARGB(255, 80, 12, 122),
+          brightness: Brightness.dark, colorScheme: ColorScheme.fromSeed(
+            background: Colors.black,
+              seedColor: const Color.fromARGB(255, 80, 12, 122),
+              onPrimaryContainer: const Color.fromARGB(255, 80, 12, 122)).copyWith(background: Colors.black)
         ),
         home: StreamBuilder(
           stream: ref.watch(currentUserProvider.notifier).stream,

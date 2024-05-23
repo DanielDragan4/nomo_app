@@ -9,11 +9,13 @@ import 'package:nomo/screens/new_event_screen.dart';
 enum options { itemOne, itemTwo, itemThree, itemFour }
 
 class EventInfo extends ConsumerStatefulWidget {
-  const EventInfo({
+  EventInfo({
     super.key,
     required this.eventsData,
+    this.bookmarkSet
   });
   final Event eventsData;
+  bool? bookmarkSet;
 
   @override
   ConsumerState<EventInfo> createState() {
@@ -55,7 +57,7 @@ class _EventInfoState extends ConsumerState<EventInfo> {
     // TODO: implement initState
     super.initState();
     setState(() {
-      bookmarkBool = widget.eventsData.bookmarked;
+        bookmarkBool = widget.eventsData.bookmarked;
     });
   }
   @override
@@ -245,7 +247,7 @@ class _EventInfoState extends ConsumerState<EventInfo> {
                       }
                       );
                     },
-                    isSelected: bookmarkBool,
+                    isSelected: (widget.bookmarkSet !=null && widget.bookmarkSet == true) ? widget.bookmarkSet : bookmarkBool,
                     selectedIcon: const Icon(Icons.bookmark),
                     icon: const Icon(Icons.bookmark_border_outlined)),
               ],

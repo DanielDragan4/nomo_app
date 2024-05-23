@@ -10,5 +10,5 @@ class Profile {
   final avatar;
   final String username;
   final String profile_name;
-  final List<String> interests;
+  final List interests;
 }

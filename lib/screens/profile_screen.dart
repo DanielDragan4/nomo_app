@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:nomo/models/events_model.dart';
+import 'package:nomo/models/profile_model.dart';
 import 'package:nomo/providers/attending_events_provider.dart';
 import 'package:nomo/providers/profile_provider.dart';
 import 'package:nomo/widgets/event_tab.dart';
@@ -17,7 +18,7 @@ class ProfileScreen extends ConsumerStatefulWidget {
 }
 
 class _ProfileScreenState extends ConsumerState<ProfileScreen> {
-  Future<Map>? profileInfo;
+  Future<Profile>? profileInfo;
   UniqueKey _futureBuilderKey = UniqueKey();
 
   late List<bool> isSelected;
@@ -28,7 +29,6 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
     _fetchData();
     ref.read(attendEventsProvider.notifier).deCodeData();
     isSelected = [true, false];
-
   }
 
   Future<void> _fetchData() async {
@@ -41,28 +41,16 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
     }
   }
 
-  Future<Map> fetchInfo() async {
+  Future<Profile> fetchInfo() async {
     await Future.delayed(const Duration(microseconds: 1));
+    final profileState;
 
-    if (ref.read(profileProvider.notifier).state == null ||
-        ref.read(profileProvider.notifier).state!.isEmpty) {
-      return {
-        'profile_name': 'Unloaded Name',
-        'avatar': 'avatar',
-        'username': "userUnloaded",
-      };
+    if (ref.read(profileProvider.notifier).state == null ) {
+      profileState = Profile(profile_id: 'example', avatar: null, username: 'User-404', profile_name: 'User-404', interests: []);
+    } else {
+      profileState = ref.read(profileProvider.notifier).state;
     }
-    final profileState = ref.read(profileProvider.notifier).state?[0];
-    final avatar =
-        await ref.read(profileProvider.notifier).imageURL(profileState.avatar);
-    final profN = profileState.profile_name;
-    final userN = profileState.username;
-
-    return {
-      'profile_name': profN,
-      'avatar': avatar,
-      'username': userN,
-    };
+    return profileState;
   }
 
   void updateProfileInfo() {
@@ -78,11 +66,10 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
     ref.read(profileProvider.notifier).decodeData();
     var imageUrl;
 
-    if (ref.read(profileProvider.notifier).state == null ||
-        ref.read(profileProvider.notifier).state!.isEmpty) {
+    if (ref.read(profileProvider.notifier).state == null ) {
       imageUrl = '';
     } else {
-      imageUrl = ref.read(profileProvider.notifier).state?[0].avatar;
+      imageUrl = ref.read(profileProvider.notifier).state?.avatar;
     }
 
     return Scaffold(
@@ -101,7 +88,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: [
-                    FutureBuilder<Map>(
+                    FutureBuilder(
                       key: _futureBuilderKey,
                       future: profileInfo,
                       builder: (context, snapshot) {
@@ -137,8 +124,6 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                         }
                         //if (snapshot.hasData) {
                         else {
-                          print(
-                              '---------------------------${snapshot.data!['profile_name']}----------------------------------');
                           return Column(
                             children: [
                               CircleAvatar(
@@ -146,14 +131,14 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                                 radius: MediaQuery.sizeOf(context).width / 12,
                                 backgroundColor: Colors.white,
                                 backgroundImage: NetworkImage(
-                                  snapshot.data!['avatar'],
+                                  snapshot.data!.avatar,
                                 ),
                               ),
                               SizedBox(
                                   height:
                                       MediaQuery.sizeOf(context).height / 100),
                               Text(
-                                snapshot.data!['profile_name'],
+                                snapshot.data!.profile_name,
                                 style: const TextStyle(fontSize: 18),
                               ),
                             ],
@@ -198,7 +183,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                           ],
                         ),
                         //TODO: refresh page after updating account info
-                        FutureBuilder<Map>(
+                        FutureBuilder<Profile>(
                           key: _futureBuilderKey,
                           future: profileInfo,
                           builder: ((context, snapshot) {
@@ -209,10 +194,10 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                                       .push(MaterialPageRoute(
                                     builder: ((context) => CreateAccountScreen(
                                           isNew: false,
-                                          avatar: snapshot.data!['avatar'],
+                                          avatar: snapshot.data!.avatar,
                                           profilename:
-                                              snapshot.data!['profile_name'],
-                                          username: snapshot.data!['username'],
+                                              snapshot.data!.profile_name,
+                                          username: snapshot.data!.username,
                                           onUpdateProfile: updateProfileInfo,
                                         )),
                                   ))
@@ -308,7 +293,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                         children: [
                           for (Event i in snapshot.data!)
                             if(i.bookmarked)
-                              EventTab(eventData: i),
+                              EventTab(eventData: i, bookmarkSet: true),
                         ],
                       );
                     } else {

@@ -25,6 +25,7 @@ class _NavBarState extends ConsumerState<NavBar> {
     ref.read(profileProvider.notifier).decodeData();
 
     return Scaffold(
+      backgroundColor: Theme.of(context).colorScheme.background,
       bottomNavigationBar: BottomNavigationBar(
         backgroundColor: navBarTheme.backgroundColor,
         currentIndex: _index,

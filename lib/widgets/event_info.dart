@@ -91,13 +91,15 @@ class _EventInfoState extends ConsumerState<EventInfo> {
                       '${widget.eventsData.attendees.length.toString()} Attending',
                       style: TextStyle(
                           fontWeight: FontWeight.bold,
-                          fontSize: MediaQuery.of(context).size.width * .037),
+                          fontSize: MediaQuery.of(context).size.width * .037,
+                          color: Theme.of(context).colorScheme.onSecondary),
                     ),
                     Text(
                       'XXX Friends Attending',
                       style: TextStyle(
                           fontWeight: FontWeight.bold,
-                          fontSize: MediaQuery.of(context).size.width * .037),
+                          fontSize: MediaQuery.of(context).size.width * .037,
+                          color: Theme.of(context).colorScheme.onSecondary),
                     ),
                   ],
                 ),
@@ -148,8 +150,9 @@ class _EventInfoState extends ConsumerState<EventInfo> {
                                 showDialog(
                                     context: context,
                                     builder: (context) => AlertDialog(
-                                          title: const Text(
-                                              'Are you sure you want to edit the event?'),
+                                          title: Text(
+                                              'Are you sure you want to edit the event?',
+                                              style: TextStyle(color: Theme.of(context).primaryColorDark),),
                                           actions: [
                                             TextButton(
                                                 onPressed: () =>
@@ -248,8 +251,8 @@ class _EventInfoState extends ConsumerState<EventInfo> {
                       );
                     },
                     isSelected: (widget.bookmarkSet !=null && widget.bookmarkSet == true) ? widget.bookmarkSet : bookmarkBool,
-                    selectedIcon: const Icon(Icons.bookmark),
-                    icon: const Icon(Icons.bookmark_border_outlined)),
+                    selectedIcon:  Icon(Icons.bookmark, color: Theme.of(context).colorScheme.onSecondary),
+                    icon:  Icon(Icons.bookmark_border_outlined, color: Theme.of(context).colorScheme.onSecondary)),
               ],
             ),
           ),

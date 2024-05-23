@@ -62,6 +62,7 @@ class CommentWidget extends ConsumerWidget {
                               Text(
                                 commentData.username,//widget.eventData.hostUsername,
                                 style: TextStyle(
+                                  color: Theme.of(context).colorScheme.onSecondary,
                                     fontWeight: FontWeight.bold,
                                     fontSize: MediaQuery.of(context).size.width * .03),
                               ),
@@ -69,6 +70,7 @@ class CommentWidget extends ConsumerWidget {
                               Text(
                                 Jiffy.parseFromDateTime(DateTime.parse(commentData.timeStamp)).fromNow() ,
                                   style: TextStyle(
+                                    color: Theme.of(context).colorScheme.onSecondary,
                                   fontWeight: FontWeight.w300,
                                   fontSize: MediaQuery.of(context).size.width * .025),
                           ),
@@ -78,6 +80,7 @@ class CommentWidget extends ConsumerWidget {
                               commentData.comment_text,
                               softWrap: true,
                               style: TextStyle(
+                                color: Theme.of(context).colorScheme.onSecondary,
                                   fontWeight: FontWeight.w500,
                                   fontSize: MediaQuery.of(context).size.width * .03
                                   ),

@@ -23,7 +23,9 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
     BuildContext context,
   ) {
     return Scaffold(
+      backgroundColor: Theme.of(context).colorScheme.background,
       appBar: AppBar(
+        backgroundColor: Theme.of(context).colorScheme.background,
         toolbarHeight: 30,
         titleTextStyle: Theme.of(context).appBarTheme.titleTextStyle,
       ),

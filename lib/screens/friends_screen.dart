@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:nomo/data/dummy_data.dart';
-import 'package:nomo/models/user_model.dart';
-import 'package:nomo/widgets/user_tab.dart';
+import 'package:nomo/screens/search_screen.dart';
+import 'package:nomo/widgets/friend_tab.dart';
 
 class FriendsScreen extends StatefulWidget {
   const FriendsScreen({super.key});
@@ -12,6 +11,13 @@ class FriendsScreen extends StatefulWidget {
 
 class _FriendsScreenState extends State<FriendsScreen> {
   var friends = true;
+  late List<bool> isSelected;
+
+  @override
+  void initState() {
+    isSelected = [true, false];
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -47,76 +53,83 @@ class _FriendsScreenState extends State<FriendsScreen> {
       ),
       body: Column(
         children: [
-          const SizedBox(height: 10),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
-              Expanded(
-                child: Container(
-                  height: 40,
-                  decoration: BoxDecoration(
-                    border: Border.all(style: BorderStyle.solid),
+              ToggleButtons(
+                constraints: const BoxConstraints(
+                    maxHeight: 250, minWidth: 150, maxWidth: 200),
+                borderColor: Colors.black,
+                fillColor: Theme.of(context).primaryColor,
+                borderWidth: 1,
+                selectedBorderColor: Colors.black,
+                selectedColor: Colors.grey,
+                borderRadius: BorderRadius.circular(5),
+                onPressed: (int index) {
+                  setState(() {
+                    for (int i = 0; i < isSelected.length; i++) {
+                      isSelected[i] = i == index;
+                    }
+                    friends = !friends;
+                  });
+                },
+                isSelected: isSelected,
+                children: const [
+                  Padding(
+                      padding: EdgeInsets.fromLTRB(3, 3, 3, 3),
+                      child: Text(
+                        'Friends',
+                        style: TextStyle(
+                            fontSize: 14, fontWeight: FontWeight.w700),
+                      )),
+                  Padding(
+                    padding: EdgeInsets.fromLTRB(3, 3, 3, 3),
+                    child: Text(
+                      'Requests',
+                      style:
+                          TextStyle(fontSize: 14, fontWeight: FontWeight.w700),
+                    ),
                   ),
-                  child: TextButton(
-                    child: const Text("Friends"),
-                    onPressed: () {
-                      setState(() {
-                        friends = true;
-                      });
-                    },
-                  ),
-                ),
+                ],
               ),
-              Expanded(
-                child: Container(
-                  height: 40,
-                  decoration: BoxDecoration(
-                    border: Border.all(style: BorderStyle.solid),
-                  ),
-                  child: TextButton(
-                    child: const Text("Requests"),
-                    onPressed: () {
-                      setState(() {
-                        friends = false;
-                      });
-                    },
-                  ),
-                ),
-              ),
-              SizedBox(
-                width: MediaQuery.of(context).size.width / 10,
-                child: IconButton(
-                  onPressed: () {},
-                  icon: const Icon(Icons.search),
+              IconButton(
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const SearchScreen(),
+                    ),
+                  );
+                },
+                icon: Icon(
+                  Icons.search,
+                  color: Theme.of(context).colorScheme.onSecondary,
                 ),
               ),
             ],
           ),
           Expanded(
-            child: ListView(
-              key: const PageStorageKey('page'),
-              children: friends
-                  ? [
-                      for (User i in dummyFriends)
-                        UserTab(
-                          userData: i,
-                          isRequest: false,
-                        )
-                    ]
-                  : [
-                      for (User i in dummyRequests)
-                        UserTab(
-                          userData: i,
-                          isRequest: true,
-                        )
-                    ],
-            ),
+             child: FreindTab(friendData: null, isRequest: friends)
+             //ListView(
+            //   key: const PageStorageKey('page'),
+            //   children: friends
+            //       ? [
+            //           for (User i in dummyFriends)
+            //             FreindTab(
+            //               userData: i,
+            //               isRequest: false,
+            //             )
+            //         ]
+            //       : [
+            //           for (User i in dummyRequests)
+            //             FreindTab(
+            //               userData: i,
+            //               isRequest: true,
+            //             )
+            //         ],
+            // ),
           )
         ],
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {},
-        child: const Icon(Icons.chat),
       ),
     );
   }

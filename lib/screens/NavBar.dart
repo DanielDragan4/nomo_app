@@ -79,9 +79,6 @@ class _NavBarState extends ConsumerState<NavBar> {
           ProfileScreen(
             isUser: true,
           ),
-          ProfileScreen(
-            isUser: true,
-          ),
         ],
       ),
     );

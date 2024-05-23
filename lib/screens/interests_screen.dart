@@ -4,6 +4,8 @@ import 'package:nomo/screens/NavBar.dart';
 import 'package:nomo/providers/profile_provider.dart';
 import 'package:nomo/providers/supabase_provider.dart';
 import 'package:nomo/models/interests_enum.dart';
+import 'package:nomo/providers/saved_session_provider.dart';
+import 'package:nomo/providers/user_signup_provider.dart';
 
 class InterestsScreen extends ConsumerStatefulWidget {
   InterestsScreen({super.key, required this.isEditing});
@@ -17,13 +19,19 @@ class InterestsScreen extends ConsumerStatefulWidget {
 }
 
 class _InterestsScreenState extends ConsumerState<InterestsScreen> {
-  late Map<Interests, bool> _selectedOptions = {};
+  late Map<Interests, bool> _selectedOptions = {
+    for (var option in Interests.values) option: false
+  };
   late int _selectedCount;
 
   @override
   void initState() {
     super.initState();
-    initializeSelectedOptions();
+    if (widget.isEditing)
+      initializeSelectedOptions();
+    else {
+      _selectedCount = _selectedOptions.values.where((value) => value).length;
+    }
   }
 
   Future<void> initializeSelectedOptions() async {
@@ -162,22 +170,39 @@ class _InterestsScreenState extends ConsumerState<InterestsScreen> {
                               padding:
                                   const EdgeInsets.symmetric(horizontal: 40),
                             ),
-                            child: const Text(
-                              "Continue",
-                              style: TextStyle(
-                                fontSize: 20,
-                                fontWeight: FontWeight.w400,
-                              ),
-                            ),
-                            onPressed: () {
-                              ref
+                            child: !widget.isEditing
+                                ? const Text(
+                                    "Continue",
+                                    style: TextStyle(
+                                      fontSize: 20,
+                                      fontWeight: FontWeight.w400,
+                                    ),
+                                  )
+                                : const Text(
+                                    "Update",
+                                    style: TextStyle(
+                                      fontSize: 20,
+                                      fontWeight: FontWeight.w400,
+                                    ),
+                                  ),
+                            onPressed: () async {
+                              await ref
                                   .watch(profileProvider.notifier)
                                   .updateInterests(_selectedOptions);
-                              Navigator.of(context).pushReplacement(
-                                MaterialPageRoute(
-                                  builder: ((context) => const NavBar()),
-                                ),
-                              );
+                              if (!widget.isEditing) {
+                                ref
+                                    .read(onSignUp.notifier)
+                                    .completeProfileCreation();
+                                ref
+                                    .read(savedSessionProvider.notifier)
+                                    .changeSessionDataList();
+
+                                Navigator.of(context).pushReplacement(
+                                    MaterialPageRoute(
+                                        builder: (context) => const NavBar()));
+                              } else {
+                                Navigator.of(context).pop();
+                              }
                             },
                           ),
                         ],
@@ -194,11 +219,16 @@ class _InterestsScreenState extends ConsumerState<InterestsScreen> {
                                     ref
                                         .watch(profileProvider.notifier)
                                         .skipInterests();
+                                    ref
+                                        .read(onSignUp.notifier)
+                                        .completeProfileCreation();
+                                    ref
+                                        .read(savedSessionProvider.notifier)
+                                        .changeSessionDataList();
                                     Navigator.of(context).pushReplacement(
-                                      MaterialPageRoute(
-                                        builder: ((context) => const NavBar()),
-                                      ),
-                                    );
+                                        MaterialPageRoute(
+                                            builder: (context) =>
+                                                const NavBar()));
                                   },
                                   child: const Row(
                                     mainAxisSize: MainAxisSize.min,

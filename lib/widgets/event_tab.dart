@@ -7,12 +7,14 @@ import 'package:nomo/screens/detailed_event_screen.dart';
 import 'package:nomo/widgets/event_info.dart';
 
 class EventTab extends ConsumerStatefulWidget {
-  const EventTab({
+  EventTab({
     super.key,
     required this.eventData,
+    this.bookmarkSet
   });
 
   final Event eventData;
+  bool? bookmarkSet;
 
   @override
   ConsumerState<EventTab> createState() {
@@ -131,7 +133,7 @@ class _EventTabState extends ConsumerState<EventTab> {
             Container(
               height: 5,
             ),
-            EventInfo(eventsData: widget.eventData),
+            EventInfo(eventsData: widget.eventData, bookmarkSet: widget.bookmarkSet),
             GestureDetector(
               onTap: () => Navigator.of(context).push(MaterialPageRoute(builder: ((context) => DetailedEventScreen(eventData: widget.eventData)))),
               child: SizedBox(

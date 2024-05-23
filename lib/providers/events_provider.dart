@@ -31,7 +31,15 @@ class EventProvider extends StateNotifier<List?> {
       String eventUrl = supabaseClient.storage
           .from('Images')
           .getPublicUrl(eventData['event_path']);
-      bool bookmarked;
+      bool bookmarked = false;
+      for (var bookmark in eventData['Bookmarked']) {
+        if (bookmark['user_id'] == supabaseClient.auth.currentUser!.id) {
+          bookmarked = true;
+          break;
+        } else {
+          bookmark = false;
+        }
+      }
 
       final Event deCodedEvent = Event(
         description: eventData['description'],
@@ -48,16 +56,10 @@ class EventProvider extends StateNotifier<List?> {
         hostProfileUrl: profileUrl,
         hostUsername: eventData['username'],
         profileName: eventData['profile_name'],
-        bookmarked: false,
+        bookmarked: bookmarked,
         attending: false,
         isHost: false,
       );
-      for (var bookmark in eventData['Bookmarked']) {
-        if (bookmark['user_id'] == supabaseClient.auth.currentUser!.id) {
-          deCodedEvent.bookmarked = true;
-          break;
-        }
-      }
 
       bool attending = false;
       for (var i = 0; i < deCodedEvent.attendees.length; i++) {
@@ -89,6 +91,7 @@ class EventProvider extends StateNotifier<List?> {
     final supabaseClient = (await supabase).client;
     final newABookMarkMap = {'user_id': currentUser, 'event_id': eventToMark};
     await supabaseClient.from('Bookmarked').insert(newABookMarkMap);
+    await deCodeData();
   }
 
   Future<void> unBookmark(eventToMark, currentUser) async {
@@ -98,6 +101,7 @@ class EventProvider extends StateNotifier<List?> {
         .delete()
         .eq('event_id', eventToMark)
         .eq('user_id', currentUser);
+      await deCodeData();
   }
 
   Future<List> readComments(String eventId) async {

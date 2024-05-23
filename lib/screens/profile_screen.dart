@@ -326,7 +326,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
             Expanded(
               child: isSelected.first
                   ? StreamBuilder(
-                      stream: ref.watch(attendEventsProvider.notifier).stream,
+                      stream: ref.read(attendEventsProvider.notifier).stream,
                       builder: (context, snapshot) {
                         if (snapshot.data != null) {
                           return ListView(
@@ -347,7 +347,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                       builder: (context, snapshot) {
                         if (snapshot.data != null) {
                           return ListView(
-                            key: const PageStorageKey<String>('event'),
+                            key: const PageStorageKey<String>('test'),
                             children: [
                               for (Event i in snapshot.data!)
                                 if (i.bookmarked)

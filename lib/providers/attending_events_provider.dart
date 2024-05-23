@@ -30,9 +30,10 @@ class AttendEventProvider extends StateNotifier<List<Event>> {
 
       bool bookmarked = false;
       for(var bookmark in eventData['Bookmarked']) {
-        if(bookmark['user_id'] == supabaseClient.auth.currentUser!.id);
+        if(bookmark['user_id'] == supabaseClient.auth.currentUser!.id) {
           bookmarked = true;
           break;
+        }
       }
 
       final Event deCodedEvent = Event(
@@ -89,11 +90,11 @@ class AttendEventProvider extends StateNotifier<List<Event>> {
     }
     return eventsPerMonth;
   }
-  Future<void> leaveEvent(currentUser, eventToLeave) async{
+  Future<void> leaveEvent(eventToLeave,currentUser) async{
     final supabaseClient = (await supabase).client;
 
     await supabaseClient.from('Attendees').delete().eq('user_id', currentUser).eq('event_id', eventToLeave);
-    await deCodeData();
+    deCodeData();
   }
 }
 

@@ -250,7 +250,7 @@ class _EventInfoState extends ConsumerState<EventInfo> {
                       }
                       );
                     },
-                    isSelected: (widget.bookmarkSet !=null && widget.bookmarkSet == true) ? widget.bookmarkSet : bookmarkBool,
+                    isSelected: bookmarkBool,
                     selectedIcon:  Icon(Icons.bookmark, color: Theme.of(context).colorScheme.onSecondary),
                     icon:  Icon(Icons.bookmark_border_outlined, color: Theme.of(context).colorScheme.onSecondary)),
               ],

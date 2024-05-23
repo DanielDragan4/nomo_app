@@ -252,6 +252,7 @@ class _CreateAccountScreenState extends ConsumerState<CreateAccountScreen> {
               child: TextField(
                 maxLength: 20,
                 controller: _profileName,
+                style: TextStyle(color: Theme.of(context).colorScheme.onSecondary),
                 decoration: const InputDecoration(
                   border: OutlineInputBorder(),
                   labelText: "Name",
@@ -263,6 +264,7 @@ class _CreateAccountScreenState extends ConsumerState<CreateAccountScreen> {
               padding: const EdgeInsets.all(7.0),
               child: TextField(
                 maxLength: 20,
+                style: TextStyle(color: Theme.of(context).colorScheme.onSecondary),
                 controller: _userName,
                 decoration: const InputDecoration(
                   border: OutlineInputBorder(),
@@ -275,6 +277,7 @@ class _CreateAccountScreenState extends ConsumerState<CreateAccountScreen> {
               padding: const EdgeInsets.all(7.0),
               child: TextField(
                 maxLength: 11,
+                style: TextStyle(color: Theme.of(context).colorScheme.onSecondary),
                 controller: _phoneNum,
                 decoration: const InputDecoration(
                   border: OutlineInputBorder(),

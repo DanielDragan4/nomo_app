@@ -76,13 +76,7 @@ class _NavBarState extends ConsumerState<NavBar> {
           const NewEventScreen(isNewEvent: true, event: null),
           const CalendarScreen(),
           const FriendsScreen(),
-<<<<<<< HEAD
-          ProfileScreen(isUser: false),
-=======
-          ProfileScreen(
-            isUser: true,
-          ),
->>>>>>> a134c84c7912e5145aeb23db541b1f99781ce900
+          ProfileScreen(isUser: true,),
         ],
       ),
     );

@@ -8,8 +8,9 @@ import 'package:nomo/screens/create_account_screen.dart';
 import 'package:nomo/widgets/profile_dropdown.dart';
 
 class ProfileScreen extends ConsumerStatefulWidget {
-  const ProfileScreen({super.key});
+  ProfileScreen({super.key, required this.isUser});
 
+  bool isUser;
   @override
   ConsumerState<ProfileScreen> createState() {
     return _ProfileScreenState();
@@ -28,7 +29,6 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
     _fetchData();
     ref.read(attendEventsProvider.notifier).deCodeData();
     isSelected = [true, false];
-
   }
 
   Future<void> _fetchData() async {
@@ -202,37 +202,47 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                           key: _futureBuilderKey,
                           future: profileInfo,
                           builder: ((context, snapshot) {
-                            if (snapshot.hasData) {
-                              return ElevatedButton(
-                                onPressed: () {
-                                  Navigator.of(context)
-                                      .push(MaterialPageRoute(
-                                    builder: ((context) => CreateAccountScreen(
-                                          isNew: false,
-                                          avatar: snapshot.data!['avatar'],
-                                          profilename:
-                                              snapshot.data!['profile_name'],
-                                          username: snapshot.data!['username'],
-                                          onUpdateProfile: updateProfileInfo,
-                                        )),
-                                  ))
-                                      .then((_) {
-                                    updateProfileInfo();
-                                  });
-                                },
-                                child: const Text("Edit Profile"),
-                              );
+                            if (widget.isUser) {
+                              if (snapshot.hasData) {
+                                return ElevatedButton(
+                                  onPressed: () {
+                                    Navigator.of(context)
+                                        .push(MaterialPageRoute(
+                                      builder: ((context) =>
+                                          CreateAccountScreen(
+                                            isNew: false,
+                                            avatar: snapshot.data!['avatar'],
+                                            profilename:
+                                                snapshot.data!['profile_name'],
+                                            username:
+                                                snapshot.data!['username'],
+                                            onUpdateProfile: updateProfileInfo,
+                                          )),
+                                    ))
+                                        .then((_) {
+                                      updateProfileInfo();
+                                    });
+                                  },
+                                  child: const Text("Edit Profile"),
+                                );
+                              } else {
+                                return const SizedBox();
+                              }
                             } else {
-                              return const ElevatedButton(
-                                onPressed: null,
-                                child: Text("Edit Profile"),
-                              );
+                              if (widget.isUser) {
+                                return const ElevatedButton(
+                                  onPressed: null,
+                                  child: Text("Edit Profile"),
+                                );
+                              } else {
+                                return const SizedBox();
+                              }
                             }
                           }),
                         ),
                       ],
                     ),
-                    const ProfileDropdown(),
+                    if (widget.isUser) const ProfileDropdown(),
                   ],
                 ),
                 ToggleButtons(
@@ -254,22 +264,33 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                     });
                   },
                   isSelected: isSelected,
-                  children: const [
+                  children: [
                     Padding(
                         padding: EdgeInsets.fromLTRB(3, 3, 3, 3),
-                        child: Text(
-                          'Your Events',
-                          style: TextStyle(
-                              fontSize: 14, fontWeight: FontWeight.w700),
-                        )),
+                        child: widget.isUser
+                            ? const Text(
+                                'Your Events',
+                                style: TextStyle(
+                                    fontSize: 14, fontWeight: FontWeight.w700),
+                              )
+                            : const Text(
+                                "Attending Events",
+                                style: TextStyle(
+                                    fontSize: 14, fontWeight: FontWeight.w700),
+                              )),
                     Padding(
-                      padding: EdgeInsets.fromLTRB(3, 3, 3, 3),
-                      child: Text(
-                        'Bookmarked',
-                        style: TextStyle(
-                            fontSize: 14, fontWeight: FontWeight.w700),
-                      ),
-                    ),
+                        padding: EdgeInsets.fromLTRB(3, 3, 3, 3),
+                        child: widget.isUser
+                            ? const Text(
+                                'Bookmarked',
+                                style: TextStyle(
+                                    fontSize: 14, fontWeight: FontWeight.w700),
+                              )
+                            : const Text(
+                                "Hosting Events",
+                                style: TextStyle(
+                                    fontSize: 14, fontWeight: FontWeight.w700),
+                              )),
                   ],
                 ),
                 const Divider(),
@@ -281,40 +302,39 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
         body: Column(
           children: [
             Expanded(
-              child: isSelected.first ? 
-              StreamBuilder(
-                  stream: ref.watch(attendEventsProvider.notifier).stream,
-                  builder: (context, snapshot) {
-                    if (snapshot.data != null) {
-                      return ListView(
-                        key: const PageStorageKey<String>('event'),
-                        children: [
-                          for (Event i in snapshot.data!)
-                            if(i.attending || i.isHost)
-                              EventTab(eventData: i),
-                        ],
-                      );
-                    } else {
-                      return const Text("No Data Retreived");
-                    }
-                  },)
-                  : 
-                  StreamBuilder(
-                  stream: ref.read(attendEventsProvider.notifier).stream,
-                  builder: (context, snapshot) {
-                    if (snapshot.data != null) {
-                      return ListView(
-                        key: const PageStorageKey<String>('event'),
-                        children: [
-                          for (Event i in snapshot.data!)
-                            if(i.bookmarked)
-                              EventTab(eventData: i),
-                        ],
-                      );
-                    } else {
-                      return const Text("No Data Retreived");
-                    }
-                  }),
+              child: isSelected.first
+                  ? StreamBuilder(
+                      stream: ref.watch(attendEventsProvider.notifier).stream,
+                      builder: (context, snapshot) {
+                        if (snapshot.data != null) {
+                          return ListView(
+                            key: const PageStorageKey<String>('event'),
+                            children: [
+                              for (Event i in snapshot.data!)
+                                if (i.attending || i.isHost)
+                                  EventTab(eventData: i),
+                            ],
+                          );
+                        } else {
+                          return const Text("No Data Retreived");
+                        }
+                      },
+                    )
+                  : StreamBuilder(
+                      stream: ref.read(attendEventsProvider.notifier).stream,
+                      builder: (context, snapshot) {
+                        if (snapshot.data != null) {
+                          return ListView(
+                            key: const PageStorageKey<String>('event'),
+                            children: [
+                              for (Event i in snapshot.data!)
+                                if (i.bookmarked) EventTab(eventData: i),
+                            ],
+                          );
+                        } else {
+                          return const Text("No Data Retreived");
+                        }
+                      }),
             ),
           ],
         ),

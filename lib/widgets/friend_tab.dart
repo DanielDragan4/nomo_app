@@ -1,31 +1,45 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:nomo/data/dummy_data.dart';
-import 'package:nomo/models/user_model.dart';
+import 'package:nomo/models/friend_model.dart';
+import 'package:nomo/screens/profile_screen.dart';
 
 class FreindTab extends ConsumerWidget {
-  const FreindTab({super.key,  this.friendData,  required this.isRequest});
+  const FreindTab({super.key,  required this.friendData,  required this.isRequest});
 
   final isRequest;
-  final friendData;
+  final Friend friendData;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    // var username = friendData.username; // turn this into provided friend data username 
-    // var avatar = friendData.avatar;
+     var username = friendData.friendUsername; // turn this into provided friend data username 
+     var avatar = friendData.avatar;
 
     return Container(
       height: 60,
       padding: const EdgeInsets.symmetric(vertical: 5),
       child: Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-        CircleAvatar(
-          radius: 25,
-          child: dummyFriends.first.avatar,
-        ),
-        const SizedBox(width: 10),
-        Text(
-          'Username',
-        style: TextStyle(color: Theme.of(context).colorScheme.onSecondary),
+        GestureDetector(
+          onTap: () {
+            Navigator.of(context).push(MaterialPageRoute(
+                      builder: ((context) => ProfileScreen(
+                            isUser: false,
+                            userId: friendData.friendProfileId,
+                          ))));
+          },
+          child: Row(
+            children: [
+              CircleAvatar(
+                radius: MediaQuery.of(context).size.width *.1,
+                backgroundImage: NetworkImage(avatar),
+              ),
+              const SizedBox(width: 10),
+              Text(
+                username,
+              style: TextStyle(color: Theme.of(context).colorScheme.onSecondary),
+              ),
+            ],
+          ),
         ),
         const Spacer(),
         isRequest

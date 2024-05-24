@@ -4,6 +4,7 @@ import 'package:nomo/models/events_model.dart';
 import 'package:nomo/models/profile_model.dart';
 import 'package:nomo/providers/attending_events_provider.dart';
 import 'package:nomo/providers/profile_provider.dart';
+import 'package:nomo/providers/supabase_provider.dart';
 import 'package:nomo/widgets/event_tab.dart';
 import 'package:nomo/screens/create_account_screen.dart';
 import 'package:nomo/widgets/profile_dropdown.dart';
@@ -75,6 +76,19 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
       _fetchData();
       _futureBuilderKey = UniqueKey();
     });
+  }
+  Future<void> addFriend() async {
+    final supabase = (await ref.read(supabaseInstance)).client;
+    await ref
+        .read(profileProvider.notifier)
+        .addFriend(supabase.auth.currentUser!.id, widget.userId);
+  }
+
+  Future<void> removeFriend() async {
+    final supabase = (await ref.read(supabaseInstance)).client;
+    await ref
+        .read(attendEventsProvider.notifier)
+        .leaveEvent(supabase.auth.currentUser!.id, widget.userId);
   }
 
   @override
@@ -264,7 +278,11 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                             child: Row(
                               children: [
                                 ElevatedButton(
-                                  onPressed: () {},
+                                  onPressed: () {
+                                    setState(() {
+                                      addFriend();                                      
+                                    });
+                                  },
                                   child: const Text("Friend"),
                                 ),
                                 SizedBox(

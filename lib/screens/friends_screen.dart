@@ -1,15 +1,18 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:nomo/models/friend_model.dart';
+import 'package:nomo/providers/profile_provider.dart';
 import 'package:nomo/screens/search_screen.dart';
 import 'package:nomo/widgets/friend_tab.dart';
 
-class FriendsScreen extends StatefulWidget {
+class FriendsScreen extends ConsumerStatefulWidget {
   const FriendsScreen({super.key});
 
   @override
-  State<FriendsScreen> createState() => _FriendsScreenState();
+  ConsumerState<FriendsScreen> createState() => _FriendsScreenState();
 }
 
-class _FriendsScreenState extends State<FriendsScreen> {
+class _FriendsScreenState extends ConsumerState<FriendsScreen> {
   var friends = true;
   late List<bool> isSelected;
 
@@ -109,25 +112,38 @@ class _FriendsScreenState extends State<FriendsScreen> {
             ],
           ),
           Expanded(
-             child: FreindTab(friendData: null, isRequest: friends)
-             //ListView(
-            //   key: const PageStorageKey('page'),
-            //   children: friends
-            //       ? [
-            //           for (User i in dummyFriends)
-            //             FreindTab(
-            //               userData: i,
-            //               isRequest: false,
-            //             )
-            //         ]
-            //       : [
-            //           for (User i in dummyRequests)
-            //             FreindTab(
-            //               userData: i,
-            //               isRequest: true,
-            //             )
-            //         ],
-            // ),
+            child: FutureBuilder(
+                future: ref.read(profileProvider.notifier).decodeFriends(),
+                builder: (context, snapshot) {
+                  if (snapshot.data != null) {
+                    return ListView(
+                      key: const PageStorageKey('page'),
+                      children: friends
+                          ? [
+                              for (Friend i in snapshot.data!)
+                                FreindTab(
+                                  friendData: i,
+                                  isRequest: true,
+                                )
+                            ]
+                          : [
+                              for (Friend i in snapshot.data!)
+                                FreindTab(
+                                  friendData: i,
+                                  isRequest: false,
+                                )
+                            ],
+                    );
+                  } else {
+                    return Center(
+                      child: Text(
+                        'No Friends Were Found. Add Some',
+                        style: TextStyle(
+                            color: Theme.of(context).colorScheme.onSecondary),
+                      ),
+                    );
+                  }
+                }),
           )
         ],
       ),

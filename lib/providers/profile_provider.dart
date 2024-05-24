@@ -1,4 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:nomo/models/friend_model.dart';
 import 'package:nomo/models/profile_model.dart';
 import 'package:nomo/providers/supabase_provider.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -119,6 +120,49 @@ class ProfileProvider extends StateNotifier<Profile?> {
     final str = interest.toString().split('.').last;
     return str.replaceAllMapped(RegExp(r"((?<!^)([A-Z][a-z]|(?<=[a-z])[A-Z]))"),
         (match) => ' ${match.group(1)}');
+  }
+
+  Future<List> readFriends() async {
+    final supabaseClient = (await supabase).client;
+
+    var friends = (await supabaseClient
+        .from('friends_view')
+        .select('*')
+        .eq('current', supabaseClient.auth.currentUser!.id)
+        );
+    return friends.toList();
+  }
+
+  Future<List<Friend>> decodeFriends() async {
+    final List userFriendsCoded = await readFriends();
+    List<Friend> userFriends = [];
+    final supabaseClient = (await supabase).client;
+
+    for(var f in userFriendsCoded){
+      String profileUrl = supabaseClient.storage
+        .from('Images')
+        .getPublicUrl(f['profile_path']);
+
+    final Friend friend = Friend(
+        friendProfileId: f['friend'],
+        avatar: profileUrl,
+        friendUsername: f['username'],
+        friendProfileName: f['profile_name']);
+
+    userFriends.add(friend);
+    }
+    return userFriends;
+  }
+
+  Future<void> addFriend(currentUserId, friendId) async {
+    final supabaseClient = (await supabase).client;
+    final newFriendMap = {'current': currentUserId, 'friend': friendId};
+    await supabaseClient.from('Friends').insert(newFriendMap);
+  }
+
+  Future<void> removeFriend(currentUserId, friendId) async {
+    final supabaseClient = (await supabase).client;
+    await supabaseClient.from('Friends').delete().eq('currnet', currentUserId).eq('friend', friendId);
   }
 }
 

@@ -1,17 +1,21 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:nomo/providers/attending_events_provider.dart';
+import 'package:nomo/providers/profile_provider.dart';
 import 'package:nomo/screens/calendar/month_widget.dart';
 import 'package:nomo/screens/new_event_screen.dart';
 //import 'package:nomo/widgets/app_bar.dart';
 
-class CalendarScreen extends StatefulWidget {
+class CalendarScreen extends ConsumerStatefulWidget {
   const CalendarScreen({super.key});
 
   @override
   // ignore: library_private_types_in_public_api
-  _CalendarScreenState createState() => _CalendarScreenState();
+  ConsumerState<CalendarScreen> createState() { 
+    return _CalendarScreenState();}
 }
 
-class _CalendarScreenState extends State<CalendarScreen> {
+class _CalendarScreenState extends ConsumerState<CalendarScreen> {
   final DateTime currentDate = DateTime.now();
 
   int monthDisplayed = DateTime.now().month;
@@ -19,6 +23,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
 
   @override
   Widget build(BuildContext context) {
+    ref.read(attendEventsProvider.notifier).deCodeData();
     final int firstDayOfWeek =
         DateTime(yearDisplayed, monthDisplayed, 1).weekday;
     final int lastOfMonth = DateTime(yearDisplayed, monthDisplayed + 1, 0).day;

@@ -27,6 +27,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
   final TextEditingController searchController = TextEditingController();
 
   late List<bool> isSelected;
+  late bool isFriend = true;
 
   @override
   void initState() {
@@ -34,6 +35,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
     _fetchData();
     if (widget.isUser) {
       ref.read(attendEventsProvider.notifier).deCodeData();
+      isFriend = false;
     } else {
       ref.read(attendEventsProvider.notifier).deCodeDataWithId(widget.userId!);
     }
@@ -67,6 +69,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
       // Fetch the profile for the specified user ID
       profileState =
           await ref.read(profileProvider.notifier).fetchProfileById(userId);
+      isFriend = await ref.read(profileProvider.notifier).isFriend(widget.userId!);
     }
     return profileState;
   }
@@ -87,8 +90,8 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
   Future<void> removeFriend() async {
     final supabase = (await ref.read(supabaseInstance)).client;
     await ref
-        .read(attendEventsProvider.notifier)
-        .leaveEvent(supabase.auth.currentUser!.id, widget.userId);
+        .read(profileProvider.notifier)
+        .removeFriend(supabase.auth.currentUser!.id, widget.userId);
   }
 
   @override
@@ -277,10 +280,22 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                             padding: const EdgeInsets.only(top: 8.0),
                             child: Row(
                               children: [
+                                isFriend ?
                                 ElevatedButton(
                                   onPressed: () {
                                     setState(() {
-                                      addFriend();                                      
+                                      removeFriend();    
+                                      isFriend = !isFriend;                                  
+                                    });
+                                  },
+                                  child: const Text("Remove"),
+                                )   
+                                :
+                                ElevatedButton(
+                                  onPressed: () {
+                                    setState(() {
+                                      addFriend();    
+                                      isFriend = !isFriend;                                                                    
                                     });
                                   },
                                   child: const Text("Friend"),

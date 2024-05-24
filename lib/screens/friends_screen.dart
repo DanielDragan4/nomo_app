@@ -112,8 +112,8 @@ class _FriendsScreenState extends ConsumerState<FriendsScreen> {
             ],
           ),
           Expanded(
-            child: FutureBuilder(
-                future: ref.read(profileProvider.notifier).decodeFriends(),
+            child: StreamBuilder(
+                stream: ref.read(profileProvider.notifier).decodeFriends().asStream(),
                 builder: (context, snapshot) {
                   if (snapshot.data != null) {
                     return ListView(

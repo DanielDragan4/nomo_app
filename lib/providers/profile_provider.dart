@@ -162,7 +162,21 @@ class ProfileProvider extends StateNotifier<Profile?> {
 
   Future<void> removeFriend(currentUserId, friendId) async {
     final supabaseClient = (await supabase).client;
-    await supabaseClient.from('Friends').delete().eq('currnet', currentUserId).eq('friend', friendId);
+    await supabaseClient.from('Friends').delete().eq('current', currentUserId).eq('friend', friendId);
+  }
+
+  Future<bool> isFriend(friendProfileId) async {
+    final supabaseClient = (await supabase).client;
+
+    var friends = (await supabaseClient
+        .from('Friends')
+        .select('*')
+        .eq('current', supabaseClient.auth.currentUser!.id).eq('friend', friendProfileId).single()
+        );
+    if(friends.isNotEmpty) {
+      return true;
+    }
+    return false;
   }
 }
 

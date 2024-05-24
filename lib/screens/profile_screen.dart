@@ -189,15 +189,35 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                             SizedBox(
                               width: MediaQuery.of(context).size.width / 20,
                             ),
-                            const Column(
+                            Column(
                               children: [
-                                Text(
+                                const Text(
                                   "Upcoming Events",
                                   style: TextStyle(fontSize: 15),
                                 ),
-                                Text(
-                                  "xxxx",
-                                  style: TextStyle(fontSize: 15),
+                                StreamBuilder(
+                                  stream: ref
+                                      .read(attendEventsProvider.notifier)
+                                      .stream,
+                                  builder: (context, snapshot) {
+                                    if (snapshot.data != null) {
+                                      final attendingEvents = snapshot.data!
+                                          .where((event) =>
+                                              event.attending || event.isHost)
+                                          .toList();
+                                      var attendingEventCount =
+                                          attendingEvents.length;
+                                      return Text(
+                                        attendingEventCount.toString(),
+                                        style: const TextStyle(fontSize: 15),
+                                      );
+                                    } else {
+                                      return const Text(
+                                        "0",
+                                        style: TextStyle(fontSize: 15),
+                                      );
+                                    }
+                                  },
                                 ),
                               ],
                             ),

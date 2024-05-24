@@ -334,8 +334,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                               .toList();
                           if (attendingEvents.isEmpty) {
                             return const Center(
-                              child: Text(
-                                  "You Are Currently Not Attending Any Events"),
+                              child: Text("Not Attending Any Events"),
                             );
                           } else {
                             return ListView(

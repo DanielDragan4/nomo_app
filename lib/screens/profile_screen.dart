@@ -239,32 +239,28 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                             }),
                           ),
                         if (!widget.isUser)
-                          Row(
-                            children: [
-                              Padding(
-                                padding: const EdgeInsets.symmetric(
-                                    vertical: 15.0, horizontal: 8),
-                                child: SizedBox(
-                                  width:
-                                      MediaQuery.of(context).size.width * 0.5,
-                                  height: 40,
-                                  child: SearchBar(
-                                    controller: searchController,
-                                    hintText: 'Message',
-                                    padding: const MaterialStatePropertyAll<
-                                            EdgeInsets>(
-                                        EdgeInsets.symmetric(horizontal: 10.0)),
-                                    trailing: const [
-                                      Icon(Icons.arrow_forward_rounded)
-                                    ],
+                          Padding(
+                            padding: const EdgeInsets.only(top: 8.0),
+                            child: Row(
+                              children: [
+                                ElevatedButton(
+                                  onPressed: () {},
+                                  child: const Text("Friend"),
+                                ),
+                                SizedBox(
+                                    width:
+                                        MediaQuery.of(context).size.width / 20),
+                                Container(
+                                  decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.circular(100),
+                                      color: Theme.of(context).primaryColor),
+                                  child: IconButton(
+                                    onPressed: () {},
+                                    icon: const Icon(Icons.message),
                                   ),
                                 ),
-                              ),
-                              ElevatedButton(
-                                onPressed: () {},
-                                child: const Text("Friend"),
-                              ),
-                            ],
+                              ],
+                            ),
                           ),
                       ],
                     ),
@@ -319,7 +315,6 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                               )),
                   ],
                 ),
-                const Divider(),
               ]),
             ),
             centerTitle: true,
@@ -327,6 +322,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
         ],
         body: Column(
           children: [
+            const Divider(),
             Expanded(
               child: isSelected.first
                   ? StreamBuilder(

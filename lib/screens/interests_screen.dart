@@ -119,8 +119,9 @@ class _InterestsScreenState extends ConsumerState<InterestsScreen> {
                             vertical: 4, horizontal: 4),
                       ),
                       onPressed: () {
-                        if (_selectedOptions[option] == true ||
-                            (!widget.isEditing && _selectedCount < 5)) {
+                        if (widget.isEditing ||
+                            (!widget.isEditing && _selectedCount < 5) ||
+                            _selectedOptions[option] == true) {
                           setState(() {
                             _selectedOptions[option] =
                                 !_selectedOptions[option]!;

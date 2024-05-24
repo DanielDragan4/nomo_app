@@ -329,14 +329,24 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                       stream: ref.read(attendEventsProvider.notifier).stream,
                       builder: (context, snapshot) {
                         if (snapshot.data != null) {
-                          return ListView(
-                            key: const PageStorageKey<String>('event'),
-                            children: [
-                              for (Event i in snapshot.data!)
-                                if (i.attending || i.isHost)
-                                  EventTab(eventData: i),
-                            ],
-                          );
+                          final attendingEvents = snapshot.data!
+                              .where((event) => event.attending || event.isHost)
+                              .toList();
+                          if (attendingEvents.isEmpty) {
+                            return const Center(
+                              child: Text(
+                                  "You Are Currently Not Attending Any Events"),
+                            );
+                          } else {
+                            return ListView(
+                              key: const PageStorageKey<String>('event'),
+                              children: [
+                                for (Event i in snapshot.data!)
+                                  if (i.attending || i.isHost)
+                                    EventTab(eventData: i),
+                              ],
+                            );
+                          }
                         } else {
                           return const Text("No Data Retreived");
                         }
@@ -347,23 +357,43 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                       builder: (context, snapshot) {
                         if (snapshot.data != null) {
                           if (widget.isUser) {
-                            return ListView(
-                              key: const PageStorageKey<String>('test'),
-                              children: [
-                                for (Event i in snapshot.data!)
-                                  if (i.bookmarked)
-                                    EventTab(eventData: i, bookmarkSet: true),
-                              ],
-                            );
+                            final bookmarkedEvents = snapshot.data!
+                                .where((event) => event.bookmarked)
+                                .toList();
+                            if (bookmarkedEvents.isEmpty) {
+                              return const Center(
+                                child: Text("No Bookmarked Events"),
+                              );
+                            } else {
+                              return ListView(
+                                key: const PageStorageKey<String>('bookmarked'),
+                                children: [
+                                  for (Event event in bookmarkedEvents)
+                                    EventTab(
+                                        eventData: event, bookmarkSet: true),
+                                ],
+                              );
+                            }
                           } else {
-                            return ListView(
-                              key: const PageStorageKey<String>('test'),
-                              children: [
-                                for (Event i in snapshot.data!)
-                                  if (i.isHost)
-                                    EventTab(eventData: i, bookmarkSet: true),
-                              ],
-                            );
+                            //only useful when viewing a profile though means other than an event header
+                            final hostingEvents = snapshot.data!
+                                .where((event) => event.isHost)
+                                .toList();
+                            if (hostingEvents.isEmpty) {
+                              return const Center(
+                                child: Text(
+                                    "This User Is Not Hosting Any Events at the Moment"),
+                              );
+                            } else {
+                              return ListView(
+                                key: const PageStorageKey<String>('test'),
+                                children: [
+                                  for (Event i in snapshot.data!)
+                                    if (i.isHost)
+                                      EventTab(eventData: i, bookmarkSet: true),
+                                ],
+                              );
+                            }
                           }
                         } else {
                           return const Text("No Data Retreived");

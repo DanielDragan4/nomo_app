@@ -31,7 +31,11 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
   void initState() {
     super.initState();
     _fetchData();
-    ref.read(attendEventsProvider.notifier).deCodeData();
+    if (widget.isUser) {
+      ref.read(attendEventsProvider.notifier).deCodeData();
+    } else {
+      ref.read(attendEventsProvider.notifier).deCodeDataWithId(widget.userId!);
+    }
     isSelected = [true, false];
   }
 
@@ -346,14 +350,25 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                       stream: ref.read(attendEventsProvider.notifier).stream,
                       builder: (context, snapshot) {
                         if (snapshot.data != null) {
-                          return ListView(
-                            key: const PageStorageKey<String>('test'),
-                            children: [
-                              for (Event i in snapshot.data!)
-                                if (i.bookmarked)
-                                  EventTab(eventData: i, bookmarkSet: true),
-                            ],
-                          );
+                          if (widget.isUser) {
+                            return ListView(
+                              key: const PageStorageKey<String>('test'),
+                              children: [
+                                for (Event i in snapshot.data!)
+                                  if (i.bookmarked)
+                                    EventTab(eventData: i, bookmarkSet: true),
+                              ],
+                            );
+                          } else {
+                            return ListView(
+                              key: const PageStorageKey<String>('test'),
+                              children: [
+                                for (Event i in snapshot.data!)
+                                  if (i.isHost)
+                                    EventTab(eventData: i, bookmarkSet: true),
+                              ],
+                            );
+                          }
                         } else {
                           return const Text("No Data Retreived");
                         }

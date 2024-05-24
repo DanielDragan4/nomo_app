@@ -9,11 +9,14 @@ class AttendEventProvider extends StateNotifier<List<Event>> {
   Future<Supabase> supabase;
   List<Event> attendingEvents = [];
 
-   Future<List> readEvents() async {
+  Future<List> readEvents() async {
     final supabaseClient = (await supabase).client;
-    var events = await supabaseClient.from('recommended_events').select('*, Attendees(user_id), Bookmarked(user_id)');
+    var events = await supabaseClient
+        .from('recommended_events')
+        .select('*, Attendees(user_id), Bookmarked(user_id)');
     return events.toList();
   }
+
   Future<void> deCodeData() async {
     final codedList = await readEvents();
 
@@ -22,15 +25,15 @@ class AttendEventProvider extends StateNotifier<List<Event>> {
 
     for (var eventData in codedList) {
       String profileUrl = supabaseClient.storage
-                .from('Images')
-                .getPublicUrl(eventData['profile_path']);
+          .from('Images')
+          .getPublicUrl(eventData['profile_path']);
       String eventUrl = supabaseClient.storage
-                .from('Images')
-                .getPublicUrl(eventData['event_path']);
+          .from('Images')
+          .getPublicUrl(eventData['event_path']);
 
       bool bookmarked = false;
-      for(var bookmark in eventData['Bookmarked']) {
-        if(bookmark['user_id'] == supabaseClient.auth.currentUser!.id) {
+      for (var bookmark in eventData['Bookmarked']) {
+        if (bookmark['user_id'] == supabaseClient.auth.currentUser!.id) {
           bookmarked = true;
           break;
         }
@@ -53,52 +56,121 @@ class AttendEventProvider extends StateNotifier<List<Event>> {
           profileName: eventData['profile_name'],
           bookmarked: bookmarked,
           attending: false,
-          isHost: false
-          );
+          isHost: false);
 
-      bool attending = false; 
-      for(var i = 0; i < deCodedEvent.attendees.length; i++) {
-      if(deCodedEvent.attendees[i]['user_id'] == supabaseClient.auth.currentUser!.id) {
-        attending = true;
-        deCodedEvent.attending = true;
-        break;
+      bool attending = false;
+      for (var i = 0; i < deCodedEvent.attendees.length; i++) {
+        if (deCodedEvent.attendees[i]['user_id'] ==
+            supabaseClient.auth.currentUser!.id) {
+          attending = true;
+          deCodedEvent.attending = true;
+          break;
+        }
+      }
+
+      if ((attending) ||
+          (deCodedEvent.host == supabaseClient.auth.currentUser!.id ||
+              (bookmarked))) {
+        if (deCodedEvent.host == supabaseClient.auth.currentUser!.id) {
+          deCodedEvent.isHost = true;
+        }
+        deCodedList.add(deCodedEvent);
       }
     }
-    
-    if((attending) || (deCodedEvent.host == supabaseClient.auth.currentUser!.id || (bookmarked))) {
-      if(deCodedEvent.host == supabaseClient.auth.currentUser!.id) {
-        deCodedEvent.isHost = true;
-      }
-      deCodedList.add(deCodedEvent);
-    }
+    state = deCodedList;
   }
+
+  Future<void> deCodeDataWithId(String userId) async {
+    final codedList = await readEvents();
+
+    List<Event> deCodedList = [];
+    final supabaseClient = (await supabase).client;
+
+    for (var eventData in codedList) {
+      String profileUrl = supabaseClient.storage
+          .from('Images')
+          .getPublicUrl(eventData['profile_path']);
+      String eventUrl = supabaseClient.storage
+          .from('Images')
+          .getPublicUrl(eventData['event_path']);
+
+      bool bookmarked = false;
+      for (var bookmark in eventData['Bookmarked']) {
+        if (bookmark['user_id'] == userId) {
+          bookmarked = true;
+          break;
+        }
+      }
+
+      final Event deCodedEvent = Event(
+          description: eventData['description'],
+          sdate: eventData['time_start'],
+          eventId: eventData['event_id'],
+          eventType: eventData['invitationType'],
+          host: eventData['host'],
+          imageId: eventData['image_id'],
+          imageUrl: eventUrl,
+          location: eventData['location'],
+          title: eventData['title'],
+          edate: eventData['time_end'],
+          attendees: eventData['Attendees'],
+          hostProfileUrl: profileUrl,
+          hostUsername: eventData['username'],
+          profileName: eventData['profile_name'],
+          bookmarked: bookmarked,
+          attending: false,
+          isHost: false);
+
+      bool attending = false;
+      for (var i = 0; i < deCodedEvent.attendees.length; i++) {
+        if (deCodedEvent.attendees[i]['user_id'] == userId) {
+          attending = true;
+          deCodedEvent.attending = true;
+          break;
+        }
+      }
+
+      if ((attending) || (deCodedEvent.host == userId || (bookmarked))) {
+        if (deCodedEvent.host == userId) {
+          deCodedEvent.isHost = true;
+        }
+        deCodedList.add(deCodedEvent);
+      }
+    }
     state = deCodedList;
   }
 
   List<Event> eventsAttendingByMonth(int year, int month) {
-
     List<Event> eventsPerMonth = [];
     final List<Event> allAttend = state;
 
-    for(int i =0; i < allAttend.length; i++) {
+    for (int i = 0; i < allAttend.length; i++) {
       int eventYear = DateTime.parse(allAttend[i].sdate).year;
       int eventMonth = DateTime.parse(allAttend[i].sdate).month;
 
-      if((eventYear == year) && (eventMonth == month)) {
+      if ((eventYear == year) && (eventMonth == month)) {
         eventsPerMonth.add(allAttend[i]);
       }
     }
     return eventsPerMonth;
   }
-  Future<void> leaveEvent(eventToLeave,currentUser) async{
+
+  Future<void> leaveEvent(eventToLeave, currentUser) async {
     final supabaseClient = (await supabase).client;
 
-    await supabaseClient.from('Attendees').delete().eq('user_id', currentUser).eq('event_id', eventToLeave);
+    await supabaseClient
+        .from('Attendees')
+        .delete()
+        .eq('user_id', currentUser)
+        .eq('event_id', eventToLeave);
     deCodeData();
   }
 }
 
-final attendEventsProvider = StateNotifierProvider<AttendEventProvider, List<Event>>((ref) {
+final attendEventsProvider =
+    StateNotifierProvider<AttendEventProvider, List<Event>>((ref) {
   final supabase = ref.read(supabaseInstance);
-  return AttendEventProvider(supabase: supabase,);
+  return AttendEventProvider(
+    supabase: supabase,
+  );
 });

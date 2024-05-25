@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:nomo/providers/attending_events_provider.dart';
 import 'package:nomo/providers/profile_provider.dart';
+import 'package:nomo/screens/calendar/day_screen.dart';
 import 'package:nomo/screens/calendar/month_widget.dart';
 import 'package:nomo/screens/new_event_screen.dart';
 //import 'package:nomo/widgets/app_bar.dart';
@@ -11,8 +12,9 @@ class CalendarScreen extends ConsumerStatefulWidget {
 
   @override
   // ignore: library_private_types_in_public_api
-  ConsumerState<CalendarScreen> createState() { 
-    return _CalendarScreenState();}
+  ConsumerState<CalendarScreen> createState() {
+    return _CalendarScreenState();
+  }
 }
 
 class _CalendarScreenState extends ConsumerState<CalendarScreen> {
@@ -31,7 +33,7 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
     return Scaffold(
       backgroundColor: Theme.of(context).colorScheme.background,
       appBar: AppBar(
-      backgroundColor: Theme.of(context).colorScheme.background,
+        backgroundColor: Theme.of(context).colorScheme.background,
         flexibleSpace: PreferredSize(
           preferredSize: const Size.fromHeight(kToolbarHeight),
           child: Container(
@@ -73,7 +75,8 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
                       }
                     });
                   },
-                  icon:  Icon(Icons.arrow_back_ios, color: Theme.of(context).colorScheme.onSecondary)),
+                  icon: Icon(Icons.arrow_back_ios,
+                      color: Theme.of(context).colorScheme.onSecondary)),
               IconButton(
                   onPressed: () {
                     setState(() {
@@ -84,7 +87,8 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
                       }
                     });
                   },
-                  icon:  Icon(Icons.arrow_forward_ios, color: Theme.of(context).colorScheme.onSecondary))
+                  icon: Icon(Icons.arrow_forward_ios,
+                      color: Theme.of(context).colorScheme.onSecondary))
             ],
           ),
           Expanded(
@@ -99,12 +103,98 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
           Row(
             mainAxisAlignment: MainAxisAlignment.end,
             children: [
-              IconButton(onPressed: (){Navigator.of(context).push(MaterialPageRoute(builder: ((context) => 
-              const NewEventScreen(isNewEvent: true, event: null))));}, icon:  Icon(Icons.add_box_rounded, size: 45, color: Theme.of(context).colorScheme.onSecondary)),
+              IconButton(
+                  onPressed: () {
+                    showDialog(
+                        context: context,
+                        builder: (context) => AlertDialog(
+                              title: Text(
+                                'What would you like to do?',
+                                style: TextStyle(
+                                    color: Theme.of(context).primaryColorDark),
+                              ),
+                              actions: [
+                                TextButton(
+                                    onPressed: () => Navigator.of(context)
+                                        .push(MaterialPageRoute(
+                                            builder: ((context) =>
+                                                const NewEventScreen(
+                                                    isNewEvent: true,
+                                                    event: null))))
+                                        .then(
+                                            (result) => Navigator.pop(context)),
+                                    child: const Text('CREATE EVENT')),
+                                TextButton(
+                                    onPressed: () async {
+                                      //Navigator.pop(context);
+                                      var selectedDate =
+                                          await _showDatePickerDialog(context);
+
+                                      Navigator.of(context)
+                                          .push(MaterialPageRoute(
+                                              builder: ((context) => DayScreen(
+                                                    day: selectedDate,
+                                                  ))))
+                                          .then((result) =>
+                                              Navigator.pop(context));
+                                    },
+                                    child: const Text('VIEW SCHEDULE')),
+                              ],
+                            ));
+                  },
+                  icon: Icon(Icons.add_box_rounded,
+                      size: 45,
+                      color: Theme.of(context).colorScheme.onSecondary)),
             ],
           )
         ],
       ),
     );
+  }
+
+  Future<DateTime?> _showDatePickerDialog(BuildContext context) async {
+    DateTime? selectedDate;
+
+    Future<void> _selectDate(BuildContext context) async {
+      final DateTime? picked = await showDatePicker(
+        context: context,
+        initialDate: DateTime.now(),
+        firstDate: DateTime.now(),
+        lastDate: DateTime(2100),
+      );
+
+      if (picked != null) {
+        setState(() {
+          selectedDate = picked;
+        });
+        Navigator.pop(context);
+      }
+    }
+
+    await showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Select Date'),
+          content: Text('Please select a date:'),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: Text('Cancel'),
+            ),
+            TextButton(
+              onPressed: () {
+                _selectDate(context);
+              },
+              child: Text('Select Date'),
+            ),
+          ],
+        );
+      },
+    );
+
+    return selectedDate;
   }
 }

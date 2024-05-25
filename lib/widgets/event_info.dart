@@ -9,11 +9,7 @@ import 'package:nomo/screens/new_event_screen.dart';
 enum options { itemOne, itemTwo, itemThree, itemFour }
 
 class EventInfo extends ConsumerStatefulWidget {
-  EventInfo({
-    super.key,
-    required this.eventsData,
-    this.bookmarkSet
-  });
+  EventInfo({super.key, required this.eventsData, this.bookmarkSet});
   final Event eventsData;
   bool? bookmarkSet;
 
@@ -37,7 +33,7 @@ class _EventInfoState extends ConsumerState<EventInfo> {
         .read(attendEventsProvider.notifier)
         .leaveEvent(widget.eventsData.eventId, supabase.auth.currentUser!.id);
   }
-  
+
   Future<void> bookmarkEvent() async {
     final supabase = (await ref.read(supabaseInstance)).client;
     await ref
@@ -51,20 +47,21 @@ class _EventInfoState extends ConsumerState<EventInfo> {
         .read(eventsProvider.notifier)
         .unBookmark(widget.eventsData.eventId, supabase.auth.currentUser!.id);
   }
+
   late bool bookmarkBool;
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
     setState(() {
-        bookmarkBool = widget.eventsData.bookmarked;
+      bookmarkBool = widget.eventsData.bookmarked;
     });
   }
+
   @override
   Widget build(BuildContext context) {
     options? selectedOption;
     String text = 'Join';
-    
 
     //isAttending();
 
@@ -133,6 +130,12 @@ class _EventInfoState extends ConsumerState<EventInfo> {
                           return ElevatedButton(
                             onPressed: () {
                               attendeeJoinEvent();
+                              ScaffoldMessenger.of(context)
+                                  .hideCurrentSnackBar();
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                      content: Text(
+                                          "Joined ${widget.eventsData.title}")));
                             },
                             style: ButtonStyle(
                               backgroundColor: MaterialStateProperty.all<Color>(
@@ -151,8 +154,11 @@ class _EventInfoState extends ConsumerState<EventInfo> {
                                     context: context,
                                     builder: (context) => AlertDialog(
                                           title: Text(
-                                              'Are you sure you want to edit the event?',
-                                              style: TextStyle(color: Theme.of(context).primaryColorDark),),
+                                            'Are you sure you want to edit the event?',
+                                            style: TextStyle(
+                                                color: Theme.of(context)
+                                                    .primaryColorDark),
+                                          ),
                                           actions: [
                                             TextButton(
                                                 onPressed: () =>
@@ -241,18 +247,19 @@ class _EventInfoState extends ConsumerState<EventInfo> {
                 IconButton(
                     onPressed: () {
                       setState(() {
-                         if(bookmarkBool) {
+                        if (bookmarkBool) {
                           deBookmarkEvent();
-                        } else if(!bookmarkBool) {
+                        } else if (!bookmarkBool) {
                           bookmarkEvent();
                         }
                         bookmarkBool = !bookmarkBool;
-                      }
-                      );
+                      });
                     },
                     isSelected: bookmarkBool,
-                    selectedIcon:  Icon(Icons.bookmark, color: Theme.of(context).colorScheme.onSecondary),
-                    icon:  Icon(Icons.bookmark_border_outlined, color: Theme.of(context).colorScheme.onSecondary)),
+                    selectedIcon: Icon(Icons.bookmark,
+                        color: Theme.of(context).colorScheme.onSecondary),
+                    icon: Icon(Icons.bookmark_border_outlined,
+                        color: Theme.of(context).colorScheme.onSecondary)),
               ],
             ),
           ),

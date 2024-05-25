@@ -69,7 +69,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
       // Fetch the profile for the specified user ID
       profileState =
           await ref.read(profileProvider.notifier).fetchProfileById(userId);
-      isFriend = await ref.read(profileProvider.notifier).isFriend(widget.userId!);
+      isFriend = await ref.read(profileProvider.notifier).isFriend(userId);
     }
     return profileState;
   }
@@ -80,6 +80,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
       _futureBuilderKey = UniqueKey();
     });
   }
+
   Future<void> addFriend() async {
     final supabase = (await ref.read(supabaseInstance)).client;
     await ref
@@ -280,26 +281,25 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                             padding: const EdgeInsets.only(top: 8.0),
                             child: Row(
                               children: [
-                                isFriend ?
-                                ElevatedButton(
-                                  onPressed: () {
-                                    setState(() {
-                                      removeFriend();    
-                                      isFriend = !isFriend;                                  
-                                    });
-                                  },
-                                  child: const Text("Remove"),
-                                )   
-                                :
-                                ElevatedButton(
-                                  onPressed: () {
-                                    setState(() {
-                                      addFriend();    
-                                      isFriend = !isFriend;                                                                    
-                                    });
-                                  },
-                                  child: const Text("Friend"),
-                                ),
+                                isFriend
+                                    ? ElevatedButton(
+                                        onPressed: () {
+                                          setState(() {
+                                            removeFriend();
+                                            isFriend = !isFriend;
+                                          });
+                                        },
+                                        child: const Text("Remove"),
+                                      )
+                                    : ElevatedButton(
+                                        onPressed: () {
+                                          setState(() {
+                                            addFriend();
+                                            isFriend = !isFriend;
+                                          });
+                                        },
+                                        child: const Text("Friend"),
+                                      ),
                                 SizedBox(
                                     width:
                                         MediaQuery.of(context).size.width / 20),

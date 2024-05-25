@@ -128,8 +128,7 @@ class ProfileProvider extends StateNotifier<Profile?> {
     var friends = (await supabaseClient
         .from('friends_view')
         .select('*')
-        .eq('current', supabaseClient.auth.currentUser!.id)
-        );
+        .eq('current', supabaseClient.auth.currentUser!.id));
     return friends.toList();
   }
 
@@ -138,18 +137,17 @@ class ProfileProvider extends StateNotifier<Profile?> {
     List<Friend> userFriends = [];
     final supabaseClient = (await supabase).client;
 
-    for(var f in userFriendsCoded){
-      String profileUrl = supabaseClient.storage
-        .from('Images')
-        .getPublicUrl(f['profile_path']);
+    for (var f in userFriendsCoded) {
+      String profileUrl =
+          supabaseClient.storage.from('Images').getPublicUrl(f['profile_path']);
 
-    final Friend friend = Friend(
-        friendProfileId: f['friend'],
-        avatar: profileUrl,
-        friendUsername: f['username'],
-        friendProfileName: f['profile_name']);
+      final Friend friend = Friend(
+          friendProfileId: f['friend'],
+          avatar: profileUrl,
+          friendUsername: f['username'],
+          friendProfileName: f['profile_name']);
 
-    userFriends.add(friend);
+      userFriends.add(friend);
     }
     return userFriends;
   }
@@ -162,7 +160,11 @@ class ProfileProvider extends StateNotifier<Profile?> {
 
   Future<void> removeFriend(currentUserId, friendId) async {
     final supabaseClient = (await supabase).client;
-    await supabaseClient.from('Friends').delete().eq('current', currentUserId).eq('friend', friendId);
+    await supabaseClient
+        .from('Friends')
+        .delete()
+        .eq('current', currentUserId)
+        .eq('friend', friendId);
   }
 
   Future<bool> isFriend(friendProfileId) async {
@@ -171,12 +173,9 @@ class ProfileProvider extends StateNotifier<Profile?> {
     var friends = (await supabaseClient
         .from('Friends')
         .select('*')
-        .eq('current', supabaseClient.auth.currentUser!.id).eq('friend', friendProfileId).single()
-        );
-    if(friends.isNotEmpty) {
-      return true;
-    }
-    return false;
+        .eq('current', supabaseClient.auth.currentUser!.id)
+        .eq('friend', friendProfileId));
+    return friends.isNotEmpty;
   }
 }
 

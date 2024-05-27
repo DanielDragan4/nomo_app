@@ -133,12 +133,12 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
                                       Navigator.of(context)
                                           .push(MaterialPageRoute(
                                               builder: ((context) => DayScreen(
-                                                    day: selectedDate,
+                                                    day: selectedDate!,
                                                   ))))
                                           .then((result) =>
                                               Navigator.pop(context));
                                     },
-                                    child: const Text('VIEW SCHEDULE')),
+                                    child: const Text('CEATE BLOCKED TIME')),
                               ],
                             ));
                   },

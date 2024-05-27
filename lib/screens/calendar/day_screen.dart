@@ -1,18 +1,21 @@
 import 'package:flutter/material.dart';
+import 'package:nomo/screens/calendar/time_block.dart';
 
 class DayScreen extends StatefulWidget {
-  DayScreen({super.key, this.day});
+  DayScreen({super.key, required this.day});
 
-  DateTime? day;
+  DateTime day;
 
   @override
   _DayScreenState createState() => _DayScreenState();
 }
 
 class _DayScreenState extends State<DayScreen> {
-  List<bool> blockedHours = List.generate(24, (index) => false);
+  List<Map<String, dynamic>> blockedHours =
+      List.generate(24 * 60, (index) => {'blocked': false, 'title': ''});
   TimeOfDay? startTime;
   TimeOfDay? endTime;
+  String? blockTitle;
 
   Future<void> _selectTime(BuildContext context, bool isStartTime) async {
     final pickedTime = await showTimePicker(
@@ -32,68 +35,111 @@ class _DayScreenState extends State<DayScreen> {
   }
 
   void _confirmTimeRange(BuildContext context) {
-    if (startTime != null && endTime != null) {
+    if (startTime != null && endTime != null && blockTitle != null) {
       setState(() {
-        blockedHours.fillRange(startTime!.hour, endTime!.hour + 1, true);
+        int startMinutes = startTime!.hour * 60 + startTime!.minute;
+        int endMinutes = endTime!.hour * 60 + endTime!.minute;
+
+        for (int i = startMinutes; i <= endMinutes; i++) {
+          blockedHours[i] = {'blocked': true, 'title': blockTitle};
+        }
       });
     }
-    Navigator.of(context).pop(); // Hide the modal bottom sheet
+    Navigator.of(context).pop();
+  }
+
+  String formatTimeOfDay(TimeOfDay time) {
+    final hours = time.hourOfPeriod == 0 ? 12 : time.hourOfPeriod;
+    final minutes = time.minute.toString().padLeft(2, '0');
+    final period = time.period == DayPeriod.am ? 'AM' : 'PM';
+    return '$hours:$minutes $period';
   }
 
   void _showTimeRangePicker(BuildContext context) {
     showModalBottomSheet(
       context: context,
       builder: (BuildContext context) {
-        return Container(
-          height: 150,
-          child: Column(
-            children: [
-              SizedBox(height: 10),
-              Text(
-                'Select Time Range',
-                style:
-                    TextStyle(color: Theme.of(context).colorScheme.onSecondary),
+        return StatefulBuilder(
+          builder: (BuildContext context, StateSetter setState) {
+            return SingleChildScrollView(
+              padding: EdgeInsets.only(
+                bottom: MediaQuery.of(context).viewInsets.bottom,
               ),
-              SizedBox(height: 20),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: [
-                  ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                        backgroundColor: Theme.of(context).primaryColorDark),
-                    onPressed: () {
-                      _selectTime(context, true);
-                    },
-                    child: Text(
-                      startTime == null
-                          ? 'Start Time'
-                          : '${startTime!.hour}:${startTime!.minute}',
-                      style: TextStyle(color: Colors.white),
+              child: Container(
+                height: 250,
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    SizedBox(height: 10),
+                    Text(
+                      'Select Time Range',
+                      style: TextStyle(
+                        color: Theme.of(context).colorScheme.onSecondary,
+                      ),
                     ),
-                  ),
-                  ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                        backgroundColor: Theme.of(context).primaryColorDark),
-                    onPressed: () {
-                      _selectTime(context, false);
-                    },
-                    child: Text(
-                      endTime == null
-                          ? 'End Time'
-                          : '${endTime!.hour}:${endTime!.minute}',
-                      style: TextStyle(color: Colors.white),
+                    SizedBox(height: 20),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children: [
+                        ElevatedButton(
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Theme.of(context).primaryColorDark,
+                          ),
+                          onPressed: () {
+                            _selectTime(context, true);
+                          },
+                          child: Text(
+                            startTime == null
+                                ? 'Start Time'
+                                : formatTimeOfDay(startTime!),
+                            style: TextStyle(color: Colors.white),
+                          ),
+                        ),
+                        ElevatedButton(
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Theme.of(context).primaryColorDark,
+                          ),
+                          onPressed: () {
+                            _selectTime(context, false);
+                          },
+                          child: Text(
+                            endTime == null
+                                ? 'End Time'
+                                : formatTimeOfDay(endTime!),
+                            style: TextStyle(color: Colors.white),
+                          ),
+                        ),
+                      ],
                     ),
-                  ),
-                ],
+                    Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: TextField(
+                        decoration: InputDecoration(
+                          labelText: 'Title',
+                        ),
+                        style: TextStyle(
+                          color: Theme.of(context).colorScheme.onBackground,
+                        ),
+                        onChanged: (value) {
+                          setState(() {
+                            blockTitle = value;
+                          });
+                        },
+                      ),
+                    ),
+                    ElevatedButton(
+                      onPressed: blockTitle == null || blockTitle!.isEmpty
+                          ? null // Disable button if title is empty
+                          : () {
+                              _confirmTimeRange(context);
+                            },
+                      child: Text('Confirm'),
+                    ),
+                  ],
+                ),
               ),
-              ElevatedButton(
-                onPressed: () {
-                  _confirmTimeRange(context);
-                },
-                child: Text('Confirm'),
-              ),
-            ],
-          ),
+            );
+          },
         );
       },
     );
@@ -101,38 +147,89 @@ class _DayScreenState extends State<DayScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title:
-            Text('${widget.day!.month}/${widget.day!.day}/${widget.day!.year}'),
-      ),
-      body: ListView.builder(
-        itemCount: 24,
-        itemBuilder: (context, index) {
-          final startingHour = index % 12 == 0 ? 12 : index % 12;
-          final timeLabel =
-              '${startingHour == 0 ? 12 : startingHour}:00 ${index < 12 ? 'AM' : 'PM'}';
+    List<Widget> hourLabels = [];
+    List<Widget> timeBlocks = [];
 
-          return GestureDetector(
-            onTap: () {
-              setState(() {
-                blockedHours[index] = !blockedHours[index];
-              });
-            },
-            child: Container(
-              height: 50,
-              color: blockedHours[index]
-                  ? Colors.red
-                  : Theme.of(context).colorScheme.secondary,
-              child: Center(
-                child: Text(
-                  '$timeLabel',
-                  style: TextStyle(color: Colors.white),
-                ),
+    for (int i = 0; i < 24; i++) {
+      final startingHour = i % 12 == 0 ? 12 : i % 12;
+      final timeLabel =
+          '${startingHour == 0 ? 12 : startingHour}:00 ${i < 12 ? 'AM' : 'PM'}';
+
+      hourLabels.add(Container(
+        height: 50.0,
+        decoration: BoxDecoration(
+            border: Border(bottom: BorderSide(color: Colors.black))),
+        child: Row(
+          children: [
+            Container(
+              width: 80,
+              alignment: Alignment.centerLeft,
+              padding: EdgeInsets.symmetric(horizontal: 8.0),
+              child: Text(
+                '$timeLabel',
+                style: TextStyle(color: const Color.fromARGB(255, 0, 0, 0)),
               ),
             ),
-          );
-        },
+            Expanded(
+              child: Container(
+                color: Theme.of(context).colorScheme.secondary,
+              ),
+            ),
+          ],
+        ),
+      ));
+    }
+
+    for (int minute = 0; minute < 24 * 60; minute++) {
+      if (blockedHours[minute]['blocked']) {
+        int blockStart = minute;
+        int blockEnd = blockStart;
+
+        while (blockEnd < 24 * 60 &&
+            blockedHours[blockEnd]['blocked'] &&
+            blockedHours[blockEnd]['title'] ==
+                blockedHours[blockStart]['title']) {
+          blockEnd++;
+        }
+
+        int blockMinutes = blockEnd - blockStart;
+        double blockHeight = (blockMinutes / 60) * 50.0;
+
+        timeBlocks.add(
+          Positioned(
+            top: blockStart / 60 * 50.0,
+            left: 80,
+            right: 0,
+            child: TimeBlock(
+              title: blockedHours[blockStart]['title'],
+              hourCount: blockMinutes / 60,
+            ),
+          ),
+        );
+
+        minute = blockEnd - 1;
+      }
+    }
+
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('${widget.day.month}/${widget.day.day}/${widget.day.year}'),
+      ),
+      body: SingleChildScrollView(
+        child: Column(
+          children: [
+            Stack(
+              children: [
+                ListView(
+                  shrinkWrap: true,
+                  physics: NeverScrollableScrollPhysics(),
+                  children: hourLabels,
+                ),
+                ...timeBlocks,
+              ],
+            ),
+          ],
+        ),
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {

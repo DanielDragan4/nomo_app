@@ -319,11 +319,12 @@ class _DayScreenState extends State<DayScreen> {
 
       hourLabels.add(Container(
         height: 50.0,
-        decoration: BoxDecoration(
-            border: Border(bottom: BorderSide(color: Colors.black))),
         child: Row(
           children: [
             Container(
+              decoration: BoxDecoration(
+                  color: Colors.white,
+                  border: Border(bottom: BorderSide(), right: BorderSide())),
               width: 80,
               alignment: Alignment.centerLeft,
               padding: EdgeInsets.symmetric(horizontal: 8.0),
@@ -334,7 +335,7 @@ class _DayScreenState extends State<DayScreen> {
             ),
             Expanded(
               child: Container(
-                color: Theme.of(context).colorScheme.secondary,
+                color: Colors.white,
               ),
             ),
           ],

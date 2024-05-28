@@ -133,7 +133,7 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
                                       Navigator.of(context)
                                           .push(MaterialPageRoute(
                                               builder: ((context) => DayScreen(
-                                                    day: selectedDate,
+                                                    day: selectedDate!,
                                                   ))))
                                           .then((result) =>
                                               Navigator.pop(context));

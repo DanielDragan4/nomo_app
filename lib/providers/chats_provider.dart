@@ -1,16 +1,14 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:nomo/models/events_model.dart';
-import 'package:nomo/models/message_model.dart';
 import 'package:nomo/providers/supabase_provider.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
-class ChatsProvider extends StateNotifier<String?> {
-  ChatsProvider({required this.supabase}) : super(null);
+class ChatsProvider extends StateNotifier<List?> {
+  ChatsProvider({required this.supabase}) : super([]);
 
   Future<Supabase> supabase;
-  List<Event> attendingEvents = [];
+  late var chatID;
 
-  Future<void> readChatId(user1Id, user2Id) async {
+  Future<String> readChatId(user1Id, user2Id) async {
     final supabaseClient = (await supabase).client;
     List chat = await supabaseClient
         .from('Chats')
@@ -25,7 +23,16 @@ class ChatsProvider extends StateNotifier<String?> {
         .eq('user1_id', user1Id)
         .eq('user2_id', user2Id);
     }
-    state = chat[0]['chat_id'];
+    return chat[0]['chat_id'];
+  }
+
+  Future<void> getChatStream (user1Id, user2Id) async{
+    final supabaseClient = (await supabase).client;
+    chatID = await readChatId(user1Id, user2Id);
+    var stream = await supabaseClient.from('Messages').select()
+      .eq('chat_id', chatID).order('created_at', ascending: true);
+    
+    state = stream;
   }
 
   // Future<void> deCodeData(String user1Id, String user2Id) async {
@@ -62,18 +69,19 @@ class ChatsProvider extends StateNotifier<String?> {
       await supabaseClient.from('Chats')
       .insert(newChat);
   }
-  Future<void> sendMessage(String userId, String message) async{
+  Future<void> sendMessage(String user1Id, String user2Id, String message) async{
     final supabaseClient = (await supabase).client;
     var newMessage = {
-        'sender_id': userId,
-        'chat_id' : state,
+        'sender_id': user1Id,
+        'chat_id' : chatID,
         'message' : message
       };
     await supabaseClient.from('Messages').insert(newMessage);
+    await getChatStream(user1Id, user2Id);
   }
 }
 
-final chatsProvider = StateNotifierProvider<ChatsProvider, String?>((ref) {
+final chatsProvider = StateNotifierProvider<ChatsProvider, List?>((ref) {
   final supabase = ref.read(supabaseInstance);
   return ChatsProvider(supabase: supabase);
 });

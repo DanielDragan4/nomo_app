@@ -2,9 +2,15 @@ import 'package:flutter/material.dart';
 import 'package:nomo/screens/calendar/time_block.dart';
 
 class DayScreen extends StatefulWidget {
+<<<<<<< HEAD
+  final DateTime day;
+
+  DayScreen({Key? key, required this.day}) : super(key: key);
+=======
   DayScreen({super.key, required this.day});
 
   DateTime day;
+>>>>>>> 4adab42cc7e821db9df5b0f8e2d867558cb85022
 
   @override
   _DayScreenState createState() => _DayScreenState();
@@ -72,6 +78,43 @@ class _DayScreenState extends State<DayScreen> {
     showModalBottomSheet(
       context: context,
       builder: (BuildContext context) {
+<<<<<<< HEAD
+        return Container(
+          height: 200,
+          padding: EdgeInsets.all(16.0),
+          child: Column(
+            children: [
+              Text(
+                'Select Time Range',
+                style: TextStyle(
+                  fontSize: 18.0,
+                  fontWeight: FontWeight.bold,
+                  color: Theme.of(context).colorScheme.onSecondary,
+                ),
+              ),
+              SizedBox(height: 20),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  ElevatedButton(
+                    onPressed: () {
+                      _selectTime(context, true);
+                    },
+                    child: Text(
+                      startTime == null
+                          ? 'Start Time'
+                          : '${startTime!.format(context)}',
+                    ),
+                  ),
+                  ElevatedButton(
+                    onPressed: () {
+                      _selectTime(context, false);
+                    },
+                    child: Text(
+                      endTime == null
+                          ? 'End Time'
+                          : '${endTime!.format(context)}',
+=======
         return SingleChildScrollView(
           padding: EdgeInsets.only(
             bottom: MediaQuery.of(context).viewInsets.bottom,
@@ -105,6 +148,7 @@ class _DayScreenState extends State<DayScreen> {
                             : formatTimeOfDay(startTime!),
                         style: TextStyle(color: Colors.white),
                       ),
+>>>>>>> 4adab42cc7e821db9df5b0f8e2d867558cb85022
                     ),
                     ElevatedButton(
                       style: ElevatedButton.styleFrom(
@@ -135,6 +179,18 @@ class _DayScreenState extends State<DayScreen> {
                       blockTitle = value;
                     },
                   ),
+<<<<<<< HEAD
+                ],
+              ),
+              SizedBox(height: 20),
+              ElevatedButton(
+                onPressed: () {
+                  _confirmTimeRange(context);
+                },
+                child: Text('Confirm'),
+              ),
+            ],
+=======
                 ),
                 ElevatedButton(
                   onPressed: () {
@@ -301,6 +357,7 @@ class _DayScreenState extends State<DayScreen> {
                 ),
               ],
             ),
+>>>>>>> 4adab42cc7e821db9df5b0f8e2d867558cb85022
           ),
         );
       },
@@ -309,6 +366,37 @@ class _DayScreenState extends State<DayScreen> {
 
   @override
   Widget build(BuildContext context) {
+<<<<<<< HEAD
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(
+            '${widget.day.month}/${widget.day.day}/${widget.day.year}'),
+      ),
+      body: ListView.builder(
+        itemCount: 24,
+        itemBuilder: (context, index) {
+          final startingHour = index % 12 == 0 ? 12 : index % 12;
+          final timeLabel =
+              '${startingHour == 0 ? 12 : startingHour}:00 ${index < 12 ? 'AM' : 'PM'}';
+
+          return Container(
+            height: 60,
+            margin: EdgeInsets.symmetric(vertical: 4.0, horizontal: 16.0),
+            decoration: BoxDecoration(
+              color: blockedHours[index]
+                  ? Colors.red.withOpacity(0.7)
+                  : Theme.of(context).colorScheme.secondary.withOpacity(0.3),
+              borderRadius: BorderRadius.circular(8.0),
+            ),
+            child: Center(
+              child: Text(
+                '$timeLabel',
+                style: TextStyle(
+                  color: blockedHours[index]
+                      ? Colors.white
+                      : Theme.of(context).colorScheme.onSecondary,
+                ),
+=======
     List<Widget> hourLabels = [];
     List<Widget> timeBlocks = [];
 
@@ -331,6 +419,7 @@ class _DayScreenState extends State<DayScreen> {
               child: Text(
                 '$timeLabel',
                 style: TextStyle(color: const Color.fromARGB(255, 0, 0, 0)),
+>>>>>>> 4adab42cc7e821db9df5b0f8e2d867558cb85022
               ),
             ),
             Expanded(

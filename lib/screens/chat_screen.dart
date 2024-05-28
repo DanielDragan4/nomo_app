@@ -27,24 +27,27 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
     super.initState();
     _initializeChatStream();
   }
-  Future<void> getChatStream(String user1Id, String user2Id) async {
-  final supabaseClient = Supabase.instance.client; // Ensure the client is initialized correctly
-  final chatID = await ref.read(chatsProvider.notifier).readChatId(user1Id, user2Id);
+//   Future<void> getChatStream(String user1Id, String user2Id) async {
+//   final supabaseClient = Supabase.instance.client; // Ensure the client is initialized correctly
+//   final chatID = await ref.read(chatsProvider.notifier).readChatId(user1Id, user2Id);
   
-  final stream = supabaseClient
-    .from('Messages')
-    .stream(primaryKey: ['id']) // Ensure the primary key is specified
-    .eq('chat_id', chatID)
-    .order('created_at', ascending: true);
+//   final stream = supabaseClient
+//     .from('Messages')
+//     .stream(primaryKey: ['chat_id']) // Ensure the primary key is specified
+//     .eq('chat_id', chatID)
+//     .order('created_at', ascending: true);
 
-  state = stream;
-}
-
-
+//   state = stream;
+// }
   Future<void> _initializeChatStream() async {
-    await getChatStream(widget.currentUser, widget.chatterUser.friendProfileId);
+    final supabaseClient = Supabase.instance.client; // Ensure the client is initialized correctly
+  final chatID = await ref.read(chatsProvider.notifier).readChatId(widget.currentUser, widget.chatterUser.friendProfileId);
     setState(() {
-      _chatStream = state;
+      _chatStream = supabaseClient
+    .from('Messages')
+    .stream(primaryKey: ['chat_id']) // Ensure the primary key is specified
+    .eq('chat_id', chatID)
+    .order('created_at', ascending: false);
     });
   }
 
@@ -67,12 +70,14 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
                 }
 
                 if (snapshot.data != null) {
-                  return ListView(
+                  return ListView.builder(
+                    reverse: true,
+                    itemCount: snapshot.data!.length,
                     controller: _scrollController,
-                    children: [
-                      for (var message in snapshot.data!)
-                        MessageWidget(message: message, currentUser: widget.currentUser)
-                    ],
+                    itemBuilder: (context, index) {
+                      var message = snapshot.data![index];
+                      return MessageWidget(message: message, currentUser: widget.currentUser);
+                    },
                   );
                 } else {
                   return const Center(child: CircularProgressIndicator());
@@ -102,8 +107,10 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
                   icon: Icon(Icons.send, color: Theme.of(context).colorScheme.onSecondary,),
                   onPressed: () {
                     if (_controller.text.trim().isNotEmpty) {
-                     ref.read(chatsProvider.notifier).sendMessage(widget.currentUser, widget.chatterUser.friendProfileId, _controller.text);
-                       _controller.clear();
+                      print('___________________-----------------------------------------'+_controller.text);
+                      ref.read(chatsProvider.notifier).sendMessage(widget.currentUser, widget.chatterUser.friendProfileId, _controller.text);
+                      _initializeChatStream();
+                      _controller.clear();
                     }
                   },
                 ),

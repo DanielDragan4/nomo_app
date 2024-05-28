@@ -6,7 +6,7 @@ class ChatsProvider extends StateNotifier<List?> {
   ChatsProvider({required this.supabase}) : super([]);
 
   Future<Supabase> supabase;
-  late var chatID;
+  var chatID;
 
   Future<String> readChatId(String user1Id, String user2Id) async {
     final supabaseClient = (await supabase).client;
@@ -71,13 +71,15 @@ class ChatsProvider extends StateNotifier<List?> {
   }
   Future<void> sendMessage(String user1Id, String user2Id, String message) async{
     final supabaseClient = (await supabase).client;
+    chatID = await readChatId(user1Id, user2Id);
     var newMessage = {
         'sender_id': user1Id,
         'chat_id' : chatID,
         'message' : message
       };
+
     await supabaseClient.from('Messages').insert(newMessage);
-    await getChatStream(user1Id, user2Id);
+    print(await supabaseClient.from('Messages').select('message').eq('sender_id', user1Id).eq('message', message));
   }
 }
 

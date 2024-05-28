@@ -12,7 +12,8 @@ class MessageWidget extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final isMe = message['sender_id'] == currentUser;
 
-    return Container(
+    if(message.isNotEmpty)
+    {return Container(
         child: Align(
       alignment: isMe ? Alignment.centerRight : Alignment.centerLeft,
       child: Container(
@@ -29,6 +30,9 @@ class MessageWidget extends ConsumerWidget {
           ),
         ),
       ),
-    ));
+    ));}
+    else {
+      return Container();
+    }
   }
 }

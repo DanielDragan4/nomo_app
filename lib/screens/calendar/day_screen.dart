@@ -240,35 +240,64 @@ class _DayScreenState extends State<DayScreen> {
                     },
                   ),
                 ),
-                ElevatedButton(
-                  onPressed: () {
-                    setState(() {
-                      int newStartMinutes =
-                          editStartTime.hour * 60 + editStartTime.minute;
-                      int newEndMinutes =
-                          editEndTime.hour * 60 + editEndTime.minute;
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
+                    ElevatedButton(
+                      onPressed: () {
+                        setState(() {
+                          int newStartMinutes =
+                              editStartTime.hour * 60 + editStartTime.minute;
+                          int newEndMinutes =
+                              editEndTime.hour * 60 + editEndTime.minute;
 
-                      for (int i = blockStart; i <= blockEnd; i++) {
-                        blockedHours[i] = {
-                          'blocked': false,
-                          'title': '',
-                          'start': null,
-                          'end': null
-                        };
-                      }
+                          for (int i = blockStart; i <= blockEnd; i++) {
+                            blockedHours[i] = {
+                              'blocked': false,
+                              'title': '',
+                              'start': null,
+                              'end': null
+                            };
+                          }
 
-                      for (int i = newStartMinutes; i <= newEndMinutes; i++) {
-                        blockedHours[i] = {
-                          'blocked': true,
-                          'title': titleController.text,
-                          'start': editStartTime,
-                          'end': editEndTime
-                        };
-                      }
-                    });
-                    Navigator.of(context).pop();
-                  },
-                  child: Text('Save'),
+                          for (int i = newStartMinutes;
+                              i <= newEndMinutes;
+                              i++) {
+                            blockedHours[i] = {
+                              'blocked': true,
+                              'title': titleController.text,
+                              'start': editStartTime,
+                              'end': editEndTime
+                            };
+                          }
+                        });
+                        Navigator.of(context).pop();
+                      },
+                      child: Text('Save'),
+                    ),
+                    ElevatedButton(
+                      onPressed: () {
+                        setState(() {
+                          for (int i = blockStart; i <= blockEnd; i++) {
+                            blockedHours[i] = {
+                              'blocked': false,
+                              'title': '',
+                              'start': null,
+                              'end': null
+                            };
+                          }
+                        });
+                        Navigator.of(context).pop();
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.red,
+                      ),
+                      child: const Text(
+                        'Delete',
+                        style: TextStyle(color: Colors.white),
+                      ),
+                    ),
+                  ],
                 ),
               ],
             ),

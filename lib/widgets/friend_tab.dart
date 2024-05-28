@@ -52,12 +52,8 @@ class FreindTab extends ConsumerWidget {
             ? Row(
                 children: [
                   IconButton(
-                    onPressed: () {
+                    onPressed: ()async{
                       ref.read(profileProvider.notifier).decodeData();
-                      ref.read(chatsProvider.notifier).readChatId(ref
-                              .read(profileProvider.notifier)
-                              .state
-                              !.profile_id, friendData.friendProfileId);
                       Navigator.of(context).push(MaterialPageRoute(
                         builder: (context) => ChatScreen(
                           chatterUser: friendData,
@@ -66,12 +62,7 @@ class FreindTab extends ConsumerWidget {
                               .state
                               !.profile_id,
                         ),
-                      )). then((value) {
-                        ref.read(chatsProvider.notifier).readChatId(ref
-                              .read(profileProvider.notifier)
-                              .state
-                              !.profile_id, friendData.friendProfileId);
-                      },);
+                      ));
                     },
                     icon: Icon(
                       Icons.messenger_outline,

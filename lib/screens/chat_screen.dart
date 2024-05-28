@@ -4,9 +4,8 @@ import 'package:nomo/models/friend_model.dart';
 import 'package:nomo/models/message_model.dart';
 import 'package:nomo/providers/chats_provider.dart';
 import 'package:nomo/providers/supabase_provider.dart';
+import 'package:nomo/widgets/message_widget.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-
-final supabase = Supabase.instance.client;
 
 class ChatScreen extends ConsumerStatefulWidget {
   const ChatScreen({super.key, required this.chatterUser, required this.currentUser});
@@ -22,21 +21,15 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
   final TextEditingController _controller = TextEditingController();
   final ScrollController _scrollController = ScrollController();
   var chatInfo;
-  late var _messagesStream;
 
   @override
   void initState() {
-    final chatId = ref.read(chatsProvider.notifier).state;
-    setState(() {
-      _messagesStream = supabase.from('Messages').stream(primaryKey: ['chat_id']).eq('chat_id', chatId!).order('created_at', ascending: true);
-    });
+    ref.read(chatsProvider.notifier).getChatStream(widget.currentUser, widget.chatterUser.friendProfileId);
     super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
-    //chatInfo = ref.read(chatsProvider.notifier).deCodeData(currentUserId, widget.chatterUser.friendProfileId);
-    ref.read(chatsProvider.notifier).readChatId(widget.currentUser, widget.chatterUser.friendProfileId);
     return Scaffold(
       backgroundColor: Theme.of(context).colorScheme.background,
       appBar: AppBar(
@@ -68,50 +61,50 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
       body: Column(
         children: [
           Expanded(
-            child: StreamBuilder<List<Map<String, dynamic>>>(
-              stream: _messagesStream,
+            child: StreamBuilder(
+              stream: ref.read(chatsProvider.notifier).stream,
               builder: (context, snapshot) {
                 if (!snapshot.hasData) {
                   return const Center(child: CircularProgressIndicator());
                 }
 
-                final messages = snapshot.data!
-                    .where((message) =>
-                        (message['sender_id'] == widget.currentUser) ||
-                        (message['sender_id'] == widget.chatterUser.friendProfileId))
-                    .toList();
-
-                return ListView.builder(
+                if(snapshot.data != null){
+                  return ListView(
                   controller: _scrollController,
-                  itemCount: messages.length,
-                  itemBuilder: (context, index) {
-                    final message = messages[index];
-                    print(message);
-                    final isMe = message['sender_id'] == widget.currentUser;
-                    return Align(
-                      alignment:
-                          isMe ? Alignment.centerRight : Alignment.centerLeft,
-                      child: Container(
-                        padding: EdgeInsets.symmetric(
-                            vertical: 8.0, horizontal: 16.0),
-                        margin: EdgeInsets.symmetric(
-                            vertical: 4.0, horizontal: 16.0),
-                        decoration: BoxDecoration(
-                          color: isMe
-                              ? Colors.blueAccent
-                              : Colors.grey.shade300,
-                          borderRadius: BorderRadius.circular(8.0),
-                        ),
-                        child: Text(
-                          message['message'],
-                          style: TextStyle(
-                            color: isMe ? Colors.white : Colors.black87,
-                          ),
-                        ),
-                      ),
-                    );
-                  },
-                );
+                  children: [
+                    for(var message in snapshot.data!) MessageWidget(message: message, currentUser: widget.currentUser)
+                  ],
+                  // itemBuilder: (context, index) {
+                  //   final message = snapshot.data![index];
+                  //   print(message);
+                  //   final isMe = message['sender_id'] == widget.currentUser;
+                  //   return Align(
+                  //     alignment:
+                  //         isMe ? Alignment.centerRight : Alignment.centerLeft,
+                  //     child: Container(
+                  //       padding: const EdgeInsets.symmetric(
+                  //           vertical: 8.0, horizontal: 16.0),
+                  //       margin: const EdgeInsets.symmetric(
+                  //           vertical: 4.0, horizontal: 16.0),
+                  //       decoration: BoxDecoration(
+                  //         color: isMe
+                  //             ? Colors.blueAccent
+                  //             : Colors.grey.shade300,
+                  //         borderRadius: BorderRadius.circular(8.0),
+                  //       ),
+                  //       child: Text(
+                  //         message['message'],
+                  //         style: TextStyle(
+                  //           color: isMe ? Colors.white : Colors.black87,
+                  //         ),
+                  //       ),
+                  //     ),
+                  //   );
+                  // },
+                );}
+                else {
+                  return const Center(child: CircularProgressIndicator());
+                }
               },
             ),
           ),
@@ -138,10 +131,8 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
                   onPressed: () {
                     if (_controller.text.trim().isNotEmpty) {
                      //_sendMessage(_controller.text.trim());
-                     ref.read(chatsProvider.notifier).sendMessage(widget.currentUser, _controller.text);
-                     setState(() {
-                       _controller.clear();
-                     });
+                     ref.read(chatsProvider.notifier).sendMessage(widget.currentUser, widget.chatterUser.friendProfileId, _controller.text);
+                     _controller.clear();
                     }
                   },
                 ),

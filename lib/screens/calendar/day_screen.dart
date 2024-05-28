@@ -11,17 +11,17 @@ class DayScreen extends StatefulWidget {
 }
 
 class _DayScreenState extends State<DayScreen> {
-  List<Map<String, dynamic>> blockedHours =
-      List.generate(24 * 60, (index) => {'blocked': false, 'title': ''});
+  List<Map<String, dynamic>> blockedHours = List.generate(24 * 60,
+      (index) => {'blocked': false, 'title': '', 'start': null, 'end': null});
   TimeOfDay? startTime;
   TimeOfDay? endTime;
   String? blockTitle;
 
   Future<void> _selectTime(BuildContext context, bool isStartTime) async {
     final pickedTime = await showTimePicker(
-      context: context,
-      initialTime: TimeOfDay.now(),
-    );
+        context: context,
+        initialTime: TimeOfDay.now(),
+        initialEntryMode: TimePickerEntryMode.input);
 
     if (pickedTime != null) {
       setState(() {
@@ -35,17 +35,30 @@ class _DayScreenState extends State<DayScreen> {
   }
 
   void _confirmTimeRange(BuildContext context) {
-    if (startTime != null && endTime != null && blockTitle != null) {
+    if (startTime != null &&
+        endTime != null &&
+        blockTitle != null &&
+        blockTitle!.isNotEmpty) {
       setState(() {
         int startMinutes = startTime!.hour * 60 + startTime!.minute;
         int endMinutes = endTime!.hour * 60 + endTime!.minute;
 
         for (int i = startMinutes; i <= endMinutes; i++) {
-          blockedHours[i] = {'blocked': true, 'title': blockTitle};
+          blockedHours[i] = {
+            'blocked': true,
+            'title': blockTitle,
+            'start': startTime,
+            'end': endTime
+          };
         }
       });
+      Navigator.of(context).pop();
+    } else {
+      // Show a message if the title is empty
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Please enter a title for the time block')),
+      );
     }
-    Navigator.of(context).pop();
   }
 
   String formatTimeOfDay(TimeOfDay time) {
@@ -59,87 +72,207 @@ class _DayScreenState extends State<DayScreen> {
     showModalBottomSheet(
       context: context,
       builder: (BuildContext context) {
-        return StatefulBuilder(
-          builder: (BuildContext context, StateSetter setState) {
-            return SingleChildScrollView(
-              padding: EdgeInsets.only(
-                bottom: MediaQuery.of(context).viewInsets.bottom,
-              ),
-              child: Container(
-                height: 250,
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
+        return SingleChildScrollView(
+          padding: EdgeInsets.only(
+            bottom: MediaQuery.of(context).viewInsets.bottom,
+          ),
+          child: Container(
+            height: 300,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                SizedBox(height: 10),
+                Text(
+                  'Select Time Range',
+                  style: TextStyle(
+                    color: Theme.of(context).colorScheme.onSecondary,
+                  ),
+                ),
+                SizedBox(height: 20),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: [
-                    SizedBox(height: 10),
-                    Text(
-                      'Select Time Range',
-                      style: TextStyle(
-                        color: Theme.of(context).colorScheme.onSecondary,
+                    ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Theme.of(context).primaryColorDark,
                       ),
-                    ),
-                    SizedBox(height: 20),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                      children: [
-                        ElevatedButton(
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: Theme.of(context).primaryColorDark,
-                          ),
-                          onPressed: () {
-                            _selectTime(context, true);
-                          },
-                          child: Text(
-                            startTime == null
-                                ? 'Start Time'
-                                : formatTimeOfDay(startTime!),
-                            style: TextStyle(color: Colors.white),
-                          ),
-                        ),
-                        ElevatedButton(
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: Theme.of(context).primaryColorDark,
-                          ),
-                          onPressed: () {
-                            _selectTime(context, false);
-                          },
-                          child: Text(
-                            endTime == null
-                                ? 'End Time'
-                                : formatTimeOfDay(endTime!),
-                            style: TextStyle(color: Colors.white),
-                          ),
-                        ),
-                      ],
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: TextField(
-                        decoration: InputDecoration(
-                          labelText: 'Title',
-                        ),
-                        style: TextStyle(
-                          color: Theme.of(context).colorScheme.onBackground,
-                        ),
-                        onChanged: (value) {
-                          setState(() {
-                            blockTitle = value;
-                          });
-                        },
+                      onPressed: () {
+                        _selectTime(context, true);
+                      },
+                      child: Text(
+                        startTime == null
+                            ? 'Start Time'
+                            : formatTimeOfDay(startTime!),
+                        style: TextStyle(color: Colors.white),
                       ),
                     ),
                     ElevatedButton(
-                      onPressed: blockTitle == null || blockTitle!.isEmpty
-                          ? null // Disable button if title is empty
-                          : () {
-                              _confirmTimeRange(context);
-                            },
-                      child: Text('Confirm'),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Theme.of(context).primaryColorDark,
+                      ),
+                      onPressed: () {
+                        _selectTime(context, false);
+                      },
+                      child: Text(
+                        endTime == null
+                            ? 'End Time'
+                            : formatTimeOfDay(endTime!),
+                        style: TextStyle(color: Colors.white),
+                      ),
                     ),
                   ],
                 ),
-              ),
-            );
-          },
+                Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: TextField(
+                    decoration: InputDecoration(
+                      labelText: 'Title',
+                    ),
+                    style: TextStyle(
+                      color: Theme.of(context).colorScheme.onBackground,
+                    ),
+                    onChanged: (value) {
+                      blockTitle = value;
+                    },
+                  ),
+                ),
+                ElevatedButton(
+                  onPressed: () {
+                    _confirmTimeRange(context);
+                  },
+                  child: Text('Confirm'),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  void _showEditTimeBlock(
+      BuildContext context, int blockStart, int blockEnd, String title) {
+    TimeOfDay editStartTime =
+        TimeOfDay(hour: blockStart ~/ 60, minute: blockStart % 60);
+    TimeOfDay editEndTime =
+        TimeOfDay(hour: blockEnd ~/ 60, minute: blockEnd % 60);
+    TextEditingController titleController = TextEditingController(text: title);
+
+    showModalBottomSheet(
+      context: context,
+      builder: (BuildContext context) {
+        return SingleChildScrollView(
+          padding: EdgeInsets.only(
+            bottom: MediaQuery.of(context).viewInsets.bottom,
+          ),
+          child: Container(
+            height: 300,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                SizedBox(height: 10),
+                Text(
+                  'Edit Time Block',
+                  style: TextStyle(
+                    color: Theme.of(context).colorScheme.onSecondary,
+                  ),
+                ),
+                SizedBox(height: 20),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
+                    ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Theme.of(context).primaryColorDark,
+                      ),
+                      onPressed: () async {
+                        final pickedTime = await showTimePicker(
+                            context: context,
+                            initialTime: editStartTime,
+                            initialEntryMode: TimePickerEntryMode.input);
+
+                        if (pickedTime != null) {
+                          setState(() {
+                            editStartTime = pickedTime;
+                          });
+                        }
+                      },
+                      child: Text(
+                        formatTimeOfDay(editStartTime),
+                        style: TextStyle(color: Colors.white),
+                      ),
+                    ),
+                    ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Theme.of(context).primaryColorDark,
+                      ),
+                      onPressed: () async {
+                        final pickedTime = await showTimePicker(
+                            context: context,
+                            initialTime: editEndTime,
+                            initialEntryMode: TimePickerEntryMode.input);
+
+                        if (pickedTime != null) {
+                          setState(() {
+                            editEndTime = pickedTime;
+                          });
+                        }
+                      },
+                      child: Text(
+                        formatTimeOfDay(editEndTime),
+                        style: TextStyle(color: Colors.white),
+                      ),
+                    ),
+                  ],
+                ),
+                Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: TextField(
+                    decoration: InputDecoration(
+                      labelText: 'Title',
+                    ),
+                    style: TextStyle(
+                      color: Theme.of(context).colorScheme.onBackground,
+                    ),
+                    controller: titleController,
+                    onChanged: (value) {
+                      blockTitle = value;
+                    },
+                  ),
+                ),
+                ElevatedButton(
+                  onPressed: () {
+                    setState(() {
+                      int newStartMinutes =
+                          editStartTime.hour * 60 + editStartTime.minute;
+                      int newEndMinutes =
+                          editEndTime.hour * 60 + editEndTime.minute;
+
+                      for (int i = blockStart; i <= blockEnd; i++) {
+                        blockedHours[i] = {
+                          'blocked': false,
+                          'title': '',
+                          'start': null,
+                          'end': null
+                        };
+                      }
+
+                      for (int i = newStartMinutes; i <= newEndMinutes; i++) {
+                        blockedHours[i] = {
+                          'blocked': true,
+                          'title': titleController.text,
+                          'start': editStartTime,
+                          'end': editEndTime
+                        };
+                      }
+                    });
+                    Navigator.of(context).pop();
+                  },
+                  child: Text('Save'),
+                ),
+              ],
+            ),
+          ),
         );
       },
     );
@@ -200,9 +333,15 @@ class _DayScreenState extends State<DayScreen> {
             top: blockStart / 60 * 50.0,
             left: 80,
             right: 0,
-            child: TimeBlock(
-              title: blockedHours[blockStart]['title'],
-              hourCount: blockMinutes / 60,
+            child: GestureDetector(
+              onTap: () {
+                _showEditTimeBlock(context, blockStart, blockEnd - 1,
+                    blockedHours[blockStart]['title']);
+              },
+              child: TimeBlock(
+                title: blockedHours[blockStart]['title'],
+                hourCount: blockMinutes / 60,
+              ),
             ),
           ),
         );

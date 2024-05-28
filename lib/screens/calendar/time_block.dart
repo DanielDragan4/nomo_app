@@ -16,23 +16,17 @@ class TimeBlock extends StatelessWidget {
 
     return Container(
       height: blockHeight,
-      margin:
-          EdgeInsets.symmetric(vertical: 4.0), // Optional: Add vertical margin
       decoration: BoxDecoration(
-        color: Colors.red, // Adjust color as needed
+        color: Color.fromARGB(245, 244, 67, 54), // Adjust color as needed
         borderRadius: BorderRadius.circular(5.0), // Rounded corners
       ),
       child: Center(
-        child: Padding(
-          padding: const EdgeInsets.only(
-              left: 8.0), // Adjust left padding to leave space for hours
-          child: Text(
-            title,
-            textAlign: TextAlign.center,
-            style: TextStyle(
-              color: Colors.white, // Adjust color as needed
-              fontSize: 16.0, // Adjust size as needed
-            ),
+        child: Text(
+          title,
+          textAlign: TextAlign.center,
+          style: TextStyle(
+            color: Colors.white, // Adjust color as needed
+            fontSize: 16.0, // Adjust size as needed
           ),
         ),
       ),

@@ -12,7 +12,6 @@ class ChatScreen extends ConsumerStatefulWidget {
   final Friend chatterUser;
   final String currentUser;
 
-
   @override
   _ChatScreenState createState() => _ChatScreenState();
 }
@@ -20,12 +19,33 @@ class ChatScreen extends ConsumerStatefulWidget {
 class _ChatScreenState extends ConsumerState<ChatScreen> {
   final TextEditingController _controller = TextEditingController();
   final ScrollController _scrollController = ScrollController();
-  var chatInfo;
+  var _chatStream;
+  late final state;
 
   @override
   void initState() {
-    ref.read(chatsProvider.notifier).getChatStream(widget.currentUser, widget.chatterUser.friendProfileId);
     super.initState();
+    _initializeChatStream();
+  }
+  Future<void> getChatStream(String user1Id, String user2Id) async {
+  final supabaseClient = Supabase.instance.client; // Ensure the client is initialized correctly
+  final chatID = await ref.read(chatsProvider.notifier).readChatId(user1Id, user2Id);
+  
+  final stream = supabaseClient
+    .from('Messages')
+    .stream(primaryKey: ['id']) // Ensure the primary key is specified
+    .eq('chat_id', chatID)
+    .order('created_at', ascending: true);
+
+  state = stream;
+}
+
+
+  Future<void> _initializeChatStream() async {
+    await getChatStream(widget.currentUser, widget.chatterUser.friendProfileId);
+    setState(() {
+      _chatStream = state;
+    });
   }
 
   @override
@@ -34,75 +54,27 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
       backgroundColor: Theme.of(context).colorScheme.background,
       appBar: AppBar(
         backgroundColor: Theme.of(context).colorScheme.background,
-        flexibleSpace: PreferredSize(
-          preferredSize: const Size.fromHeight(kToolbarHeight),
-          child: Container(
-            padding: const EdgeInsets.only(
-              top: 20,
-              bottom: 5,
-            ),
-            alignment: Alignment.bottomCenter,
-            child: Text(widget.chatterUser.friendProfileName,
-                style: TextStyle(
-                  color: Theme.of(context).primaryColor,
-                  fontWeight: FontWeight.w800,
-                  fontSize: 30,
-                )),
-          ),
-        ),
-        bottom: PreferredSize(
-          preferredSize: const Size.fromHeight(4.0),
-          child: Container(
-            color: const Color.fromARGB(255, 69, 69, 69),
-            height: 1.0,
-          ),
-        ),
+        title: Text(widget.chatterUser.friendProfileName),
       ),
       body: Column(
         children: [
           Expanded(
-            child: StreamBuilder(
-              stream: ref.read(chatsProvider.notifier).stream,
+            child: StreamBuilder<List<Map<String, dynamic>>>(
+              stream: _chatStream,
               builder: (context, snapshot) {
                 if (!snapshot.hasData) {
                   return const Center(child: CircularProgressIndicator());
                 }
 
-                if(snapshot.data != null){
+                if (snapshot.data != null) {
                   return ListView(
-                  controller: _scrollController,
-                  children: [
-                    for(var message in snapshot.data!) MessageWidget(message: message, currentUser: widget.currentUser)
-                  ],
-                  // itemBuilder: (context, index) {
-                  //   final message = snapshot.data![index];
-                  //   print(message);
-                  //   final isMe = message['sender_id'] == widget.currentUser;
-                  //   return Align(
-                  //     alignment:
-                  //         isMe ? Alignment.centerRight : Alignment.centerLeft,
-                  //     child: Container(
-                  //       padding: const EdgeInsets.symmetric(
-                  //           vertical: 8.0, horizontal: 16.0),
-                  //       margin: const EdgeInsets.symmetric(
-                  //           vertical: 4.0, horizontal: 16.0),
-                  //       decoration: BoxDecoration(
-                  //         color: isMe
-                  //             ? Colors.blueAccent
-                  //             : Colors.grey.shade300,
-                  //         borderRadius: BorderRadius.circular(8.0),
-                  //       ),
-                  //       child: Text(
-                  //         message['message'],
-                  //         style: TextStyle(
-                  //           color: isMe ? Colors.white : Colors.black87,
-                  //         ),
-                  //       ),
-                  //     ),
-                  //   );
-                  // },
-                );}
-                else {
+                    controller: _scrollController,
+                    children: [
+                      for (var message in snapshot.data!)
+                        MessageWidget(message: message, currentUser: widget.currentUser)
+                    ],
+                  );
+                } else {
                   return const Center(child: CircularProgressIndicator());
                 }
               },
@@ -130,9 +102,8 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
                   icon: Icon(Icons.send, color: Theme.of(context).colorScheme.onSecondary,),
                   onPressed: () {
                     if (_controller.text.trim().isNotEmpty) {
-                     //_sendMessage(_controller.text.trim());
                      ref.read(chatsProvider.notifier).sendMessage(widget.currentUser, widget.chatterUser.friendProfileId, _controller.text);
-                     _controller.clear();
+                       _controller.clear();
                     }
                   },
                 ),

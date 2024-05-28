@@ -8,20 +8,20 @@ class ChatsProvider extends StateNotifier<List?> {
   Future<Supabase> supabase;
   late var chatID;
 
-  Future<String> readChatId(user1Id, user2Id) async {
+  Future<String> readChatId(String user1Id, String user2Id) async {
     final supabaseClient = (await supabase).client;
     List chat = await supabaseClient
         .from('Chats')
         .select('*')
-        .eq('user1_id', user1Id)
-        .eq('user2_id', user2Id);
+        .or('user1_id.eq.$user1Id,user1_id.eq.$user2Id')
+        .or('user2_id.eq.$user1Id,user2_id.eq.$user2Id');
     if(chat.isEmpty) {
       await createNewChat(user1Id, user2Id);
       chat = await supabaseClient
         .from('Chats')
         .select('*')
-        .eq('user1_id', user1Id)
-        .eq('user2_id', user2Id);
+        .or('user1_id.eq.$user1Id,user1_id.eq.$user2Id')
+        .or('user2_id.eq.$user1Id,user2_id.eq.$user2Id');
     }
     return chat[0]['chat_id'];
   }

@@ -51,13 +51,15 @@ class _InterestsScreenState extends ConsumerState<InterestsScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+
     return Scaffold(
-      backgroundColor: Theme.of(context).colorScheme.background,
+      backgroundColor: colorScheme.background,
       body: NestedScrollView(
         floatHeaderSlivers: true,
         headerSliverBuilder: (context, innerBoxIsScrolled) => [
           SliverAppBar(
-            backgroundColor: Theme.of(context).colorScheme.background,
+            backgroundColor: colorScheme.background,
             floating: true,
             snap: true,
             expandedHeight: 10,
@@ -71,7 +73,7 @@ class _InterestsScreenState extends ConsumerState<InterestsScreen> {
                       Text(
                         'Interests',
                         style: TextStyle(
-                          color: Theme.of(context).primaryColor,
+                          color: colorScheme.primary,
                           fontWeight: FontWeight.w800,
                           fontSize: 30,
                         ),
@@ -81,10 +83,11 @@ class _InterestsScreenState extends ConsumerState<InterestsScreen> {
                 ),
               ),
             ),
-            bottom: const PreferredSize(
-              preferredSize: Size.fromHeight(kToolbarHeight / 2),
+            bottom: PreferredSize(
+              preferredSize: const Size.fromHeight(kToolbarHeight / 2),
               child: Text("Select up to 5 of your interests",
-                  style: TextStyle(fontSize: 20)),
+                  style:
+                      TextStyle(fontSize: 20, color: colorScheme.onBackground)),
             ),
             centerTitle: true,
           ),
@@ -110,8 +113,8 @@ class _InterestsScreenState extends ConsumerState<InterestsScreen> {
                     return ElevatedButton(
                       style: ElevatedButton.styleFrom(
                         backgroundColor: _selectedOptions[option] ?? false
-                            ? Theme.of(context).colorScheme.primary
-                            : Theme.of(context).colorScheme.background,
+                            ? colorScheme.primary
+                            : colorScheme.surface,
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(40),
                         ),
@@ -145,8 +148,8 @@ class _InterestsScreenState extends ConsumerState<InterestsScreen> {
                         style: TextStyle(
                           fontSize: 18,
                           color: _selectedOptions[option] ?? false
-                              ? Colors.white
-                              : Colors.black,
+                              ? colorScheme.onPrimary
+                              : colorScheme.onSurface,
                         ),
                       ),
                     );
@@ -155,16 +158,16 @@ class _InterestsScreenState extends ConsumerState<InterestsScreen> {
               ),
             ),
             SizedBox(
-              height: 110,
+              height: widget.isEditing ? 90 : 110,
               child: Container(
                 decoration: BoxDecoration(
-                  color: Theme.of(context).colorScheme.background,
+                  color: colorScheme.background,
                 ),
                 child: Column(
                   children: [
                     Padding(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 8.0, vertical: 6),
+                      padding: EdgeInsets.symmetric(
+                          horizontal: 8.0, vertical: widget.isEditing ? 20 : 6),
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
@@ -172,6 +175,8 @@ class _InterestsScreenState extends ConsumerState<InterestsScreen> {
                             style: ElevatedButton.styleFrom(
                               padding:
                                   const EdgeInsets.symmetric(horizontal: 40),
+                              backgroundColor: colorScheme.primary,
+                              foregroundColor: colorScheme.onPrimary,
                             ),
                             child: !widget.isEditing
                                 ? const Text(

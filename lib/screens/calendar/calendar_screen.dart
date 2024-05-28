@@ -138,7 +138,7 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
                                           .then((result) =>
                                               Navigator.pop(context));
                                     },
-                                    child: const Text('VIEW SCHEDULE')),
+                                    child: const Text('CEATE BLOCKED TIME')),
                               ],
                             ));
                   },

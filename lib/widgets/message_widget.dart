@@ -17,11 +17,14 @@ class MessageWidget extends ConsumerWidget {
         child: Align(
       alignment: isMe ? Alignment.centerRight : Alignment.centerLeft,
       child: Container(
-        padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
-        margin: const EdgeInsets.symmetric(vertical: 4.0, horizontal: 16.0),
+        constraints: BoxConstraints(
+          maxWidth: MediaQuery.of(context).size.width *.8
+        ),
+        padding: const EdgeInsets.symmetric(vertical: 4.0, horizontal: 8.0),
+        margin: const EdgeInsets.symmetric(vertical: 4.0, horizontal: 8.0),
         decoration: BoxDecoration(
-          color: isMe ? Colors.blueAccent : Colors.grey.shade300,
-          borderRadius: BorderRadius.circular(8.0),
+          color: isMe ? Theme.of(context).primaryColor : Colors.grey.shade300,  
+          borderRadius: BorderRadius.circular(10),
         ),
         child: Text(
           message['message'],

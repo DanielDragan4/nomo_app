@@ -28,18 +28,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
     super.initState();
     _initializeChatStream();
   }
-//   Future<void> getChatStream(String user1Id, String user2Id) async {
-//   final supabaseClient = Supabase.instance.client; // Ensure the client is initialized correctly
-//   final chatID = await ref.read(chatsProvider.notifier).readChatId(user1Id, user2Id);
 
-//   final stream = supabaseClient
-//     .from('Messages')
-//     .stream(primaryKey: ['chat_id']) // Ensure the primary key is specified
-//     .eq('chat_id', chatID)
-//     .order('created_at', ascending: true);
-
-//   state = stream;
-// }
   Future<void> _initializeChatStream() async {
     final supabaseClient =
         Supabase.instance.client; // Ensure the client is initialized correctly
@@ -119,9 +108,6 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
                   ),
                   onPressed: () {
                     if (_controller.text.trim().isNotEmpty) {
-                      print(
-                          '___________________-----------------------------------------' +
-                              _controller.text);
                       ref.read(chatsProvider.notifier).sendMessage(
                           widget.currentUser,
                           widget.chatterUser.friendProfileId,

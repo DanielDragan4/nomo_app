@@ -38,31 +38,6 @@ class ChatsProvider extends StateNotifier<List?> {
     state = stream;
   }
 
-  // Future<void> deCodeData(String user1Id, String user2Id) async {
-  //   final codedList = await readMessages(user1Id, user2Id);
-
-  //   List<Message> deCodedList = [];
-  //   final supabaseClient = (await supabase).client;
-
-  //   for (var messageData in codedList) {
-  //     bool isMine;
-
-  //     if(messageData[0]['sender_id'] == supabaseClient.auth.currentUser?.id) {
-  //       isMine = true;
-  //     } else {
-  //       isMine = false;
-  //     }
-
-  //     final Message deCodedMessage = Message(
-  //       isMine: isMine,
-  //       message: messageData[0]['message'],
-  //       senderId: messageData[0]['sender_id'],
-  //       timeStamp: messageData[0]['created_at'],
-  //     );
-  //     deCodedList.add(deCodedMessage);
-  //   }
-  //   state = deCodedList;
-  // }
   Future<void> createNewChat(String user1Id, String user2Id) async {
     final supabaseClient = (await supabase).client;
     var newChat = {

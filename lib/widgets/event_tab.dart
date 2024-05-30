@@ -7,6 +7,7 @@ import 'package:nomo/screens/detailed_event_screen.dart';
 import 'package:nomo/screens/profile_screen.dart';
 import 'package:nomo/widgets/event_info.dart';
 
+// ignore: must_be_immutable
 class EventTab extends ConsumerStatefulWidget {
   EventTab({super.key, required this.eventData, this.bookmarkSet});
 

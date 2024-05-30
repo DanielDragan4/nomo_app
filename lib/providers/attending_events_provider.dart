@@ -165,7 +165,36 @@ class AttendEventProvider extends StateNotifier<List<Event>> {
         .eq('event_id', eventToLeave);
     deCodeData();
   }
+
+  Future<void> createBlockedTime(profileId, isBlocked, sTime, eTime, title) async{
+    final supabaseClient = (await supabase).client;
+    Map blockedTimeMap = {
+      'user_id' : profileId,
+      'is_blocked_timer' : isBlocked,
+      'start_time' : sTime,
+      'end_time' : eTime,
+      'block_title' : title
+    };
+     await supabaseClient.from('Availability').insert(blockedTimeMap);
+  }
+  Future<void> updateBlockedTime(profileId, isBlocked, sTime, eTime, title, availId) async{
+    final supabaseClient = (await supabase).client;
+    Map blockedTimeMap = {
+      'user_id' : profileId,
+      'is_blocked_timer' : isBlocked,
+      'start_time' : sTime,
+      'end_time' : eTime,
+      'block_title' : title
+    };
+     await supabaseClient.from('Availability').update(blockedTimeMap).eq('availability_id', availId);
+  }
+  Future<void>deleteBlockedTime(availId) async{
+    final supabaseClient = (await supabase).client;
+    
+     await supabaseClient.from('Availability').delete().eq('availability_id', availId);
+  }
 }
+
 
 final attendEventsProvider =
     StateNotifierProvider<AttendEventProvider, List<Event>>((ref) {

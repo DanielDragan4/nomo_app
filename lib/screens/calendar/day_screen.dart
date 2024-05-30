@@ -1,20 +1,24 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:http/http.dart';
+import 'package:nomo/providers/attending_events_provider.dart';
+import 'package:nomo/providers/profile_provider.dart';
 import 'package:nomo/screens/calendar/time_block.dart';
 
-class DayScreen extends StatefulWidget {
+class DayScreen extends ConsumerStatefulWidget {
   DayScreen({super.key, required this.day});
 
-  DateTime day;
+  DateTime day;  // the specipsic day
 
   @override
   _DayScreenState createState() => _DayScreenState();
 }
 
-class _DayScreenState extends State<DayScreen> {
+class _DayScreenState extends ConsumerState<DayScreen> {
   List<Map<String, dynamic>> blockedHours = List.generate(24 * 60,
       (index) => {'blocked': false, 'title': '', 'start': null, 'end': null});
-  TimeOfDay? startTime;
-  TimeOfDay? endTime;
+  TimeOfDay? startTime; // s time
+  TimeOfDay? endTime; // e time
   String? blockTitle;
 
   Future<void> _selectTime(BuildContext context, bool isStartTime) async {
@@ -39,10 +43,14 @@ class _DayScreenState extends State<DayScreen> {
         endTime != null &&
         blockTitle != null &&
         blockTitle!.isNotEmpty) {
+        DateTime supabaseSTime = DateTime(widget.day.year, widget.day.month, widget.day.day, startTime!.hour, startTime!.minute);
+        DateTime supabaseETime = DateTime(widget.day.year, widget.day.month, widget.day.day, endTime!.hour, endTime!.minute);
+        String profileId = ref.read(profileProvider.notifier).state!.profile_id;
+
       setState(() {
         int startMinutes = startTime!.hour * 60 + startTime!.minute;
         int endMinutes = endTime!.hour * 60 + endTime!.minute;
-
+        
         for (int i = startMinutes; i <= endMinutes; i++) {
           blockedHours[i] = {
             'blocked': true,
@@ -52,6 +60,40 @@ class _DayScreenState extends State<DayScreen> {
           };
         }
       });
+      ref.read(attendEventsProvider.notifier).createBlockedTime( profileId, true, supabaseSTime.toString(), supabaseETime.toString(), blockTitle);
+
+      Navigator.of(context).pop();
+    } else {
+      // Show a message if the title is empty
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Please enter a title for the time block')),
+      );
+    }
+  }
+   void _updateTimeRange(BuildContext context) {
+    if (startTime != null &&
+        endTime != null &&
+        blockTitle != null &&
+        blockTitle!.isNotEmpty) {
+        DateTime supabaseSTime = DateTime(widget.day.year, widget.day.month, widget.day.day, startTime!.hour, startTime!.minute);
+        DateTime supabaseETime = DateTime(widget.day.year, widget.day.month, widget.day.day, endTime!.hour, endTime!.minute);
+        String profileId = ref.read(profileProvider.notifier).state!.profile_id;
+
+      setState(() {
+        int startMinutes = startTime!.hour * 60 + startTime!.minute;
+        int endMinutes = endTime!.hour * 60 + endTime!.minute;
+        
+        for (int i = startMinutes; i <= endMinutes; i++) {
+          blockedHours[i] = {
+            'blocked': true,
+            'title': blockTitle,
+            'start': startTime,
+            'end': endTime
+          };
+        }
+      });
+      ref.read(attendEventsProvider.notifier).createBlockedTime( profileId, true, supabaseSTime.toString(), supabaseETime.toString(), blockTitle);
+
       Navigator.of(context).pop();
     } else {
       // Show a message if the title is empty
@@ -138,7 +180,7 @@ class _DayScreenState extends State<DayScreen> {
                 ),
                 ElevatedButton(
                   onPressed: () {
-                    _confirmTimeRange(context);
+                    _confirmTimeRange(context); // this is where the block is created
                   },
                   child: Text('Confirm'),
                 ),
@@ -273,7 +315,7 @@ class _DayScreenState extends State<DayScreen> {
                         });
                         Navigator.of(context).pop();
                       },
-                      child: Text('Save'),
+                      child: const Text('Save'),  // update the time block
                     ),
                     ElevatedButton(
                       onPressed: () {
@@ -287,7 +329,7 @@ class _DayScreenState extends State<DayScreen> {
                             };
                           }
                         });
-                        Navigator.of(context).pop();
+                        Navigator.of(context).pop();  // remove blocked time
                       },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.red,

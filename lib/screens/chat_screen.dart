@@ -8,7 +8,8 @@ import 'package:nomo/widgets/message_widget.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 class ChatScreen extends ConsumerStatefulWidget {
-  const ChatScreen({super.key, required this.chatterUser, required this.currentUser});
+  const ChatScreen(
+      {super.key, required this.chatterUser, required this.currentUser});
   final Friend chatterUser;
   final String currentUser;
 
@@ -30,7 +31,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
 //   Future<void> getChatStream(String user1Id, String user2Id) async {
 //   final supabaseClient = Supabase.instance.client; // Ensure the client is initialized correctly
 //   final chatID = await ref.read(chatsProvider.notifier).readChatId(user1Id, user2Id);
-  
+
 //   final stream = supabaseClient
 //     .from('Messages')
 //     .stream(primaryKey: ['chat_id']) // Ensure the primary key is specified
@@ -40,14 +41,17 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
 //   state = stream;
 // }
   Future<void> _initializeChatStream() async {
-    final supabaseClient = Supabase.instance.client; // Ensure the client is initialized correctly
-  final chatID = await ref.read(chatsProvider.notifier).readChatId(widget.currentUser, widget.chatterUser.friendProfileId);
+    final supabaseClient =
+        Supabase.instance.client; // Ensure the client is initialized correctly
+    final chatID = await ref
+        .read(chatsProvider.notifier)
+        .readChatId(widget.currentUser, widget.chatterUser.friendProfileId);
     setState(() {
       _chatStream = supabaseClient
-    .from('Messages')
-    .stream(primaryKey: ['chat_id']) // Ensure the primary key is specified
-    .eq('chat_id', chatID)
-    .order('created_at', ascending: false);
+          .from('Messages')
+          .stream(primaryKey: ['id']) // Ensure the primary key is specified
+          .eq('chat_id', chatID)
+          .order('created_at', ascending: false);
     });
   }
 
@@ -76,7 +80,8 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
                     controller: _scrollController,
                     itemBuilder: (context, index) {
                       var message = snapshot.data![index];
-                      return MessageWidget(message: message, currentUser: widget.currentUser);
+                      return MessageWidget(
+                          message: message, currentUser: widget.currentUser);
                     },
                   );
                 } else {
@@ -92,9 +97,13 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
                 Expanded(
                   child: TextField(
                     controller: _controller,
-                    style: TextStyle(color: Theme.of(context).colorScheme.onSecondary,),
+                    style: TextStyle(
+                      color: Theme.of(context).colorScheme.onSecondary,
+                    ),
                     decoration: InputDecoration(
-                      hintStyle: TextStyle(color: Theme.of(context).colorScheme.onSecondary,),
+                      hintStyle: TextStyle(
+                        color: Theme.of(context).colorScheme.onSecondary,
+                      ),
                       hintText: 'Send message',
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(8.0),
@@ -102,14 +111,21 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
                     ),
                   ),
                 ),
-                SizedBox(width: MediaQuery.of(context).size.width *.01),
+                SizedBox(width: MediaQuery.of(context).size.width * .01),
                 IconButton(
-                  icon: Icon(Icons.send, color: Theme.of(context).colorScheme.onSecondary,),
+                  icon: Icon(
+                    Icons.send,
+                    color: Theme.of(context).colorScheme.onSecondary,
+                  ),
                   onPressed: () {
                     if (_controller.text.trim().isNotEmpty) {
-                      print('___________________-----------------------------------------'+_controller.text);
-                      ref.read(chatsProvider.notifier).sendMessage(widget.currentUser, widget.chatterUser.friendProfileId, _controller.text);
-                      _initializeChatStream();
+                      print(
+                          '___________________-----------------------------------------' +
+                              _controller.text);
+                      ref.read(chatsProvider.notifier).sendMessage(
+                          widget.currentUser,
+                          widget.chatterUser.friendProfileId,
+                          _controller.text);
                       _controller.clear();
                     }
                   },

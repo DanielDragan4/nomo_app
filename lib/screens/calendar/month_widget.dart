@@ -12,7 +12,8 @@ class Month extends ConsumerWidget {
       required this.eventsByDate,
       required this.firstDayOfWeek,
       required this.lastOfMonth,
-      required this.yearDisplayed});
+      required this.yearDisplayed,
+      required this.selectedDatesWithTime});
 
   final int selectedMonth;
   final eventsByDate;
@@ -20,6 +21,7 @@ class Month extends ConsumerWidget {
   final int lastOfMonth;
   int cellIndex = 0;
   final int yearDisplayed;
+  final Map<DateTime, bool> selectedDatesWithTime;
 
   String monthName(int month) {
     switch (month) {
@@ -124,6 +126,7 @@ class Month extends ConsumerWidget {
           padding: const EdgeInsets.all(10.0),
           child: Column(
             children: [
+              // Header and month name
               Row(
                 children: [
                   Container(
@@ -207,14 +210,21 @@ class Month extends ConsumerWidget {
                   gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                       crossAxisCount: 7),
                   itemCount: 42,
-                  itemBuilder: (context, index) => DayButton(
-                    isSelected: false,
-                    boarderWidth: findBoarderWidth(index),
-                    cellColor: findCellColor(index, calEvents),
-                    dayDisplayed: daysOfMonth(),
-                    index: index,
-                    hasEvent: hasEvent(index, calEvents),
-                  ),
+                  itemBuilder: (context, index) {
+                    DateTime currentDate = DateTime(yearDisplayed,
+                        selectedMonth, index - firstDayOfWeek + 1);
+                    bool hasTimeSelected =
+                        selectedDatesWithTime[currentDate] ?? false;
+                    return DayButton(
+                      isSelected: false,
+                      boarderWidth: findBoarderWidth(index),
+                      cellColor: findCellColor(index, calEvents),
+                      dayDisplayed: daysOfMonth(),
+                      index: index,
+                      hasEvent: hasEvent(index, calEvents),
+                      hasTimeSelected: hasTimeSelected,
+                    );
+                  },
                 ),
               ),
               Container(
@@ -252,9 +262,8 @@ class DayButton extends StatelessWidget {
       required this.cellColor,
       required this.dayDisplayed,
       required this.index,
-      required this.hasEvent
-      //required this.onPressed,
-      });
+      required this.hasEvent,
+      required this.hasTimeSelected});
 
   final bool isSelected;
   final bool boarderWidth;
@@ -262,7 +271,7 @@ class DayButton extends StatelessWidget {
   final String dayDisplayed;
   final int index;
   final List hasEvent;
-  //final void Function() onPressed;
+  final bool hasTimeSelected;
 
   @override
   Widget build(BuildContext context) {
@@ -276,22 +285,58 @@ class DayButton extends StatelessWidget {
                       DetailedEventScreen(eventData: hasEvent[1]))));
             }
           },
-          child: Container(
-            height: MediaQuery.sizeOf(context).height * 0.0628,
-            alignment: Alignment.topRight,
-            decoration: BoxDecoration(
-              border: boarderWidth
-                  ? Border.all(width: 1)
-                  : Border.all(color: const Color.fromARGB(0, 255, 255, 255)),
-              color: cellColor,
-            ),
-            child: Text(
-              dayDisplayed,
-              style: const TextStyle(fontSize: 20),
-            ),
+          child: Stack(
+            children: [
+              Container(
+                height: MediaQuery.sizeOf(context).height * 0.0628,
+                alignment: Alignment.topRight,
+                decoration: BoxDecoration(
+                  border: boarderWidth
+                      ? Border.all(width: 1)
+                      : Border.all(
+                          color: const Color.fromARGB(0, 255, 255, 255)),
+                  color: cellColor,
+                ),
+                child: Text(
+                  dayDisplayed,
+                  style: const TextStyle(fontSize: 20),
+                ),
+              ),
+              if (hasTimeSelected)
+                Positioned(
+                  left: 0,
+                  top: 0,
+                  child: CustomPaint(
+                    size: Size(20, 20),
+                    painter: TrianglePainter(),
+                  ),
+                ),
+            ],
           ),
         ),
       ],
     );
+  }
+}
+
+class TrianglePainter extends CustomPainter {
+  @override
+  void paint(Canvas canvas, Size size) {
+    var paint = Paint()
+      ..color = Color.fromARGB(162, 244, 67, 54)
+      ..style = PaintingStyle.fill;
+
+    var path = Path()
+      ..moveTo(1, 1) // Start at the top-left corner
+      ..lineTo(1, size.height) // Draw line to the bottom-left corner
+      ..lineTo(size.height, 1) // Draw line to the top-right corner
+      ..close(); // Close the path
+
+    canvas.drawPath(path, paint);
+  }
+
+  @override
+  bool shouldRepaint(CustomPainter oldDelegate) {
+    return false;
   }
 }

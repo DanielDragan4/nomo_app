@@ -15,23 +15,26 @@ class ChatsProvider extends StateNotifier<List?> {
         .select('*')
         .or('user1_id.eq.$user1Id,user1_id.eq.$user2Id')
         .or('user2_id.eq.$user1Id,user2_id.eq.$user2Id');
-    if(chat.isEmpty) {
+    if (chat.isEmpty) {
       await createNewChat(user1Id, user2Id);
       chat = await supabaseClient
-        .from('Chats')
-        .select('*')
-        .or('user1_id.eq.$user1Id,user1_id.eq.$user2Id')
-        .or('user2_id.eq.$user1Id,user2_id.eq.$user2Id');
+          .from('Chats')
+          .select('*')
+          .or('user1_id.eq.$user1Id,user1_id.eq.$user2Id')
+          .or('user2_id.eq.$user1Id,user2_id.eq.$user2Id');
     }
     return chat[0]['chat_id'];
   }
 
-  Future<void> getChatStream (user1Id, user2Id) async{
+  Future<void> getChatStream(user1Id, user2Id) async {
     final supabaseClient = (await supabase).client;
     chatID = await readChatId(user1Id, user2Id);
-    var stream = await supabaseClient.from('Messages').select()
-      .eq('chat_id', chatID).order('created_at', ascending: true);
-    
+    var stream = await supabaseClient
+        .from('Messages')
+        .select()
+        .eq('chat_id', chatID)
+        .order('created_at', ascending: true);
+
     state = stream;
   }
 
@@ -60,26 +63,31 @@ class ChatsProvider extends StateNotifier<List?> {
   //   }
   //   state = deCodedList;
   // }
-  Future<void> createNewChat(String user1Id, String user2Id) async{
+  Future<void> createNewChat(String user1Id, String user2Id) async {
     final supabaseClient = (await supabase).client;
     var newChat = {
-        'user1_id': user1Id,
-        'user2_id': user2Id,
-      };
-      await supabaseClient.from('Chats')
-      .insert(newChat);
+      'user1_id': user1Id,
+      'user2_id': user2Id,
+    };
+    await supabaseClient.from('Chats').insert(newChat);
   }
-  Future<void> sendMessage(String user1Id, String user2Id, String message) async{
+
+  Future<void> sendMessage(
+      String user1Id, String user2Id, String message) async {
     final supabaseClient = (await supabase).client;
     chatID = await readChatId(user1Id, user2Id);
     var newMessage = {
-        'sender_id': user1Id,
-        'chat_id' : chatID,
-        'message' : message
-      };
+      'sender_id': user1Id,
+      'chat_id': chatID,
+      'message': message
+    };
 
     await supabaseClient.from('Messages').insert(newMessage);
-    print(await supabaseClient.from('Messages').select('message').eq('sender_id', user1Id).eq('message', message));
+    print(await supabaseClient
+        .from('Messages')
+        .select('message')
+        .eq('sender_id', user1Id)
+        .eq('message', message));
   }
 }
 

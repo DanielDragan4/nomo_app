@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:nomo/widgets/setting_button.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class FriendsSettings extends StatefulWidget {
   const FriendsSettings({super.key});
@@ -11,11 +12,46 @@ class FriendsSettings extends StatefulWidget {
 }
 
 class _FriendsState extends State<FriendsSettings> {
-  bool _switchVal = false;
+  late bool newEventSwitch = false;
+  late bool joinedEventSwitch = false;
+  late bool availabilitySwitch = false;
 
-  void updateSwitchValue() {
+  @override
+  void initState() {
+    loadData();
+    super.initState();
+  }
+
+  void updateSwitchValue(String switchType) async {
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    switch (switchType) {
+      case 'newEventFriend':
+        setState(() {
+          newEventSwitch = !newEventSwitch;
+          prefs.setBool('newEventFriend', newEventSwitch);
+        });
+        break;
+      case 'joinedEventFriend':
+        setState(() {
+          joinedEventSwitch = !joinedEventSwitch;
+          prefs.setBool('joinedEventFriend', joinedEventSwitch);
+        });
+        break;
+      case 'availabilityFriend':
+        setState(() {
+          availabilitySwitch = !availabilitySwitch;
+          prefs.setBool('availabilityFriend', availabilitySwitch);
+        });
+        break;
+    }
+  }
+
+  void loadData() async {
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
     setState(() {
-      _switchVal = !_switchVal;
+      newEventSwitch = prefs.getBool('newEventFriend') ?? false;
+      joinedEventSwitch = prefs.getBool('joinedEventFriend') ?? false;
+      availabilitySwitch = prefs.getBool('availabilityFriend') ?? false;
     });
   }
 
@@ -23,21 +59,33 @@ class _FriendsState extends State<FriendsSettings> {
   Widget build(BuildContext context) {
     return ListView(
       children: [
-        SettingButton(
-          title: "New Event Created",
-          onPressed: updateSwitchValue,
-          isSwitch: true,
+        ListTile(
+          title: Text('New Event Created', style: TextStyle(fontSize: 20)),
+          trailing: Switch(
+            value: newEventSwitch,
+            onChanged: (newValue) {
+              updateSwitchValue('newEventFriend');
+            },
+          ),
         ),
-        SettingButton(
-          title: "New Event Joined",
-          onPressed: updateSwitchValue,
-          isSwitch: true,
+        ListTile(
+          title: Text('New Event Joined', style: TextStyle(fontSize: 20)),
+          trailing: Switch(
+            value: joinedEventSwitch,
+            onChanged: (newValue) {
+              updateSwitchValue('joinedEventFriend');
+            },
+          ),
         ),
-        SettingButton(
-          title: "Availability Changes",
-          onPressed: updateSwitchValue,
-          isSwitch: true,
-        )
+        ListTile(
+          title: Text('Availability Changes', style: TextStyle(fontSize: 20)),
+          trailing: Switch(
+            value: availabilitySwitch,
+            onChanged: (newValue) {
+              updateSwitchValue('availabilityFriend');
+            },
+          ),
+        ),
       ],
     );
   }

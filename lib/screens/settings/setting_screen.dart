@@ -8,6 +8,7 @@ import 'package:nomo/providers/saved_session_provider.dart';
 import 'package:nomo/providers/supabase_provider.dart';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class SettingScreen extends ConsumerStatefulWidget {
   SettingScreen({super.key, this.isCorp});
@@ -19,18 +20,69 @@ class SettingScreen extends ConsumerStatefulWidget {
 }
 
 class _SettingScreenState extends ConsumerState<SettingScreen> {
-  bool _switchVal = false;
+  late bool privateSwitch = false;
+  late bool cameraSwitch = false;
+  late bool micSwitch = false;
+  late bool contactSwitch = false;
+  late bool notifSwitch = false;
 
-  void updateSwitchValue() {
-    setState(() {
-      _switchVal = !_switchVal;
-    });
+  @override
+  void initState() {
+    loadData();
+    super.initState();
+  }
+
+  void updateSwitchValue(String switchType) async {
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    switch (switchType) {
+      case 'private':
+        setState(() {
+          privateSwitch = !privateSwitch;
+          prefs.setBool('private', privateSwitch);
+        });
+        break;
+      case 'camera':
+        setState(() {
+          cameraSwitch = !cameraSwitch;
+          prefs.setBool('camera', cameraSwitch);
+        });
+        break;
+      case 'mic':
+        setState(() {
+          micSwitch = !micSwitch;
+          prefs.setBool('mic', micSwitch);
+        });
+        break;
+      case 'contact':
+        setState(() {
+          contactSwitch = !contactSwitch;
+          prefs.setBool('contact', contactSwitch);
+        });
+        break;
+      case 'notif':
+        setState(() {
+          notifSwitch = !notifSwitch;
+          prefs.setBool('notif', notifSwitch);
+        });
+        break;
+    }
   }
 
   redirect(String screen) {
     return Navigator.of(context).push(MaterialPageRoute(
       builder: (context) => SettingsTemplate(type: screen),
     ));
+  }
+
+  void loadData() async {
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    setState(() {
+      privateSwitch = prefs.getBool('private') ?? false;
+      cameraSwitch = prefs.getBool('camera') ?? false;
+      micSwitch = prefs.getBool('mic') ?? false;
+      contactSwitch = prefs.getBool('contact') ?? false;
+      notifSwitch = prefs.getBool('notif') ?? false;
+    });
   }
 
   @override
@@ -57,7 +109,6 @@ class _SettingScreenState extends ConsumerState<SettingScreen> {
         ),
       ),
       body: ListView(
-        //padding: const EdgeInsets.all(20),
         children: [
           const ListTile(
             title: Text('Account', style: TextStyle(fontSize: 25)),
@@ -85,10 +136,14 @@ class _SettingScreenState extends ConsumerState<SettingScreen> {
             title: Text('Privacy', style: TextStyle(fontSize: 25)),
           ),
           const Divider(),
-          SettingButton(
-            title: 'Make Private',
-            onPressed: updateSwitchValue,
-            isSwitch: true,
+          ListTile(
+            title: Text('Make Private', style: TextStyle(fontSize: 20)),
+            trailing: Switch(
+              value: privateSwitch,
+              onChanged: (newValue) {
+                updateSwitchValue('private');
+              },
+            ),
           ),
           SettingButton(
             title: 'Blocked Accounts',
@@ -100,25 +155,21 @@ class _SettingScreenState extends ConsumerState<SettingScreen> {
             title: Text('In-App Notifications', style: TextStyle(fontSize: 25)),
           ),
           const Divider(),
-          //Sub-Toggles: New Event Created, New Event Joined, Availability Changes
           SettingButton(
               title: 'Following Profiles',
               onPressed: () {
                 redirect("Following");
               }),
-          //Sub-Toggles: New Event Created, New Event Joined, Availability Changes
           SettingButton(
               title: 'Friends',
               onPressed: () {
                 redirect("Friends");
               }),
-          //Sub-Toggles: Has exact interest, Has similar interest
           SettingButton(
               title: 'Recommended Events',
               onPressed: () {
                 redirect("Recommended");
               }),
-          //Sub-Toggles: Friends, Not friends
           SettingButton(
               title: 'Messages',
               onPressed: () {
@@ -137,25 +188,41 @@ class _SettingScreenState extends ConsumerState<SettingScreen> {
             title: Text('Premissions', style: TextStyle(fontSize: 25)),
           ),
           const Divider(),
-          SettingButton(
-            title: 'Camera',
-            onPressed: updateSwitchValue,
-            isSwitch: true,
+          ListTile(
+            title: Text('Camera', style: TextStyle(fontSize: 20)),
+            trailing: Switch(
+              value: cameraSwitch,
+              onChanged: (newValue) {
+                updateSwitchValue('camera');
+              },
+            ),
           ),
-          SettingButton(
-            title: 'Microphone',
-            onPressed: updateSwitchValue,
-            isSwitch: true,
+          ListTile(
+            title: Text('Microphone', style: TextStyle(fontSize: 20)),
+            trailing: Switch(
+              value: micSwitch,
+              onChanged: (newValue) {
+                updateSwitchValue('mic');
+              },
+            ),
           ),
-          SettingButton(
-            title: 'Contacts',
-            onPressed: updateSwitchValue,
-            isSwitch: true,
+          ListTile(
+            title: Text('Contacts', style: TextStyle(fontSize: 20)),
+            trailing: Switch(
+              value: contactSwitch,
+              onChanged: (newValue) {
+                updateSwitchValue('contact');
+              },
+            ),
           ),
-          SettingButton(
-            title: 'Device Notifications',
-            onPressed: updateSwitchValue,
-            isSwitch: true,
+          ListTile(
+            title: Text('Device Notifications', style: TextStyle(fontSize: 20)),
+            trailing: Switch(
+              value: notifSwitch,
+              onChanged: (newValue) {
+                updateSwitchValue('notif');
+              },
+            ),
           ),
           if (widget.isCorp != null && true)
             const ListTile(
@@ -194,7 +261,6 @@ class _SettingScreenState extends ConsumerState<SettingScreen> {
               onPressed: () {
                 redirect("About");
               }),
-          //Included: Helpful Links, Contact Info
           SettingButton(
               title: 'Help',
               onPressed: () {

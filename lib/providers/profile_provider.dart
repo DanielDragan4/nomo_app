@@ -1,4 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:nomo/models/availability_model.dart';
 import 'package:nomo/models/friend_model.dart';
 import 'package:nomo/models/profile_model.dart';
 import 'package:nomo/providers/supabase_provider.dart';
@@ -15,7 +16,7 @@ class ProfileProvider extends StateNotifier<Profile?> {
     Map profile = {};
     profile = (await supabaseClient
         .from('profile_view')
-        .select('*, Interests(interests)')
+        .select('*, Interests(interests),  Availability(*)')
         .eq('profile_id', supabaseClient.auth.currentUser!.id)
         .single());
     return profile;
@@ -25,18 +26,29 @@ class ProfileProvider extends StateNotifier<Profile?> {
     final userProfile = await readProfile();
     Profile profile;
     final supabaseClient = (await supabase).client;
-    print(userProfile['recommended_events']);
+    List<Availability> availability = [];
 
     String profileUrl = supabaseClient.storage
         .from('Images')
         .getPublicUrl(userProfile['profile_path']);
-
+    for (var avail in userProfile['Availability']) {
+      Availability decodedTime = Availability(
+        availId: avail['availability_id'],
+        userId: avail['user_id'],
+        sTime: DateTime.parse(avail['start_time']),
+        eTime: DateTime.parse(avail['end_time']),
+        blockTitle: avail['block_title'],
+        eventId: avail['event_id'],
+      );
+      availability.add(decodedTime);
+    }
     profile = (Profile(
         profile_id: userProfile['profile_id'],
         avatar: profileUrl,
         username: userProfile['username'],
         profile_name: userProfile['profile_name'],
-        interests: userProfile['Interests']));
+        interests: userProfile['Interests'],
+        availability: availability));
     state = profile;
   }
 
@@ -54,18 +66,30 @@ class ProfileProvider extends StateNotifier<Profile?> {
   Future<Profile> fetchProfileById(String userId) async {
     final userProfile = await readProfileById(userId);
     final supabaseClient = (await supabase).client;
+    List availability = [];
 
     String profileUrl = supabaseClient.storage
         .from('Images')
         .getPublicUrl(userProfile['profile_path']);
 
-    final profile = Profile(
+    for (var avail in userProfile['Availability']) {
+      Availability decodedTime = Availability(
+        availId: avail['availability_id'],
+        userId: avail['user_id'],
+        sTime: DateTime.parse(avail['start_time']),
+        eTime: DateTime.parse(avail['end_time']),
+        blockTitle: avail['block_title'],
+        eventId: avail['event_id'],
+      );
+      availability.add(decodedTime);
+    }
+    Profile profile = (Profile(
         profile_id: userProfile['profile_id'],
         avatar: profileUrl,
         username: userProfile['username'],
         profile_name: userProfile['profile_name'],
-        interests: userProfile['Interests']);
-    print("fetched Info");
+        interests: userProfile['Interests'],
+        availability: availability));
     return profile;
   }
 
@@ -79,8 +103,6 @@ class ProfileProvider extends StateNotifier<Profile?> {
     final List<dynamic> rows = response;
     final List<String> existingInterests =
         rows.map((row) => row['interests'].toString()).toList();
-
-    print('Existing Interests: $existingInterests');
     return existingInterests;
   }
 
@@ -176,6 +198,58 @@ class ProfileProvider extends StateNotifier<Profile?> {
         .eq('current', supabaseClient.auth.currentUser!.id)
         .eq('friend', friendProfileId));
     return friends.isNotEmpty;
+  }
+
+  Future<void> createBlockedTime(
+      profileId, isBlocked, sTime, eTime, title) async {
+    final supabaseClient = (await supabase).client;
+    Map blockedTimeMap = {
+      'user_id': profileId,
+      'is_blocked_timer': isBlocked,
+      'start_time': sTime,
+      'end_time': eTime,
+      'block_title': title
+    };
+    await supabaseClient.from('Availability').insert(blockedTimeMap);
+  }
+
+  Future<void> updateBlockedTime(
+      profileId, isBlocked, sTime, eTime, title, availId) async {
+    final supabaseClient = (await supabase).client;
+    Map blockedTimeMap = {
+      'user_id': profileId,
+      'is_blocked_timer': isBlocked,
+      'start_time': sTime,
+      'end_time': eTime,
+      'block_title': title
+    };
+    await supabaseClient
+        .from('Availability')
+        .update(blockedTimeMap)
+        .eq('availability_id', availId);
+  }
+
+  Future<void> deleteBlockedTime(availId) async {
+    final supabaseClient = (await supabase).client;
+
+    await supabaseClient
+        .from('Availability')
+        .delete()
+        .eq('availability_id', availId);
+  }
+  List<Availability> availavilityByMonth(int year, int month) {
+    List<Availability> availByMonth = [];
+    final List allAttend = state!.availability;
+
+    for (int i = 0; i < allAttend.length; i++) {
+      int eventYear = allAttend[i].sTime.year;
+      int eventMonth =allAttend[i].sTime.month;
+
+      if ((eventYear == year) && (eventMonth == month)) {
+        availByMonth.add(allAttend[i]);
+      }
+    }
+    return availByMonth;
   }
 }
 

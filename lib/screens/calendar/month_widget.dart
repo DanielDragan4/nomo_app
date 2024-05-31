@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:nomo/models/availability_model.dart';
 import 'package:nomo/models/events_model.dart';
 import 'package:nomo/providers/attending_events_provider.dart';
+import 'package:nomo/providers/profile_provider.dart';
 import 'package:nomo/screens/calendar/event_cal_tab.dart';
 import 'package:nomo/screens/detailed_event_screen.dart';
 import 'package:nomo/screens/calendar/day_screen.dart'; // Make sure to import DayScreen
@@ -120,6 +122,9 @@ class Month extends ConsumerWidget {
     List<Event> calEvents = ref
         .read(attendEventsProvider.notifier)
         .eventsAttendingByMonth(yearDisplayed, selectedMonth);
+    List<Availability> availability = ref
+        .read(profileProvider.notifier)
+        .availavilityByMonth(yearDisplayed, selectedMonth);
 
     return Container(
       alignment: Alignment.center,
@@ -224,7 +229,9 @@ class Month extends ConsumerWidget {
                       index: index,
                       hasEvent: hasEvent(index, calEvents),
                       hasTimeSelected: hasTimeSelected,
-                      currentDate: currentDate, // pass the current date
+                      currentDate: currentDate,
+                      selectedMonth: selectedMonth, // pass the current date
+                      availabilityByMonth: availability,
                     );
                   },
                 ),
@@ -266,7 +273,9 @@ class DayButton extends StatelessWidget {
       required this.index,
       required this.hasEvent,
       required this.hasTimeSelected,
-      required this.currentDate}); // added currentDate
+      required this.currentDate,
+      required this.selectedMonth,
+      required this.availabilityByMonth}); // added currentDate
 
   final bool isSelected;
   final bool boarderWidth;
@@ -275,7 +284,19 @@ class DayButton extends StatelessWidget {
   final int index;
   final List hasEvent;
   final bool hasTimeSelected;
-  final DateTime currentDate; // added currentDate
+  final DateTime currentDate;
+  final int selectedMonth;
+  final List<Availability> availabilityByMonth;
+
+  List<Availability> availabilityByDay() {
+    List<Availability> availabilityByDay = [];
+    for(var avail in availabilityByMonth) {
+      if(avail.sTime.day == currentDate.day) {
+        availabilityByDay.add(avail);
+      }
+    }
+    return availabilityByDay;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -283,8 +304,9 @@ class DayButton extends StatelessWidget {
       children: [
         GestureDetector(
           onTap: () {
-            Navigator.of(context).push(MaterialPageRoute(
-                builder: ((context) => DayScreen(day: currentDate))));
+          if(currentDate.month == selectedMonth)
+           { Navigator.of(context).push(MaterialPageRoute(
+                builder: ((context) => DayScreen(day: currentDate, blockedTime: availabilityByDay(),))));}
           },
           child: Stack(
             children: [
@@ -303,7 +325,7 @@ class DayButton extends StatelessWidget {
                   style: const TextStyle(fontSize: 20),
                 ),
               ),
-              if (hasTimeSelected)
+              if (hasTimeSelected && (currentDate.month == selectedMonth))
                 Positioned(
                   left: 0,
                   top: 0,

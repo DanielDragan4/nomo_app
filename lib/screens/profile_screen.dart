@@ -64,7 +64,8 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
               avatar: null,
               username: 'User-404',
               profile_name: 'User-404',
-              interests: []);
+              interests: [],
+              availability: []);
     } else {
       // Fetch the profile for the specified user ID
       profileState =

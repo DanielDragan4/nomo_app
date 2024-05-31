@@ -1,13 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:nomo/providers/attending_events_provider.dart';
+import 'package:nomo/models/availability_model.dart';
 import 'package:nomo/providers/profile_provider.dart';
 import 'package:nomo/screens/calendar/time_block.dart';
 
 class DayScreen extends ConsumerStatefulWidget {
-  DayScreen({super.key, required this.day});
+  DayScreen({super.key, required this.day, required this.blockedTime});
 
   DateTime day; // the specipsic day
+  List<Availability> blockedTime;
 
   @override
   _DayScreenState createState() => _DayScreenState();
@@ -61,7 +62,7 @@ class _DayScreenState extends ConsumerState<DayScreen> {
           };
         }
       });
-      ref.read(attendEventsProvider.notifier).createBlockedTime(profileId, true,
+      ref.read(profileProvider.notifier).createBlockedTime(profileId, true,
           supabaseSTime.toString(), supabaseETime.toString(), blockTitle);
 
       Navigator.of(context).pop();
@@ -97,7 +98,7 @@ class _DayScreenState extends ConsumerState<DayScreen> {
           };
         }
       });
-      ref.read(attendEventsProvider.notifier).createBlockedTime(profileId, true,
+      ref.read(profileProvider.notifier).createBlockedTime(profileId, true,
           supabaseSTime.toString(), supabaseETime.toString(), blockTitle);
 
       Navigator.of(context).pop();

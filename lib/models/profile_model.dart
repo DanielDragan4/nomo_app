@@ -4,11 +4,13 @@ class Profile {
       required this.avatar,
       required this.username,
       required this.profile_name,
-      required this.interests});
+      required this.interests,
+      required this.availability});
 
   final String profile_id;
   final avatar;
   final String username;
   final String profile_name;
   List interests;
+  final List availability;
 }

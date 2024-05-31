@@ -200,12 +200,10 @@ class ProfileProvider extends StateNotifier<Profile?> {
     return friends.isNotEmpty;
   }
 
-  Future<void> createBlockedTime(
-      profileId, isBlocked, sTime, eTime, title) async {
+  Future<void> createBlockedTime(profileId, sTime, eTime, title) async {
     final supabaseClient = (await supabase).client;
     Map blockedTimeMap = {
       'user_id': profileId,
-      'is_blocked_timer': isBlocked,
       'start_time': sTime,
       'end_time': eTime,
       'block_title': title
@@ -214,11 +212,10 @@ class ProfileProvider extends StateNotifier<Profile?> {
   }
 
   Future<void> updateBlockedTime(
-      profileId, isBlocked, sTime, eTime, title, availId) async {
+      profileId, sTime, eTime, title, availId) async {
     final supabaseClient = (await supabase).client;
     Map blockedTimeMap = {
       'user_id': profileId,
-      'is_blocked_timer': isBlocked,
       'start_time': sTime,
       'end_time': eTime,
       'block_title': title
@@ -237,13 +234,14 @@ class ProfileProvider extends StateNotifier<Profile?> {
         .delete()
         .eq('availability_id', availId);
   }
+
   List<Availability> availavilityByMonth(int year, int month) {
     List<Availability> availByMonth = [];
     final List allAttend = state!.availability;
 
     for (int i = 0; i < allAttend.length; i++) {
       int eventYear = allAttend[i].sTime.year;
-      int eventMonth =allAttend[i].sTime.month;
+      int eventMonth = allAttend[i].sTime.month;
 
       if ((eventYear == year) && (eventMonth == month)) {
         availByMonth.add(allAttend[i]);

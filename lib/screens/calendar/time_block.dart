@@ -3,11 +3,13 @@ import 'package:flutter/material.dart';
 class TimeBlock extends StatelessWidget {
   final String title;
   final double hourCount;
+  bool? isEvent;
 
-  const TimeBlock({
+  TimeBlock({
     Key? key,
     required this.title,
     required this.hourCount,
+    this.isEvent,
   }) : super(key: key);
 
   @override
@@ -17,7 +19,9 @@ class TimeBlock extends StatelessWidget {
     return Container(
       height: blockHeight,
       decoration: BoxDecoration(
-        color: Color.fromARGB(245, 244, 67, 54), // Adjust color as needed
+        color: isEvent != null
+            ? Theme.of(context).primaryColor.withOpacity(0.6)
+            : Color.fromARGB(245, 244, 67, 54), // Adjust color as needed
         borderRadius: BorderRadius.circular(5.0), // Rounded corners
       ),
       child: Center(

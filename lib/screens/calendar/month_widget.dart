@@ -123,7 +123,7 @@ class Month extends ConsumerWidget {
         .read(attendEventsProvider.notifier)
         .eventsAttendingByMonth(yearDisplayed, selectedMonth);
     List<Availability> availability = ref
-        .read(profileProvider.notifier)
+        .watch(profileProvider.notifier)
         .availavilityByMonth(yearDisplayed, selectedMonth);
 
     return Container(
@@ -221,6 +221,12 @@ class Month extends ConsumerWidget {
                         selectedMonth, index - firstDayOfWeek + 1);
                     bool hasTimeSelected =
                         selectedDatesWithTime[currentDate] ?? false;
+
+                    bool hasBlockedTime = availability.any((avail) =>
+                        avail.sTime.year == currentDate.year &&
+                        avail.sTime.month == currentDate.month &&
+                        avail.sTime.day == currentDate.day);
+
                     return DayButton(
                       isSelected: false,
                       boarderWidth: findBoarderWidth(index),
@@ -232,6 +238,7 @@ class Month extends ConsumerWidget {
                       currentDate: currentDate,
                       selectedMonth: selectedMonth, // pass the current date
                       availabilityByMonth: availability,
+                      hasBlockedTime: hasBlockedTime,
                     );
                   },
                 ),
@@ -275,7 +282,8 @@ class DayButton extends StatelessWidget {
       required this.hasTimeSelected,
       required this.currentDate,
       required this.selectedMonth,
-      required this.availabilityByMonth}); // added currentDate
+      required this.availabilityByMonth,
+      required this.hasBlockedTime}); // added currentDate
 
   final bool isSelected;
   final bool boarderWidth;
@@ -287,11 +295,12 @@ class DayButton extends StatelessWidget {
   final DateTime currentDate;
   final int selectedMonth;
   final List<Availability> availabilityByMonth;
+  final bool hasBlockedTime;
 
   List<Availability> availabilityByDay() {
     List<Availability> availabilityByDay = [];
-    for(var avail in availabilityByMonth) {
-      if(avail.sTime.day == currentDate.day) {
+    for (var avail in availabilityByMonth) {
+      if (avail.sTime.day == currentDate.day) {
         availabilityByDay.add(avail);
       }
     }
@@ -304,9 +313,15 @@ class DayButton extends StatelessWidget {
       children: [
         GestureDetector(
           onTap: () {
-          if(currentDate.month == selectedMonth)
-           { Navigator.of(context).push(MaterialPageRoute(
-                builder: ((context) => DayScreen(day: currentDate, blockedTime: availabilityByDay(),))));}
+            print("month avail: ${availabilityByMonth.isNotEmpty}");
+            print("day avail: ${availabilityByDay().isNotEmpty}");
+            if (currentDate.month == selectedMonth) {
+              Navigator.of(context).push(MaterialPageRoute(
+                  builder: ((context) => DayScreen(
+                        day: currentDate,
+                        blockedTime: availabilityByDay(),
+                      ))));
+            }
           },
           child: Stack(
             children: [
@@ -326,6 +341,15 @@ class DayButton extends StatelessWidget {
                 ),
               ),
               if (hasTimeSelected && (currentDate.month == selectedMonth))
+                Positioned(
+                  left: 0,
+                  top: 0,
+                  child: CustomPaint(
+                    size: Size(20, 20),
+                    painter: TrianglePainter(),
+                  ),
+                ),
+              if (hasBlockedTime && (currentDate.month == selectedMonth))
                 Positioned(
                   left: 0,
                   top: 0,

@@ -26,7 +26,6 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
   String? blockTitle;
   Map<DateTime, bool> selectedDatesWithTime = {};
 
-  
   Future<DateTime?> _showDatePickerDialog(BuildContext context) async {
     DateTime? selectedDate;
 
@@ -135,9 +134,40 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
         blockTitle != null &&
         blockTitle!.isNotEmpty &&
         selectedDate != null) {
+      final profileId = ref.read(profileProvider)!.profile_id;
+      if (profileId == null) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Profile ID is missing')),
+        );
+        return;
+      }
+
+      final startDateTime = DateTime(
+        selectedDate.year,
+        selectedDate.month,
+        selectedDate.day,
+        startTime!.hour,
+        startTime!.minute,
+      );
+      final endDateTime = DateTime(
+        selectedDate.year,
+        selectedDate.month,
+        selectedDate.day,
+        endTime!.hour,
+        endTime!.minute,
+      );
+
       setState(() {
         selectedDatesWithTime[selectedDate] = true;
       });
+
+      ref.watch(profileProvider.notifier).createBlockedTime(
+            profileId,
+            startDateTime.toString(),
+            endDateTime.toString(),
+            blockTitle!,
+          );
+
       Navigator.of(context).pop();
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -149,9 +179,10 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
 
   Future<void> _selectTime(BuildContext context, bool isStartTime) async {
     final pickedTime = await showTimePicker(
-        context: context,
-        initialTime: TimeOfDay.now(),
-        initialEntryMode: TimePickerEntryMode.input);
+      context: context,
+      initialTime: TimeOfDay.now(),
+      //initialEntryMode: TimePickerEntryMode.input
+    );
 
     if (pickedTime != null) {
       setState(() {
@@ -257,7 +288,7 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
                     showDialog(
                         context: context,
                         builder: (context) => AlertDialog(
-                          backgroundColor: Theme.of(context).canvasColor,
+                              backgroundColor: Theme.of(context).canvasColor,
                               title: Text(
                                 'What would you like to do?',
                                 style: TextStyle(
@@ -295,5 +326,4 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
       ),
     );
   }
-
 }

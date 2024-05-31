@@ -26,130 +26,7 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
   String? blockTitle;
   Map<DateTime, bool> selectedDatesWithTime = {};
 
-  @override
-  Widget build(BuildContext context) {
-    ref.read(attendEventsProvider.notifier).deCodeData();
-    final int firstDayOfWeek =
-        DateTime(yearDisplayed, monthDisplayed, 1).weekday;
-    final int lastOfMonth = DateTime(yearDisplayed, monthDisplayed + 1, 0).day;
-
-    return Scaffold(
-      backgroundColor: Theme.of(context).colorScheme.background,
-      appBar: AppBar(
-        backgroundColor: Theme.of(context).colorScheme.background,
-        flexibleSpace: PreferredSize(
-          preferredSize: const Size.fromHeight(kToolbarHeight),
-          child: Container(
-            padding: const EdgeInsets.only(
-              top: 20,
-              bottom: 5,
-            ),
-            alignment: Alignment.bottomCenter,
-            child: Text('Availability',
-                style: TextStyle(
-                  color: Theme.of(context).primaryColor,
-                  fontWeight: FontWeight.w800,
-                  fontSize: 30,
-                )),
-          ),
-        ),
-        bottom: PreferredSize(
-          preferredSize: const Size.fromHeight(4.0),
-          child: Container(
-            color: const Color.fromARGB(255, 69, 69, 69),
-            height: 1.0,
-          ),
-        ),
-      ),
-      body: Column(
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.end,
-            crossAxisAlignment: CrossAxisAlignment.end,
-            children: [
-              IconButton(
-                  onPressed: () {
-                    setState(() {
-                      monthDisplayed--;
-
-                      if (monthDisplayed < 1) {
-                        monthDisplayed = 12;
-                        yearDisplayed--;
-                      }
-                    });
-                  },
-                  icon: Icon(Icons.arrow_back_ios,
-                      color: Theme.of(context).colorScheme.onSecondary)),
-              IconButton(
-                  onPressed: () {
-                    setState(() {
-                      monthDisplayed++;
-                      if (monthDisplayed > 12) {
-                        monthDisplayed = 1;
-                        yearDisplayed++;
-                      }
-                    });
-                  },
-                  icon: Icon(Icons.arrow_forward_ios,
-                      color: Theme.of(context).colorScheme.onSecondary))
-            ],
-          ),
-          Expanded(
-            child: Month(
-              selectedMonth: monthDisplayed,
-              eventsByDate: const [],
-              firstDayOfWeek: firstDayOfWeek,
-              lastOfMonth: lastOfMonth,
-              yearDisplayed: yearDisplayed,
-              selectedDatesWithTime: selectedDatesWithTime,
-            ),
-          ),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.end,
-            children: [
-              IconButton(
-                  onPressed: () {
-                    showDialog(
-                        context: context,
-                        builder: (context) => AlertDialog(
-                              title: Text(
-                                'What would you like to do?',
-                                style: TextStyle(
-                                    color: Theme.of(context).primaryColorDark),
-                              ),
-                              actions: [
-                                TextButton(
-                                    onPressed: () => Navigator.of(context)
-                                        .push(MaterialPageRoute(
-                                            builder: ((context) =>
-                                                const NewEventScreen(
-                                                    isNewEvent: true,
-                                                    event: null))))
-                                        .then(
-                                            (result) => Navigator.pop(context)),
-                                    child: const Text('CREATE EVENT')),
-                                TextButton(
-                                    onPressed: () async {
-                                      selectedDate =
-                                          await _showDatePickerDialog(context);
-                                      if (selectedDate != null) {
-                                        _showTimeRangePicker(context);
-                                      }
-                                    },
-                                    child: const Text('CREATE BLOCKED TIME')),
-                              ],
-                            ));
-                  },
-                  icon: Icon(Icons.add_box_rounded,
-                      size: 45,
-                      color: Theme.of(context).colorScheme.onSecondary)),
-            ],
-          )
-        ],
-      ),
-    );
-  }
-
+  
   Future<DateTime?> _showDatePickerDialog(BuildContext context) async {
     DateTime? selectedDate;
 
@@ -293,4 +170,130 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
     final period = time.period == DayPeriod.am ? 'AM' : 'PM';
     return '$hours:$minutes $period';
   }
+
+  @override
+  Widget build(BuildContext context) {
+    ref.read(attendEventsProvider.notifier).deCodeData();
+    final int firstDayOfWeek =
+        DateTime(yearDisplayed, monthDisplayed, 1).weekday;
+    final int lastOfMonth = DateTime(yearDisplayed, monthDisplayed + 1, 0).day;
+
+    return Scaffold(
+      backgroundColor: Theme.of(context).colorScheme.background,
+      appBar: AppBar(
+        backgroundColor: Theme.of(context).colorScheme.background,
+        flexibleSpace: PreferredSize(
+          preferredSize: const Size.fromHeight(kToolbarHeight),
+          child: Container(
+            padding: const EdgeInsets.only(
+              top: 20,
+              bottom: 5,
+            ),
+            alignment: Alignment.bottomCenter,
+            child: Text('Availability',
+                style: TextStyle(
+                  color: Theme.of(context).primaryColor,
+                  fontWeight: FontWeight.w800,
+                  fontSize: 30,
+                )),
+          ),
+        ),
+        bottom: PreferredSize(
+          preferredSize: const Size.fromHeight(4.0),
+          child: Container(
+            color: const Color.fromARGB(255, 69, 69, 69),
+            height: 1.0,
+          ),
+        ),
+      ),
+      body: Column(
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.end,
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: [
+              IconButton(
+                  onPressed: () {
+                    setState(() {
+                      monthDisplayed--;
+
+                      if (monthDisplayed < 1) {
+                        monthDisplayed = 12;
+                        yearDisplayed--;
+                      }
+                    });
+                  },
+                  icon: Icon(Icons.arrow_back_ios,
+                      color: Theme.of(context).colorScheme.onSecondary)),
+              IconButton(
+                  onPressed: () {
+                    setState(() {
+                      monthDisplayed++;
+                      if (monthDisplayed > 12) {
+                        monthDisplayed = 1;
+                        yearDisplayed++;
+                      }
+                    });
+                  },
+                  icon: Icon(Icons.arrow_forward_ios,
+                      color: Theme.of(context).colorScheme.onSecondary))
+            ],
+          ),
+          Expanded(
+            child: Month(
+              selectedMonth: monthDisplayed,
+              eventsByDate: const [],
+              firstDayOfWeek: firstDayOfWeek,
+              lastOfMonth: lastOfMonth,
+              yearDisplayed: yearDisplayed,
+              selectedDatesWithTime: selectedDatesWithTime,
+            ),
+          ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: [
+              IconButton(
+                  onPressed: () {
+                    showDialog(
+                        context: context,
+                        builder: (context) => AlertDialog(
+                          backgroundColor: Theme.of(context).canvasColor,
+                              title: Text(
+                                'What would you like to do?',
+                                style: TextStyle(
+                                    color: Theme.of(context).primaryColor),
+                              ),
+                              actions: [
+                                TextButton(
+                                    onPressed: () => Navigator.of(context)
+                                        .push(MaterialPageRoute(
+                                            builder: ((context) =>
+                                                const NewEventScreen(
+                                                    isNewEvent: true,
+                                                    event: null))))
+                                        .then(
+                                            (result) => Navigator.pop(context)),
+                                    child: const Text('CREATE EVENT')),
+                                TextButton(
+                                    onPressed: () async {
+                                      selectedDate =
+                                          await _showDatePickerDialog(context);
+                                      if (selectedDate != null) {
+                                        _showTimeRangePicker(context);
+                                      }
+                                    },
+                                    child: const Text('CREATE BLOCKED TIME')),
+                              ],
+                            ));
+                  },
+                  icon: Icon(Icons.add_box_rounded,
+                      size: 45,
+                      color: Theme.of(context).colorScheme.onSecondary)),
+            ],
+          )
+        ],
+      ),
+    );
+  }
+
 }

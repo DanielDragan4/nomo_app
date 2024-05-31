@@ -4,6 +4,7 @@ import 'package:nomo/models/events_model.dart';
 import 'package:nomo/providers/attending_events_provider.dart';
 import 'package:nomo/screens/calendar/event_cal_tab.dart';
 import 'package:nomo/screens/detailed_event_screen.dart';
+import 'package:nomo/screens/calendar/day_screen.dart'; // Make sure to import DayScreen
 
 class Month extends ConsumerWidget {
   Month(
@@ -28,7 +29,7 @@ class Month extends ConsumerWidget {
       case 1:
         return "January";
       case 2:
-        return "Febuary";
+        return "February";
       case 3:
         return "March";
       case 4:
@@ -223,6 +224,7 @@ class Month extends ConsumerWidget {
                       index: index,
                       hasEvent: hasEvent(index, calEvents),
                       hasTimeSelected: hasTimeSelected,
+                      currentDate: currentDate, // pass the current date
                     );
                   },
                 ),
@@ -263,7 +265,8 @@ class DayButton extends StatelessWidget {
       required this.dayDisplayed,
       required this.index,
       required this.hasEvent,
-      required this.hasTimeSelected});
+      required this.hasTimeSelected,
+      required this.currentDate}); // added currentDate
 
   final bool isSelected;
   final bool boarderWidth;
@@ -272,6 +275,7 @@ class DayButton extends StatelessWidget {
   final int index;
   final List hasEvent;
   final bool hasTimeSelected;
+  final DateTime currentDate; // added currentDate
 
   @override
   Widget build(BuildContext context) {
@@ -279,11 +283,8 @@ class DayButton extends StatelessWidget {
       children: [
         GestureDetector(
           onTap: () {
-            if (hasEvent[0]) {
-              Navigator.of(context).push(MaterialPageRoute(
-                  builder: ((context) =>
-                      DetailedEventScreen(eventData: hasEvent[1]))));
-            }
+            Navigator.of(context).push(MaterialPageRoute(
+                builder: ((context) => DayScreen(day: currentDate))));
           },
           child: Stack(
             children: [
@@ -322,21 +323,17 @@ class DayButton extends StatelessWidget {
 class TrianglePainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
-    var paint = Paint()
-      ..color = Color.fromARGB(162, 244, 67, 54)
-      ..style = PaintingStyle.fill;
-
-    var path = Path()
-      ..moveTo(1, 1) // Start at the top-left corner
-      ..lineTo(1, size.height) // Draw line to the bottom-left corner
-      ..lineTo(size.height, 1) // Draw line to the top-right corner
-      ..close(); // Close the path
-
+    final paint = Paint()..color = Color.fromARGB(175, 255, 0, 0);
+    final path = Path()
+      ..moveTo(1, 1)
+      ..lineTo(size.width, 1)
+      ..lineTo(1, size.height)
+      ..close();
     canvas.drawPath(path, paint);
   }
 
   @override
-  bool shouldRepaint(CustomPainter oldDelegate) {
+  bool shouldRepaint(covariant CustomPainter oldDelegate) {
     return false;
   }
 }

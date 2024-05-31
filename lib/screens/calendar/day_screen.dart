@@ -8,7 +8,7 @@ import 'package:nomo/screens/calendar/time_block.dart';
 class DayScreen extends ConsumerStatefulWidget {
   DayScreen({super.key, required this.day});
 
-  DateTime day;  // the specipsic day
+  DateTime day; // the specipsic day
 
   @override
   _DayScreenState createState() => _DayScreenState();
@@ -43,14 +43,16 @@ class _DayScreenState extends ConsumerState<DayScreen> {
         endTime != null &&
         blockTitle != null &&
         blockTitle!.isNotEmpty) {
-        DateTime supabaseSTime = DateTime(widget.day.year, widget.day.month, widget.day.day, startTime!.hour, startTime!.minute);
-        DateTime supabaseETime = DateTime(widget.day.year, widget.day.month, widget.day.day, endTime!.hour, endTime!.minute);
-        String profileId = ref.read(profileProvider.notifier).state!.profile_id;
+      DateTime supabaseSTime = DateTime(widget.day.year, widget.day.month,
+          widget.day.day, startTime!.hour, startTime!.minute);
+      DateTime supabaseETime = DateTime(widget.day.year, widget.day.month,
+          widget.day.day, endTime!.hour, endTime!.minute);
+      String profileId = ref.read(profileProvider.notifier).state!.profile_id;
 
       setState(() {
         int startMinutes = startTime!.hour * 60 + startTime!.minute;
         int endMinutes = endTime!.hour * 60 + endTime!.minute;
-        
+
         for (int i = startMinutes; i <= endMinutes; i++) {
           blockedHours[i] = {
             'blocked': true,
@@ -60,7 +62,8 @@ class _DayScreenState extends ConsumerState<DayScreen> {
           };
         }
       });
-      ref.read(attendEventsProvider.notifier).createBlockedTime( profileId, true, supabaseSTime.toString(), supabaseETime.toString(), blockTitle);
+      ref.read(attendEventsProvider.notifier).createBlockedTime(profileId, true,
+          supabaseSTime.toString(), supabaseETime.toString(), blockTitle);
 
       Navigator.of(context).pop();
     } else {
@@ -70,19 +73,22 @@ class _DayScreenState extends ConsumerState<DayScreen> {
       );
     }
   }
-   void _updateTimeRange(BuildContext context) {
+
+  void _updateTimeRange(BuildContext context) {
     if (startTime != null &&
         endTime != null &&
         blockTitle != null &&
         blockTitle!.isNotEmpty) {
-        DateTime supabaseSTime = DateTime(widget.day.year, widget.day.month, widget.day.day, startTime!.hour, startTime!.minute);
-        DateTime supabaseETime = DateTime(widget.day.year, widget.day.month, widget.day.day, endTime!.hour, endTime!.minute);
-        String profileId = ref.read(profileProvider.notifier).state!.profile_id;
+      DateTime supabaseSTime = DateTime(widget.day.year, widget.day.month,
+          widget.day.day, startTime!.hour, startTime!.minute);
+      DateTime supabaseETime = DateTime(widget.day.year, widget.day.month,
+          widget.day.day, endTime!.hour, endTime!.minute);
+      String profileId = ref.read(profileProvider.notifier).state!.profile_id;
 
       setState(() {
         int startMinutes = startTime!.hour * 60 + startTime!.minute;
         int endMinutes = endTime!.hour * 60 + endTime!.minute;
-        
+
         for (int i = startMinutes; i <= endMinutes; i++) {
           blockedHours[i] = {
             'blocked': true,
@@ -92,7 +98,8 @@ class _DayScreenState extends ConsumerState<DayScreen> {
           };
         }
       });
-      ref.read(attendEventsProvider.notifier).createBlockedTime( profileId, true, supabaseSTime.toString(), supabaseETime.toString(), blockTitle);
+      ref.read(attendEventsProvider.notifier).createBlockedTime(profileId, true,
+          supabaseSTime.toString(), supabaseETime.toString(), blockTitle);
 
       Navigator.of(context).pop();
     } else {
@@ -180,7 +187,8 @@ class _DayScreenState extends ConsumerState<DayScreen> {
                 ),
                 ElevatedButton(
                   onPressed: () {
-                    _confirmTimeRange(context); // this is where the block is created
+                    _confirmTimeRange(
+                        context); // this is where the block is created
                   },
                   child: Text('Confirm'),
                 ),
@@ -315,7 +323,7 @@ class _DayScreenState extends ConsumerState<DayScreen> {
                         });
                         Navigator.of(context).pop();
                       },
-                      child: const Text('Save'),  // update the time block
+                      child: const Text('Save'), // update the time block
                     ),
                     ElevatedButton(
                       onPressed: () {
@@ -329,7 +337,7 @@ class _DayScreenState extends ConsumerState<DayScreen> {
                             };
                           }
                         });
-                        Navigator.of(context).pop();  // remove blocked time
+                        Navigator.of(context).pop(); // remove blocked time
                       },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.red,

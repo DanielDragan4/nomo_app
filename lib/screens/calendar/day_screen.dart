@@ -15,11 +15,46 @@ class DayScreen extends ConsumerStatefulWidget {
 }
 
 class _DayScreenState extends ConsumerState<DayScreen> {
-  List<Map<String, dynamic>> blockedHours = List.generate(24 * 60,
-      (index) => {'blocked': false, 'title': '', 'start': null, 'end': null});
+  List<Map<String, dynamic>> blockedHours = List.generate(
+      24 * 60,
+      (index) => {
+            'blocked': false,
+            'title': '',
+            'start': null,
+            'end': null,
+            'isEvent': false
+          });
   TimeOfDay? startTime; // s time
   TimeOfDay? endTime; // e time
   String? blockTitle;
+
+  @override
+  void initState() {
+    super.initState();
+    print("blockedTime: ${widget.blockedTime}");
+    _initializeBlockedHours();
+  }
+
+  void _initializeBlockedHours() {
+    for (var availability in widget.blockedTime) {
+      DateTime start = availability.sTime;
+      DateTime end = availability.eTime;
+      String title = availability.blockTitle;
+
+      int startMinutes = start.hour * 60 + start.minute;
+      int endMinutes = end.hour * 60 + end.minute;
+
+      for (int i = startMinutes; i <= endMinutes; i++) {
+        blockedHours[i] = {
+          'blocked': true,
+          'title': title,
+          'start': TimeOfDay(hour: start.hour, minute: start.minute),
+          'end': TimeOfDay(hour: end.hour, minute: end.minute),
+          //if (availability.eventId != null) 'isEvent': true
+        };
+      }
+    }
+  }
 
   Future<void> _selectTime(BuildContext context, bool isStartTime) async {
     final pickedTime = await showTimePicker(
@@ -62,7 +97,7 @@ class _DayScreenState extends ConsumerState<DayScreen> {
           };
         }
       });
-      ref.read(profileProvider.notifier).createBlockedTime(profileId, true,
+      ref.read(profileProvider.notifier).createBlockedTime(profileId,
           supabaseSTime.toString(), supabaseETime.toString(), blockTitle);
 
       Navigator.of(context).pop();
@@ -98,7 +133,7 @@ class _DayScreenState extends ConsumerState<DayScreen> {
           };
         }
       });
-      ref.read(profileProvider.notifier).createBlockedTime(profileId, true,
+      ref.read(profileProvider.notifier).createBlockedTime(profileId,
           supabaseSTime.toString(), supabaseETime.toString(), blockTitle);
 
       Navigator.of(context).pop();
@@ -374,7 +409,8 @@ class _DayScreenState extends ConsumerState<DayScreen> {
             Container(
               decoration: BoxDecoration(
                   color: Theme.of(context).colorScheme.onSecondary,
-                  border: const Border(bottom: BorderSide(), right: BorderSide())),
+                  border:
+                      const Border(bottom: BorderSide(), right: BorderSide())),
               width: 80,
               alignment: Alignment.centerLeft,
               padding: EdgeInsets.symmetric(horizontal: 8.0),
@@ -425,7 +461,6 @@ class _DayScreenState extends ConsumerState<DayScreen> {
             ),
           ),
         );
-
         minute = blockEnd - 1;
       }
     }

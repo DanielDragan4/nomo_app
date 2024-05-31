@@ -6,8 +6,9 @@ import 'package:nomo/screens/search_screen.dart';
 import 'package:nomo/widgets/friend_tab.dart';
 
 class FriendsScreen extends ConsumerStatefulWidget {
-  const FriendsScreen({super.key});
+  const FriendsScreen({super.key, required this.isGroupChats});
 
+  final bool isGroupChats;
   @override
   ConsumerState<FriendsScreen> createState() => _FriendsScreenState();
 }
@@ -38,7 +39,7 @@ class _FriendsScreenState extends ConsumerState<FriendsScreen> {
               bottom: 5,
             ),
             alignment: Alignment.bottomCenter,
-            child: Text('Friends',
+            child: Text(widget.isGroupChats ? 'Groups' : 'Friends',
                 style: TextStyle(
                   color: Theme.of(context).primaryColor,
                   fontWeight: FontWeight.w800,
@@ -58,62 +59,70 @@ class _FriendsScreenState extends ConsumerState<FriendsScreen> {
         children: [
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: [
-              ToggleButtons(
-                constraints: const BoxConstraints(
-                    maxHeight: 250, minWidth: 150, maxWidth: 200),
-                borderColor: Colors.black,
-                fillColor: Theme.of(context).primaryColor,
-                borderWidth: 1,
-                selectedBorderColor: Colors.black,
-                selectedColor: Colors.grey,
-                borderRadius: BorderRadius.circular(5),
-                onPressed: (int index) {
-                  setState(() {
-                    for (int i = 0; i < isSelected.length; i++) {
-                      isSelected[i] = i == index;
-                    }
-                    friends = !friends;
-                  });
-                },
-                isSelected: isSelected,
-                children: const [
-                  Padding(
-                      padding: EdgeInsets.fromLTRB(3, 3, 3, 3),
-                      child: Text(
-                        'Friends',
-                        style: TextStyle(
-                            fontSize: 14, fontWeight: FontWeight.w700),
-                      )),
-                  Padding(
-                    padding: EdgeInsets.fromLTRB(3, 3, 3, 3),
-                    child: Text(
-                      'Requests',
-                      style:
-                          TextStyle(fontSize: 14, fontWeight: FontWeight.w700),
+            children: widget.isGroupChats
+                ? []
+                : [
+                    ToggleButtons(
+                      constraints: const BoxConstraints(
+                          maxHeight: 250, minWidth: 150, maxWidth: 200),
+                      borderColor: Colors.black,
+                      fillColor: Theme.of(context).primaryColor,
+                      borderWidth: 1,
+                      selectedBorderColor: Colors.black,
+                      selectedColor: Colors.grey,
+                      borderRadius: BorderRadius.circular(5),
+                      onPressed: (int index) {
+                        setState(() {
+                          for (int i = 0; i < isSelected.length; i++) {
+                            isSelected[i] = i == index;
+                          }
+                          friends = !friends;
+                        });
+                      },
+                      isSelected: isSelected,
+                      children: const [
+                        Padding(
+                            padding: EdgeInsets.fromLTRB(3, 3, 3, 3),
+                            child: Text(
+                              'Friends',
+                              style: TextStyle(
+                                  fontSize: 14, fontWeight: FontWeight.w700),
+                            )),
+                        Padding(
+                          padding: EdgeInsets.fromLTRB(3, 3, 3, 3),
+                          child: Text(
+                            'Requests',
+                            style: TextStyle(
+                                fontSize: 14, fontWeight: FontWeight.w700),
+                          ),
+                        ),
+                      ],
                     ),
-                  ),
-                ],
-              ),
-              IconButton(
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => const SearchScreen(),
+                    IconButton(
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const SearchScreen(),
+                          ),
+                        );
+                      },
+                      icon: Icon(
+                        Icons.search,
+                        color: Theme.of(context).colorScheme.onSecondary,
+                      ),
                     ),
-                  );
-                },
-                icon: Icon(
-                  Icons.search,
-                  color: Theme.of(context).colorScheme.onSecondary,
-                ),
-              ),
-            ],
+                  ],
           ),
           Expanded(
-            child: StreamBuilder(
-                stream: ref.read(profileProvider.notifier).decodeFriends().asStream(),
+            child: widget.isGroupChats  ?
+            ListView()
+            :
+             StreamBuilder(
+                stream: ref
+                    .read(profileProvider.notifier)
+                    .decodeFriends()
+                    .asStream(),
                 builder: (context, snapshot) {
                   if (snapshot.data != null) {
                     return ListView(
@@ -124,7 +133,7 @@ class _FriendsScreenState extends ConsumerState<FriendsScreen> {
                                 FreindTab(
                                   friendData: i,
                                   isRequest: true,
-                                )
+                                ),
                             ]
                           : [
                               for (Friend i in snapshot.data!)
@@ -144,6 +153,40 @@ class _FriendsScreenState extends ConsumerState<FriendsScreen> {
                     );
                   }
                 }),
+          ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: (widget.isGroupChats) ? 
+            ([
+              IconButton(
+                  onPressed: () {
+                    showDialog(context: context,
+                    builder: (context) => AlertDialog(
+                        backgroundColor: Theme.of(context).canvasColor,
+                        title: Text('Create Group'),
+                        actions: [
+                          TextButton(onPressed: () {}, child: Text('Groups'),),
+                          TextButton(onPressed: () {}, child: Text('Cancel'),)
+                      ],));
+                  },
+                  icon: Icon(
+                    Icons.group_add,
+                    color: Theme.of(context).colorScheme.onSecondary,
+                    size: MediaQuery.of(context).size.aspectRatio * 85,
+                  )),
+            ])
+            :
+            ([
+              IconButton(
+                  onPressed: () {
+                    Navigator.push(context, MaterialPageRoute(builder: (context) => const FriendsScreen(isGroupChats: true),),);
+                  },
+                  icon: Icon(
+                    Icons.groups,
+                    color: Theme.of(context).colorScheme.onSecondary,
+                    size: MediaQuery.of(context).size.aspectRatio * 85,
+                  ))
+            ]),
           )
         ],
       ),

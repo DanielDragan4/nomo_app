@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:http/http.dart';
 import 'package:nomo/providers/attending_events_provider.dart';
 import 'package:nomo/providers/profile_provider.dart';
 import 'package:nomo/screens/calendar/time_block.dart';
@@ -367,14 +366,14 @@ class _DayScreenState extends ConsumerState<DayScreen> {
       final timeLabel =
           '${startingHour == 0 ? 12 : startingHour}:00 ${i < 12 ? 'AM' : 'PM'}';
 
-      hourLabels.add(Container(
+      hourLabels.add(SizedBox(
         height: 50.0,
         child: Row(
           children: [
             Container(
               decoration: BoxDecoration(
-                  color: Colors.white,
-                  border: Border(bottom: BorderSide(), right: BorderSide())),
+                  color: Theme.of(context).colorScheme.onSecondary,
+                  border: const Border(bottom: BorderSide(), right: BorderSide())),
               width: 80,
               alignment: Alignment.centerLeft,
               padding: EdgeInsets.symmetric(horizontal: 8.0),
@@ -456,7 +455,7 @@ class _DayScreenState extends ConsumerState<DayScreen> {
         },
         child: Icon(
           Icons.add,
-          color: Colors.white,
+          color: Theme.of(context).colorScheme.onSecondary,
         ),
       ),
     );

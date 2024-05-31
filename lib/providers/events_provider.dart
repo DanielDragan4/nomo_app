@@ -25,7 +25,7 @@ class EventProvider extends StateNotifier<List?> {
     final supabaseClient = (await supabase).client;
 
     for (var eventData in codedList) {
-      String profileUrl = supabaseClient.storage
+      String profilePictureUrl = supabaseClient.storage
           .from('Images')
           .getPublicUrl(eventData['profile_path']);
       String eventUrl = supabaseClient.storage
@@ -47,13 +47,13 @@ class EventProvider extends StateNotifier<List?> {
         eventId: eventData['event_id'],
         eventType: eventData['invitationType'],
         host: eventData['host'],
-        imageId: eventData['image_id'],
+        imageId: eventData['image_id'], 
         imageUrl: eventUrl,
         location: eventData['location'],
         title: eventData['title'],
         edate: eventData['time_end'],
         attendees: eventData['Attendees'],
-        hostProfileUrl: profileUrl,
+        hostProfileUrl: profilePictureUrl,
         hostUsername: eventData['username'],
         profileName: eventData['profile_name'],
         bookmarked: bookmarked,

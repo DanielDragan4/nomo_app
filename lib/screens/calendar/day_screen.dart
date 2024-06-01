@@ -22,7 +22,8 @@ class _DayScreenState extends ConsumerState<DayScreen> {
             'title': '',
             'start': null,
             'end': null,
-            'isEvent': false
+            'isEvent': false,
+            'id': ''
           });
   TimeOfDay? startTime; // s time
   TimeOfDay? endTime; // e time
@@ -40,6 +41,7 @@ class _DayScreenState extends ConsumerState<DayScreen> {
       DateTime start = availability.sTime;
       DateTime end = availability.eTime;
       String title = availability.blockTitle;
+      String id = availability.availId ?? '';
 
       int startMinutes = start.hour * 60 + start.minute;
       int endMinutes = end.hour * 60 + end.minute;
@@ -50,7 +52,8 @@ class _DayScreenState extends ConsumerState<DayScreen> {
           'title': title,
           'start': TimeOfDay(hour: start.hour, minute: start.minute),
           'end': TimeOfDay(hour: end.hour, minute: end.minute),
-          //if (availability.eventId != null) 'isEvent': true
+          if (availability.eventId != null) 'isEvent': true,
+          'id': id
         };
       }
     }
@@ -109,7 +112,12 @@ class _DayScreenState extends ConsumerState<DayScreen> {
     }
   }
 
-  void _updateTimeRange(BuildContext context) {
+  void _updateTimeRange(BuildContext context, String availID) {
+    print('should be updating now');
+    print('the start time is: $startTime');
+    print('the end time is: $endTime');
+    print('the title is: $blockTitle');
+    print('the availability ID is: $availID');
     if (startTime != null &&
         endTime != null &&
         blockTitle != null &&
@@ -121,6 +129,7 @@ class _DayScreenState extends ConsumerState<DayScreen> {
       String profileId = ref.read(profileProvider.notifier).state!.profile_id;
 
       setState(() {
+        print('setting the updated state');
         int startMinutes = startTime!.hour * 60 + startTime!.minute;
         int endMinutes = endTime!.hour * 60 + endTime!.minute;
 
@@ -129,12 +138,17 @@ class _DayScreenState extends ConsumerState<DayScreen> {
             'blocked': true,
             'title': blockTitle,
             'start': startTime,
-            'end': endTime
+            'end': endTime,
+            'id': availID
           };
         }
       });
-      ref.read(profileProvider.notifier).createBlockedTime(profileId,
-          supabaseSTime.toString(), supabaseETime.toString(), blockTitle);
+      ref.read(profileProvider.notifier).updateBlockedTime(
+          profileId,
+          supabaseSTime.toString(),
+          supabaseETime.toString(),
+          blockTitle,
+          availID);
 
       Navigator.of(context).pop();
     } else {
@@ -235,12 +249,12 @@ class _DayScreenState extends ConsumerState<DayScreen> {
     );
   }
 
-  void _showEditTimeBlock(
-      BuildContext context, int blockStart, int blockEnd, String title) {
-    TimeOfDay editStartTime =
-        TimeOfDay(hour: blockStart ~/ 60, minute: blockStart % 60);
-    TimeOfDay editEndTime =
-        TimeOfDay(hour: blockEnd ~/ 60, minute: blockEnd % 60);
+  void _showEditTimeBlock(BuildContext context, String availID, int blockStart,
+      int blockEnd, String title) {
+    // Initialize editStartTime and editEndTime with the existing values
+    startTime = TimeOfDay(hour: blockStart ~/ 60, minute: blockStart % 60);
+    endTime = TimeOfDay(hour: blockEnd ~/ 60, minute: blockEnd % 60);
+
     TextEditingController titleController = TextEditingController(text: title);
 
     showModalBottomSheet(
@@ -273,17 +287,18 @@ class _DayScreenState extends ConsumerState<DayScreen> {
                       onPressed: () async {
                         final pickedTime = await showTimePicker(
                             context: context,
-                            initialTime: editStartTime,
+                            initialTime: startTime!,
                             initialEntryMode: TimePickerEntryMode.input);
 
                         if (pickedTime != null) {
                           setState(() {
-                            editStartTime = pickedTime;
+                            startTime =
+                                pickedTime; // Update startTime if a new time is picked
                           });
                         }
                       },
                       child: Text(
-                        formatTimeOfDay(editStartTime),
+                        formatTimeOfDay(startTime!),
                         style: TextStyle(color: Colors.white),
                       ),
                     ),
@@ -294,17 +309,18 @@ class _DayScreenState extends ConsumerState<DayScreen> {
                       onPressed: () async {
                         final pickedTime = await showTimePicker(
                             context: context,
-                            initialTime: editEndTime,
+                            initialTime: endTime!,
                             initialEntryMode: TimePickerEntryMode.input);
 
                         if (pickedTime != null) {
                           setState(() {
-                            editEndTime = pickedTime;
+                            endTime =
+                                pickedTime; // Update endTime if a new time is picked
                           });
                         }
                       },
                       child: Text(
-                        formatTimeOfDay(editEndTime),
+                        formatTimeOfDay(endTime!),
                         style: TextStyle(color: Colors.white),
                       ),
                     ),
@@ -332,10 +348,11 @@ class _DayScreenState extends ConsumerState<DayScreen> {
                       onPressed: () {
                         setState(() {
                           int newStartMinutes =
-                              editStartTime.hour * 60 + editStartTime.minute;
+                              startTime!.hour * 60 + startTime!.minute;
                           int newEndMinutes =
-                              editEndTime.hour * 60 + editEndTime.minute;
+                              endTime!.hour * 60 + endTime!.minute;
 
+                          // Clear the previous block
                           for (int i = blockStart; i <= blockEnd; i++) {
                             blockedHours[i] = {
                               'blocked': false,
@@ -345,20 +362,24 @@ class _DayScreenState extends ConsumerState<DayScreen> {
                             };
                           }
 
+                          // Set the new block
                           for (int i = newStartMinutes;
                               i <= newEndMinutes;
                               i++) {
                             blockedHours[i] = {
                               'blocked': true,
                               'title': titleController.text,
-                              'start': editStartTime,
-                              'end': editEndTime
+                              'start': startTime,
+                              'end': endTime,
+                              'id': availID
                             };
                           }
                         });
+                        print('about to update');
+                        _updateTimeRange(context, availID);
                         Navigator.of(context).pop();
                       },
-                      child: const Text('Save'), // update the time block
+                      child: const Text('Save'),
                     ),
                     ElevatedButton(
                       onPressed: () {
@@ -372,7 +393,10 @@ class _DayScreenState extends ConsumerState<DayScreen> {
                             };
                           }
                         });
-                        Navigator.of(context).pop(); // remove blocked time
+                        ref
+                            .read(profileProvider.notifier)
+                            .deleteBlockedTime(availID);
+                        Navigator.of(context).pop();
                       },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.red,
@@ -443,6 +467,7 @@ class _DayScreenState extends ConsumerState<DayScreen> {
 
         int blockMinutes = blockEnd - blockStart;
         double blockHeight = (blockMinutes / 60) * 50.0;
+        String availID = blockedHours[blockStart]['id'] ?? '';
 
         timeBlocks.add(
           Positioned(
@@ -451,7 +476,7 @@ class _DayScreenState extends ConsumerState<DayScreen> {
             right: 0,
             child: GestureDetector(
               onTap: () {
-                _showEditTimeBlock(context, blockStart, blockEnd - 1,
+                _showEditTimeBlock(context, availID, blockStart, blockEnd - 1,
                     blockedHours[blockStart]['title']);
               },
               child: TimeBlock(

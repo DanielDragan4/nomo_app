@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:nomo/models/friend_model.dart';
 import 'package:nomo/providers/profile_provider.dart';
+import 'package:nomo/screens/groupchat_create_screen.dart';
 import 'package:nomo/screens/search_screen.dart';
 import 'package:nomo/widgets/friend_tab.dart';
 
@@ -115,78 +116,101 @@ class _FriendsScreenState extends ConsumerState<FriendsScreen> {
                   ],
           ),
           Expanded(
-            child: widget.isGroupChats  ?
-            ListView()
-            :
-             StreamBuilder(
-                stream: ref
-                    .read(profileProvider.notifier)
-                    .decodeFriends()
-                    .asStream(),
-                builder: (context, snapshot) {
-                  if (snapshot.data != null) {
-                    return ListView(
-                      key: const PageStorageKey('page'),
-                      children: friends
-                          ? [
-                              for (Friend i in snapshot.data!)
-                                FreindTab(
-                                  friendData: i,
-                                  isRequest: true,
-                                ),
-                            ]
-                          : [
-                              for (Friend i in snapshot.data!)
-                                FreindTab(
-                                  friendData: i,
-                                  isRequest: false,
-                                )
-                            ],
-                    );
-                  } else {
-                    return Center(
-                      child: Text(
-                        'No Friends Were Found. Add Some',
-                        style: TextStyle(
-                            color: Theme.of(context).colorScheme.onSecondary),
-                      ),
-                    );
-                  }
-                }),
+            child: widget.isGroupChats
+                ? ListView()
+                : StreamBuilder(
+                    stream: ref
+                        .read(profileProvider.notifier)
+                        .decodeFriends()
+                        .asStream(),
+                    builder: (context, snapshot) {
+                      if (snapshot.data != null) {
+                        return ListView(
+                          key: const PageStorageKey('page'),
+                          children: friends
+                              ? [
+                                  for (Friend i in snapshot.data!)
+                                    FreindTab(
+                                      friendData: i,
+                                      isRequest: true,
+                                    ),
+                                ]
+                              : [
+                                  for (Friend i in snapshot.data!)
+                                    FreindTab(
+                                      friendData: i,
+                                      isRequest: false,
+                                    )
+                                ],
+                        );
+                      } else {
+                        return Center(
+                          child: Text(
+                            'No Friends Were Found. Add Some',
+                            style: TextStyle(
+                                color:
+                                    Theme.of(context).colorScheme.onSecondary),
+                          ),
+                        );
+                      }
+                    }),
           ),
           Row(
             mainAxisAlignment: MainAxisAlignment.end,
-            children: (widget.isGroupChats) ? 
-            ([
-              IconButton(
-                  onPressed: () {
-                    showDialog(context: context,
-                    builder: (context) => AlertDialog(
-                        backgroundColor: Theme.of(context).canvasColor,
-                        title: Text('Create Group'),
-                        actions: [
-                          TextButton(onPressed: () {}, child: Text('Groups'),),
-                          TextButton(onPressed: () {}, child: Text('Cancel'),)
-                      ],));
-                  },
-                  icon: Icon(
-                    Icons.group_add,
-                    color: Theme.of(context).colorScheme.onSecondary,
-                    size: MediaQuery.of(context).size.aspectRatio * 85,
-                  )),
-            ])
-            :
-            ([
-              IconButton(
-                  onPressed: () {
-                    Navigator.push(context, MaterialPageRoute(builder: (context) => const FriendsScreen(isGroupChats: true),),);
-                  },
-                  icon: Icon(
-                    Icons.groups,
-                    color: Theme.of(context).colorScheme.onSecondary,
-                    size: MediaQuery.of(context).size.aspectRatio * 85,
-                  ))
-            ]),
+            children: (widget.isGroupChats)
+                ? ([
+                    IconButton(
+                        onPressed: () {
+                          showDialog(
+                              context: context,
+                              builder: (context) => AlertDialog(
+                                    backgroundColor:
+                                        Theme.of(context).canvasColor,
+                                    title: Text('Create Group'),
+                                    actions: [
+                                      TextButton(
+                                        onPressed: () {
+                                          Navigator.of(context).push(
+                                            MaterialPageRoute(
+                                              builder: (context) =>
+                                                  NewGroupChatScreen(),
+                                            ),
+                                          );
+                                        },
+                                        child: const Text('Groups'),
+                                      ),
+                                      TextButton(
+                                        onPressed: () {
+                                          Navigator.pop(context);
+                                        },
+                                        child: const Text('Cancel'),
+                                      )
+                                    ],
+                                  ));
+                        },
+                        icon: Icon(
+                          Icons.group_add,
+                          color: Theme.of(context).colorScheme.onSecondary,
+                          size: MediaQuery.of(context).size.aspectRatio * 85,
+                        )),
+                  ])
+                : ([
+                    IconButton(
+                        onPressed: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) =>
+                                  const FriendsScreen(isGroupChats: true),
+                            ),
+                          );
+                        },
+                        icon: Icon(
+                          Icons.groups,
+                          color: Theme.of(context).colorScheme.onSecondary,
+                          size: MediaQuery.of(context).size.aspectRatio * 85,
+                        ))
+                  ]),
           )
         ],
       ),

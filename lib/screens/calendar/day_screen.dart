@@ -486,7 +486,6 @@ class _DayScreenState extends ConsumerState<DayScreen> {
             ),
           ),
         );
-
         minute = blockEnd - 1;
       }
     }

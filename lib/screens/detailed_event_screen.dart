@@ -77,7 +77,7 @@ class _DetailedEventScreenState extends ConsumerState<DetailedEventScreen> {
                     Padding(
                 padding:  EdgeInsets.all(MediaQuery.sizeOf(context).width / 100),
                 child: Row(
-                  mainAxisAlignment: MainAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     FutureBuilder(
                       future: ref.read(supabaseInstance),
@@ -100,7 +100,6 @@ class _DetailedEventScreenState extends ConsumerState<DetailedEventScreen> {
                         }
                       },
                     ),
-                    SizedBox(width: MediaQuery.sizeOf(context).width / 150),
                     Text(
                       widget.eventData.hostUsername,
                       style: TextStyle(
@@ -142,6 +141,22 @@ class _DetailedEventScreenState extends ConsumerState<DetailedEventScreen> {
                     ),
                   ),
                 ),
+                Row(
+              mainAxisAlignment: MainAxisAlignment.start,
+              children: [
+                const SizedBox(
+                  width: 10,
+                ),
+                Text(
+                  widget.eventData.location,
+                  style: TextStyle(
+                    fontWeight: FontWeight.w400,
+                    color: Theme.of(context).colorScheme.onSecondary,
+                    fontSize: MediaQuery.of(context).size.width * .038,
+                  ),
+                ),
+              ],
+            ),
                 Container(
                   height: 5,
                 ),

@@ -125,7 +125,7 @@ class _EventTabState extends ConsumerState<EventTab> {
                 ),
               ),
             ),
-            Container(
+            const SizedBox(
               height: 5,
             ),
             Row(
@@ -143,6 +143,22 @@ class _EventTabState extends ConsumerState<EventTab> {
                   formattedDate,
                   style: TextStyle(
                       color: Theme.of(context).colorScheme.onSecondary),
+                ),
+              ],
+            ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.start,
+              children: [
+                const SizedBox(
+                  width: 10,
+                ),
+                Text(
+                  widget.eventData.location,
+                  style: TextStyle(
+                    fontWeight: FontWeight.w300,
+                    color: Theme.of(context).colorScheme.onSecondary,
+                    fontSize: MediaQuery.of(context).size.width * .038,
+                  ),
                 ),
               ],
             ),

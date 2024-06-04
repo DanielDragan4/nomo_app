@@ -101,7 +101,7 @@ class _DayScreenState extends ConsumerState<DayScreen> {
         }
       });
       ref.read(profileProvider.notifier).createBlockedTime(profileId,
-          supabaseSTime.toString(), supabaseETime.toString(), blockTitle);
+          supabaseSTime.toString(), supabaseETime.toString(), blockTitle, null);
 
       Navigator.of(context).pop();
     } else {
@@ -395,7 +395,7 @@ class _DayScreenState extends ConsumerState<DayScreen> {
                         });
                         ref
                             .read(profileProvider.notifier)
-                            .deleteBlockedTime(availID);
+                            .deleteBlockedTime(availID, null);
                         Navigator.of(context).pop();
                       },
                       style: ElevatedButton.styleFrom(

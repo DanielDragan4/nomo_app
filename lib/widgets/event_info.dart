@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:nomo/models/events_model.dart';
 import 'package:nomo/providers/attending_events_provider.dart';
 import 'package:nomo/providers/events_provider.dart';
+import 'package:nomo/providers/profile_provider.dart';
 import 'package:nomo/providers/supabase_provider.dart';
 import 'package:nomo/screens/new_event_screen.dart';
 
@@ -129,6 +130,7 @@ class _EventInfoState extends ConsumerState<EventInfo> {
                           text = 'Join';
                           return ElevatedButton(
                             onPressed: () {
+                              ref.read(profileProvider.notifier).createBlockedTime(currentUser, widget.eventsData.sdate, widget.eventsData.edate, widget.eventsData.title, widget.eventsData.eventId);
                               attendeeJoinEvent();
                               ScaffoldMessenger.of(context)
                                   .hideCurrentSnackBar();
@@ -210,6 +212,7 @@ class _EventInfoState extends ConsumerState<EventInfo> {
                                                 onPressed: () {
                                                   setState(() {
                                                     attendeeLeaveEvent();
+                                                    ref.read(profileProvider.notifier).deleteBlockedTime(null, widget.eventsData.eventId);
                                                   });
 
                                                   Navigator.pop(context);

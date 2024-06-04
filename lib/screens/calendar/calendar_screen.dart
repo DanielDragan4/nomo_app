@@ -166,6 +166,7 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
             startDateTime.toString(),
             endDateTime.toString(),
             blockTitle!,
+            null
           );
 
       Navigator.of(context).pop();

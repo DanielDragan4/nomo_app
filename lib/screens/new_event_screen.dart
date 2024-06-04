@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:nomo/models/events_model.dart';
+import 'package:nomo/providers/profile_provider.dart';
 import 'package:nomo/screens/NavBar.dart';
 import 'package:nomo/providers/attending_events_provider.dart';
 import 'package:nomo/screens/recommended_screen.dart';
@@ -201,7 +202,7 @@ class _NewEventScreenState extends ConsumerState<NewEventScreen> {
 
   //TO-DO: generate unique image name to replace '/anotherimage' otherwise error occurs
   dynamic uploadImage(File imageFile) async {
-    final supabase = (await ref.watch(supabaseInstance));
+    final supabase = (await ref.read(supabaseInstance));
     final userId = supabase.client.auth.currentUser!.id.toString();
 
     var uuid = const Uuid();
@@ -233,7 +234,7 @@ class _NewEventScreenState extends ConsumerState<NewEventScreen> {
         selectedEndDate.day, selectedEnd.hour, selectedEnd.minute);
 
     var imageId = await uploadImage(selectedImage);
-    final supabase = (await ref.watch(supabaseInstance)).client;
+    final supabase = (await ref.read(supabaseInstance)).client;
     final newEventRowMap = {
       'time_start': DateFormat('yyyy-MM-dd HH:mm:ss').format(start),
       'time_end': DateFormat('yyyy-MM-dd HH:mm:ss').format(end),
@@ -244,8 +245,18 @@ class _NewEventScreenState extends ConsumerState<NewEventScreen> {
       'image_id': imageId,
       'title': title
     };
-
-    await supabase.from('Event').insert(newEventRowMap);
+    final responseId = await supabase
+        .from('Event')
+        .insert(newEventRowMap)
+        .select('event_id')
+        .single();
+    ref.read(profileProvider.notifier).createBlockedTime(
+          supabase.auth.currentUser!.id,
+          DateFormat('yyyy-MM-dd HH:mm:ss').format(start),
+          DateFormat('yyyy-MM-dd HH:mm:ss').format(end),
+          title,
+          responseId['event_id'],
+        );
   }
 
   Future<void> updateEvent(
@@ -401,27 +412,30 @@ class _NewEventScreenState extends ConsumerState<NewEventScreen> {
                         image: DecorationImage(
                             image: FileImage(_selectedImage!),
                             fit: BoxFit.fill))
-                    : (widget.isNewEvent) ?
-                      BoxDecoration(
-                          border: Border.all(color: Colors.black87, width: 2),
-                          color: Colors.grey.shade200,
-                        ) 
-                      : BoxDecoration(
-                        border: Border.all(color: Colors.black87, width: 2),
-                        color: Colors.grey.shade200,
-                        image: DecorationImage(image: NetworkImage(widget.event?.imageUrl)),
-                      ),
+                    : (widget.isNewEvent)
+                        ? BoxDecoration(
+                            border: Border.all(color: Colors.black87, width: 2),
+                            color: Colors.grey.shade200,
+                          )
+                        : BoxDecoration(
+                            border: Border.all(color: Colors.black87, width: 2),
+                            color: Colors.grey.shade200,
+                            image: DecorationImage(
+                                image: NetworkImage(widget.event?.imageUrl)),
+                          ),
 
                 child: _selectedImage == null
                     ? Center(
                         child: Column(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                             Icon(
+                            Icon(
                               Icons.add,
                               size: MediaQuery.of(context).size.height / 15,
                             ),
-                            widget.isNewEvent ? const Text("Add An Image") : const Text('Add a Different Image?')
+                            widget.isNewEvent
+                                ? const Text("Add An Image")
+                                : const Text('Add a Different Image?')
                           ],
                         ),
                       )
@@ -433,9 +447,11 @@ class _NewEventScreenState extends ConsumerState<NewEventScreen> {
               padding: const EdgeInsets.symmetric(horizontal: 8.0),
               child: Row(
                 children: [
-                   Text(
+                  Text(
                     "Start",
-                    style: TextStyle(fontSize: 15, color: Theme.of(context).colorScheme.onSecondary ),
+                    style: TextStyle(
+                        fontSize: 15,
+                        color: Theme.of(context).colorScheme.onSecondary),
                   ),
                   TextButton(
                     onPressed: () =>
@@ -443,7 +459,9 @@ class _NewEventScreenState extends ConsumerState<NewEventScreen> {
                     child: Text(
                       _formattedSDate ??
                           "Select Start Date", // Format start date
-                      style:  TextStyle(fontSize: 15, color: Theme.of(context).colorScheme.onSecondary),
+                      style: TextStyle(
+                          fontSize: 15,
+                          color: Theme.of(context).colorScheme.onSecondary),
                     ),
                   ),
                   const Text("-"),
@@ -454,7 +472,9 @@ class _NewEventScreenState extends ConsumerState<NewEventScreen> {
                     child: Text(
                       _selectedStartTime?.format(context) ??
                           "Select Start Time", // Format start time
-                      style: TextStyle(fontSize: 15, color: Theme.of(context).colorScheme.onSecondary),
+                      style: TextStyle(
+                          fontSize: 15,
+                          color: Theme.of(context).colorScheme.onSecondary),
                     ),
                   ),
                 ],
@@ -466,17 +486,25 @@ class _NewEventScreenState extends ConsumerState<NewEventScreen> {
                 children: [
                   Text(
                     "Time",
-                    style: TextStyle(fontSize: 15, color: Theme.of(context).colorScheme.onSecondary),
+                    style: TextStyle(
+                        fontSize: 15,
+                        color: Theme.of(context).colorScheme.onSecondary),
                   ),
                   TextButton(
                     onPressed: () =>
                         _selectDate(context, false), // Select end date
                     child: Text(
                       _formattedEDate ?? "Select End Date", // Format end date
-                      style: TextStyle(fontSize: 15, color: Theme.of(context).colorScheme.onSecondary),
+                      style: TextStyle(
+                          fontSize: 15,
+                          color: Theme.of(context).colorScheme.onSecondary),
                     ),
                   ),
-                   Text("-", style: TextStyle(color: Theme.of(context).colorScheme.onSecondary),),
+                  Text(
+                    "-",
+                    style: TextStyle(
+                        color: Theme.of(context).colorScheme.onSecondary),
+                  ),
                   TextButton(
                     onPressed: edate
                         ? () => _selectTime(context, false)
@@ -484,7 +512,9 @@ class _NewEventScreenState extends ConsumerState<NewEventScreen> {
                     child: Text(
                       _selectedEndTime?.format(context) ??
                           "Select End Time", // Format end time
-                      style:  TextStyle(fontSize: 15, color: Theme.of(context).colorScheme.onSecondary),
+                      style: TextStyle(
+                          fontSize: 15,
+                          color: Theme.of(context).colorScheme.onSecondary),
                     ),
                   ),
                 ],
@@ -496,7 +526,9 @@ class _NewEventScreenState extends ConsumerState<NewEventScreen> {
                 children: [
                   Text(
                     "Invitation Type: ",
-                    style: TextStyle(fontSize: 15, color: Theme.of(context).colorScheme.onSecondary),
+                    style: TextStyle(
+                        fontSize: 15,
+                        color: Theme.of(context).colorScheme.onSecondary),
                   ),
                   const SizedBox(width: 10),
                   DropdownButtonHideUnderline(

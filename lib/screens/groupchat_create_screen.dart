@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:nomo/models/friend_model.dart';
+import 'package:nomo/providers/chats_provider.dart';
 import 'package:nomo/providers/profile_provider.dart';
-import 'package:nomo/screens/search_screen.dart';
+import 'package:nomo/screens/friends_screen.dart';
 import 'package:nomo/widgets/friend_tab.dart';
 
 class NewGroupChatScreen extends ConsumerStatefulWidget {
@@ -14,10 +15,24 @@ class NewGroupChatScreen extends ConsumerStatefulWidget {
 
 class _NewGroupChatScreenState extends ConsumerState<NewGroupChatScreen> {
   final TextEditingController searchController = TextEditingController();
+  final TextEditingController titleController = TextEditingController();
   var friends;
+  List members = [];
+  bool createGroup = false;
 
   Future<void> getFriends() async {
-    friends = ref.read(profileProvider.notifier).decodeFriends();
+    friends = await ref.read(profileProvider.notifier).decodeFriends();
+  }
+
+  void addToGroup(bool removeAdd, String userId) {
+    setState(() {
+      if (removeAdd) {
+        members.add(userId);
+      } else {
+        members.remove(userId);
+      }
+      print(members);
+    });
   }
 
   @override
@@ -28,8 +43,9 @@ class _NewGroupChatScreenState extends ConsumerState<NewGroupChatScreen> {
 
   @override
   Widget build(BuildContext context) {
-    //Start on friends list. If false, show requests list
-
+    if (titleController.text.isNotEmpty && members.isNotEmpty) {
+      createGroup = true;
+    }
     return Scaffold(
       backgroundColor: Theme.of(context).colorScheme.background,
       appBar: AppBar(
@@ -40,57 +56,70 @@ class _NewGroupChatScreenState extends ConsumerState<NewGroupChatScreen> {
             height: MediaQuery.of(context).size.height * .07,
             width: MediaQuery.of(context).size.width * .75,
             child: Padding(
-                padding: const EdgeInsets.fromLTRB(5, 10, 10, 10),
-                child: SearchBar(
-                  controller: searchController,
-                  hintText: 'Who are you looking for?',
-                  padding: const WidgetStatePropertyAll<EdgeInsets>(
-                      EdgeInsets.symmetric(horizontal: 12.0)),
-                  leading: const Icon(Icons.search),
-                )),
+              padding: const EdgeInsets.fromLTRB(5, 10, 10, 10),
+              child: SearchBar(
+                controller: searchController,
+                hintText: 'Who are you looking for?',
+                padding: const WidgetStatePropertyAll<EdgeInsets>(
+                    EdgeInsets.symmetric(horizontal: 12.0)),
+                leading: const Icon(Icons.search),
+              ),
+            ),
           ),
         ],
       ),
       body: Column(
         children: [
           Expanded(
-            child: StreamBuilder(
-                stream: ref
-                    .read(profileProvider.notifier)
-                    .decodeFriends()
-                    .asStream(),
-                builder: (context, snapshot) {
-                  if (snapshot.data != null) {
-                    return ListView(
-                      key: const PageStorageKey('page'),
-                      children: [
-                        for (Friend i in snapshot.data!)
-                          FriendTab(
-                            friendData: i,
-                            isRequest: false,
-                          )
-                      ],
-                    );
-                  } else if (snapshot.connectionState ==
-                      ConnectionState.active) {
-                    return Center(
-                      child: Text(
-                        'No Friends Were Found. Add Some',
-                        style: TextStyle(
-                            color: Theme.of(context).colorScheme.onSecondary),
-                      ),
-                    );
-                  } else {
-                    return Center(
-                      child: Text(
-                        'No Friends',
-                        style: TextStyle(
-                            color: Theme.of(context).colorScheme.onSecondary),
-                      ),
-                    );
-                  }
-                }),
+            child: ListView(
+              key: const PageStorageKey('page'),
+              children: (friends != null)
+                  ? [
+                      for (Friend i in friends)
+                        FreindTab(
+                          friendData: i,
+                          isRequest: true,
+                          groupMemberToggle: (bool removeAdd, String userId) =>
+                              addToGroup(removeAdd, userId),
+                          toggle: true,
+                        )
+                    ]
+                  : [Text('friends are loading')],
+            ),
           ),
+          TextField(
+            autofocus: false,
+            controller: titleController,
+            decoration: InputDecoration(
+                constraints: BoxConstraints(
+                    maxHeight: MediaQuery.of(context).size.height * .033,
+                    maxWidth: MediaQuery.of(context).size.width * .75),
+                contentPadding:
+                    EdgeInsets.all(MediaQuery.of(context).size.height * .005),
+                border: UnderlineInputBorder(borderSide: BorderSide()),
+                hintText: 'Add a title',
+                hintStyle:
+                    TextStyle(color: Theme.of(context).colorScheme.onSecondary),
+                focusColor: Theme.of(context).colorScheme.onSecondary),
+            style: TextStyle(color: Theme.of(context).colorScheme.onSecondary),
+          ),
+          SizedBox(
+            height: MediaQuery.of(context).size.height * .02,
+          ),
+          createGroup
+              ? ElevatedButton(
+                  onPressed: () {
+                    ref
+                        .read(chatsProvider.notifier)
+                        .createNewGroup(titleController.text, members);
+                    Navigator.popUntil(
+                      context,
+                      ModalRoute.withName('/'),
+                    );
+                  },
+                  child: const Text('Create'),
+                )
+              : Container()
         ],
       ),
     );

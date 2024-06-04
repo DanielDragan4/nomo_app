@@ -58,11 +58,63 @@ class ChatsProvider extends StateNotifier<List?> {
     };
 
     await supabaseClient.from('Messages').insert(newMessage);
-    print(await supabaseClient
-        .from('Messages')
-        .select('message')
-        .eq('sender_id', user1Id)
-        .eq('message', message));
+  }
+
+  Future<List> getGroupChatIds() async{
+    final supabaseClient = (await supabase).client;
+    List groupChatIds = [];
+    final List codedGroup = await supabaseClient.from('Group_Members').select().eq('profile_id', supabaseClient.auth.currentUser!.id);
+    for(var member in codedGroup) {
+      groupChatIds.add(member['group_id']);
+    }
+    return groupChatIds;
+  }
+
+  Future<List> getGroupChatInfo() async {
+    final supabaseClient = (await supabase).client;
+    final chatIds = await getGroupChatIds();
+    List groupInfo = [];
+
+    final List codedGroupInfo = await supabaseClient.from('Groups').select();
+
+    for(var group in codedGroupInfo) {
+      for(var chatId in chatIds) {
+        if(chatId == group['group_id']) {
+          groupInfo.add({'group_id' : chatId, 'title' : group['name']});
+        }
+      }
+    }
+    return groupInfo;
+  } 
+
+  Future<void> sendGroupMessage(
+      String groupID, String message) async {
+    final supabaseClient = (await supabase).client;
+    var newMessage = {
+      'sender_id': supabaseClient.auth.currentUser!.id,
+      'group_id': groupID,
+      'message': message
+    };
+
+    await supabaseClient.from('Group_Messages').insert(newMessage);
+  }
+
+  Future<void> createNewGroup(String title, List users) async {
+    final supabaseClient = (await supabase).client;
+    users.add(supabaseClient.auth.currentUser!.id);
+    var newChat = {
+      'name': title,
+    };
+    var newGroup = await supabaseClient.from('Groups').insert(newChat).select().single();
+
+    for(var user in users) {
+      var newMember = {
+        'group_id' : newGroup['group_id'],
+        'profile_id': user,
+    };
+      await supabaseClient.from('Group_Members').insert(newMember);
+    }
+
   }
 }
 

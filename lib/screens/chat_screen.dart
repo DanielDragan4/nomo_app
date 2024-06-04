@@ -8,10 +8,11 @@ import 'package:nomo/widgets/message_widget.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 class ChatScreen extends ConsumerStatefulWidget {
-  const ChatScreen(
-      {super.key, required this.chatterUser, required this.currentUser});
-  final Friend chatterUser;
+  ChatScreen(
+      {super.key, this.chatterUser, required this.currentUser, this.groupInfo});
+  final Friend? chatterUser;
   final String currentUser;
+  Map? groupInfo;
 
   @override
   _ChatScreenState createState() => _ChatScreenState();
@@ -20,13 +21,17 @@ class ChatScreen extends ConsumerStatefulWidget {
 class _ChatScreenState extends ConsumerState<ChatScreen> {
   final TextEditingController _controller = TextEditingController();
   final ScrollController _scrollController = ScrollController();
-  var _chatStream;
+  Stream<List<Map<String, dynamic>>>? _chatStream;
   late final state;
 
   @override
   void initState() {
     super.initState();
-    _initializeChatStream();
+    if (widget.groupInfo == null) {
+      _initializeChatStream();
+    } else {
+      _initializeGroupChatStream();
+    }
   }
 
   Future<void> _initializeChatStream() async {
@@ -34,13 +39,27 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
         Supabase.instance.client; // Ensure the client is initialized correctly
     final chatID = await ref
         .read(chatsProvider.notifier)
-        .readChatId(widget.currentUser, widget.chatterUser.friendProfileId);
+        .readChatId(widget.currentUser, widget.chatterUser!.friendProfileId);
     setState(() {
       _chatStream = supabaseClient
           .from('Messages')
           .stream(primaryKey: ['id']) // Ensure the primary key is specified
           .eq('chat_id', chatID)
-          .order('created_at', ascending: false);
+          .order('created_at', ascending: false)
+          .map((event) => event.map((e) => e as Map<String, dynamic>).toList());
+    });
+  }
+
+  Future<void> _initializeGroupChatStream() async {
+    final supabaseClient =
+        Supabase.instance.client; // Ensure the client is initialized correctly
+    setState(() {
+      _chatStream = supabaseClient
+          .from('Group_Messages')
+          .stream(primaryKey: ['group_message_id']) // Ensure the primary key is specified
+          .eq('group_id', widget.groupInfo!['group_id']!)
+          .order('created_at', ascending: false)
+          .map((event) => event.map((e) => e as Map<String, dynamic>).toList());
     });
   }
 
@@ -50,34 +69,39 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
       backgroundColor: Theme.of(context).colorScheme.background,
       appBar: AppBar(
         backgroundColor: Theme.of(context).colorScheme.background,
-        title: Text(widget.chatterUser.friendProfileName),
+        title: Text((widget.groupInfo == null)
+            ? widget.chatterUser!.friendProfileName
+            : widget.groupInfo!['title']),
       ),
       body: Column(
         children: [
           Expanded(
-            child: StreamBuilder<List<Map<String, dynamic>>>(
-              stream: _chatStream,
-              builder: (context, snapshot) {
-                if (!snapshot.hasData) {
-                  return const Center(child: CircularProgressIndicator());
-                }
+            child: _chatStream != null
+                ? StreamBuilder<List<Map<String, dynamic>>>(
+                    stream: _chatStream,
+                    builder: (context, snapshot) {
+                      if (snapshot.connectionState == ConnectionState.waiting) {
+                        return const Center(child: CircularProgressIndicator());
+                      }
 
-                if (snapshot.data != null) {
-                  return ListView.builder(
-                    reverse: true,
-                    itemCount: snapshot.data!.length,
-                    controller: _scrollController,
-                    itemBuilder: (context, index) {
-                      var message = snapshot.data![index];
-                      return MessageWidget(
-                          message: message, currentUser: widget.currentUser);
+                      if (snapshot.hasData && snapshot.data!.isNotEmpty) {
+                        return ListView.builder(
+                          reverse: true,
+                          itemCount: snapshot.data!.length,
+                          controller: _scrollController,
+                          itemBuilder: (context, index) {
+                            var message = snapshot.data![index];
+                            return MessageWidget(
+                                message: message,
+                                currentUser: widget.currentUser);
+                          },
+                        );
+                      } else {
+                        return const Center(child: Text('No messages yet.'));
+                      }
                     },
-                  );
-                } else {
-                  return const Center(child: CircularProgressIndicator());
-                }
-              },
-            ),
+                  )
+                : const Center(child: CircularProgressIndicator()),
           ),
           Padding(
             padding: const EdgeInsets.all(8.0),
@@ -107,12 +131,21 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
                     color: Theme.of(context).colorScheme.onSecondary,
                   ),
                   onPressed: () {
-                    if (_controller.text.trim().isNotEmpty) {
-                      ref.read(chatsProvider.notifier).sendMessage(
-                          widget.currentUser,
-                          widget.chatterUser.friendProfileId,
-                          _controller.text);
-                      _controller.clear();
+                    if (widget.groupInfo == null) {
+                      if (_controller.text.trim().isNotEmpty) {
+                        ref.read(chatsProvider.notifier).sendMessage(
+                            widget.currentUser,
+                            widget.chatterUser!.friendProfileId,
+                            _controller.text);
+                        _controller.clear();
+                      }
+                    } else {
+                      if (_controller.text.trim().isNotEmpty) {
+                        ref.read(chatsProvider.notifier).sendGroupMessage(
+                            widget.groupInfo!['group_id'],
+                            _controller.text);
+                        _controller.clear();
+                      }
                     }
                   },
                 ),

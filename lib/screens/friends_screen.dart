@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:nomo/models/friend_model.dart';
+import 'package:nomo/providers/chats_provider.dart';
 import 'package:nomo/providers/profile_provider.dart';
 import 'package:nomo/screens/groupchat_create_screen.dart';
 import 'package:nomo/screens/search_screen.dart';
 import 'package:nomo/widgets/friend_tab.dart';
+import 'package:nomo/widgets/group_tab.dart';
 
 class FriendsScreen extends ConsumerStatefulWidget {
   const FriendsScreen({super.key, required this.isGroupChats});
@@ -117,7 +119,24 @@ class _FriendsScreenState extends ConsumerState<FriendsScreen> {
           ),
           Expanded(
             child: widget.isGroupChats
-                ? ListView()
+                ? FutureBuilder(
+                    future: ref.read(chatsProvider.notifier).getGroupChatInfo(),
+                    builder: (context, snapshot) {
+                      if (snapshot.data != null) {
+                        return ListView(
+                          children: [
+                            for (var groupChat in snapshot.data!)
+                              GroupTab(groupData: groupChat)
+                          ],
+                        );
+                      }
+                      return Text(
+                        'Loading Groups',
+                        style: TextStyle(
+                            color: Theme.of(context).colorScheme.onSecondary),
+                      );
+                    },
+                  )
                 : StreamBuilder(
                     stream: ref
                         .read(profileProvider.notifier)
@@ -133,6 +152,7 @@ class _FriendsScreenState extends ConsumerState<FriendsScreen> {
                                     FriendTab(
                                       friendData: i,
                                       isRequest: true,
+                                      toggle: false,
                                     ),
                                 ]
                               : [
@@ -140,6 +160,7 @@ class _FriendsScreenState extends ConsumerState<FriendsScreen> {
                                     FriendTab(
                                       friendData: i,
                                       isRequest: false,
+                                      toggle: false,
                                     )
                                 ],
                         );

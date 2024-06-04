@@ -76,7 +76,7 @@ class _NewGroupChatScreenState extends ConsumerState<NewGroupChatScreen> {
               children: (friends != null)
                   ? [
                       for (Friend i in friends)
-                        FreindTab(
+                        FriendTab(
                           friendData: i,
                           isRequest: true,
                           groupMemberToggle: (bool removeAdd, String userId) =>

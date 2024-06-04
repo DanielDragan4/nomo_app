@@ -61,76 +61,77 @@ class _FriendTabState extends ConsumerState<FriendTab> {
           ),
         ),
         const Spacer(),
-        widget.toggle
-            ? IconButton(
-                iconSize: 30.0,
-                padding: const EdgeInsets.only(left: 4, right: 4, top: 0),
-                icon: Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: selectedUser == true
-                        ? Icon(
-                            Icons.circle,
+        if (widget.isSearch == null)
+          widget.toggle
+              ? IconButton(
+                  iconSize: 30.0,
+                  padding: const EdgeInsets.only(left: 4, right: 4, top: 0),
+                  icon: Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: selectedUser == true
+                          ? Icon(
+                              Icons.circle,
+                              color: Theme.of(context).colorScheme.onSecondary,
+                            )
+                          : Icon(
+                              Icons.circle_outlined,
+                              color: Theme.of(context).colorScheme.onSecondary,
+                            )),
+                  onPressed: () {
+                    setState(() {
+                      selectedUser = !selectedUser;
+                    });
+                    widget.groupMemberToggle!(
+                        selectedUser, widget.friendData.friendProfileId);
+                  },
+                )
+              : widget.isRequest
+                  ? Row(
+                      children: [
+                        IconButton(
+                          onPressed: () async {
+                            ref.read(profileProvider.notifier).decodeData();
+                            Navigator.of(context).push(MaterialPageRoute(
+                              builder: (context) => ChatScreen(
+                                chatterUser: widget.friendData,
+                                currentUser: ref
+                                    .read(profileProvider.notifier)
+                                    .state!
+                                    .profile_id,
+                              ),
+                            ));
+                          },
+                          icon: Icon(
+                            Icons.messenger_outline,
                             color: Theme.of(context).colorScheme.onSecondary,
-                          )
-                        : Icon(
-                            Icons.circle_outlined,
+                          ),
+                        ),
+                        IconButton(
+                          onPressed: () {},
+                          icon: Icon(
+                            Icons.calendar_month_outlined,
                             color: Theme.of(context).colorScheme.onSecondary,
-                          )),
-                onPressed: () {
-                  setState(() {
-                    selectedUser = !selectedUser;
-                  });
-                  widget.groupMemberToggle!(
-                      selectedUser, widget.friendData.friendProfileId);
-                },
-              )
-            : widget.isRequest
-                ? Row(
-                    children: [
+                          ),
+                        )
+                      ],
+                    )
+                  : Row(children: [
                       IconButton(
-                        onPressed: () async {
-                          ref.read(profileProvider.notifier).decodeData();
-                          Navigator.of(context).push(MaterialPageRoute(
-                            builder: (context) => ChatScreen(
-                              chatterUser: widget.friendData,
-                              currentUser: ref
-                                  .read(profileProvider.notifier)
-                                  .state!
-                                  .profile_id,
-                            ),
-                          ));
-                        },
-                        icon: Icon(
-                          Icons.messenger_outline,
-                          color: Theme.of(context).colorScheme.onSecondary,
-                        ),
-                      ),
+                          onPressed: () {},
+                          icon: const Icon(
+                            Icons.check,
+                            color: Colors.green,
+                          ),
+                          splashRadius: 15),
+                      const SizedBox(width: 10),
                       IconButton(
-                        onPressed: () {},
-                        icon: Icon(
-                          Icons.calendar_month_outlined,
-                          color: Theme.of(context).colorScheme.onSecondary,
-                        ),
-                      )
-                    ],
-                  )
-                : Row(children: [
-                    IconButton(
-                        onPressed: () {},
-                        icon: const Icon(
-                          Icons.check,
-                          color: Colors.green,
-                        ),
-                        splashRadius: 15),
-                    const SizedBox(width: 10),
-                    IconButton(
-                        onPressed: () {},
-                        icon: const Icon(
-                          Icons.close,
-                          color: Colors.red,
-                        ),
-                        splashRadius: 15),
-                  ]),
+                          onPressed: () {},
+                          icon: const Icon(
+                            Icons.close,
+                            color: Colors.red,
+                          ),
+                          splashRadius: 15),
+                    ]),
       ]),
     );
   }

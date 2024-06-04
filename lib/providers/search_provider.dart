@@ -11,10 +11,10 @@ class SearchProvider extends StateNotifier<List<Friend>> {
   Future<List> searchProfiles(String query) async {
     final supabaseClient = (await supabase).client;
 
-    final profiles = supabaseClient
-        .from('profile_view')
-        .select()
-        .textSearch('search_vector', query, config: 'english');
+    final profilesRpc =
+        await supabaseClient.rpc('search_profiles', params: {'query': query});
+
+    final profiles = profilesRpc as List;
 
     return profiles;
   }

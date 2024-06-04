@@ -149,7 +149,7 @@ class _FriendsScreenState extends ConsumerState<FriendsScreen> {
                           children: friends
                               ? [
                                   for (Friend i in snapshot.data!)
-                                    FreindTab(
+                                    FriendTab(
                                       friendData: i,
                                       isRequest: true,
                                       toggle: false,
@@ -157,7 +157,7 @@ class _FriendsScreenState extends ConsumerState<FriendsScreen> {
                                 ]
                               : [
                                   for (Friend i in snapshot.data!)
-                                    FreindTab(
+                                    FriendTab(
                                       friendData: i,
                                       isRequest: false,
                                       toggle: false,

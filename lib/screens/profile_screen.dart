@@ -57,7 +57,6 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
     final profileState;
 
     if (userId == null) {
-      // Fetch the current user's profile
       profileState = ref.read(profileProvider.notifier).state ??
           Profile(
               profile_id: 'example',
@@ -67,7 +66,6 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
               interests: [],
               availability: []);
     } else {
-      // Fetch the profile for the specified user ID
       profileState =
           await ref.read(profileProvider.notifier).fetchProfileById(userId);
       isFriend = await ref.read(profileProvider.notifier).isFriend(userId);

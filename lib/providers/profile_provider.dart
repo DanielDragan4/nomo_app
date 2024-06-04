@@ -5,6 +5,7 @@ import 'package:nomo/models/profile_model.dart';
 import 'package:nomo/providers/supabase_provider.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:nomo/models/interests_enum.dart';
+import 'package:nomo/providers/search_provider.dart';
 
 class ProfileProvider extends StateNotifier<Profile?> {
   ProfileProvider({required this.supabase}) : super(null);
@@ -68,28 +69,41 @@ class ProfileProvider extends StateNotifier<Profile?> {
     final supabaseClient = (await supabase).client;
     List availability = [];
 
-    String profileUrl = supabaseClient.storage
-        .from('Images')
-        .getPublicUrl(userProfile['profile_path']);
-
-    for (var avail in userProfile['Availability']) {
-      Availability decodedTime = Availability(
-        availId: avail['availability_id'],
-        userId: avail['user_id'],
-        sTime: DateTime.parse(avail['start_time']),
-        eTime: DateTime.parse(avail['end_time']),
-        blockTitle: avail['block_title'],
-        eventId: avail['event_id'],
-      );
-      availability.add(decodedTime);
+    // Ensure profile_path is not null
+    String profilePath = userProfile['profile_path'] ?? '';
+    String profileUrl = '';
+    if (profilePath.isNotEmpty) {
+      profileUrl =
+          supabaseClient.storage.from('Images').getPublicUrl(profilePath);
+    } else {
+      profileUrl =
+          'default_avatar_url'; // Use a default avatar URL if profile_path is null
     }
-    Profile profile = (Profile(
-        profile_id: userProfile['profile_id'],
-        avatar: profileUrl,
-        username: userProfile['username'],
-        profile_name: userProfile['profile_name'],
-        interests: userProfile['Interests'],
-        availability: availability));
+
+    // Ensure Availability is not null before iterating
+    if (userProfile['Availability'] != null) {
+      for (var avail in userProfile['Availability']) {
+        Availability decodedTime = Availability(
+          availId: avail['availability_id'],
+          userId: avail['user_id'],
+          sTime: DateTime.parse(avail['start_time']),
+          eTime: DateTime.parse(avail['end_time']),
+          blockTitle: avail['block_title'],
+          eventId: avail['event_id'],
+        );
+        availability.add(decodedTime);
+      }
+    }
+
+    Profile profile = Profile(
+      profile_id: userProfile['profile_id'] ?? '',
+      avatar: profileUrl,
+      username: userProfile['username'] ?? 'Unknown',
+      profile_name: userProfile['profile_name'] ?? 'No Name',
+      interests: userProfile['Interests'] ?? [],
+      availability: availability,
+    );
+
     return profile;
   }
 

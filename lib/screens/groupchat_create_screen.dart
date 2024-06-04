@@ -21,9 +21,7 @@ class _NewGroupChatScreenState extends ConsumerState<NewGroupChatScreen> {
   bool createGroup = false;
 
   Future<void> getFriends() async {
-    friends = await ref
-      .read(profileProvider.notifier)
-      .decodeFriends();
+    friends = await ref.read(profileProvider.notifier).decodeFriends();
   }
 
   void addToGroup(bool removeAdd, String userId) {
@@ -45,7 +43,7 @@ class _NewGroupChatScreenState extends ConsumerState<NewGroupChatScreen> {
 
   @override
   Widget build(BuildContext context) {
-    if(titleController.text.isNotEmpty && members.isNotEmpty) {
+    if (titleController.text.isNotEmpty && members.isNotEmpty) {
       createGroup = true;
     }
     return Scaffold(
@@ -78,40 +76,50 @@ class _NewGroupChatScreenState extends ConsumerState<NewGroupChatScreen> {
               children: (friends != null)
                   ? [
                       for (Friend i in friends)
-                        FreindTab(
+                        FriendTab(
                           friendData: i,
                           isRequest: true,
                           groupMemberToggle: (bool removeAdd, String userId) =>
-                            addToGroup(removeAdd, userId),
+                              addToGroup(removeAdd, userId),
                           toggle: true,
                         )
                     ]
-                  : [
-                      Text('friends are loading')
-                    ],
+                  : [Text('friends are loading')],
             ),
           ),
           TextField(
-                autofocus: false,
-                controller: titleController,
-                  decoration: InputDecoration(
-                    constraints: BoxConstraints(maxHeight: MediaQuery.of(context).size.height *.033, maxWidth:  MediaQuery.of(context).size.width *.75),
-                    contentPadding: EdgeInsets.all(MediaQuery.of(context).size.height *.005),
-                    border: UnderlineInputBorder(borderSide: BorderSide()),
-                    hintText: 'Add a title',
-                    hintStyle: TextStyle(color: Theme.of(context).colorScheme.onSecondary),
-                    focusColor:Theme.of(context).colorScheme.onSecondary
-                  ),
-                  style: TextStyle(color: Theme.of(context).colorScheme.onSecondary),
-                ),
-                SizedBox(height: MediaQuery.of(context).size.height*.02,),
-                createGroup ?
-                  ElevatedButton(onPressed: () {
-                    ref.read(chatsProvider.notifier).createNewGroup(titleController.text, members);
-                    Navigator.popUntil(context, ModalRoute.withName('/'),);
-                  }, child: const Text('Create'),)
-                  : 
-                  Container()
+            autofocus: false,
+            controller: titleController,
+            decoration: InputDecoration(
+                constraints: BoxConstraints(
+                    maxHeight: MediaQuery.of(context).size.height * .033,
+                    maxWidth: MediaQuery.of(context).size.width * .75),
+                contentPadding:
+                    EdgeInsets.all(MediaQuery.of(context).size.height * .005),
+                border: UnderlineInputBorder(borderSide: BorderSide()),
+                hintText: 'Add a title',
+                hintStyle:
+                    TextStyle(color: Theme.of(context).colorScheme.onSecondary),
+                focusColor: Theme.of(context).colorScheme.onSecondary),
+            style: TextStyle(color: Theme.of(context).colorScheme.onSecondary),
+          ),
+          SizedBox(
+            height: MediaQuery.of(context).size.height * .02,
+          ),
+          createGroup
+              ? ElevatedButton(
+                  onPressed: () {
+                    ref
+                        .read(chatsProvider.notifier)
+                        .createNewGroup(titleController.text, members);
+                    Navigator.popUntil(
+                      context,
+                      ModalRoute.withName('/'),
+                    );
+                  },
+                  child: const Text('Create'),
+                )
+              : Container()
         ],
       ),
     );

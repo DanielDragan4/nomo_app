@@ -16,11 +16,10 @@ class _NewGroupChatScreenState extends ConsumerState<NewGroupChatScreen> {
   final TextEditingController searchController = TextEditingController();
   var friends;
 
-  Future<void> getFriends() async{
-    friends = ref
-      .read(profileProvider.notifier)
-      .decodeFriends();
+  Future<void> getFriends() async {
+    friends = ref.read(profileProvider.notifier).decodeFriends();
   }
+
   @override
   void initState() {
     getFriends();
@@ -33,13 +32,13 @@ class _NewGroupChatScreenState extends ConsumerState<NewGroupChatScreen> {
 
     return Scaffold(
       backgroundColor: Theme.of(context).colorScheme.background,
-      appBar: 
-        AppBar(
-          toolbarHeight: MediaQuery.of(context).size.height *.1,
-          title: Text('New Group'),
-          actions: [SizedBox(
-            height: MediaQuery.of(context).size.height *.07,
-            width: MediaQuery.of(context).size.width*.75,
+      appBar: AppBar(
+        toolbarHeight: MediaQuery.of(context).size.height * .1,
+        title: Text('New Group'),
+        actions: [
+          SizedBox(
+            height: MediaQuery.of(context).size.height * .07,
+            width: MediaQuery.of(context).size.width * .75,
             child: Padding(
                 padding: const EdgeInsets.fromLTRB(5, 10, 10, 10),
                 child: SearchBar(
@@ -49,13 +48,13 @@ class _NewGroupChatScreenState extends ConsumerState<NewGroupChatScreen> {
                       EdgeInsets.symmetric(horizontal: 12.0)),
                   leading: const Icon(Icons.search),
                 )),
-          ),],
-        ),
+          ),
+        ],
+      ),
       body: Column(
         children: [
           Expanded(
-            child: 
-             StreamBuilder(
+            child: StreamBuilder(
                 stream: ref
                     .read(profileProvider.notifier)
                     .decodeFriends()
@@ -64,15 +63,16 @@ class _NewGroupChatScreenState extends ConsumerState<NewGroupChatScreen> {
                   if (snapshot.data != null) {
                     return ListView(
                       key: const PageStorageKey('page'),
-                      children:[
-                              for (Friend i in snapshot.data!)
-                                FreindTab(
-                                  friendData: i,
-                                  isRequest: false,
-                                )
-                            ],
+                      children: [
+                        for (Friend i in snapshot.data!)
+                          FriendTab(
+                            friendData: i,
+                            isRequest: false,
+                          )
+                      ],
                     );
-                  } else if(snapshot.connectionState == ConnectionState.active) {
+                  } else if (snapshot.connectionState ==
+                      ConnectionState.active) {
                     return Center(
                       child: Text(
                         'No Friends Were Found. Add Some',
@@ -80,8 +80,7 @@ class _NewGroupChatScreenState extends ConsumerState<NewGroupChatScreen> {
                             color: Theme.of(context).colorScheme.onSecondary),
                       ),
                     );
-                  }
-                  else{
+                  } else {
                     return Center(
                       child: Text(
                         'No Friends',
@@ -92,7 +91,6 @@ class _NewGroupChatScreenState extends ConsumerState<NewGroupChatScreen> {
                   }
                 }),
           ),
-          
         ],
       ),
     );

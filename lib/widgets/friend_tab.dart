@@ -7,11 +7,15 @@ import 'package:nomo/providers/profile_provider.dart';
 import 'package:nomo/screens/chat_screen.dart';
 import 'package:nomo/screens/profile_screen.dart';
 
-class FreindTab extends ConsumerWidget {
-  const FreindTab(
-      {super.key, required this.friendData, required this.isRequest});
+class FriendTab extends ConsumerWidget {
+  const FriendTab(
+      {super.key,
+      required this.friendData,
+      required this.isRequest,
+      this.isSearch});
 
   final isRequest;
+  final isSearch;
   final Friend friendData;
 
   @override
@@ -48,53 +52,54 @@ class FreindTab extends ConsumerWidget {
           ),
         ),
         const Spacer(),
-        isRequest
-            ? Row(
-                children: [
+        if (!isSearch)
+          isRequest
+              ? Row(
+                  children: [
+                    IconButton(
+                      onPressed: () async {
+                        ref.read(profileProvider.notifier).decodeData();
+                        Navigator.of(context).push(MaterialPageRoute(
+                          builder: (context) => ChatScreen(
+                            chatterUser: friendData,
+                            currentUser: ref
+                                .read(profileProvider.notifier)
+                                .state!
+                                .profile_id,
+                          ),
+                        ));
+                      },
+                      icon: Icon(
+                        Icons.messenger_outline,
+                        color: Theme.of(context).colorScheme.onSecondary,
+                      ),
+                    ),
+                    IconButton(
+                      onPressed: () {},
+                      icon: Icon(
+                        Icons.calendar_month_outlined,
+                        color: Theme.of(context).colorScheme.onSecondary,
+                      ),
+                    )
+                  ],
+                )
+              : Row(children: [
                   IconButton(
-                    onPressed: ()async{
-                      ref.read(profileProvider.notifier).decodeData();
-                      Navigator.of(context).push(MaterialPageRoute(
-                        builder: (context) => ChatScreen(
-                          chatterUser: friendData,
-                          currentUser: ref
-                              .read(profileProvider.notifier)
-                              .state
-                              !.profile_id,
-                        ),
-                      ));
-                    },
-                    icon: Icon(
-                      Icons.messenger_outline,
-                      color: Theme.of(context).colorScheme.onSecondary,
-                    ),
-                  ),
+                      onPressed: () {},
+                      icon: const Icon(
+                        Icons.check,
+                        color: Colors.green,
+                      ),
+                      splashRadius: 15),
+                  const SizedBox(width: 10),
                   IconButton(
-                    onPressed: () {},
-                    icon: Icon(
-                      Icons.calendar_month_outlined,
-                      color: Theme.of(context).colorScheme.onSecondary,
-                    ),
-                  )
-                ],
-              )
-            : Row(children: [
-                IconButton(
-                    onPressed: () {},
-                    icon: const Icon(
-                      Icons.check,
-                      color: Colors.green,
-                    ),
-                    splashRadius: 15),
-                const SizedBox(width: 10),
-                IconButton(
-                    onPressed: () {},
-                    icon: const Icon(
-                      Icons.close,
-                      color: Colors.red,
-                    ),
-                    splashRadius: 15),
-              ]),
+                      onPressed: () {},
+                      icon: const Icon(
+                        Icons.close,
+                        color: Colors.red,
+                      ),
+                      splashRadius: 15),
+                ]),
       ]),
     );
   }

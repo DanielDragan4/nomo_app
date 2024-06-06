@@ -12,6 +12,16 @@ class ProfileProvider extends StateNotifier<Profile?> {
 
   Future<Supabase> supabase;
 
+  Future<String> getCurrentUserId() async {
+    final supabaseClient = (await supabase).client;
+    String profileId = (await supabaseClient
+        .from('profile_view')
+        .select('profile_id')
+        .eq('profile_id', supabaseClient.auth.currentUser!.id)
+        .single())['profile_id'];
+    return profileId;
+  }
+
   Future<Map> readProfile() async {
     final supabaseClient = (await supabase).client;
     Map profile = {};
@@ -214,27 +224,28 @@ class ProfileProvider extends StateNotifier<Profile?> {
     return friends.isNotEmpty;
   }
 
-  Future<void> createBlockedTime(profileId, sTime, eTime, title, String? eventId) async {
+  Future<void> createBlockedTime(
+      profileId, sTime, eTime, title, String? eventId) async {
     final supabaseClient = (await supabase).client;
     Map blockedTimeMap;
 
-    if(eventId == null) {
+    if (eventId == null) {
       blockedTimeMap = {
-      'user_id': profileId,
-      'start_time': sTime,
-      'end_time': eTime,
-      'block_title': title
+        'user_id': profileId,
+        'start_time': sTime,
+        'end_time': eTime,
+        'block_title': title
       };
     } else {
       blockedTimeMap = {
-      'user_id': profileId,
-      'start_time': sTime,
-      'end_time': eTime,
-      'block_title': title,
-      'event_id' : eventId
+        'user_id': profileId,
+        'start_time': sTime,
+        'end_time': eTime,
+        'block_title': title,
+        'event_id': eventId
       };
     }
-    
+
     await supabaseClient.from('Availability').insert(blockedTimeMap);
   }
 
@@ -255,17 +266,17 @@ class ProfileProvider extends StateNotifier<Profile?> {
 
   Future<void> deleteBlockedTime(String? availId, String? eventId) async {
     final supabaseClient = (await supabase).client;
-    if(eventId == null)
-      {await supabaseClient
+    if (eventId == null) {
+      await supabaseClient
           .from('Availability')
           .delete()
           .eq('availability_id', availId!);
-      } else {
-        await supabaseClient
+    } else {
+      await supabaseClient
           .from('Availability')
           .delete()
           .eq('event_id', eventId);
-      }
+    }
   }
 
   List<Availability> availavilityByMonth(int year, int month) {

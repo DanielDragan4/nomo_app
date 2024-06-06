@@ -120,17 +120,40 @@ class _EventInfoState extends ConsumerState<EventInfo> {
                         for (var i = 0;
                             i < widget.eventsData.attendees.length;
                             i++) {
-                          if (widget.eventsData.attendees[i]['user_id'] ==
-                              currentUser) {
+                          var attendee = widget.eventsData.attendees[i];
+                          if (attendee is Map &&
+                              attendee['user_id'] == currentUser) {
                             joinOrLeave = true;
                             break;
                           }
                         }
+                        // for (var i = 0;
+                        //     i < widget.eventsData.attendees.length;
+                        //     i++) {
+                        //   if (((widget.eventsData.attendees[i] != null) &&
+                        //       (widget.eventsData.attendees[i] ==
+                        //           currentUser))) {
+                        //     if (((widget.eventsData.attendees[i]['user_id'] !=
+                        //             null) &&
+                        //         (widget.eventsData.attendees[i]['user_id'] ==
+                        //             currentUser))) {
+                        //       joinOrLeave = true;
+                        //       break;
+                        //     }
+                        //   }
+                        // }
                         if (!joinOrLeave) {
                           text = 'Join';
                           return ElevatedButton(
                             onPressed: () {
-                              ref.read(profileProvider.notifier).createBlockedTime(currentUser, widget.eventsData.sdate, widget.eventsData.edate, widget.eventsData.title, widget.eventsData.eventId);
+                              ref
+                                  .read(profileProvider.notifier)
+                                  .createBlockedTime(
+                                      currentUser,
+                                      widget.eventsData.sdate,
+                                      widget.eventsData.edate,
+                                      widget.eventsData.title,
+                                      widget.eventsData.eventId);
                               attendeeJoinEvent();
                               ScaffoldMessenger.of(context)
                                   .hideCurrentSnackBar();
@@ -212,7 +235,13 @@ class _EventInfoState extends ConsumerState<EventInfo> {
                                                 onPressed: () {
                                                   setState(() {
                                                     attendeeLeaveEvent();
-                                                    ref.read(profileProvider.notifier).deleteBlockedTime(null, widget.eventsData.eventId);
+                                                    ref
+                                                        .read(profileProvider
+                                                            .notifier)
+                                                        .deleteBlockedTime(
+                                                            null,
+                                                            widget.eventsData
+                                                                .eventId);
                                                   });
 
                                                   Navigator.pop(context);

@@ -2,8 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:nomo/models/friend_model.dart';
 import 'package:nomo/providers/search_provider.dart';
+import 'package:nomo/widgets/event_tab.dart';
 import 'package:nomo/widgets/friend_tab.dart';
-import 'package:nomo/models/profile_model.dart';
+import 'package:nomo/models/events_model.dart';
 
 class SearchScreen extends ConsumerStatefulWidget {
   const SearchScreen({Key? key}) : super(key: key);
@@ -15,7 +16,7 @@ class SearchScreen extends ConsumerStatefulWidget {
 class _SearchScreenState extends ConsumerState<SearchScreen> {
   final TextEditingController _searchController = TextEditingController();
   late List<bool> _isSelected;
-  List<FriendTab> _searchResults = [];
+  List<dynamic> _searchResults = [];
 
   @override
   void initState() {
@@ -23,10 +24,10 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
     super.initState();
   }
 
-  Future<void> _search(String query) async {
+  Future<void> _searchProfiles(String query) async {
     try {
       final List<Friend> profiles =
-          await ref.read(searchProvider.notifier).decodeSearch(query);
+          await ref.read(searchProvider.notifier).decodeProfileSearch(query);
       print(profiles);
       setState(() {
         _searchResults = profiles
@@ -41,6 +42,32 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
     } catch (e) {
       print('Error during search: $e');
     }
+  }
+
+  Future<void> _searchEvents(String query) async {
+    try {
+      final List<Event> events =
+          await ref.read(searchProvider.notifier).decodeEventSearch(query);
+      print('Events: $events');
+      setState(() {
+        _searchResults = events
+            .map((event) => EventTab(
+                  eventData: event,
+                  bookmarkSet: event.bookmarked,
+                ))
+            .toList();
+        print('Search results updated: $_searchResults');
+      });
+    } catch (e) {
+      print('Error during event search: $e');
+    }
+  }
+
+  void resetScreen() {
+    setState(() {
+      _searchResults = [];
+      _searchController.text = '';
+    });
   }
 
   @override
@@ -81,6 +108,7 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
             selectedColor: Colors.grey,
             borderRadius: BorderRadius.circular(15),
             onPressed: (int index) {
+              resetScreen();
               setState(() {
                 for (int i = 0; i < _isSelected.length; i++) {
                   _isSelected[i] = i == index;
@@ -115,26 +143,31 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
           const Divider(),
           ElevatedButton(
             onPressed: () {
-              _search(_searchController.text);
+              if (_isSelected[0]) {
+                _searchEvents(_searchController.text);
+              } else if (_isSelected[1]) {
+                _searchProfiles(_searchController.text);
+              }
               FocusManager.instance.primaryFocus?.unfocus();
             },
             child: const Text('Search'),
           ),
-          // Placeholder for the list of FriendTab objects
-          // Replace this with the actual list of FriendTab objects returned from the search
           Expanded(
             child: ListView.builder(
               itemCount: _searchResults.length,
               itemBuilder: (context, index) {
+                print(
+                    'Building item for index $index'); // Add this line to debug
                 return _searchResults[index];
               },
             ),
           ),
-          const Expanded(
-            child: Center(
-              child: Text('Search results will be displayed here'),
+          if (_searchResults.isEmpty)
+            const Expanded(
+              child: Center(
+                child: Text('Search results will be displayed here'),
+              ),
             ),
-          ),
         ],
       ),
     );

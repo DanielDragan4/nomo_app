@@ -30,6 +30,9 @@ class FriendTab extends ConsumerStatefulWidget {
 class _FriendTabState extends ConsumerState<FriendTab> {
   bool selectedUser = false;
 
+  Future<String> getCurrentUser() async {
+    return await ref.read(profileProvider.notifier).getCurrentUserId();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -44,10 +47,13 @@ class _FriendTabState extends ConsumerState<FriendTab> {
       padding: const EdgeInsets.symmetric(vertical: 5),
       child: Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
         GestureDetector(
-          onTap: () {
+          onTap: () async {
+            String currentId = await getCurrentUser();
             Navigator.of(context).push(MaterialPageRoute(
                 builder: ((context) => ProfileScreen(
-                      isUser: false,
+                      isUser: widget.friendData.friendProfileId != currentId
+                          ? false
+                          : true,
                       userId: widget.friendData.friendProfileId,
                     ))));
           },

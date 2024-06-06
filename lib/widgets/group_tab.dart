@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:nomo/providers/chats_provider.dart';
 import 'package:nomo/providers/profile_provider.dart';
+import 'package:nomo/screens/availability_screen.dart';
 import 'package:nomo/screens/chat_screen.dart';
 
 class GroupTab extends ConsumerStatefulWidget {
@@ -13,6 +15,17 @@ class GroupTab extends ConsumerStatefulWidget {
 }
 
 class _FriendTabState extends ConsumerState<GroupTab> {
+
+  List<String> users = [];
+  void getUsersIds() async{
+    users = await ref.read(chatsProvider.notifier).getGroupMemberIds(widget.groupData['group_id']);
+  }
+
+  @override
+  void initState() {
+    getUsersIds();
+    super.initState();
+  }
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
@@ -58,6 +71,17 @@ class _FriendTabState extends ConsumerState<GroupTab> {
                 },
                 icon: Icon(
                   Icons.messenger_outline,
+                  color: Theme.of(context).colorScheme.onSecondary,
+                ),
+              ),
+              IconButton(
+                onPressed: () async{
+                  Navigator.of(context).push(MaterialPageRoute(
+                    builder: (context) => AvailableTimesScreen(users: users)
+                  ));
+                },
+                icon: Icon(
+                  Icons.calendar_month_outlined,
                   color: Theme.of(context).colorScheme.onSecondary,
                 ),
               ),

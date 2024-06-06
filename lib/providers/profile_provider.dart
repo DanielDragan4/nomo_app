@@ -307,23 +307,24 @@ class ProfileProvider extends StateNotifier<Profile?> {
         .lte('end_time', endDate)
         .order('start_time', ascending: true);
 
-      print(blockedTimes);
+      print(duration);
       for(var blocked in blockedTimes) {
         DateTime blockedStart = DateTime.parse(blocked['start_time']);
         DateTime blockedEnd = DateTime.parse(blocked['end_time']);
         print(currentEndTime);
 
-        if(currentEndTime.isBefore(blockedStart)) {
+        if(currentEndTime.isBefore(blockedStart) && (blockedStart.difference(currentEndTime).inHours >= duration)) {
           availableTimes.add({'start_time' : currentEndTime, 'end_time' : blockedStart});
           currentEndTime = blockedEnd;
         } 
         if(currentEndTime.isBefore(blockedEnd)) {
           currentEndTime = blockedEnd;
         } 
-        if((blocked == blockedTimes.last) && currentEndTime.isBefore(endDate) && (currentEndTime.difference(blockedStart).inHours >= duration)) {
+        if((blocked == blockedTimes.last) && currentEndTime.isBefore(endDate) && (endDate.difference(currentEndTime).inHours >= duration)) {
           availableTimes.add({'start_time' : currentEndTime, 'end_time' : endDate});
         }
       }
+      print('${availableTimes}------------------------');
     return availableTimes;
   }
 }

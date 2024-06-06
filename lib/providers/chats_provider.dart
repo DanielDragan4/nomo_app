@@ -70,6 +70,16 @@ class ChatsProvider extends StateNotifier<List?> {
     return groupChatIds;
   }
 
+  Future<List<String>> getGroupMemberIds(groupId) async{
+    final supabaseClient = (await supabase).client;
+    List<String> groupMemberIds = [];
+    final List codedGroup = await supabaseClient.from('Group_Members').select().eq('group_id', groupId);
+    for(var member in codedGroup) {
+      groupMemberIds.add(member['profile_id']);
+    }
+    return groupMemberIds;
+  }
+
   Future<List> getGroupChatInfo() async {
     final supabaseClient = (await supabase).client;
     final chatIds = await getGroupChatIds();

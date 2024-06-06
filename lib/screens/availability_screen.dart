@@ -1,6 +1,7 @@
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
@@ -136,9 +137,16 @@ class _AvailableTimesScreenState extends ConsumerState<AvailableTimesScreen> {
                   itemCount: _freeTimes.length,
                   itemBuilder: (context, index) {
                     final time = _freeTimes[index];
-                    return ListTile(
-                      title: Text(
-                          'Free from ${time['start_time']} to ${time['end_time']}'),
+                    return Padding(
+                      padding: const EdgeInsets.all(4.0),
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(10),
+                        child: ListTile(
+                          tileColor: Theme.of(context).primaryColor,
+                          title: Text(
+                              'Free from ${DateFormat.yMd().format(time['start_time'])} at ${DateFormat('hh:mm').format(time['start_time'])} to ${DateFormat.yMd().format(time['end_time'])} at ${DateFormat('hh:mm').format(time['end_time'])}'),
+                        ),
+                      ),
                     );
                   },
                 ),

@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:nomo/models/availability_model.dart';
 import 'package:nomo/models/friend_model.dart';
@@ -281,6 +282,38 @@ class ProfileProvider extends StateNotifier<Profile?> {
       }
     }
     return availByMonth;
+  }
+  Future<List> mutualAvailability(List<String> userIds, DateTime startDate, DateTime endDate, int duration) async {
+    final supabaseClient = (await supabase).client;
+    List availableTimes = [];
+    DateTime currentEndTime = startDate;
+
+    final List blockedTimes = await supabaseClient
+        .from('Availability')
+        .select('start_time, end_time')
+        .inFilter('user_id', userIds)
+        .gte('start_time', startDate)
+        .lte('end_time', endDate)
+        .order('start_time', ascending: true);
+
+      print(blockedTimes);
+      for(var blocked in blockedTimes) {
+        DateTime blockedStart = DateTime.parse(blocked['start_time']);
+        DateTime blockedEnd = DateTime.parse(blocked['end_time']);
+        print(currentEndTime);
+
+        if(currentEndTime.isBefore(blockedStart)) {
+          availableTimes.add({'start_time' : currentEndTime, 'end_time' : blockedStart});
+          currentEndTime = blockedEnd;
+        } 
+        if(currentEndTime.isBefore(blockedEnd)) {
+          currentEndTime = blockedEnd;
+        } 
+        if((blocked == blockedTimes.last) && currentEndTime.isBefore(endDate) && (currentEndTime.difference(blockedStart).inHours >= duration)) {
+          availableTimes.add({'start_time' : currentEndTime, 'end_time' : endDate});
+        }
+      }
+    return availableTimes;
   }
 }
 

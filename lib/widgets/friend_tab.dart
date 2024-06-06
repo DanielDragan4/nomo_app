@@ -2,8 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:nomo/models/friend_model.dart';
 import 'package:nomo/providers/profile_provider.dart';
+import 'package:nomo/providers/supabase_provider.dart';
+import 'package:nomo/screens/availability_screen.dart';
 import 'package:nomo/screens/chat_screen.dart';
 import 'package:nomo/screens/profile_screen.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 class FriendTab extends ConsumerStatefulWidget {
   FriendTab(
@@ -27,8 +30,11 @@ class FriendTab extends ConsumerStatefulWidget {
 class _FriendTabState extends ConsumerState<FriendTab> {
   bool selectedUser = false;
 
+
   @override
   Widget build(BuildContext context) {
+    final currentUser = ref.read(profileProvider.notifier).state!.profile_id;
+    final List<String> users = [currentUser, widget.friendData.friendProfileId];
     var username = widget.friendData
         .friendUsername; // turn this into provided friend data username
     var avatar = widget.friendData.avatar;
@@ -107,7 +113,9 @@ class _FriendTabState extends ConsumerState<FriendTab> {
                           ),
                         ),
                         IconButton(
-                          onPressed: () {},
+                          onPressed: () {
+                            Navigator.of(context).push(MaterialPageRoute(builder: (context) => AvailableTimesScreen(users: users,),));
+                          },
                           icon: Icon(
                             Icons.calendar_month_outlined,
                             color: Theme.of(context).colorScheme.onSecondary,

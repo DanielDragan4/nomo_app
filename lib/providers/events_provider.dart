@@ -138,7 +138,7 @@ class EventProvider extends StateNotifier<List?> {
     return deCodedList;
   }
 
-  Future<void> postComment(
+  Future<List<Comment>> postComment(
       currentUser, eventIid, String comment, replyId) async {
     final supabaseClient = (await supabase).client;
     final newCommentMap = {
@@ -148,6 +148,7 @@ class EventProvider extends StateNotifier<List?> {
       'event_id': eventIid
     };
     await supabaseClient.from('Comments').insert(newCommentMap);
+    return await getComments(eventIid);
   }
 }
 

@@ -1,7 +1,4 @@
-import 'dart:ui';
-
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:nomo/models/comments_model.dart';
 import 'package:nomo/providers/events_provider.dart';
@@ -30,14 +27,16 @@ class _CommentsSectionState extends ConsumerState<CommentsSection> {
   }
 
   Future<void> recieveComments() async{
-    commentsList = await ref.read(eventsProvider.notifier).getComments(widget.eventId);
+       var readComments = await ref.read(eventsProvider.notifier).getComments(widget.eventId);
+      setState(() {
+        commentsList = readComments;
+      });
     }
 
    Future<void> postComment(String comment) async {
     final supabase = (await ref.read(supabaseInstance)).client;
-    await ref.read(eventsProvider.notifier)
+    commentsList = await ref.read(eventsProvider.notifier)
     .postComment(supabase.auth.currentUser!.id, widget.eventId, comment, null);
-    await ref.read(eventsProvider.notifier).getComments(widget.eventId);
   }
 
   @override
@@ -64,7 +63,7 @@ class _CommentsSectionState extends ConsumerState<CommentsSection> {
         children: [
       (activeComments ?
         SizedBox(
-          height: MediaQuery.of(context).size.height *.34,
+          height: MediaQuery.of(context).size.height *.3,
           child: ListView(
             children: [
               for (Comment i in commentsList) 
@@ -95,8 +94,10 @@ class _CommentsSectionState extends ConsumerState<CommentsSection> {
                 IconButton(onPressed: () {
                   postComment(newComment.text);
                   setState(() {
-                    newComment.text = "";
+                    newComment.clear();
+                    recieveComments();
                   });
+                  
                 }, icon: Icon(Icons.send_rounded),color: Theme.of(context).colorScheme.onSecondary)
                 :
                 SizedBox(

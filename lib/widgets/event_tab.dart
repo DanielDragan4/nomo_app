@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:maps_launcher/maps_launcher.dart';
 import 'package:nomo/models/events_model.dart';
 import 'package:nomo/providers/supabase_provider.dart';
 import 'package:nomo/screens/detailed_event_screen.dart';
@@ -146,21 +147,26 @@ class _EventTabState extends ConsumerState<EventTab> {
                 ),
               ],
             ),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.start,
-              children: [
-                const SizedBox(
-                  width: 10,
-                ),
-                Text(
-                  widget.eventData.location,
-                  style: TextStyle(
-                    fontWeight: FontWeight.w300,
-                    color: Theme.of(context).colorScheme.onSecondary,
-                    fontSize: MediaQuery.of(context).size.width * .038,
+            GestureDetector(
+              onTap: () {
+                MapsLauncher.launchQuery(widget.eventData.location);
+              },
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.start,
+                children: [
+                  const SizedBox(
+                    width: 10,
                   ),
-                ),
-              ],
+                  Text(
+                    widget.eventData.location,
+                    style: TextStyle(
+                      fontWeight: FontWeight.w300,
+                      color: Theme.of(context).colorScheme.onSecondary,
+                      fontSize: MediaQuery.of(context).size.width * .038,
+                    ),
+                  ),
+                ],
+              ),
             ),
             Container(
               height: 5,

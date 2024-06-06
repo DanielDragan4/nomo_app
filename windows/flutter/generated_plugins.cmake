@@ -5,6 +5,7 @@
 list(APPEND FLUTTER_PLUGIN_LIST
   app_links
   file_selector_windows
+  maps_launcher
   url_launcher_windows
 )
 

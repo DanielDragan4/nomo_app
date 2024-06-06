@@ -46,6 +46,7 @@ dependencies:
   network_to_file_image: ^6.0.1
   jiffy: ^6.3.1
   calendar_view: ^1.2.0
+  maps_launcher: ^2.2.1
 dev_dependencies:
   flutter_test:
     sdk: flutter

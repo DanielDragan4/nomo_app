@@ -6,11 +6,18 @@ import 'package:nomo/providers/supabase_provider.dart';
 import 'package:nomo/models/interests_enum.dart';
 import 'package:nomo/providers/saved_session_provider.dart';
 import 'package:nomo/providers/user_signup_provider.dart';
+import 'package:nomo/screens/new_event_screen.dart';
 
 class InterestsScreen extends ConsumerStatefulWidget {
-  InterestsScreen({super.key, required this.isEditing});
+  InterestsScreen(
+      {super.key,
+      required this.isEditing,
+      this.creatingEvent,
+      this.selectedInterests});
 
   bool isEditing;
+  bool? creatingEvent;
+  Map<Interests, bool>? selectedInterests = {};
 
   @override
   ConsumerState<InterestsScreen> createState() {
@@ -29,7 +36,11 @@ class _InterestsScreenState extends ConsumerState<InterestsScreen> {
     super.initState();
     if (widget.isEditing)
       initializeSelectedOptions();
-    else {
+    else if (widget.creatingEvent != null &&
+        widget.selectedInterests!.isNotEmpty) {
+      _selectedOptions = widget.selectedInterests!;
+      _selectedCount = _selectedOptions.values.where((value) => value).length;
+    } else {
       _selectedCount = _selectedOptions.values.where((value) => value).length;
     }
   }
@@ -70,25 +81,36 @@ class _InterestsScreenState extends ConsumerState<InterestsScreen> {
                 child: Center(
                   child: Column(
                     children: [
-                      Text(
-                        'Interests',
-                        style: TextStyle(
-                          color: colorScheme.primary,
-                          fontWeight: FontWeight.w800,
-                          fontSize: 30,
-                        ),
-                      ),
+                      widget.creatingEvent == null
+                          ? Text(
+                              'Interests',
+                              style: TextStyle(
+                                color: colorScheme.primary,
+                                fontWeight: FontWeight.w800,
+                                fontSize: 30,
+                              ),
+                            )
+                          : Text(
+                              'Event Categories',
+                              style: TextStyle(
+                                color: colorScheme.primary,
+                                fontWeight: FontWeight.w800,
+                                fontSize: 30,
+                              ),
+                            ),
                     ],
                   ),
                 ),
               ),
             ),
-            bottom: PreferredSize(
-              preferredSize: const Size.fromHeight(kToolbarHeight / 2),
-              child: Text("Select up to 5 of your interests",
-                  style:
-                      TextStyle(fontSize: 20, color: colorScheme.onBackground)),
-            ),
+            bottom: widget.creatingEvent != null
+                ? PreferredSize(
+                    preferredSize: const Size.fromHeight(kToolbarHeight / 2),
+                    child: Text("Select up to 5 of your interests",
+                        style: TextStyle(
+                            fontSize: 20, color: colorScheme.onBackground)),
+                  )
+                : null,
             centerTitle: true,
           ),
         ],
@@ -179,14 +201,25 @@ class _InterestsScreenState extends ConsumerState<InterestsScreen> {
                               foregroundColor: colorScheme.onPrimary,
                             ),
                             child: !widget.isEditing
-                                ? const Text(
-                                    "Continue",
-                                    style: TextStyle(
-                                      fontSize: 20,
-                                      fontWeight: FontWeight.w400,
-                                    ),
-                                  )
+                                ? widget.creatingEvent == null
+                                    ? const Text(
+                                        //Initial Setup
+                                        "Continue",
+                                        style: TextStyle(
+                                          fontSize: 20,
+                                          fontWeight: FontWeight.w400,
+                                        ),
+                                      )
+                                    : const Text(
+                                        //Selecting for event
+                                        "Add Interests",
+                                        style: TextStyle(
+                                          fontSize: 20,
+                                          fontWeight: FontWeight.w400,
+                                        ),
+                                      )
                                 : const Text(
+                                    //Updating in settings (may work for editing event as well)
                                     "Update",
                                     style: TextStyle(
                                       fontSize: 20,
@@ -194,22 +227,32 @@ class _InterestsScreenState extends ConsumerState<InterestsScreen> {
                                     ),
                                   ),
                             onPressed: () async {
-                              await ref
-                                  .watch(profileProvider.notifier)
-                                  .updateInterests(_selectedOptions);
-                              if (!widget.isEditing) {
-                                ref
-                                    .read(onSignUp.notifier)
-                                    .completeProfileCreation();
-                                ref
-                                    .read(savedSessionProvider.notifier)
-                                    .changeSessionDataList();
+                              if (widget.creatingEvent == null) {
+                                await ref
+                                    .watch(profileProvider.notifier)
+                                    .updateInterests(_selectedOptions);
+                                if (!widget.isEditing) {
+                                  if (widget.creatingEvent == null) {
+                                    //Initial account creation
+                                    ref
+                                        .read(onSignUp.notifier)
+                                        .completeProfileCreation();
+                                    ref
+                                        .read(savedSessionProvider.notifier)
+                                        .changeSessionDataList();
 
-                                Navigator.of(context).pushReplacement(
-                                    MaterialPageRoute(
-                                        builder: (context) => const NavBar()));
+                                    Navigator.of(context).pushReplacement(
+                                        MaterialPageRoute(
+                                            builder: (context) =>
+                                                const NavBar()));
+                                  }
+                                } else {
+                                  //Updating
+                                  Navigator.of(context).pop();
+                                }
                               } else {
-                                Navigator.of(context).pop();
+                                print(_selectedOptions);
+                                Navigator.pop(context, _selectedOptions);
                               }
                             },
                           ),
@@ -220,23 +263,37 @@ class _InterestsScreenState extends ConsumerState<InterestsScreen> {
                       padding: const EdgeInsets.only(right: 8.0),
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.end,
-                        children: !widget.isEditing
+                        children: (!widget.isEditing &&
+                                widget.creatingEvent == null)
                             ? [
                                 TextButton(
                                   onPressed: () {
-                                    ref
-                                        .watch(profileProvider.notifier)
-                                        .skipInterests();
-                                    ref
-                                        .read(onSignUp.notifier)
-                                        .completeProfileCreation();
-                                    ref
-                                        .read(savedSessionProvider.notifier)
-                                        .changeSessionDataList();
-                                    Navigator.of(context).pushReplacement(
-                                        MaterialPageRoute(
-                                            builder: (context) =>
-                                                const NavBar()));
+                                    if (widget.creatingEvent == null)
+                                    //Initial creation skip interests
+                                    {
+                                      ref
+                                          .watch(profileProvider.notifier)
+                                          .skipInterests();
+                                      ref
+                                          .read(onSignUp.notifier)
+                                          .completeProfileCreation();
+                                      ref
+                                          .read(savedSessionProvider.notifier)
+                                          .changeSessionDataList();
+                                      Navigator.of(context).pushReplacement(
+                                          MaterialPageRoute(
+                                              builder: (context) =>
+                                                  const NavBar()));
+                                    }
+                                    // else {
+                                    //   //Skip Event Interests
+                                    //   ref.watch(profileProvider.notifier);
+
+                                    //   Navigator.of(context).pushReplacement(
+                                    //       MaterialPageRoute(
+                                    //           builder: (context) =>
+                                    //               const NavBar()));
+                                    // }
                                   },
                                   child: const Row(
                                     mainAxisSize: MainAxisSize.min,

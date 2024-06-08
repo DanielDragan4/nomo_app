@@ -1,8 +1,12 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:nomo/models/events_model.dart';
+import 'package:nomo/models/interests_enum.dart';
 import 'package:nomo/providers/profile_provider.dart';
 import 'package:nomo/screens/NavBar.dart';
 import 'package:nomo/providers/attending_events_provider.dart';
+import 'package:nomo/screens/interests_screen.dart';
 import 'package:nomo/screens/recommended_screen.dart';
 import 'dart:io';
 import 'package:intl/intl.dart';
@@ -14,7 +18,11 @@ import 'package:image_picker/image_picker.dart';
 const List<String> list = <String>['Public', 'Private', 'Selective'];
 
 class NewEventScreen extends ConsumerStatefulWidget {
-  const NewEventScreen({super.key, required this.isNewEvent, this.event});
+  const NewEventScreen({
+    super.key,
+    required this.isNewEvent,
+    this.event,
+  });
   final bool isNewEvent;
   final Event? event;
 
@@ -40,6 +48,7 @@ class _NewEventScreenState extends ConsumerState<NewEventScreen> {
   final _selectedLocation = TextEditingController();
   final _title = TextEditingController();
   final _description = TextEditingController();
+  Map<Interests, bool> categories = {};
 
   @override
   void initState() {
@@ -83,6 +92,7 @@ class _NewEventScreenState extends ConsumerState<NewEventScreen> {
   }
 
   Future<void> _selectDate(BuildContext context, bool isStartDate) async {
+    FocusManager.instance.primaryFocus?.unfocus();
     final DateTime? picked = await showDatePicker(
       context: context,
       initialDate: DateTime.now(),
@@ -114,17 +124,18 @@ class _NewEventScreenState extends ConsumerState<NewEventScreen> {
         setState(() {
           enableButton = false;
         });
-        ScaffoldMessenger.of(context).hideCurrentSnackBar();
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('End time must be after start time.'),
-          ),
-        );
+        // ScaffoldMessenger.of(context).hideCurrentSnackBar();
+        // ScaffoldMessenger.of(context).showSnackBar(
+        //   const SnackBar(
+        //     content: Text('End time must be after start time.'),
+        //   ),
+        // );
       }
     }
   }
 
   Future<void> _selectTime(BuildContext context, bool isStartTime) async {
+    FocusManager.instance.primaryFocus?.unfocus();
     final TimeOfDay? picked = await showTimePicker(
       initialEntryMode: TimePickerEntryMode.dial,
       context: context,
@@ -218,6 +229,28 @@ class _NewEventScreenState extends ConsumerState<NewEventScreen> {
     return imgId[0]["images_id"];
   }
 
+  Future<void> _pickImageFromGallery() async {
+    final XFile? pickedFile =
+        await ImagePicker().pickImage(source: ImageSource.gallery);
+    if (pickedFile == null) return;
+
+    setState(() {
+      _selectedImage = File(pickedFile.path);
+      _enableButton();
+    });
+  }
+
+  Future<void> _pickImageFromCamera() async {
+    final XFile? pickedFile =
+        await ImagePicker().pickImage(source: ImageSource.camera);
+    if (pickedFile == null) return;
+
+    setState(() {
+      _selectedImage = File(pickedFile.path);
+      _enableButton();
+    });
+  }
+
   Future<void> createEvent(
       TimeOfDay selectedStart,
       TimeOfDay selectedEnd,
@@ -235,6 +268,7 @@ class _NewEventScreenState extends ConsumerState<NewEventScreen> {
 
     var imageId = await uploadImage(selectedImage);
     final supabase = (await ref.read(supabaseInstance)).client;
+
     final newEventRowMap = {
       'time_start': DateFormat('yyyy-MM-dd HH:mm:ss').format(start),
       'time_end': DateFormat('yyyy-MM-dd HH:mm:ss').format(end),
@@ -245,11 +279,24 @@ class _NewEventScreenState extends ConsumerState<NewEventScreen> {
       'image_id': imageId,
       'title': title
     };
+    if (categories.isNotEmpty) {
+      // Extract the interests from the categories and filter out those that are selected
+      final List<String> interestStrings = categories.entries
+          .where((entry) => entry.value)
+          .map((entry) =>
+              ref.read(profileProvider.notifier).enumToString(entry.key))
+          .toList();
+
+      //final jsonString = jsonEncode(interestStrings);
+      newEventRowMap['event_interests'] = interestStrings;
+    }
+
     final responseId = await supabase
         .from('Event')
         .insert(newEventRowMap)
         .select('event_id')
         .single();
+
     ref.read(profileProvider.notifier).createBlockedTime(
           supabase.auth.currentUser!.id,
           DateFormat('yyyy-MM-dd HH:mm:ss').format(start),
@@ -312,26 +359,6 @@ class _NewEventScreenState extends ConsumerState<NewEventScreen> {
         .update(newEventRowMap)
         .eq('event_id', widget.event?.eventId);
     ref.read(attendEventsProvider.notifier).deCodeData();
-  }
-
-  Future<void> _pickImageFromGallery() async {
-    final XFile? pickedFile =
-        await ImagePicker().pickImage(source: ImageSource.gallery);
-    if (pickedFile == null) return;
-
-    setState(() {
-      _selectedImage = File(pickedFile.path);
-    });
-  }
-
-  Future<void> _pickImageFromCamera() async {
-    final XFile? pickedFile =
-        await ImagePicker().pickImage(source: ImageSource.camera);
-    if (pickedFile == null) return;
-
-    setState(() {
-      _selectedImage = File(pickedFile.path);
-    });
   }
 
   @override
@@ -572,6 +599,8 @@ class _NewEventScreenState extends ConsumerState<NewEventScreen> {
                 textAlign: TextAlign.start,
                 textCapitalization: TextCapitalization.sentences,
                 maxLength: 50,
+                style:
+                    TextStyle(color: Theme.of(context).colorScheme.onSecondary),
               ),
             ),
             // child: LocationInput(
@@ -594,6 +623,8 @@ class _NewEventScreenState extends ConsumerState<NewEventScreen> {
                 textAlign: TextAlign.start,
                 textCapitalization: TextCapitalization.sentences,
                 maxLength: 200,
+                style:
+                    TextStyle(color: Theme.of(context).colorScheme.onSecondary),
               ),
             ),
             Padding(
@@ -611,8 +642,29 @@ class _NewEventScreenState extends ConsumerState<NewEventScreen> {
                 textAlign: TextAlign.start,
                 textCapitalization: TextCapitalization.sentences,
                 maxLength: 200,
+                style:
+                    TextStyle(color: Theme.of(context).colorScheme.onSecondary),
               ),
             ),
+            ElevatedButton(
+                onPressed: () async {
+                  final selectedInterests = await Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (builder) => InterestsScreen(
+                        isEditing: false,
+                        creatingEvent: true,
+                        selectedInterests: categories,
+                      ),
+                    ),
+                  );
+                  if (selectedInterests != null) {
+                    setState(() {
+                      categories = selectedInterests;
+                    });
+                  }
+                },
+                child: Text('Categories')),
             InkWell(
               onTap: () {
                 if (_selectedImage == null && widget.isNewEvent) {

@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:nomo/models/friend_model.dart';
+import 'package:nomo/models/interests_enum.dart';
 import 'package:nomo/providers/search_provider.dart';
+import 'package:nomo/screens/interests_screen.dart';
 import 'package:nomo/widgets/event_tab.dart';
 import 'package:nomo/widgets/friend_tab.dart';
 import 'package:nomo/models/events_model.dart';
@@ -17,6 +19,7 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
   final TextEditingController _searchController = TextEditingController();
   late List<bool> _isSelected;
   List<dynamic> _searchResults = [];
+  Map<Interests, bool> categories = {};
 
   @override
   void initState() {
@@ -46,11 +49,21 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
 
   Future<void> _searchEvents(String query) async {
     try {
-      final List<Event> events =
-          await ref.read(searchProvider.notifier).decodeEventSearch(query);
-      print('Events: $events');
+      // Split the query string by commas and trim any whitespace
+      final List<String> categories =
+          query.split(',').map((e) => e.trim()).toList();
+
+      // A list to hold the search results from each category
+      List<Event> allEvents = [];
+
+      for (String category in categories) {
+        final List<Event> events =
+            await ref.read(searchProvider.notifier).decodeEventSearch(category);
+        allEvents.addAll(events);
+      }
+
       setState(() {
-        _searchResults = events
+        _searchResults = allEvents
             .map((event) => EventTab(
                   eventData: event,
                   bookmarkSet: event.bookmarked,
@@ -63,10 +76,58 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
     }
   }
 
+  Future<void> _searchInterests(String query) async {
+    ScaffoldMessenger.of(context).hideCurrentSnackBar();
+    try {
+      // Split the query string by commas and trim any whitespace
+      final List<String> categories =
+          query.split(',').map((e) => e.trim()).toList();
+
+      // A list to hold the search results from each category
+      List<Event> allEvents = [];
+
+      for (String category in categories) {
+        final List<Event> events = await ref
+            .read(searchProvider.notifier)
+            .decodeInterestSearch(category);
+        allEvents.addAll(events);
+      }
+
+      if (allEvents.isEmpty) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text("No Events Found With These Interests"),
+          ),
+        );
+      }
+
+      setState(() {
+        _searchResults = allEvents
+            .map((event) => EventTab(
+                  eventData: event,
+                  bookmarkSet: event.bookmarked,
+                ))
+            .toList();
+      });
+    } catch (e) {
+      print('Error during event search: $e');
+    }
+  }
+
   void resetScreen() {
     setState(() {
       _searchResults = [];
       _searchController.text = '';
+    });
+  }
+
+  void _updateSearchBar(Map<Interests, bool> selectedInterests) {
+    final selected = selectedInterests.entries
+        .where((entry) => entry.value)
+        .map((entry) => entry.key.toString().split('.').last)
+        .join(', ');
+    setState(() {
+      _searchController.text = selected;
     });
   }
 
@@ -141,33 +202,43 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
             ],
           ),
           const Divider(),
-          ElevatedButton(
-            onPressed: () {
-              if (_isSelected[0]) {
-                _searchEvents(_searchController.text);
-              } else if (_isSelected[1]) {
-                _searchProfiles(_searchController.text);
-              }
-              FocusManager.instance.primaryFocus?.unfocus();
-            },
-            child: const Text('Search'),
+          Padding(
+            padding: const EdgeInsets.only(bottom: 15.0),
+            child: ElevatedButton(
+              onPressed: () {
+                if (_isSelected[0]) {
+                  FocusManager.instance.primaryFocus?.unfocus();
+                  _searchEvents(_searchController.text);
+                } else if (_isSelected[1]) {
+                  FocusManager.instance.primaryFocus?.unfocus();
+                  _searchProfiles(_searchController.text);
+                } else if (_isSelected[2]) {}
+                _searchInterests(_searchController.text);
+              },
+              child: const Text('Search'),
+            ),
           ),
           Expanded(
-            child: ListView.builder(
-              itemCount: _searchResults.length,
-              itemBuilder: (context, index) {
-                print(
-                    'Building item for index $index'); // Add this line to debug
-                return _searchResults[index];
-              },
-            ),
+            child: _searchResults.isEmpty
+                ? (_isSelected[2]
+                    ? InterestsScreen(
+                        isEditing: false,
+                        creatingEvent: false,
+                        searching: true,
+                        selectedInterests: categories,
+                        onSelectionChanged: _updateSearchBar,
+                      )
+                    : const Center(
+                        child: Text('Search results will be displayed here'),
+                      ))
+                : ListView.builder(
+                    itemCount: _searchResults.length,
+                    itemBuilder: (context, index) {
+                      print('Building item for index $index');
+                      return _searchResults[index];
+                    },
+                  ),
           ),
-          if (_searchResults.isEmpty)
-            const Expanded(
-              child: Center(
-                child: Text('Search results will be displayed here'),
-              ),
-            ),
         ],
       ),
     );

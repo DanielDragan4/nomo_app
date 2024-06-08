@@ -98,6 +98,65 @@ class SearchProvider extends StateNotifier<List<dynamic>> {
     }
     return deCodedList;
   }
+
+  Future<List> searchInterests(String query) async {
+    final supabaseClient = (await supabase).client;
+
+    final eventsRpc =
+        await supabaseClient.rpc('search_interests', params: {'query': query});
+
+    final events = eventsRpc as List;
+
+    return events;
+  }
+
+  Future<List<Event>> decodeInterestSearch(String query) async {
+    final codedList = await searchInterests(query);
+
+    List<Event> deCodedList = [];
+    final supabaseClient = (await supabase).client;
+
+    for (var eventData in codedList) {
+      print('Event Data: $eventData');
+      String profilePictureUrl = supabaseClient.storage
+          .from('Images')
+          .getPublicUrl(eventData['profile_path']);
+      String eventUrl = supabaseClient.storage
+          .from('Images')
+          .getPublicUrl(eventData['event_path']);
+      bool bookmarked =
+          eventData['bookmarked'].contains(supabaseClient.auth.currentUser!.id);
+
+      final Event deCodedEvent = Event(
+        description: eventData['description'],
+        sdate: eventData['time_start'],
+        eventId: eventData['event_id'],
+        eventType: eventData['invitationtype'],
+        host: eventData['host'],
+        imageId: eventData['image_id'],
+        imageUrl: eventUrl,
+        location: eventData['location'],
+        title: eventData['title'],
+        edate: eventData['time_end'],
+        attendees: eventData['attendees'],
+        hostProfileUrl: profilePictureUrl,
+        hostUsername: eventData['username'],
+        profileName: eventData['profile_name'],
+        bookmarked: bookmarked,
+        attending: false,
+        isHost: false,
+      );
+
+      // Set attending and isHost flags
+      deCodedEvent.attending =
+          deCodedEvent.attendees.contains(supabaseClient.auth.currentUser!.id);
+      deCodedEvent.isHost =
+          deCodedEvent.host == supabaseClient.auth.currentUser!.id;
+
+      deCodedList.add(deCodedEvent);
+    }
+    return deCodedList;
+  }
 }
 
 final searchProvider =

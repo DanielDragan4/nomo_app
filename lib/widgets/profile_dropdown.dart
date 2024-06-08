@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:nomo/providers/saved_session_provider.dart';
 import 'package:nomo/providers/supabase_provider.dart';
 import 'package:nomo/screens/interests_screen.dart';
+import 'package:nomo/screens/location_test_screen.dart';
 import 'package:nomo/screens/settings/setting_screen.dart';
 
 enum options { itemOne, itemTwo, itemThree }
@@ -44,6 +45,16 @@ class _ProfileDropdownState extends ConsumerState<ProfileDropdown> {
                           builder: ((context) => InterestsScreen(
                                 isEditing: true,
                               ))));
+                },
+              ),
+              PopupMenuItem(
+                value: options.itemOne,
+                child: const Text("Location"),
+                onTap: () {
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: ((context) => LocationTestScreen(isCreation: false,))));
                 },
               ),
               PopupMenuItem(

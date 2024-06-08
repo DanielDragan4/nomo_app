@@ -54,12 +54,12 @@ class _InterestsScreenState extends ConsumerState<InterestsScreen> {
     final colorScheme = Theme.of(context).colorScheme;
 
     return Scaffold(
-      backgroundColor: colorScheme.background,
+      backgroundColor: Theme.of(context).canvasColor,
       body: NestedScrollView(
         floatHeaderSlivers: true,
         headerSliverBuilder: (context, innerBoxIsScrolled) => [
           SliverAppBar(
-            backgroundColor: colorScheme.background,
+            backgroundColor: Theme.of(context).canvasColor,
             floating: true,
             snap: true,
             expandedHeight: 10,

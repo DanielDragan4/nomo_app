@@ -5,7 +5,6 @@ import 'package:nomo/models/events_model.dart';
 import 'package:nomo/providers/attending_events_provider.dart';
 import 'package:nomo/providers/profile_provider.dart';
 import 'package:nomo/screens/calendar/event_cal_tab.dart';
-import 'package:nomo/screens/detailed_event_screen.dart';
 import 'package:nomo/screens/calendar/day_screen.dart'; // Make sure to import DayScreen
 
 class Month extends ConsumerWidget {
@@ -143,7 +142,7 @@ class Month extends ConsumerWidget {
                       border: Border.all(width: 1),
                     ),
                     child: const Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                       children: [
                         Spacer(),
                         Text(

@@ -6,6 +6,7 @@ import 'package:nomo/providers/supabase_provider.dart';
 import 'package:nomo/models/interests_enum.dart';
 import 'package:nomo/providers/saved_session_provider.dart';
 import 'package:nomo/providers/user_signup_provider.dart';
+import 'package:nomo/screens/location_test_screen.dart';
 import 'package:nomo/screens/new_event_screen.dart';
 
 class InterestsScreen extends ConsumerStatefulWidget {
@@ -255,7 +256,9 @@ class _InterestsScreenState extends ConsumerState<InterestsScreen> {
                                       Navigator.of(context).pushReplacement(
                                           MaterialPageRoute(
                                               builder: (context) =>
-                                                  const NavBar()));
+                                                  //const NavBar()
+                                          LocationTestScreen(isCreation: true)
+                                      ));
                                     }
                                   } else {
                                     //Updating

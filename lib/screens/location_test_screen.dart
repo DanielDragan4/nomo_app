@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:nomo/screens/NavBar.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class LocationTestScreen extends StatefulWidget {
@@ -203,10 +204,17 @@ class _LocationTestScreenState extends State<LocationTestScreen> {
               },
               child: TextButton(
                 child: Text('See Events'),
-                onPressed: () async{
+                onPressed: (_currentPosition != null) ?() async{
                   final saveRadius = await SharedPreferences.getInstance();
                   saveRadius.setStringList('savedRadius', [_preferredRadius.toString()]);
-                },
+                  Navigator.of(context).pushReplacement(
+                                          MaterialPageRoute(
+                                              builder: (context) =>
+                                              const NavBar()
+                                      ));
+                } 
+                :
+                null,
               ),
             ) 
             :
@@ -219,6 +227,7 @@ class _LocationTestScreenState extends State<LocationTestScreen> {
                 onPressed: () async{
                   final saveRadius = await SharedPreferences.getInstance();
                   saveRadius.setStringList('savedRadius', [_preferredRadius.toString()]);
+                  Navigator.of(context).pop();
                 },
               ),
             ),

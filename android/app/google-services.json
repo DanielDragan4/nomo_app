@@ -1,13 +1,13 @@
 {
   "project_info": {
-    "project_number": "401558042377",
-    "project_id": "nomo-backend",
-    "storage_bucket": "nomo-backend.appspot.com"
+    "project_number": "360184712841",
+    "project_id": "nomo-app-c3417",
+    "storage_bucket": "nomo-app-c3417.appspot.com"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:401558042377:android:b6e64d05033d678895c5d8",
+        "mobilesdk_app_id": "1:360184712841:android:766cdb4333a41438c3c058",
         "android_client_info": {
           "package_name": "com.example.nomo_app"
         }
@@ -15,7 +15,7 @@
       "oauth_client": [],
       "api_key": [
         {
-          "current_key": "AIzaSyDZP4AfL8B14_kuVoeqlWFTO_PSBSUjltE"
+          "current_key": "AIzaSyCcUcn0I6laadIBXwFwCOaDyPlSe89mMZA"
         }
       ],
       "services": {

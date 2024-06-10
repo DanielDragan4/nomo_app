@@ -47,7 +47,7 @@ class EventProvider extends StateNotifier<List?> {
         eventId: eventData['event_id'],
         eventType: eventData['invitationType'],
         host: eventData['host'],
-        imageId: eventData['image_id'], 
+        imageId: eventData['image_id'],
         imageUrl: eventUrl,
         location: eventData['location'],
         title: eventData['title'],
@@ -101,7 +101,7 @@ class EventProvider extends StateNotifier<List?> {
         .delete()
         .eq('event_id', eventToMark)
         .eq('user_id', currentUser);
-      await deCodeData();
+    await deCodeData();
   }
 
   Future<List> readComments(String eventId) async {

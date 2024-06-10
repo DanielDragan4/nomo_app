@@ -6,8 +6,14 @@ import 'package:nomo/screens/NavBar.dart';
 import 'package:nomo/screens/create_account_screen.dart';
 import 'package:nomo/screens/login_screen.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'package:nomo/firebase_options.dart';
 
 void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
   runApp(
     const ProviderScope(child: App()),
   );

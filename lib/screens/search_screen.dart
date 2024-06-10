@@ -212,8 +212,10 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
                 } else if (_isSelected[1]) {
                   FocusManager.instance.primaryFocus?.unfocus();
                   _searchProfiles(_searchController.text);
-                } else if (_isSelected[2]) {}
-                _searchInterests(_searchController.text);
+                } else if (_isSelected[2]) {
+                  FocusManager.instance.primaryFocus?.unfocus();
+                  _searchInterests(_searchController.text);
+                }
               },
               child: const Text('Search'),
             ),

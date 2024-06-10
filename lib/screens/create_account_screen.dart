@@ -109,7 +109,8 @@ class _CreateAccountScreenState extends ConsumerState<CreateAccountScreen> {
       'profile_id': supabase.auth.currentUser!.id,
       'avatar_id': avatarId,
       'username': user,
-      'profile_name': _profileName.text
+      'profile_name': _profileName.text,
+      'private': false
     };
 
     if (_profileName.text.replaceAll(' ', '') != '') {
@@ -251,9 +252,10 @@ class _CreateAccountScreenState extends ConsumerState<CreateAccountScreen> {
             Padding(
               padding: const EdgeInsets.all(7.0),
               child: TextField(
-                maxLength: 20,
+                maxLength: 15,
                 controller: _profileName,
-                style: TextStyle(color: Theme.of(context).colorScheme.onSecondary),
+                style:
+                    TextStyle(color: Theme.of(context).colorScheme.onSecondary),
                 decoration: const InputDecoration(
                   border: OutlineInputBorder(),
                   labelText: "Name",
@@ -264,8 +266,9 @@ class _CreateAccountScreenState extends ConsumerState<CreateAccountScreen> {
             Padding(
               padding: const EdgeInsets.all(7.0),
               child: TextField(
-                maxLength: 20,
-                style: TextStyle(color: Theme.of(context).colorScheme.onSecondary),
+                maxLength: 15,
+                style:
+                    TextStyle(color: Theme.of(context).colorScheme.onSecondary),
                 controller: _userName,
                 decoration: const InputDecoration(
                   border: OutlineInputBorder(),
@@ -278,7 +281,8 @@ class _CreateAccountScreenState extends ConsumerState<CreateAccountScreen> {
               padding: const EdgeInsets.all(7.0),
               child: TextField(
                 maxLength: 11,
-                style: TextStyle(color: Theme.of(context).colorScheme.onSecondary),
+                style:
+                    TextStyle(color: Theme.of(context).colorScheme.onSecondary),
                 controller: _phoneNum,
                 decoration: const InputDecoration(
                   border: OutlineInputBorder(),

@@ -60,7 +60,8 @@ class ProfileProvider extends StateNotifier<Profile?> {
         username: userProfile['username'],
         profile_name: userProfile['profile_name'],
         interests: userProfile['Interests'],
-        availability: availability));
+        availability: availability,
+        private: userProfile['private']));
     state = profile;
   }
 
@@ -107,13 +108,13 @@ class ProfileProvider extends StateNotifier<Profile?> {
     }
 
     Profile profile = Profile(
-      profile_id: userProfile['profile_id'] ?? '',
-      avatar: profileUrl,
-      username: userProfile['username'] ?? 'Unknown',
-      profile_name: userProfile['profile_name'] ?? 'No Name',
-      interests: userProfile['Interests'] ?? [],
-      availability: availability,
-    );
+        profile_id: userProfile['profile_id'] ?? '',
+        avatar: profileUrl,
+        username: userProfile['username'] ?? 'Unknown',
+        profile_name: userProfile['profile_name'] ?? 'No Name',
+        interests: userProfile['Interests'] ?? [],
+        availability: availability,
+        private: userProfile['private']);
 
     return profile;
   }
@@ -294,7 +295,9 @@ class ProfileProvider extends StateNotifier<Profile?> {
     }
     return availByMonth;
   }
-  Future<List> mutualAvailability(List<String> userIds, DateTime startDate, DateTime endDate, int duration) async {
+
+  Future<List> mutualAvailability(List<String> userIds, DateTime startDate,
+      DateTime endDate, int duration) async {
     final supabaseClient = (await supabase).client;
     List availableTimes = [];
     DateTime currentEndTime = startDate;
@@ -307,24 +310,28 @@ class ProfileProvider extends StateNotifier<Profile?> {
         .lte('end_time', endDate)
         .order('start_time', ascending: true);
 
-      print(duration);
-      for(var blocked in blockedTimes) {
-        DateTime blockedStart = DateTime.parse(blocked['start_time']);
-        DateTime blockedEnd = DateTime.parse(blocked['end_time']);
-        print(currentEndTime);
+    print(duration);
+    for (var blocked in blockedTimes) {
+      DateTime blockedStart = DateTime.parse(blocked['start_time']);
+      DateTime blockedEnd = DateTime.parse(blocked['end_time']);
+      print(currentEndTime);
 
-        if(currentEndTime.isBefore(blockedStart) && (blockedStart.difference(currentEndTime).inHours >= duration)) {
-          availableTimes.add({'start_time' : currentEndTime, 'end_time' : blockedStart});
-          currentEndTime = blockedEnd;
-        } 
-        if(currentEndTime.isBefore(blockedEnd)) {
-          currentEndTime = blockedEnd;
-        } 
-        if((blocked == blockedTimes.last) && currentEndTime.isBefore(endDate) && (endDate.difference(currentEndTime).inHours >= duration)) {
-          availableTimes.add({'start_time' : currentEndTime, 'end_time' : endDate});
-        }
+      if (currentEndTime.isBefore(blockedStart) &&
+          (blockedStart.difference(currentEndTime).inHours >= duration)) {
+        availableTimes
+            .add({'start_time': currentEndTime, 'end_time': blockedStart});
+        currentEndTime = blockedEnd;
       }
-      print('${availableTimes}------------------------');
+      if (currentEndTime.isBefore(blockedEnd)) {
+        currentEndTime = blockedEnd;
+      }
+      if ((blocked == blockedTimes.last) &&
+          currentEndTime.isBefore(endDate) &&
+          (endDate.difference(currentEndTime).inHours >= duration)) {
+        availableTimes.add({'start_time': currentEndTime, 'end_time': endDate});
+      }
+    }
+    print('${availableTimes}------------------------');
     return availableTimes;
   }
 }

@@ -25,7 +25,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
   Future<Profile>? profileInfo;
   UniqueKey _futureBuilderKey = UniqueKey();
   final TextEditingController searchController = TextEditingController();
-
+  bool? private;
   late List<bool> isSelected;
   late bool isFriend = true;
 
@@ -54,7 +54,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
 
   Future<Profile> fetchInfo(String? userId) async {
     await Future.delayed(const Duration(microseconds: 1));
-    final profileState;
+    Profile profileState;
 
     if (userId == null) {
       profileState = ref.read(profileProvider.notifier).state ??
@@ -64,11 +64,13 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
               username: 'User-404',
               profile_name: 'User-404',
               interests: [],
-              availability: []);
+              availability: [],
+              private: false);
     } else {
       profileState =
           await ref.read(profileProvider.notifier).fetchProfileById(userId);
       isFriend = await ref.read(profileProvider.notifier).isFriend(userId);
+      private = profileState.private;
     }
     return profileState;
   }
@@ -281,6 +283,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                             child: Row(
                               children: [
                                 isFriend
+                                    //If profile is private, make this a request instead of instant
                                     ? ElevatedButton(
                                         onPressed: () {
                                           setState(() {
@@ -377,79 +380,99 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
             const Divider(),
             Expanded(
               child: isSelected.first
-                  ? StreamBuilder(
-                      stream: ref.read(attendEventsProvider.notifier).stream,
-                      builder: (context, snapshot) {
-                        if (snapshot.data != null) {
-                          final attendingEvents = snapshot.data!
-                              .where((event) => event.attending || event.isHost)
-                              .toList();
-                          if (attendingEvents.isEmpty) {
-                            return const Center(
-                              child: Text("Not Attending Any Events"),
-                            );
-                          } else {
-                            return ListView(
-                              key: const PageStorageKey<String>('event'),
-                              children: [
-                                for (Event i in snapshot.data!)
-                                  if (i.attending || i.isHost)
-                                    EventTab(eventData: i),
-                              ],
-                            );
-                          }
-                        } else {
-                          return const Text("No Data Retreived");
-                        }
-                      },
-                    )
-                  : StreamBuilder(
-                      stream: ref.read(attendEventsProvider.notifier).stream,
-                      builder: (context, snapshot) {
-                        if (snapshot.data != null) {
-                          if (widget.isUser) {
-                            final bookmarkedEvents = snapshot.data!
-                                .where((event) => event.bookmarked)
-                                .toList();
-                            if (bookmarkedEvents.isEmpty) {
-                              return const Center(
-                                child: Text("No Bookmarked Events"),
-                              );
+                  ? private == false || private == null
+                      ? (StreamBuilder(
+                          stream:
+                              ref.read(attendEventsProvider.notifier).stream,
+                          builder: (context, snapshot) {
+                            if (snapshot.data != null) {
+                              final attendingEvents = snapshot.data!
+                                  .where((event) =>
+                                      event.attending || event.isHost)
+                                  .toList();
+                              if (attendingEvents.isEmpty) {
+                                return const Center(
+                                  child: Text("Not Attending Any Events"),
+                                );
+                              } else {
+                                return ListView(
+                                  key: const PageStorageKey<String>('event'),
+                                  children: [
+                                    for (Event i in snapshot.data!)
+                                      if (i.attending || i.isHost)
+                                        EventTab(eventData: i),
+                                  ],
+                                );
+                              }
                             } else {
-                              return ListView(
-                                key: const PageStorageKey<String>('bookmarked'),
-                                children: [
-                                  for (Event event in bookmarkedEvents)
-                                    EventTab(
-                                        eventData: event, bookmarkSet: true),
-                                ],
-                              );
+                              return const Text("No Data Retreived");
                             }
-                          } else {
-                            //only useful when viewing a profile though means other than an event header
-                            final hostingEvents = snapshot.data!
-                                .where((event) => event.isHost)
-                                .toList();
-                            if (hostingEvents.isEmpty) {
-                              return const Center(
-                                child: Text(
-                                    "This User Is Not Hosting Any Events at the Moment"),
-                              );
+                          },
+                        ))
+                      : Center(
+                          child: Text(
+                          'This profile is private',
+                          style: TextStyle(
+                              color: Theme.of(context).colorScheme.onSecondary),
+                        ))
+                  : private == false || private == null
+                      ? StreamBuilder(
+                          stream:
+                              ref.read(attendEventsProvider.notifier).stream,
+                          builder: (context, snapshot) {
+                            if (snapshot.data != null) {
+                              if (widget.isUser) {
+                                final bookmarkedEvents = snapshot.data!
+                                    .where((event) => event.bookmarked)
+                                    .toList();
+                                if (bookmarkedEvents.isEmpty) {
+                                  return const Center(
+                                    child: Text("No Bookmarked Events"),
+                                  );
+                                } else {
+                                  return ListView(
+                                    key: const PageStorageKey<String>(
+                                        'bookmarked'),
+                                    children: [
+                                      for (Event event in bookmarkedEvents)
+                                        EventTab(
+                                            eventData: event,
+                                            bookmarkSet: true),
+                                    ],
+                                  );
+                                }
+                              } else {
+                                //only useful when viewing a profile though means other than an event header
+                                final hostingEvents = snapshot.data!
+                                    .where((event) => event.isHost)
+                                    .toList();
+                                if (hostingEvents.isEmpty) {
+                                  return const Center(
+                                    child: Text(
+                                        "This User Is Not Hosting Any Events at the Moment"),
+                                  );
+                                } else {
+                                  return ListView(
+                                    key: const PageStorageKey<String>('test'),
+                                    children: [
+                                      for (Event i in snapshot.data!)
+                                        if (i.isHost)
+                                          EventTab(
+                                              eventData: i, bookmarkSet: true),
+                                    ],
+                                  );
+                                }
+                              }
                             } else {
-                              return ListView(
-                                key: const PageStorageKey<String>('test'),
-                                children: [
-                                  for (Event i in snapshot.data!)
-                                    if (i.isHost)
-                                      EventTab(eventData: i, bookmarkSet: true),
-                                ],
-                              );
+                              return const Text("No Data Retreived");
                             }
-                          }
-                        } else {
-                          return const Text("No Data Retreived");
-                        }
-                      }),
+                          })
+                      : Center(
+                          child: Text(
+                          'This profile is private',
+                          style: TextStyle(
+                              color: Theme.of(context).colorScheme.onSecondary),
+                        )),
             ),
           ],
         ),

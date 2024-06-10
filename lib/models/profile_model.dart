@@ -5,7 +5,8 @@ class Profile {
       required this.username,
       required this.profile_name,
       required this.interests,
-      required this.availability});
+      required this.availability,
+      required this.private});
 
   final String profile_id;
   final avatar;
@@ -13,4 +14,5 @@ class Profile {
   final String profile_name;
   List interests;
   final List availability;
+  bool private;
 }

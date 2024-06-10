@@ -1,17 +1,18 @@
-import 'dart:convert';
-
 import 'package:flutter/material.dart';
+import 'dart:convert';
+import 'package:http/http.dart' as http;
 import 'package:nomo/models/events_model.dart';
 import 'package:nomo/models/interests_enum.dart';
 import 'package:nomo/providers/profile_provider.dart';
 import 'package:nomo/screens/NavBar.dart';
 import 'package:nomo/providers/attending_events_provider.dart';
 import 'package:nomo/screens/interests_screen.dart';
-import 'package:nomo/screens/recommended_screen.dart';
 import 'dart:io';
 import 'package:intl/intl.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:nomo/providers/supabase_provider.dart';
+import 'package:nomo/screens/recommended_screen.dart';
+import 'package:nomo/widgets/address_search_widget.dart';
 import 'package:uuid/uuid.dart';
 import 'package:image_picker/image_picker.dart';
 
@@ -41,13 +42,12 @@ class _NewEventScreenState extends ConsumerState<NewEventScreen> {
   bool edate = false;
   String? _formattedSDate;
   String? _formattedEDate;
-  //PlaceLocation? _selectedLocation;
   File? _selectedImage;
   String dropDownValue = list.first;
   bool enableButton = false;
-  final _selectedLocation = TextEditingController();
   final _title = TextEditingController();
   final _description = TextEditingController();
+  final _locationController = TextEditingController();
   Map<Interests, bool> categories = {};
 
   @override
@@ -55,8 +55,7 @@ class _NewEventScreenState extends ConsumerState<NewEventScreen> {
     if (!widget.isNewEvent) {
       _title.text = widget.event!.title;
       _description.text = widget.event!.description;
-      _selectedLocation.text = widget.event!.location;
-      //_selectedImage = widget.event!.imageUrl;
+      _locationController.text = widget.event!.location;
       stime = true;
       etime = true;
       sdate = true;
@@ -85,7 +84,7 @@ class _NewEventScreenState extends ConsumerState<NewEventScreen> {
 
   @override
   void dispose() {
-    _selectedLocation.dispose();
+    _locationController.dispose();
     _description.dispose();
     _title.dispose();
     super.dispose();
@@ -124,12 +123,6 @@ class _NewEventScreenState extends ConsumerState<NewEventScreen> {
         setState(() {
           enableButton = false;
         });
-        // ScaffoldMessenger.of(context).hideCurrentSnackBar();
-        // ScaffoldMessenger.of(context).showSnackBar(
-        //   const SnackBar(
-        //     content: Text('End time must be after start time.'),
-        //   ),
-        // );
       }
     }
   }
@@ -203,15 +196,12 @@ class _NewEventScreenState extends ConsumerState<NewEventScreen> {
     }
   }
 
-  //TODO: Create method to compare if start time is unable to be set before end time on matching date
-
   bool checkTime(TimeOfDay time1, TimeOfDay time2) {
     DateTime first = DateTime(time1.hour, time1.minute);
     DateTime second = DateTime(time2.hour, time2.minute);
     return second.isAfter(first);
   }
 
-  //TO-DO: generate unique image name to replace '/anotherimage' otherwise error occurs
   dynamic uploadImage(File imageFile) async {
     final supabase = (await ref.read(supabaseInstance));
     final userId = supabase.client.auth.currentUser!.id.toString();
@@ -280,14 +270,12 @@ class _NewEventScreenState extends ConsumerState<NewEventScreen> {
       'title': title
     };
     if (categories.isNotEmpty) {
-      // Extract the interests from the categories and filter out those that are selected
       final List<String> interestStrings = categories.entries
           .where((entry) => entry.value)
           .map((entry) =>
               ref.read(profileProvider.notifier).enumToString(entry.key))
           .toList();
 
-      //final jsonString = jsonEncode(interestStrings);
       newEventRowMap['event_interests'] = interestStrings;
     }
 
@@ -382,13 +370,6 @@ class _NewEventScreenState extends ConsumerState<NewEventScreen> {
                 )),
           ),
         ),
-        // bottom: PreferredSize(
-        //   preferredSize: const Size.fromHeight(4.0),
-        //   child: Container(
-        //     color: const Color.fromARGB(255, 69, 69, 69),
-        //     height: 1.0,
-        //   ),
-        // ),
       ),
       body: SingleChildScrollView(
         child: Column(
@@ -431,7 +412,6 @@ class _NewEventScreenState extends ConsumerState<NewEventScreen> {
               },
               child: Container(
                 height: MediaQuery.of(context).size.height / 3,
-                //color: Colors.grey.shade200,
                 decoration: _selectedImage != null
                     ? BoxDecoration(
                         border: Border.all(color: Colors.black87, width: 2),
@@ -450,7 +430,6 @@ class _NewEventScreenState extends ConsumerState<NewEventScreen> {
                             image: DecorationImage(
                                 image: NetworkImage(widget.event?.imageUrl)),
                           ),
-
                 child: _selectedImage == null
                     ? Center(
                         child: Column(
@@ -568,7 +547,6 @@ class _NewEventScreenState extends ConsumerState<NewEventScreen> {
                           fontSize: 15,
                           fontWeight: FontWeight.w500),
                       onChanged: (String? value) {
-                        // This is called when the user selects an item.
                         setState(() {
                           dropDownValue = value!;
                         });
@@ -586,35 +564,18 @@ class _NewEventScreenState extends ConsumerState<NewEventScreen> {
             ),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 8.0),
-              child: TextField(
-                controller: _selectedLocation,
-                decoration: const InputDecoration(
-                  border: OutlineInputBorder(),
-                  labelText: "Enter The Event's Address",
-                  contentPadding: EdgeInsets.all(5),
-                ),
-                keyboardType: TextInputType.multiline,
-                textInputAction: TextInputAction.done,
-                maxLines: null,
-                textAlign: TextAlign.start,
-                textCapitalization: TextCapitalization.sentences,
-                maxLength: 50,
-                style:
-                    TextStyle(color: Theme.of(context).colorScheme.onSecondary),
+              child: AddressSearchField(
+                controller: _locationController,
               ),
             ),
-            // child: LocationInput(
-            //   onSelectedLocation: (location) {
-            //     _selectedLocation = location;
-            //   },
-            // ),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 8.0),
               child: TextField(
                 controller: _title,
-                decoration: const InputDecoration(
-                  border: OutlineInputBorder(),
+                decoration: InputDecoration(
+                  border: const OutlineInputBorder(),
                   labelText: "Enter Your Event Title",
+                  labelStyle: TextStyle(color: Theme.of(context).colorScheme.onSecondary),
                   contentPadding: EdgeInsets.all(5),
                 ),
                 keyboardType: TextInputType.multiline,
@@ -623,17 +584,18 @@ class _NewEventScreenState extends ConsumerState<NewEventScreen> {
                 textAlign: TextAlign.start,
                 textCapitalization: TextCapitalization.sentences,
                 maxLength: 200,
-                style:
-                    TextStyle(color: Theme.of(context).colorScheme.onSecondary),
+                style: TextStyle(
+                    color: Theme.of(context).colorScheme.onSecondary),
               ),
             ),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 8.0),
               child: TextField(
                 controller: _description,
-                decoration: const InputDecoration(
-                  border: OutlineInputBorder(),
+                decoration: InputDecoration(
+                  border: const OutlineInputBorder(),
                   labelText: "Enter Your Event Description",
+                  labelStyle: TextStyle(color: Theme.of(context).colorScheme.onSecondary),
                   contentPadding: EdgeInsets.all(5),
                 ),
                 keyboardType: TextInputType.multiline,
@@ -642,8 +604,8 @@ class _NewEventScreenState extends ConsumerState<NewEventScreen> {
                 textAlign: TextAlign.start,
                 textCapitalization: TextCapitalization.sentences,
                 maxLength: 200,
-                style:
-                    TextStyle(color: Theme.of(context).colorScheme.onSecondary),
+                style: TextStyle(
+                    color: Theme.of(context).colorScheme.onSecondary),
               ),
             ),
             ElevatedButton(
@@ -711,7 +673,7 @@ class _NewEventScreenState extends ConsumerState<NewEventScreen> {
                               _selectedEndDate!,
                               _selectedImage!,
                               dropDownValue,
-                              _selectedLocation.text,
+                              _locationController.text,
                               _title.text,
                               _description.text,
                             ).then((value) => Navigator.of(context)
@@ -731,7 +693,7 @@ class _NewEventScreenState extends ConsumerState<NewEventScreen> {
                               _selectedEndDate!,
                               _selectedImage,
                               dropDownValue,
-                              _selectedLocation.text,
+                              _locationController.text,
                               _title.text,
                               _description.text,
                             );

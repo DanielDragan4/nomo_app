@@ -6,6 +6,7 @@ import 'package:nomo/providers/events_provider.dart';
 import 'package:nomo/providers/profile_provider.dart';
 import 'package:nomo/providers/supabase_provider.dart';
 import 'package:nomo/screens/new_event_screen.dart';
+import 'package:flutter_branch_sdk/flutter_branch_sdk.dart';
 
 enum options { itemOne, itemTwo, itemThree, itemFour }
 
@@ -21,6 +22,51 @@ class EventInfo extends ConsumerStatefulWidget {
 }
 
 class _EventInfoState extends ConsumerState<EventInfo> {
+  Future<void> _shareEventLink() async {
+  try {
+    // Create Branch Universal Object
+    BranchUniversalObject buo = BranchUniversalObject(
+      canonicalIdentifier: 'event/${widget.eventsData.eventId}',
+      title: widget.eventsData.title,
+      imageUrl: widget.eventsData.imageUrl,
+      contentDescription: widget.eventsData.description,
+      keywords: [widget.eventsData.title],
+      publiclyIndex: true,
+      locallyIndex: true,
+      contentMetadata: BranchContentMetaData()
+        ..addCustomMetadata('event_id', widget.eventsData.eventId)
+    );
+
+    // Create Branch Link Properties
+    BranchLinkProperties lp = BranchLinkProperties(
+      channel: 'app',
+      feature: 'sharing',
+      campaign: 'event_share',
+      stage: 'user_share',
+    )
+      ..addControlParam('\$fallback_url', 'https://example.com')
+      ..addControlParam('\$ios_url', 'https://apps.apple.com/app/id123456789')
+      ..addControlParam('\$android_url', 'https://play.google.com/store/apps/details?id=com.example.nomoapp');
+
+    // Generate the deep link
+    BranchResponse response = await FlutterBranchSdk.getShortUrl(buo: buo, linkProperties: lp);
+    if (response.success) {
+      // Show share sheet with generated link
+      FlutterBranchSdk.showShareSheet(
+        buo: buo,
+        linkProperties: lp,
+        messageText: 'Check out this event!',
+        androidMessageTitle: 'Share Event',
+        androidSharingTitle: 'Share Event Link',
+      );
+    } else {
+      print('Error generating Branch link: ${response.errorMessage}');
+    }
+  } catch (e) {
+    print('Error: $e');
+  }
+}
+
   Future<void> attendeeJoinEvent() async {
     final supabase = (await ref.read(supabaseInstance)).client;
     await ref
@@ -296,32 +342,36 @@ class _EventInfoState extends ConsumerState<EventInfo> {
             ),
           ),
           PopupMenuButton<options>(
-            onSelected: (options item) {
-              setState(
-                () {
-                  selectedOption = item;
-                },
-              );
-            },
-            itemBuilder: (context) => <PopupMenuEntry<options>>[
-              const PopupMenuItem(
-                value: options.itemOne,
-                child: Text("Edit Event"),
-              ),
-              const PopupMenuItem(
-                value: options.itemTwo,
-                child: Text("Send Invites"),
-              ),
-              const PopupMenuItem(
-                value: options.itemThree,
-                child: Text("Share Link"),
-              ),
-              const PopupMenuItem(
-                value: options.itemFour,
-                child: Text("View Details"),
-              ),
-            ],
-          )
+  onSelected: (options item) {
+    setState(
+      () {
+        selectedOption = item;
+        if (item == options.itemThree) {
+          _shareEventLink();
+        }
+      },
+    );
+  },
+  itemBuilder: (context) => <PopupMenuEntry<options>>[
+    const PopupMenuItem(
+      value: options.itemOne,
+      child: Text("Edit Event"),
+    ),
+    const PopupMenuItem(
+      value: options.itemTwo,
+      child: Text("Send Invites"),
+    ),
+    const PopupMenuItem(
+      value: options.itemThree,
+      child: Text("Share Link"),
+    ),
+    const PopupMenuItem(
+      value: options.itemFour,
+      child: Text("View Details"),
+    ),
+  ],
+)
+
         ],
       ),
     );

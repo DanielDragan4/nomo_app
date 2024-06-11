@@ -1,5 +1,8 @@
+import 'dart:async';
+
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_branch_sdk/flutter_branch_sdk.dart';
 import 'package:http/http.dart';
 import 'package:nomo/providers/saved_session_provider.dart';
 import 'package:nomo/providers/supabase_provider.dart';
@@ -15,6 +18,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 bool isFcmInitialized = false;
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+    await FlutterBranchSdk.init(enableLogging: false, disableTracking: false);
 
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
@@ -24,6 +28,15 @@ void main() async {
     const ProviderScope(child: App()),
   );
 }
+StreamSubscription<Map> streamSubscription = FlutterBranchSdk.listSession().listen((data)  {
+      if (data.containsKey("+clicked_branch_link") &&
+          data["+clicked_branch_link"] == true) {
+         //Link clicked. Add logic to get link data
+         print('Custom string: ${data["custom_string"]}');
+      }
+    }, onError: (error) {
+		print('listSession error: ${error.toString()}');
+    });
 
 Future<void> _setFcmToken(String fcmToken, SupabaseClient client) async {
   final userId = client.auth.currentUser?.id;

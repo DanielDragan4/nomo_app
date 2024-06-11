@@ -300,7 +300,9 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                                             isFriend = !isFriend;
                                           });
                                         },
-                                        child: const Text("Friend"),
+                                        child: private == false
+                                            ? const Text("Friend")
+                                            : const Text("Request Friend"),
                                       ),
                                 SizedBox(
                                     width:
@@ -380,7 +382,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
             const Divider(),
             Expanded(
               child: isSelected.first
-                  ? private == false || private == null
+                  ? (private == false || isFriend || widget.isUser)
                       ? (StreamBuilder(
                           stream:
                               ref.read(attendEventsProvider.notifier).stream,
@@ -415,7 +417,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                           style: TextStyle(
                               color: Theme.of(context).colorScheme.onSecondary),
                         ))
-                  : private == false || private == null
+                  : (private == false || isFriend || widget.isUser)
                       ? StreamBuilder(
                           stream:
                               ref.read(attendEventsProvider.notifier).stream,

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:nomo/providers/profile_provider.dart';
 import 'package:nomo/screens/login_screen.dart';
 import 'package:nomo/screens/settings/setting_about.dart';
 import 'package:nomo/screens/settings/setting_template.dart';
@@ -38,8 +39,9 @@ class _SettingScreenState extends ConsumerState<SettingScreen> {
       case 'private':
         setState(() {
           privateSwitch = !privateSwitch;
-          prefs.setBool('private', privateSwitch);
         });
+        await prefs.setBool('private', privateSwitch);
+        await ref.read(profileProvider.notifier).updatePrivacy(privateSwitch);
         break;
       case 'camera':
         setState(() {

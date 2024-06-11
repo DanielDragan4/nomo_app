@@ -334,6 +334,16 @@ class ProfileProvider extends StateNotifier<Profile?> {
     print('${availableTimes}------------------------');
     return availableTimes;
   }
+
+  Future<void> updatePrivacy(bool isPrivate) async {
+    final supabaseClient = (await supabase).client;
+    final userId = supabaseClient.auth.currentUser!.id;
+
+    // Update the private value in Supabase
+    await supabaseClient
+        .from('Profiles')
+        .update({'private': isPrivate}).eq('profile_id', userId);
+  }
 }
 
 final profileProvider = StateNotifierProvider<ProfileProvider, Profile?>((ref) {

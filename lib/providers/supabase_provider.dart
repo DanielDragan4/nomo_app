@@ -11,6 +11,11 @@ final supabaseInstance = Provider((ref) {
   );
 });
 
+final supabaseClientProvider = FutureProvider<SupabaseClient>((ref) async {
+  final supabase = ref.watch(supabaseInstance);
+  return (await supabase).client;
+});
+
 class AuthProvider extends StateNotifier<Session?> {
   AuthProvider({required this.supabase}) : super(null);
 

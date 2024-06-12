@@ -10,15 +10,17 @@ import 'package:nomo/providers/user_signup_provider.dart';
 import 'package:nomo/screens/NavBar.dart';
 import 'package:nomo/screens/create_account_screen.dart';
 import 'package:nomo/screens/login_screen.dart';
+import 'package:nomo/screens/detailed_event_screen.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:nomo/firebase_options.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 bool isFcmInitialized = false;
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-    await FlutterBranchSdk.init(enableLogging: false, disableTracking: false);
+  await FlutterBranchSdk.init(enableLogging: false, disableTracking: false);
 
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
@@ -28,69 +30,94 @@ void main() async {
     const ProviderScope(child: App()),
   );
 }
-StreamSubscription<Map> streamSubscription = FlutterBranchSdk.listSession().listen((data)  {
-      if (data.containsKey("+clicked_branch_link") &&
-          data["+clicked_branch_link"] == true) {
-         //Link clicked. Add logic to get link data
-         print('Custom string: ${data["custom_string"]}');
-      }
-    }, onError: (error) {
-		print('listSession error: ${error.toString()}');
-    });
 
-Future<void> _setFcmToken(String fcmToken, SupabaseClient client) async {
-  final userId = client.auth.currentUser?.id;
-  if (userId != null) {
-    await client.from('Profiles').upsert({
-      'profile_id': userId,
-      'fcm_token': fcmToken,
-    });
-  }
+final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
+
+void navigateToEvent(String eventId) {
+  // Implement navigation logic to DetailedEventScreen
+  navigatorKey.currentState?.push(MaterialPageRoute(
+    builder: (context) => DetailedEventScreen(linkEventId: eventId),
+  ));
 }
 
-Future<void> _makeFcm(SupabaseClient client) async {
-  if (!isFcmInitialized) {
-    isFcmInitialized = true;
-    client.auth.onAuthStateChange.listen((event) async {
-      if (event.event == AuthChangeEvent.signedIn) {
-        await FirebaseMessaging.instance.requestPermission();
-        await FirebaseMessaging.instance.getAPNSToken();
-        final fcmToken = await FirebaseMessaging.instance.getToken();
-        if (fcmToken != null) {
-          await _setFcmToken(fcmToken, client);
-        }
-      }
-    });
-
-    FirebaseMessaging.instance.onTokenRefresh.listen(
-      (fcmToken) async {
-        await _setFcmToken(fcmToken, client);
-      },
-    );
-  }
-}
-
-class App extends ConsumerWidget {
+class App extends ConsumerStatefulWidget {
   const App({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  _AppState createState() => _AppState();
+}
+
+class _AppState extends ConsumerState<App> {
+  StreamSubscription<Map>? streamSubscription;
+
+  @override
+  void initState() {
+    super.initState();
+    streamSubscription = FlutterBranchSdk.listSession().listen((data) {
+      if (data.containsKey("+clicked_branch_link") &&
+          data["+clicked_branch_link"] == true) {
+        // Handle deep link data
+        String eventId = data["event_id"];
+        navigateToEvent(eventId);
+      }
+    }, onError: (error) {
+      print('listSession error: ${error.toString()}');
+    });
+  }
+
+  @override
+  void dispose() {
+    streamSubscription?.cancel();
+    super.dispose();
+  }
+
+  Future<void> _setFcmToken(String fcmToken, SupabaseClient client) async {
+    final userId = client.auth.currentUser?.id;
+    if (userId != null) {
+      await client.from('Profiles').upsert({
+        'profile_id': userId,
+        'fcm_token': fcmToken,
+      });
+    }
+  }
+
+  Future<void> _makeFcm(SupabaseClient client) async {
+    if (!isFcmInitialized) {
+      isFcmInitialized = true;
+      client.auth.onAuthStateChange.listen((event) async {
+        if (event.event == AuthChangeEvent.signedIn) {
+          await FirebaseMessaging.instance.requestPermission();
+          await FirebaseMessaging.instance.getAPNSToken();
+          final fcmToken = await FirebaseMessaging.instance.getToken();
+          if (fcmToken != null) {
+            await _setFcmToken(fcmToken, client);
+          }
+        }
+      });
+
+      FirebaseMessaging.instance.onTokenRefresh.listen(
+        (fcmToken) async {
+          await _setFcmToken(fcmToken, client);
+        },
+      );
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final supabase = ref.watch(supabaseClientProvider);
 
     void loadData() {
       ref.read(savedSessionProvider.notifier).changeSessionDataList();
-      //ref.read(eventsProvider.notifier).deCodeData();
-      //ref.read(attendEventsProvider.notifier).deCodeData();
-      //ref.read(profileProvider.notifier).decodeData();
     }
 
     Widget content = supabase.when(
       data: (client) {
         _makeFcm(client);
         return GestureDetector(
-          //tapping outside of textField closes keyboard (all screens)
           onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
           child: MaterialApp(
+            navigatorKey: navigatorKey,
             themeMode: ThemeMode.system,
             theme: ThemeData().copyWith(
               colorScheme: ColorScheme.fromSeed(
@@ -109,15 +136,16 @@ class App extends ConsumerWidget {
                   unselectedItemColor: Color.fromARGB(255, 206, 206, 206),
                   backgroundColor: Colors.black,
                 ),
-                primaryColor: Color.fromARGB(255, 109, 51, 146),
+                primaryColor: const Color.fromARGB(255, 109, 51, 146),
                 canvasColor: Colors.black,
                 brightness: Brightness.dark,
                 colorScheme: ColorScheme.fromSeed(
-                        onSecondary: Color.fromARGB(255, 206, 206, 206),
+                        onSecondary: const Color.fromARGB(255, 206, 206, 206),
                         background: Colors.black,
                         brightness: Brightness.dark,
-                        seedColor: Color.fromARGB(255, 109, 51, 146),
-                        onPrimaryContainer: Color.fromARGB(255, 109, 51, 146))
+                        seedColor: const Color.fromARGB(255, 109, 51, 146),
+                        onPrimaryContainer:
+                            const Color.fromARGB(255, 109, 51, 146))
                     .copyWith(background: Colors.black)),
             home: StreamBuilder(
               stream: ref.watch(currentUserProvider.notifier).stream,

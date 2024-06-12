@@ -9,12 +9,14 @@ import 'package:nomo/widgets/comments_section_widget.dart';
 import 'package:nomo/widgets/event_info.dart';
 
 class DetailedEventScreen extends ConsumerStatefulWidget {
-  const DetailedEventScreen({
+  DetailedEventScreen({
     super.key,
-    required this.eventData,
+    this.eventData,
+    this.linkEventId,
   });
 
-  final Event eventData;
+  Event? eventData;
+  final String? linkEventId;
 
   @override
   ConsumerState<DetailedEventScreen> createState() {
@@ -24,9 +26,24 @@ class DetailedEventScreen extends ConsumerStatefulWidget {
 
 class _DetailedEventScreenState extends ConsumerState<DetailedEventScreen> {
 
+  late Event event;
+
+  Future<void> _initalizeEventData() async{
+    if(widget.linkEventId != null) {
+      event = await ref.read(eventsProvider.notifier).deCodeLinkEvent(widget.linkEventId);
+    } else {
+      event = widget.eventData!;
+    }
+  }
+  @override
+  void initState() {
+    _initalizeEventData();
+    super.initState();
+  }
+
   @override
   Widget build(BuildContext context) {
-    final DateTime date = DateTime.parse(widget.eventData.sdate);
+    final DateTime date = DateTime.parse(event.sdate);
 
     String getHour() {
       if (date.hour > 12) {
@@ -54,7 +71,7 @@ class _DetailedEventScreenState extends ConsumerState<DetailedEventScreen> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [
-                  Text(widget.eventData.title,
+                  Text(event.title,
                       style: TextStyle(
                         color: Theme.of(context).primaryColor,
                         fontWeight: FontWeight.bold,
@@ -87,7 +104,7 @@ class _DetailedEventScreenState extends ConsumerState<DetailedEventScreen> {
                             radius: MediaQuery.sizeOf(context).width / 24,
                             backgroundColor: Colors.white,
                             backgroundImage: NetworkImage(
-                              widget.eventData.hostProfileUrl,
+                              event.hostProfileUrl,
                             ),
                           );
                         } else if (snapshot.hasError) {
@@ -101,7 +118,7 @@ class _DetailedEventScreenState extends ConsumerState<DetailedEventScreen> {
                       },
                     ),
                     Text(
-                      widget.eventData.hostUsername,
+                      event.hostUsername,
                       style: TextStyle(
                           fontWeight: FontWeight.bold,
                           color: Theme.of(context).colorScheme.onSecondary,
@@ -127,7 +144,7 @@ class _DetailedEventScreenState extends ConsumerState<DetailedEventScreen> {
                       future: ref.read(supabaseInstance),
                       builder: (context, snapshot) {
                         if (snapshot.hasData) {
-                          return Image.network(widget.eventData.imageUrl,
+                          return Image.network(event.imageUrl,
                               fit: BoxFit.fill);
                         } else if (snapshot.hasError) {
                           return Text('Error loading image: ${snapshot.error}');
@@ -148,7 +165,7 @@ class _DetailedEventScreenState extends ConsumerState<DetailedEventScreen> {
                   width: 10,
                 ),
                 Text(
-                  widget.eventData.location,
+                  event.location,
                   style: TextStyle(
                     fontWeight: FontWeight.w400,
                     color: Theme.of(context).colorScheme.onSecondary,
@@ -160,10 +177,10 @@ class _DetailedEventScreenState extends ConsumerState<DetailedEventScreen> {
                 Container(
                   height: 5,
                 ),
-                EventInfo(eventsData: widget.eventData),
+                EventInfo(eventsData: event),
                 SizedBox(
                   height: MediaQuery.of(context).size.height / 20,
-                  child: Text(widget.eventData.description, style: TextStyle(color: Theme.of(context).colorScheme.onSecondary),),
+                  child: Text(event.description, style: TextStyle(color: Theme.of(context).colorScheme.onSecondary),),
                 ),
                 Text('Comments',
                     style: TextStyle(
@@ -171,7 +188,7 @@ class _DetailedEventScreenState extends ConsumerState<DetailedEventScreen> {
                       fontWeight: FontWeight.bold,
                     )),
                 const Divider(),
-                CommentsSection(eventId: widget.eventData.eventId)
+                CommentsSection(eventId: event.eventId)
               ])))
         ]),
       ),

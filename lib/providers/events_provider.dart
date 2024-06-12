@@ -150,6 +150,65 @@ class EventProvider extends StateNotifier<List?> {
     await supabaseClient.from('Comments').insert(newCommentMap);
     return await getComments(eventIid);
   }
+
+  Future<Map> readLinkEvent(eventId) async {
+    final supabaseClient = (await supabase).client;
+    var events = await supabaseClient
+        .from('recommended_events')
+        .select('*, Attendees(user_id), Bookmarked(user_id)')
+        .eq('event_id', eventId)
+        .single();
+    return events;
+  }
+
+  Future<Event> deCodeLinkEvent(eventId) async {
+    final codedEvent = await readLinkEvent(eventId);
+    final supabaseClient = (await supabase).client;
+
+      String profilePictureUrl = supabaseClient.storage
+          .from('Images')
+          .getPublicUrl(codedEvent['profile_path']);
+      String eventUrl = supabaseClient.storage
+          .from('Images')
+          .getPublicUrl(codedEvent['event_path']);
+      bool bookmarked = false;
+      for (var bookmark in codedEvent['Bookmarked']) {
+        if (bookmark['user_id'] == supabaseClient.auth.currentUser!.id) {
+          bookmarked = true;
+          break;
+        } else {
+          bookmark = false;
+        }
+      }
+      Event deCodedEvent = Event(
+        description: codedEvent['description'],
+        sdate: codedEvent['time_start'],
+        eventId: codedEvent['event_id'],
+        eventType: codedEvent['invitationType'],
+        host: codedEvent['host'],
+        imageId: codedEvent['image_id'],
+        imageUrl: eventUrl,
+        location: codedEvent['location'],
+        title: codedEvent['title'],
+        edate: codedEvent['time_end'],
+        attendees: codedEvent['Attendees'],
+        hostProfileUrl: profilePictureUrl,
+        hostUsername: codedEvent['username'],
+        profileName: codedEvent['profile_name'],
+        bookmarked: bookmarked,
+        attending: false,
+        isHost: false,
+      );
+
+      for (var i = 0; i < deCodedEvent.attendees.length; i++) {
+        if (deCodedEvent.attendees[i]['user_id'] ==
+            supabaseClient.auth.currentUser!.id) {
+          deCodedEvent.attending = true;
+          break;
+        }
+      }
+    return deCodedEvent;
+  }
 }
 
 final eventsProvider = StateNotifierProvider<EventProvider, List?>((ref) {

@@ -7,6 +7,7 @@ import 'package:nomo/providers/profile_provider.dart';
 import 'package:nomo/providers/supabase_provider.dart';
 import 'package:nomo/screens/new_event_screen.dart';
 import 'package:flutter_branch_sdk/flutter_branch_sdk.dart';
+import 'package:share/share.dart';
 
 enum options { itemOne, itemTwo, itemThree, itemFour }
 
@@ -22,7 +23,8 @@ class EventInfo extends ConsumerStatefulWidget {
 }
 
 class _EventInfoState extends ConsumerState<EventInfo> {
-  Future<void> _shareEventLink() async {
+
+  Future<String?> generateBranchLink() async {
   try {
     // Create Branch Universal Object
     BranchUniversalObject buo = BranchUniversalObject(
@@ -30,11 +32,11 @@ class _EventInfoState extends ConsumerState<EventInfo> {
       title: widget.eventsData.title,
       imageUrl: widget.eventsData.imageUrl,
       contentDescription: widget.eventsData.description,
-      keywords: [widget.eventsData.title],
+      keywords: [],
       publiclyIndex: true,
       locallyIndex: true,
       contentMetadata: BranchContentMetaData()
-        ..addCustomMetadata('event_id', widget.eventsData.eventId)
+        ..addCustomMetadata("event_id", widget.eventsData.eventId)
     );
 
     // Create Branch Link Properties
@@ -51,21 +53,29 @@ class _EventInfoState extends ConsumerState<EventInfo> {
     // Generate the deep link
     BranchResponse response = await FlutterBranchSdk.getShortUrl(buo: buo, linkProperties: lp);
     if (response.success) {
-      // Show share sheet with generated link
-      FlutterBranchSdk.showShareSheet(
-        buo: buo,
-        linkProperties: lp,
-        messageText: 'Check out this event!',
-        androidMessageTitle: 'Share Event',
-        androidSharingTitle: 'Share Event Link',
-      );
+      return response.result;
     } else {
       print('Error generating Branch link: ${response.errorMessage}');
+      return null;
     }
   } catch (e) {
     print('Error: $e');
+    return null;
   }
 }
+
+Future<void> _shareEventLink() async {
+  final link = await generateBranchLink();
+  if (link != null) {
+    Share.share(
+      'Check out this event: $link',
+      subject: 'Event Link',
+    );
+  } else {
+    print('Error: Unable to generate Branch link');
+  }
+}
+
 
   Future<void> attendeeJoinEvent() async {
     final supabase = (await ref.read(supabaseInstance)).client;

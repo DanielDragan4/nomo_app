@@ -80,7 +80,9 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                             autocorrect: false,
                             textCapitalization: TextCapitalization.none,
                             controller: TextEditingController(),
-                            style: TextStyle(color: Theme.of(context).colorScheme.onSecondary),
+                            style: TextStyle(
+                                color:
+                                    Theme.of(context).colorScheme.onSecondary),
                             validator: (value) {
                               if (value == null ||
                                   value.trim().isEmpty ||
@@ -97,7 +99,9 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                             decoration:
                                 const InputDecoration(labelText: "Password"),
                             obscureText: true,
-                            style: TextStyle(color: Theme.of(context).colorScheme.onSecondary),
+                            style: TextStyle(
+                                color:
+                                    Theme.of(context).colorScheme.onSecondary),
                             controller: TextEditingController(),
                             validator: (value) {
                               if (value == null || value.trim().length < 8) {

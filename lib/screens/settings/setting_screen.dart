@@ -27,6 +27,15 @@ class _SettingScreenState extends ConsumerState<SettingScreen> {
   late bool contactSwitch = false;
   late bool notifSwitch = false;
 
+  late bool newEventSwitch = false;
+  late bool newEventFriendsOnlySwitch = false;
+  late bool joinedEventSwitch = false;
+  late bool joinedEventFriendsOnlySwitch = false;
+  late bool eventDeletedSwitch = false;
+  late bool eventDeletedFriendsOnlySwitch = false;
+  late bool availabilitySwitch = false;
+  late bool availabilityFriendsOnlySwitch = false;
+
   @override
   void initState() {
     loadData();
@@ -35,45 +44,81 @@ class _SettingScreenState extends ConsumerState<SettingScreen> {
 
   void updateSwitchValue(String switchType) async {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
-    switch (switchType) {
-      case 'private':
-        setState(() {
+    setState(() {
+      switch (switchType) {
+        case 'private':
           privateSwitch = !privateSwitch;
-        });
-        await prefs.setBool('private', privateSwitch);
-        await ref.read(profileProvider.notifier).updatePrivacy(privateSwitch);
-        break;
-      case 'camera':
-        setState(() {
+          prefs.setBool('private', privateSwitch);
+          ref.read(profileProvider.notifier).updatePrivacy(privateSwitch);
+          break;
+        case 'camera':
           cameraSwitch = !cameraSwitch;
           prefs.setBool('camera', cameraSwitch);
-        });
-        break;
-      case 'mic':
-        setState(() {
+          break;
+        case 'mic':
           micSwitch = !micSwitch;
           prefs.setBool('mic', micSwitch);
-        });
-        break;
-      case 'contact':
-        setState(() {
+          break;
+        case 'contact':
           contactSwitch = !contactSwitch;
           prefs.setBool('contact', contactSwitch);
-        });
-        break;
-      case 'notif':
-        setState(() {
+          break;
+        case 'notif':
           notifSwitch = !notifSwitch;
           prefs.setBool('notif', notifSwitch);
-        });
-        break;
-    }
-  }
-
-  redirect(String screen) {
-    return Navigator.of(context).push(MaterialPageRoute(
-      builder: (context) => SettingsTemplate(type: screen),
-    ));
+          break;
+        case 'newEvent':
+          newEventSwitch = !newEventSwitch;
+          prefs.setBool('newEvent', newEventSwitch);
+          if (!newEventSwitch) {
+            newEventFriendsOnlySwitch = false;
+            prefs.setBool('newEventFriendsOnly', false);
+          }
+          break;
+        case 'newEventFriendsOnly':
+          newEventFriendsOnlySwitch = !newEventFriendsOnlySwitch;
+          prefs.setBool('newEventFriendsOnly', newEventFriendsOnlySwitch);
+          break;
+        case 'joinedEvent':
+          joinedEventSwitch = !joinedEventSwitch;
+          prefs.setBool('joinedEvent', joinedEventSwitch);
+          if (!joinedEventSwitch) {
+            joinedEventFriendsOnlySwitch = false;
+            prefs.setBool('joinedEventFriendsOnly', false);
+          }
+          break;
+        case 'joinedEventFriendsOnly':
+          joinedEventFriendsOnlySwitch = !joinedEventFriendsOnlySwitch;
+          prefs.setBool('joinedEventFriendsOnly', joinedEventFriendsOnlySwitch);
+          break;
+        case 'eventDeleted':
+          eventDeletedSwitch = !eventDeletedSwitch;
+          prefs.setBool('eventDeleted', eventDeletedSwitch);
+          if (!eventDeletedSwitch) {
+            eventDeletedFriendsOnlySwitch = false;
+            prefs.setBool('eventDeletedFriendsOnly', false);
+          }
+          break;
+        case 'eventDeletedFriendsOnly':
+          eventDeletedFriendsOnlySwitch = !eventDeletedFriendsOnlySwitch;
+          prefs.setBool(
+              'eventDeletedFriendsOnly', eventDeletedFriendsOnlySwitch);
+          break;
+        case 'availability':
+          availabilitySwitch = !availabilitySwitch;
+          prefs.setBool('availability', availabilitySwitch);
+          if (!availabilitySwitch) {
+            availabilityFriendsOnlySwitch = false;
+            prefs.setBool('availabilityFriendsOnly', false);
+          }
+          break;
+        case 'availabilityFriendsOnly':
+          availabilityFriendsOnlySwitch = !availabilityFriendsOnlySwitch;
+          prefs.setBool(
+              'availabilityFriendsOnly', availabilityFriendsOnlySwitch);
+          break;
+      }
+    });
   }
 
   void loadData() async {
@@ -84,6 +129,18 @@ class _SettingScreenState extends ConsumerState<SettingScreen> {
       micSwitch = prefs.getBool('mic') ?? false;
       contactSwitch = prefs.getBool('contact') ?? false;
       notifSwitch = prefs.getBool('notif') ?? false;
+
+      newEventSwitch = prefs.getBool('newEvent') ?? false;
+      newEventFriendsOnlySwitch = prefs.getBool('newEventFriendsOnly') ?? false;
+      joinedEventSwitch = prefs.getBool('joinedEvent') ?? false;
+      joinedEventFriendsOnlySwitch =
+          prefs.getBool('joinedEventFriendsOnly') ?? false;
+      eventDeletedSwitch = prefs.getBool('eventDeleted') ?? false;
+      eventDeletedFriendsOnlySwitch =
+          prefs.getBool('eventDeletedFriendsOnly') ?? false;
+      availabilitySwitch = prefs.getBool('availability') ?? false;
+      availabilityFriendsOnlySwitch =
+          prefs.getBool('availabilityFriendsOnly') ?? false;
     });
   }
 
@@ -157,37 +214,124 @@ class _SettingScreenState extends ConsumerState<SettingScreen> {
             title: Text('In-App Notifications', style: TextStyle(fontSize: 25)),
           ),
           const Divider(),
-          SettingButton(
-              title: 'Following Profiles',
-              onPressed: () {
-                redirect("Following");
-              }),
-          SettingButton(
-              title: 'Friends',
-              onPressed: () {
-                redirect("Friends");
-              }),
-          SettingButton(
-              title: 'Recommended Events',
-              onPressed: () {
-                redirect("Recommended");
-              }),
-          SettingButton(
-              title: 'Messages',
-              onPressed: () {
-                redirect("Messages");
-              }),
+          ListTile(
+            title: Text('New Event Created', style: TextStyle(fontSize: 20)),
+            trailing: Switch(
+              value: newEventSwitch,
+              onChanged: (newValue) {
+                updateSwitchValue('newEvent');
+              },
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.only(left: 40.0),
+            child: ListTile(
+              title: Text('Friends Only', style: TextStyle(fontSize: 20)),
+              trailing: Switch(
+                value: newEventSwitch ? newEventFriendsOnlySwitch : false,
+                onChanged: newEventSwitch
+                    ? (newValue) {
+                        updateSwitchValue('newEventFriendsOnly');
+                      }
+                    : null,
+                activeColor: newEventSwitch
+                    ? Theme.of(context).primaryColor
+                    : Colors.grey,
+              ),
+            ),
+          ),
+          ListTile(
+            title: Text('New Event Joined', style: TextStyle(fontSize: 20)),
+            trailing: Switch(
+              value: joinedEventSwitch,
+              onChanged: (newValue) {
+                updateSwitchValue('joinedEvent');
+              },
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.only(left: 40.0),
+            child: ListTile(
+              title: Text('Friends Only', style: TextStyle(fontSize: 20)),
+              trailing: Switch(
+                value: joinedEventSwitch ? joinedEventFriendsOnlySwitch : false,
+                onChanged: joinedEventSwitch
+                    ? (newValue) {
+                        updateSwitchValue('joinedEventFriendsOnly');
+                      }
+                    : null,
+                activeColor: joinedEventSwitch
+                    ? Theme.of(context).primaryColor
+                    : Colors.grey,
+              ),
+            ),
+          ),
+          ListTile(
+            title: Text('Event Deleted', style: TextStyle(fontSize: 20)),
+            trailing: Switch(
+              value: eventDeletedSwitch,
+              onChanged: (newValue) {
+                updateSwitchValue('eventDeleted');
+              },
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.only(left: 40.0),
+            child: ListTile(
+              title: Text('Friends Only', style: TextStyle(fontSize: 20)),
+              trailing: Switch(
+                value:
+                    eventDeletedSwitch ? eventDeletedFriendsOnlySwitch : false,
+                onChanged: eventDeletedSwitch
+                    ? (newValue) {
+                        updateSwitchValue('eventDeletedFriendsOnly');
+                      }
+                    : null,
+                activeColor: eventDeletedSwitch
+                    ? Theme.of(context).primaryColor
+                    : Colors.grey,
+              ),
+            ),
+          ),
+          ListTile(
+            title: Text('Availability Changes', style: TextStyle(fontSize: 20)),
+            trailing: Switch(
+              value: availabilitySwitch,
+              onChanged: (newValue) {
+                updateSwitchValue('availability');
+              },
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.only(left: 40.0),
+            child: ListTile(
+              title: Text('Friends Only', style: TextStyle(fontSize: 20)),
+              trailing: Switch(
+                value:
+                    availabilitySwitch ? availabilityFriendsOnlySwitch : false,
+                onChanged: availabilitySwitch
+                    ? (newValue) {
+                        updateSwitchValue('availabilityFriendsOnly');
+                      }
+                    : null,
+                activeColor: availabilitySwitch
+                    ? Theme.of(context).primaryColor
+                    : Colors.grey,
+              ),
+            ),
+          ),
           const ListTile(
             title: Text('Customization', style: TextStyle(fontSize: 25)),
           ),
           const Divider(),
           SettingButton(
-              title: 'Theme',
-              onPressed: () {
-                redirect("Theme");
-              }),
+            title: 'Theme',
+            onPressed: () {
+              redirect("Theme");
+            },
+          ),
           const ListTile(
-            title: Text('Premissions', style: TextStyle(fontSize: 25)),
+            title: Text('Permissions', style: TextStyle(fontSize: 25)),
           ),
           const Divider(),
           ListTile(
@@ -238,41 +382,47 @@ class _SettingScreenState extends ConsumerState<SettingScreen> {
           if (widget.isCorp != null && true) const Divider(),
           if (widget.isCorp != null && true)
             SettingButton(
-                title: 'Event Analytics',
-                onPressed: () {
-                  redirect("Analytics");
-                }),
+              title: 'Event Analytics',
+              onPressed: () {
+                redirect("Analytics");
+              },
+            ),
           if (widget.isCorp != null && true)
             SettingButton(
-                title: 'Payment',
-                onPressed: () {
-                  redirect("Payment");
-                }),
+              title: 'Payment',
+              onPressed: () {
+                redirect("Payment");
+              },
+            ),
           if (widget.isCorp != null && true)
             SettingButton(
-                title: 'Customer Support',
-                onPressed: () {
-                  redirect("Support");
-                }),
+              title: 'Customer Support',
+              onPressed: () {
+                redirect("Support");
+              },
+            ),
           const ListTile(
             title: Text('Support', style: TextStyle(fontSize: 25)),
           ),
           const Divider(),
           SettingButton(
-              title: 'About',
-              onPressed: () {
-                redirect("About");
-              }),
+            title: 'About',
+            onPressed: () {
+              redirect("About");
+            },
+          ),
           SettingButton(
-              title: 'Help',
-              onPressed: () {
-                redirect("Help");
-              }),
+            title: 'Help',
+            onPressed: () {
+              redirect("Help");
+            },
+          ),
           SettingButton(
-              title: 'Account Status',
-              onPressed: () {
-                redirect("Status");
-              }),
+            title: 'Account Status',
+            onPressed: () {
+              redirect("Status");
+            },
+          ),
           TextButton(
             onPressed: () {
               ref.watch(currentUserProvider.notifier).signOut();
@@ -288,5 +438,11 @@ class _SettingScreenState extends ConsumerState<SettingScreen> {
         ],
       ),
     );
+  }
+
+  redirect(String screen) {
+    return Navigator.of(context).push(MaterialPageRoute(
+      builder: (context) => SettingsTemplate(type: screen),
+    ));
   }
 }

@@ -9,7 +9,7 @@ import 'package:nomo/screens/new_event_screen.dart';
 import 'package:flutter_branch_sdk/flutter_branch_sdk.dart';
 import 'package:share/share.dart';
 
-enum options { itemOne, itemTwo, itemThree, itemFour }
+enum options { itemOne, itemTwo, itemThree, itemFour, itemFive }
 
 class EventInfo extends ConsumerStatefulWidget {
   EventInfo({super.key, required this.eventsData, this.bookmarkSet});
@@ -23,59 +23,58 @@ class EventInfo extends ConsumerStatefulWidget {
 }
 
 class _EventInfoState extends ConsumerState<EventInfo> {
-
   Future<String?> generateBranchLink() async {
-  try {
-    // Create Branch Universal Object
-    BranchUniversalObject buo = BranchUniversalObject(
-      canonicalIdentifier: 'event/${widget.eventsData.eventId}',
-      title: widget.eventsData.title,
-      imageUrl: widget.eventsData.imageUrl,
-      contentDescription: widget.eventsData.description,
-      keywords: [],
-      publiclyIndex: true,
-      locallyIndex: true,
-      contentMetadata: BranchContentMetaData()
-        ..addCustomMetadata("event_id", widget.eventsData.eventId)
-    );
+    try {
+      // Create Branch Universal Object
+      BranchUniversalObject buo = BranchUniversalObject(
+          canonicalIdentifier: 'event/${widget.eventsData.eventId}',
+          title: widget.eventsData.title,
+          imageUrl: widget.eventsData.imageUrl,
+          contentDescription: widget.eventsData.description,
+          keywords: [],
+          publiclyIndex: true,
+          locallyIndex: true,
+          contentMetadata: BranchContentMetaData()
+            ..addCustomMetadata("event_id", widget.eventsData.eventId));
 
-    // Create Branch Link Properties
-    BranchLinkProperties lp = BranchLinkProperties(
-      channel: 'app',
-      feature: 'sharing',
-      campaign: 'event_share',
-      stage: 'user_share',
-    )
-      ..addControlParam('\$fallback_url', 'https://example.com')
-      ..addControlParam('\$ios_url', 'https://apps.apple.com/app/id123456789')
-      ..addControlParam('\$android_url', 'https://play.google.com/store/apps/details?id=com.example.nomoapp');
+      // Create Branch Link Properties
+      BranchLinkProperties lp = BranchLinkProperties(
+        channel: 'app',
+        feature: 'sharing',
+        campaign: 'event_share',
+        stage: 'user_share',
+      )
+        ..addControlParam('\$fallback_url', 'https://example.com')
+        ..addControlParam('\$ios_url', 'https://apps.apple.com/app/id123456789')
+        ..addControlParam('\$android_url',
+            'https://play.google.com/store/apps/details?id=com.example.nomoapp');
 
-    // Generate the deep link
-    BranchResponse response = await FlutterBranchSdk.getShortUrl(buo: buo, linkProperties: lp);
-    if (response.success) {
-      return response.result;
-    } else {
-      print('Error generating Branch link: ${response.errorMessage}');
+      // Generate the deep link
+      BranchResponse response =
+          await FlutterBranchSdk.getShortUrl(buo: buo, linkProperties: lp);
+      if (response.success) {
+        return response.result;
+      } else {
+        print('Error generating Branch link: ${response.errorMessage}');
+        return null;
+      }
+    } catch (e) {
+      print('Error: $e');
       return null;
     }
-  } catch (e) {
-    print('Error: $e');
-    return null;
   }
-}
 
-Future<void> _shareEventLink() async {
-  final link = await generateBranchLink();
-  if (link != null) {
-    Share.share(
-      'Check out this event: $link',
-      subject: 'Event Link',
-    );
-  } else {
-    print('Error: Unable to generate Branch link');
+  Future<void> _shareEventLink() async {
+    final link = await generateBranchLink();
+    if (link != null) {
+      Share.share(
+        'Check out this event: $link',
+        subject: 'Event Link',
+      );
+    } else {
+      print('Error: Unable to generate Branch link');
+    }
   }
-}
-
 
   Future<void> attendeeJoinEvent() async {
     final supabase = (await ref.read(supabaseInstance)).client;
@@ -251,10 +250,12 @@ Future<void> _shareEventLink() async {
                                                       .push(MaterialPageRoute(
                                                           builder: ((context) =>
                                                               NewEventScreen(
-                                                                  isNewEvent:
-                                                                      false,
-                                                                  event: widget
-                                                                      .eventsData))))
+                                                                isNewEvent:
+                                                                    false,
+                                                                event: widget
+                                                                    .eventsData,
+                                                                isEdit: true,
+                                                              ))))
                                                       .then((result) =>
                                                           Navigator.pop(
                                                               context));
@@ -352,36 +353,36 @@ Future<void> _shareEventLink() async {
             ),
           ),
           PopupMenuButton<options>(
-  onSelected: (options item) {
-    setState(
-      () {
-        selectedOption = item;
-        if (item == options.itemThree) {
-          _shareEventLink();
-        }
-      },
-    );
-  },
-  itemBuilder: (context) => <PopupMenuEntry<options>>[
-    const PopupMenuItem(
-      value: options.itemOne,
-      child: Text("Edit Event"),
-    ),
-    const PopupMenuItem(
-      value: options.itemTwo,
-      child: Text("Send Invites"),
-    ),
-    const PopupMenuItem(
-      value: options.itemThree,
-      child: Text("Share Link"),
-    ),
-    const PopupMenuItem(
-      value: options.itemFour,
-      child: Text("View Details"),
-    ),
-  ],
-)
-
+            iconColor: Theme.of(context).colorScheme.onSecondary,
+            onSelected: (options item) {
+              setState(
+                () {
+                  selectedOption = item;
+                  if (item == options.itemThree) {
+                    _shareEventLink();
+                  }
+                },
+              );
+            },
+            itemBuilder: (context) => <PopupMenuEntry<options>>[
+              const PopupMenuItem(
+                value: options.itemOne,
+                child: Text("Edit Event"),
+              ),
+              const PopupMenuItem(
+                value: options.itemTwo,
+                child: Text("Send Invites"),
+              ),
+              const PopupMenuItem(
+                value: options.itemThree,
+                child: Text("Share Link"),
+              ),
+              const PopupMenuItem(
+                value: options.itemFour,
+                child: Text("View Details"),
+              ),
+            ],
+          )
         ],
       ),
     );

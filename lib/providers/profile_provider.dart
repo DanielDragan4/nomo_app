@@ -199,6 +199,7 @@ class ProfileProvider extends StateNotifier<Profile?> {
     }
     return userFriends;
   }
+
   Future<List> readRequests() async {
     final supabaseClient = (await supabase).client;
 
@@ -258,6 +259,7 @@ class ProfileProvider extends StateNotifier<Profile?> {
         .eq('current', currentUserId)
         .eq('friend', friendId);
   }
+
   Future<void> removeRequest(friendId) async {
     final supabaseClient = (await supabase).client;
     final currentUserId = supabaseClient.auth.currentUser!.id;

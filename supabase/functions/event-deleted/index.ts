@@ -8,7 +8,7 @@
 //console.log("Hello from Functions!")
 
 import { createClient } from 'npm:@supabase/supabase-js@2'
-import {JWT} from 'npm:google-auth-library@9'
+import { JWT } from 'npm:google-auth-library@9'
 
 interface Event {
   eventId: string
@@ -28,11 +28,11 @@ interface Event {
 }
 
 interface WebhookPayload {
-  type: 'INSERT'
+  type: 'DELETE'
   table: string
-  record: Event
+  record: null | Event
   schema: 'public',
-  old_record: null | Event
+  old_record: Event
 }
 
 const supabase = createClient(
@@ -43,15 +43,17 @@ const supabase = createClient(
 Deno.serve(async (req) => {
   const payload: WebhookPayload = await req.json()
 
-  // Ensure the event type is INSERT
-  if (payload.type !== 'INSERT') {
+  console.log('Received payload:', JSON.stringify(payload, null, 2))
+
+  // Ensure the event type is DELETE
+  if (payload.type !== 'DELETE') {
     return new Response('Invalid event type', { status: 400 })
   }
 
   const { data: hostProfileName, error: hostProfileError } = await supabase
     .from('Profiles')
     .select('profile_name')
-    .eq('profile_id', payload.record.host)
+    .eq('profile_id', payload.old_record.host)
     .single()
 
     if (hostProfileError) {
@@ -59,14 +61,17 @@ Deno.serve(async (req) => {
       return new Response('Internal Server Error', { status: 500 })
     }
 
-  const { data : friends, error } = await supabase.from('Friends').select('friend').eq('current', payload.record.host)
+  const { data: friends, error } = await supabase
+    .from('Friends')
+    .select('friend')
+    .eq('current', payload.old_record.host)
 
   if (error) {
     console.error('Error fetching friends:', error)
     return new Response('Internal Server Error', { status: 500 })
   }
 
-  if(friends.length === 0) {
+  if (friends.length === 0) {
     return new Response('No friends found', { status: 404 })
   }
 
@@ -108,15 +113,15 @@ Deno.serve(async (req) => {
         message: {
           token: fcmToken,
           notification: {
-            title: `New Event Created by ${hostProfileName.profile_name}`,
-            body: `View "${payload.record.title}"`
+            title: `${hostProfileName.profile_name} has deleted an Event`,
+            body: `"${payload.old_record.title}"`
           }
         }
       })
     })
 
     const resData = await res.json()
-    if (res.status < 200 || 299 < res.status) {
+    if (res.status < 200 || res.status > 299) {
       console.error('Error sending notification:', resData)
     }
 
@@ -160,10 +165,9 @@ const getAccessToken = ({
   1. Run `supabase start` (see: https://supabase.com/docs/reference/cli/supabase-start)
   2. Make an HTTP request:
 
-  curl -i --location --request POST 'http://127.0.0.1:54321/functions/v1/event-created' \
+  curl -i --location --request POST 'http://127.0.0.1:54321/functions/v1/event-deleted' \
     --header 'Authorization: Bearer YOUR_JWT_TOKEN' \
     --header 'Content-Type: application/json' \
-    --data '{"type":"INSERT","table":"Events","record":{"eventId":"1","imageId":"1","imageUrl":"http://example.com/image.jpg","title":"New Event","location":"Event Location","description":"Event Description","eventType":"Type","hostUsername":"hostuser","hostProfileUrl":"http://example.com/profile.jpg","profileName":"Host Name","bookmarked":false,"attending":true,"isHost":true,"host":"host-id"}}'
+    --data '{"type":"DELETE","table":"Events","record":null,"old_record":{"eventId":"1","imageId":"1","imageUrl":"http://example.com/image.jpg","title":"Old Event","location":"Event Location","description":"Event Description","eventType":"Type","hostUsername":"hostuser","hostProfileUrl":"http://example.com/profile.jpg","profileName":"Host Name","bookmarked":false,"attending":true,"isHost":true,"host":"host-id"}}'
 
 */
-

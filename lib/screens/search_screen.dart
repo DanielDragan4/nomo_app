@@ -117,7 +117,6 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
   void resetScreen() {
     setState(() {
       _searchResults = [];
-      _searchController.text = '';
     });
   }
 

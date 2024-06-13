@@ -87,6 +87,11 @@ class EventProvider extends StateNotifier<List?> {
     await deCodeData();
   }
 
+  Future<void> deleteEvent(Event event) async {
+    final supabaseClient = (await supabase).client;
+    await supabaseClient.from('Event').delete().eq('event_id', event.eventId);
+  }
+
   Future<void> bookmark(eventToMark, currentUser) async {
     final supabaseClient = (await supabase).client;
     final newABookMarkMap = {'user_id': currentUser, 'event_id': eventToMark};
@@ -165,48 +170,48 @@ class EventProvider extends StateNotifier<List?> {
     final codedEvent = await readLinkEvent(eventId);
     final supabaseClient = (await supabase).client;
 
-      String profilePictureUrl = supabaseClient.storage
-          .from('Images')
-          .getPublicUrl(codedEvent['profile_path']);
-      String eventUrl = supabaseClient.storage
-          .from('Images')
-          .getPublicUrl(codedEvent['event_path']);
-      bool bookmarked = false;
-      for (var bookmark in codedEvent['Bookmarked']) {
-        if (bookmark['user_id'] == supabaseClient.auth.currentUser!.id) {
-          bookmarked = true;
-          break;
-        } else {
-          bookmark = false;
-        }
+    String profilePictureUrl = supabaseClient.storage
+        .from('Images')
+        .getPublicUrl(codedEvent['profile_path']);
+    String eventUrl = supabaseClient.storage
+        .from('Images')
+        .getPublicUrl(codedEvent['event_path']);
+    bool bookmarked = false;
+    for (var bookmark in codedEvent['Bookmarked']) {
+      if (bookmark['user_id'] == supabaseClient.auth.currentUser!.id) {
+        bookmarked = true;
+        break;
+      } else {
+        bookmark = false;
       }
-      Event deCodedEvent = Event(
-        description: codedEvent['description'],
-        sdate: codedEvent['time_start'],
-        eventId: codedEvent['event_id'],
-        eventType: codedEvent['invitationType'],
-        host: codedEvent['host'],
-        imageId: codedEvent['image_id'],
-        imageUrl: eventUrl,
-        location: codedEvent['location'],
-        title: codedEvent['title'],
-        edate: codedEvent['time_end'],
-        attendees: codedEvent['Attendees'],
-        hostProfileUrl: profilePictureUrl,
-        hostUsername: codedEvent['username'],
-        profileName: codedEvent['profile_name'],
-        bookmarked: bookmarked,
-        attending: false,
-        isHost: false,
-      );
+    }
+    Event deCodedEvent = Event(
+      description: codedEvent['description'],
+      sdate: codedEvent['time_start'],
+      eventId: codedEvent['event_id'],
+      eventType: codedEvent['invitationType'],
+      host: codedEvent['host'],
+      imageId: codedEvent['image_id'],
+      imageUrl: eventUrl,
+      location: codedEvent['location'],
+      title: codedEvent['title'],
+      edate: codedEvent['time_end'],
+      attendees: codedEvent['Attendees'],
+      hostProfileUrl: profilePictureUrl,
+      hostUsername: codedEvent['username'],
+      profileName: codedEvent['profile_name'],
+      bookmarked: bookmarked,
+      attending: false,
+      isHost: false,
+    );
 
-      for (var i = 0; i < deCodedEvent.attendees.length; i++) {
-        if (deCodedEvent.attendees[i]['user_id'] ==
-            supabaseClient.auth.currentUser!.id) {
-          deCodedEvent.attending = true;
-          break;
-        }
+    for (var i = 0; i < deCodedEvent.attendees.length; i++) {
+      if (deCodedEvent.attendees[i]['user_id'] ==
+          supabaseClient.auth.currentUser!.id) {
+        deCodedEvent.attending = true;
+        break;
       }
+    }
     return deCodedEvent;
   }
 }

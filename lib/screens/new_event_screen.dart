@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:nomo/models/events_model.dart';
 import 'package:nomo/models/interests_enum.dart';
+import 'package:nomo/providers/events_provider.dart';
 import 'package:nomo/providers/profile_provider.dart';
 import 'package:nomo/screens/NavBar.dart';
 import 'package:nomo/providers/attending_events_provider.dart';
@@ -19,13 +20,11 @@ import 'package:image_picker/image_picker.dart';
 const List<String> list = <String>['Public', 'Private', 'Selective'];
 
 class NewEventScreen extends ConsumerStatefulWidget {
-  const NewEventScreen({
-    super.key,
-    required this.isNewEvent,
-    this.event,
-  });
+  const NewEventScreen(
+      {super.key, required this.isNewEvent, this.event, this.isEdit});
   final bool isNewEvent;
   final Event? event;
+  final bool? isEdit;
 
   @override
   ConsumerState<NewEventScreen> createState() => _NewEventScreenState();
@@ -575,7 +574,8 @@ class _NewEventScreenState extends ConsumerState<NewEventScreen> {
                 decoration: InputDecoration(
                   border: const OutlineInputBorder(),
                   labelText: "Enter Your Event Title",
-                  labelStyle: TextStyle(color: Theme.of(context).colorScheme.onSecondary),
+                  labelStyle: TextStyle(
+                      color: Theme.of(context).colorScheme.onSecondary),
                   contentPadding: EdgeInsets.all(5),
                 ),
                 keyboardType: TextInputType.multiline,
@@ -584,8 +584,8 @@ class _NewEventScreenState extends ConsumerState<NewEventScreen> {
                 textAlign: TextAlign.start,
                 textCapitalization: TextCapitalization.sentences,
                 maxLength: 200,
-                style: TextStyle(
-                    color: Theme.of(context).colorScheme.onSecondary),
+                style:
+                    TextStyle(color: Theme.of(context).colorScheme.onSecondary),
               ),
             ),
             Padding(
@@ -595,7 +595,8 @@ class _NewEventScreenState extends ConsumerState<NewEventScreen> {
                 decoration: InputDecoration(
                   border: const OutlineInputBorder(),
                   labelText: "Enter Your Event Description",
-                  labelStyle: TextStyle(color: Theme.of(context).colorScheme.onSecondary),
+                  labelStyle: TextStyle(
+                      color: Theme.of(context).colorScheme.onSecondary),
                   contentPadding: EdgeInsets.all(5),
                 ),
                 keyboardType: TextInputType.multiline,
@@ -604,8 +605,8 @@ class _NewEventScreenState extends ConsumerState<NewEventScreen> {
                 textAlign: TextAlign.start,
                 textCapitalization: TextCapitalization.sentences,
                 maxLength: 200,
-                style: TextStyle(
-                    color: Theme.of(context).colorScheme.onSecondary),
+                style:
+                    TextStyle(color: Theme.of(context).colorScheme.onSecondary),
               ),
             ),
             ElevatedButton(
@@ -712,6 +713,58 @@ class _NewEventScreenState extends ConsumerState<NewEventScreen> {
                     Text(widget.isNewEvent ? 'Create Event' : 'Update Event'),
               ),
             ),
+            if (widget.isEdit == true)
+              Padding(
+                padding: EdgeInsets.only(top: 20),
+                child: ElevatedButton(
+                  onPressed: () {
+                    showDialog(
+                        context: context,
+                        builder: (context) => AlertDialog(
+                              title: Text(
+                                'Are you sure you want to delete this event?',
+                                style: TextStyle(
+                                    color: Theme.of(context).primaryColorDark),
+                              ),
+                              actions: [
+                                TextButton(
+                                    onPressed: () => Navigator.pop(context),
+                                    child: const Text('CANCEL')),
+                                TextButton(
+                                    onPressed: () async {
+                                      ref
+                                          .read(eventsProvider.notifier)
+                                          .deleteEvent(widget.event!);
+                                      Navigator.of(context)
+                                          .pushAndRemoveUntil(
+                                              MaterialPageRoute(
+                                                  builder: ((context) =>
+                                                      const NavBar())),
+                                              (route) => false)
+                                          .then((result) =>
+                                              Navigator.pop(context));
+                                      ScaffoldMessenger.of(context)
+                                          .hideCurrentSnackBar();
+                                      ScaffoldMessenger.of(context)
+                                          .showSnackBar(
+                                        const SnackBar(
+                                          content: Text("Event Deleted"),
+                                        ),
+                                      );
+                                    },
+                                    child: const Text('DELETE')),
+                              ],
+                            ));
+                  },
+                  style: const ButtonStyle(
+                      backgroundColor: WidgetStatePropertyAll(
+                          Color.fromARGB(214, 244, 67, 54))),
+                  child: const Text(
+                    "Delete",
+                    style: TextStyle(color: Colors.white),
+                  ),
+                ),
+              )
           ],
         ),
       ),

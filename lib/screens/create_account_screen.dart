@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:nomo/providers/saved_session_provider.dart';
-import 'package:nomo/providers/user_signup_provider.dart';
 import 'package:nomo/screens/interests_screen.dart';
 import 'package:nomo/widgets/app_bar.dart';
 import 'dart:io';
@@ -169,7 +167,7 @@ class _CreateAccountScreenState extends ConsumerState<CreateAccountScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Theme.of(context).colorScheme.background,
+      backgroundColor: Theme.of(context).colorScheme.surface,
       appBar: MainAppBar(),
       body: SingleChildScrollView(
         child: Column(

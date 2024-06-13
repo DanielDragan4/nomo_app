@@ -218,9 +218,9 @@ class _EventInfoState extends ConsumerState<EventInfo> {
                                           "Joined ${widget.eventsData.title}")));
                             },
                             style: ButtonStyle(
-                              backgroundColor: MaterialStateProperty.all<Color>(
+                              backgroundColor: WidgetStateProperty.all<Color>(
                                   Theme.of(context).primaryColor),
-                              foregroundColor: MaterialStateProperty.all<Color>(
+                              foregroundColor: WidgetStateProperty.all<Color>(
                                   Theme.of(context).primaryColorLight),
                             ),
                             child: Text(text),
@@ -266,10 +266,10 @@ class _EventInfoState extends ConsumerState<EventInfo> {
                               },
                               style: ButtonStyle(
                                 backgroundColor:
-                                    MaterialStateProperty.all<Color>(
+                                    WidgetStateProperty.all<Color>(
                                         Theme.of(context).primaryColor),
                                 foregroundColor:
-                                    MaterialStateProperty.all<Color>(
+                                    WidgetStateProperty.all<Color>(
                                         Theme.of(context).primaryColorLight),
                               ),
                               child: Text(text),
@@ -309,10 +309,10 @@ class _EventInfoState extends ConsumerState<EventInfo> {
                               },
                               style: ButtonStyle(
                                 backgroundColor:
-                                    MaterialStateProperty.all<Color>(
+                                    WidgetStateProperty.all<Color>(
                                         Theme.of(context).primaryColor),
                                 foregroundColor:
-                                    MaterialStateProperty.all<Color>(
+                                    WidgetStateProperty.all<Color>(
                                         Theme.of(context).primaryColorLight),
                               ),
                               child: Text(text),
@@ -324,9 +324,9 @@ class _EventInfoState extends ConsumerState<EventInfo> {
                     return ElevatedButton(
                       onPressed: () {},
                       style: ButtonStyle(
-                        backgroundColor: MaterialStateProperty.all<Color>(
+                        backgroundColor: WidgetStateProperty.all<Color>(
                             Theme.of(context).primaryColor),
-                        foregroundColor: MaterialStateProperty.all<Color>(
+                        foregroundColor: WidgetStateProperty.all<Color>(
                             Theme.of(context).primaryColorLight),
                       ),
                       child: const Text('test'),

@@ -1,8 +1,5 @@
-import 'dart:ui';
 
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
-import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:nomo/providers/profile_provider.dart';
@@ -38,7 +35,7 @@ class _AvailableTimesScreenState extends ConsumerState<AvailableTimesScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Theme.of(context).canvasColor,
-      appBar: AppBar(title: Text('Available Times')),
+      appBar: AppBar(title: const Text('Available Times')),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
           child: Column(
@@ -126,7 +123,7 @@ class _AvailableTimesScreenState extends ConsumerState<AvailableTimesScreen> {
                     onPressed: (){
                       _submitForm();
                     },
-                    child: Text('Find Free Times'),
+                    child: const Text('Find Free Times'),
                   ),
                 ],
               ),

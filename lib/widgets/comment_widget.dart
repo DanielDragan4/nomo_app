@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:intl/intl.dart';
 import 'package:jiffy/jiffy.dart';
 import 'package:nomo/models/comments_model.dart';
 import 'package:nomo/providers/supabase_provider.dart';

@@ -3,7 +3,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:nomo/models/friend_model.dart';
 import 'package:nomo/providers/chats_provider.dart';
 import 'package:nomo/providers/profile_provider.dart';
-import 'package:nomo/screens/friends_screen.dart';
 import 'package:nomo/widgets/friend_tab.dart';
 
 class NewGroupChatScreen extends ConsumerStatefulWidget {
@@ -47,10 +46,10 @@ class _NewGroupChatScreenState extends ConsumerState<NewGroupChatScreen> {
       createGroup = true;
     }
     return Scaffold(
-      backgroundColor: Theme.of(context).colorScheme.background,
+      backgroundColor: Theme.of(context).colorScheme.surface,
       appBar: AppBar(
         toolbarHeight: MediaQuery.of(context).size.height * .1,
-        title: Text('New Group'),
+        title: const Text('New Group'),
         actions: [
           SizedBox(
             height: MediaQuery.of(context).size.height * .07,
@@ -84,7 +83,7 @@ class _NewGroupChatScreenState extends ConsumerState<NewGroupChatScreen> {
                           toggle: true,
                         )
                     ]
-                  : [Text('friends are loading')],
+                  : [const Text('friends are loading')],
             ),
           ),
           TextField(
@@ -96,7 +95,7 @@ class _NewGroupChatScreenState extends ConsumerState<NewGroupChatScreen> {
                     maxWidth: MediaQuery.of(context).size.width * .75),
                 contentPadding:
                     EdgeInsets.all(MediaQuery.of(context).size.height * .005),
-                border: UnderlineInputBorder(borderSide: BorderSide()),
+                border: const UnderlineInputBorder(borderSide: BorderSide()),
                 hintText: 'Add a title',
                 hintStyle:
                     TextStyle(color: Theme.of(context).colorScheme.onSecondary),

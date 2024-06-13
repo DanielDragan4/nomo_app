@@ -133,9 +133,9 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Theme.of(context).colorScheme.background,
+      backgroundColor: Theme.of(context).colorScheme.surface,
       appBar: AppBar(
-        backgroundColor: Theme.of(context).colorScheme.background,
+        backgroundColor: Theme.of(context).colorScheme.surface,
         toolbarHeight: 30,
         titleTextStyle: Theme.of(context).appBarTheme.titleTextStyle,
       ),
@@ -146,9 +146,9 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
               padding: const EdgeInsets.fromLTRB(10, 10, 10, 10),
               child: TextField(
                 controller: _searchController,
-                decoration: InputDecoration(
+                decoration: const InputDecoration(
                   hintText: 'What are you looking for?',
-                  prefixIcon: const Icon(Icons.search),
+                  prefixIcon: Icon(Icons.search),
                 ),
                 style:
                     TextStyle(color: Theme.of(context).colorScheme.onSecondary),

@@ -31,9 +31,9 @@ class _FriendsScreenState extends ConsumerState<FriendsScreen> {
     //Start on friends list. If false, show requests list
 
     return Scaffold(
-      backgroundColor: Theme.of(context).colorScheme.background,
+      backgroundColor: Theme.of(context).colorScheme.surface,
       appBar: AppBar(
-        backgroundColor: Theme.of(context).colorScheme.background,
+        backgroundColor: Theme.of(context).colorScheme.surface,
         flexibleSpace: PreferredSize(
           preferredSize: const Size.fromHeight(kToolbarHeight),
           child: Container(
@@ -207,14 +207,14 @@ class _FriendsScreenState extends ConsumerState<FriendsScreen> {
                               builder: (context) => AlertDialog(
                                     backgroundColor:
                                         Theme.of(context).canvasColor,
-                                    title: Text('Create Group'),
+                                    title: const Text('Create Group'),
                                     actions: [
                                       TextButton(
                                         onPressed: () {
                                           Navigator.of(context).push(
                                             MaterialPageRoute(
                                               builder: (context) =>
-                                                  NewGroupChatScreen(),
+                                                  const NewGroupChatScreen(),
                                             ),
                                           );
                                         },

@@ -6,7 +6,7 @@ import 'package:nomo/screens/availability_screen.dart';
 import 'package:nomo/screens/chat_screen.dart';
 
 class GroupTab extends ConsumerStatefulWidget {
-  GroupTab({super.key, required this.groupData});
+  const GroupTab({super.key, required this.groupData});
 
   final Map groupData;
 

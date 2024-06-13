@@ -1,6 +1,4 @@
 import 'package:flutter/material.dart';
-import 'dart:convert';
-import 'package:http/http.dart' as http;
 import 'package:nomo/models/events_model.dart';
 import 'package:nomo/models/interests_enum.dart';
 import 'package:nomo/providers/events_provider.dart';
@@ -351,7 +349,7 @@ class _NewEventScreenState extends ConsumerState<NewEventScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Theme.of(context).colorScheme.background,
+      backgroundColor: Theme.of(context).colorScheme.surface,
       appBar: AppBar(
         flexibleSpace: PreferredSize(
           preferredSize: const Size.fromHeight(kToolbarHeight),
@@ -576,7 +574,7 @@ class _NewEventScreenState extends ConsumerState<NewEventScreen> {
                   labelText: "Enter Your Event Title",
                   labelStyle: TextStyle(
                       color: Theme.of(context).colorScheme.onSecondary),
-                  contentPadding: EdgeInsets.all(5),
+                  contentPadding: const EdgeInsets.all(5),
                 ),
                 keyboardType: TextInputType.multiline,
                 textInputAction: TextInputAction.done,
@@ -597,7 +595,7 @@ class _NewEventScreenState extends ConsumerState<NewEventScreen> {
                   labelText: "Enter Your Event Description",
                   labelStyle: TextStyle(
                       color: Theme.of(context).colorScheme.onSecondary),
-                  contentPadding: EdgeInsets.all(5),
+                  contentPadding: const EdgeInsets.all(5),
                 ),
                 keyboardType: TextInputType.multiline,
                 textInputAction: TextInputAction.done,
@@ -627,7 +625,7 @@ class _NewEventScreenState extends ConsumerState<NewEventScreen> {
                     });
                   }
                 },
-                child: Text('Categories')),
+                child: const Text('Categories')),
             InkWell(
               onTap: () {
                 if (_selectedImage == null && widget.isNewEvent) {
@@ -715,7 +713,7 @@ class _NewEventScreenState extends ConsumerState<NewEventScreen> {
             ),
             if (widget.isEdit == true)
               Padding(
-                padding: EdgeInsets.only(top: 20),
+                padding: const EdgeInsets.only(top: 20),
                 child: ElevatedButton(
                   onPressed: () {
                     showDialog(

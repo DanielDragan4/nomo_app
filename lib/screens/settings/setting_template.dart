@@ -31,39 +31,39 @@ class _SettingsTemplateState extends State<SettingsTemplate> {
   Widget build(BuildContext context) {
     Widget content;
 
-    if (widget.type == "About")
-      content = About();
-    else if (widget.type == "Analytics")
-      content = Analytics();
+    if (widget.type == "About") {
+      content = const About();
+    } else if (widget.type == "Analytics")
+      content = const Analytics();
     else if (widget.type == "Auth")
-      content = AuthSetting();
+      content = const AuthSetting();
     else if (widget.type == "Blocked")
-      content = Blocked();
+      content = const Blocked();
     else if (widget.type == "Data")
-      content = DataManagement();
+      content = const DataManagement();
     else if (widget.type == "Following")
-      content = Following();
+      content = const Following();
     else if (widget.type == "Friends")
-      content = FriendsSettings();
+      content = const FriendsSettings();
     else if (widget.type == "Help")
-      content = Help();
+      content = const Help();
     else if (widget.type == "Messages") {
-      content = MessageSettings();
+      content = const MessageSettings();
       widget.type = "Message Notifications";
     } else if (widget.type == "Payment")
-      content = Payment();
+      content = const Payment();
     else if (widget.type == "Recommended") {
-      content = RecommendedSettings();
+      content = const RecommendedSettings();
       widget.type = "Recommended Events";
     } else if (widget.type == "Security")
-      content = Security();
+      content = const Security();
     else if (widget.type == "Status") {
-      content = Status();
+      content = const Status();
       widget.type = "Account Status";
     } else if (widget.type == "Support")
-      content = Support();
+      content = const Support();
     else if (widget.type == "Theme")
-      content = ThemeSettings();
+      content = const ThemeSettings();
     else
       content = Container();
 

@@ -4,7 +4,7 @@ import 'package:nomo/providers/nominatim_service.dart';
 class AddressSearchField extends StatefulWidget {
   final TextEditingController controller;
 
-  AddressSearchField({required this.controller});
+  const AddressSearchField({super.key, required this.controller});
 
   @override
   _AddressSearchFieldState createState() => _AddressSearchFieldState();
@@ -32,7 +32,7 @@ class _AddressSearchFieldState extends State<AddressSearchField> {
             border: const  OutlineInputBorder(),
             labelText: "Enter The Event's Address",
             labelStyle: TextStyle(color: Theme.of(context).colorScheme.onSecondary),
-            contentPadding: EdgeInsets.all(5),
+            contentPadding: const EdgeInsets.all(5),
           ),
           onChanged: (value) {
             if (value.length > 3) {

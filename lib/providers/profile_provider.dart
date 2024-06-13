@@ -1,4 +1,3 @@
-import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:nomo/models/availability_model.dart';
 import 'package:nomo/models/friend_model.dart';
@@ -6,7 +5,6 @@ import 'package:nomo/models/profile_model.dart';
 import 'package:nomo/providers/supabase_provider.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:nomo/models/interests_enum.dart';
-import 'package:nomo/providers/search_provider.dart';
 
 class ProfileProvider extends StateNotifier<Profile?> {
   ProfileProvider({required this.supabase}) : super(null);
@@ -247,7 +245,7 @@ class ProfileProvider extends StateNotifier<Profile?> {
     } else if(response.isNotEmpty) {
       await supabaseClient.from('Friends').insert(newFriendMapCurrent);
       await supabaseClient.from('Friends').insert(newFriendMapFriend);
-      await supabaseClient.from('New_Friend').delete().eq('id', response.first['id']);
+      await supabaseClient.from('New_Friend').delete().eq('id', response[0]['id']);
     }
   }
 
@@ -386,7 +384,7 @@ class ProfileProvider extends StateNotifier<Profile?> {
         availableTimes.add({'start_time': currentEndTime, 'end_time': endDate});
       }
     }
-    print('${availableTimes}------------------------');
+    print('$availableTimes------------------------');
     return availableTimes;
   }
 

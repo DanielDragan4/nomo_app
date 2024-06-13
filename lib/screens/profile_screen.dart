@@ -108,12 +108,12 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
     }
 
     return Scaffold(
-      backgroundColor: Theme.of(context).colorScheme.background,
+      backgroundColor: Theme.of(context).colorScheme.surface,
       body: NestedScrollView(
         floatHeaderSlivers: true,
         headerSliverBuilder: (context, innerBoxIsScrolled) => [
           SliverAppBar(
-            backgroundColor: Theme.of(context).colorScheme.background,
+            backgroundColor: Theme.of(context).colorScheme.surface,
             primary: false,
             titleSpacing: BorderSide.strokeAlignCenter,
             floating: true,
@@ -345,7 +345,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                   isSelected: isSelected,
                   children: [
                     Padding(
-                        padding: EdgeInsets.fromLTRB(3, 3, 3, 3),
+                        padding: const EdgeInsets.fromLTRB(3, 3, 3, 3),
                         child: widget.isUser
                             ? const Text(
                                 'Your Events',
@@ -358,7 +358,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                                     fontSize: 14, fontWeight: FontWeight.w700),
                               )),
                     Padding(
-                        padding: EdgeInsets.fromLTRB(3, 3, 3, 3),
+                        padding: const EdgeInsets.fromLTRB(3, 3, 3, 3),
                         child: widget.isUser
                             ? const Text(
                                 'Bookmarked',

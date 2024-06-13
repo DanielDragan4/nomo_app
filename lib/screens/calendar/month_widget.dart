@@ -344,7 +344,7 @@ class DayButton extends StatelessWidget {
                   left: 0,
                   top: 0,
                   child: CustomPaint(
-                    size: Size(20, 20),
+                    size: const Size(20, 20),
                     painter: TrianglePainter(),
                   ),
                 ),
@@ -353,7 +353,7 @@ class DayButton extends StatelessWidget {
                   left: 0,
                   top: 0,
                   child: CustomPaint(
-                    size: Size(20, 20),
+                    size: const Size(20, 20),
                     painter: TrianglePainter(),
                   ),
                 ),
@@ -368,7 +368,7 @@ class DayButton extends StatelessWidget {
 class TrianglePainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
-    final paint = Paint()..color = Color.fromARGB(175, 255, 0, 0);
+    final paint = Paint()..color = const Color.fromARGB(175, 255, 0, 0);
     final path = Path()
       ..moveTo(1, 1)
       ..lineTo(size.width, 1)

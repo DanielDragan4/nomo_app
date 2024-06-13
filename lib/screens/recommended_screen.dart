@@ -16,12 +16,12 @@ class RecommendedScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     ref.read(eventsProvider.notifier).deCodeData();
     return Scaffold(
-      backgroundColor: Theme.of(context).colorScheme.background,
+      backgroundColor: Theme.of(context).colorScheme.surface,
       body: NestedScrollView(
         floatHeaderSlivers: true,
         headerSliverBuilder: (context, innerBoxIsScrolled) => [
           SliverAppBar(
-            backgroundColor: Theme.of(context).colorScheme.background,
+            backgroundColor: Theme.of(context).colorScheme.surface,
             floating: true,
             snap: true,
             expandedHeight: 10,

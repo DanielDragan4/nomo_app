@@ -233,17 +233,16 @@ class ProfileProvider extends StateNotifier<Profile?> {
     final supabaseClient = (await supabase).client;
     final newFriendMap = {'current': currentUserId, 'friend': friendId};
     final response = await supabaseClient.from('Friends')
-    .select('current, friend')
+    .select()
     .eq('current', friendId)
-    .eq('friend', friendId)
-    .single();
+    .eq('friend', friendId);
 
     await supabaseClient.from('Friends').insert(newFriendMap);
-    if(response.isEmpty) {
+    if(response != null) {
       final newFriendRequest = {'reciver_id' : friendId, 'sender_id' : currentUserId};
       await supabaseClient.from('New_Friend').insert(newFriendRequest);
     } else {
-      await supabaseClient.from('New_Friend').delete().eq('id', response['id']);
+      await supabaseClient.from('New_Friend').delete().eq('id', response[0]['id']);
     }
   }
 

@@ -199,13 +199,14 @@ class ProfileProvider extends StateNotifier<Profile?> {
     }
     return userFriends;
   }
+
   Future<List> readRequests() async {
     final supabaseClient = (await supabase).client;
 
     var friends = (await supabaseClient
         .from('new_friends_view')
         .select('*')
-        .eq('reciver_id', supabaseClient.auth.currentUser!.id));
+        .eq('reciever_id', supabaseClient.auth.currentUser!.id));
     return friends.toList();
   }
 
@@ -233,17 +234,26 @@ class ProfileProvider extends StateNotifier<Profile?> {
     final supabaseClient = (await supabase).client;
     final currentUserId = supabaseClient.auth.currentUser!.id;
     final newFriendMap = {'current': currentUserId, 'friend': friendId};
-    final response = await supabaseClient.from('Friends')
-    .select()
-    .eq('current', friendId)
-    .eq('friend', friendId);
+    final response = await supabaseClient
+        .from('New_Friend')
+        .select('*')
+        .or('reciever_id.eq.$friendId,sender_id.eq.$friendId');
+    print(response);
 
     await supabaseClient.from('Friends').insert(newFriendMap);
-    if(response != null) {
-      final newFriendRequest = {'reciver_id' : friendId, 'sender_id' : currentUserId};
+    if (response.isEmpty) {
+      final newFriendRequest = {
+        'reciever_id': friendId,
+        'sender_id': currentUserId
+      };
+      print(response);
       await supabaseClient.from('New_Friend').insert(newFriendRequest);
-    } else {
-      await supabaseClient.from('New_Friend').delete().eq('id', response[0]['id']);
+    } else if (response.isNotEmpty) {
+      print("$response ----------------------------");
+      await supabaseClient
+          .from('New_Friend')
+          .delete()
+          .eq('id', response.first['id']);
     }
   }
 
@@ -255,13 +265,14 @@ class ProfileProvider extends StateNotifier<Profile?> {
         .eq('current', currentUserId)
         .eq('friend', friendId);
   }
+
   Future<void> removeRequest(friendId) async {
     final supabaseClient = (await supabase).client;
     final currentUserId = supabaseClient.auth.currentUser!.id;
     await supabaseClient
-        .from('New_Friends')
+        .from('New_Friend')
         .delete()
-        .eq('reciver_id', currentUserId)
+        .eq('reciever_id', currentUserId)
         .eq('sender_id', friendId);
   }
 

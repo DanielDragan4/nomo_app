@@ -83,9 +83,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
   }
 
   Future<void> addFriend() async {
-    await ref
-        .read(profileProvider.notifier)
-        .addFriend(widget.userId);
+    await ref.read(profileProvider.notifier).addFriend(widget.userId);
   }
 
   Future<void> removeFriend() async {
@@ -147,7 +145,8 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                         } else if (snapshot.connectionState !=
                             ConnectionState.done) {
                           return const CircularProgressIndicator();
-                        } else if (!snapshot.hasData) {
+                        } else if (!snapshot.hasData ||
+                            snapshot.data!.avatar == null) {
                           return Column(
                             children: [
                               CircleAvatar(
@@ -160,32 +159,34 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                               ),
                             ],
                           );
-                        }
-                        //if (snapshot.hasData) {
-                        else {
+                        } else {
+                          var profile = snapshot.data!;
+                          var avatar = profile.avatar;
+                          var profileName = profile.profile_name ?? 'No Name';
                           return Column(
                             children: [
                               CircleAvatar(
-                                key: ValueKey<String>(imageUrl),
+                                key: ValueKey<String>(avatar ?? ''),
                                 radius: MediaQuery.sizeOf(context).width / 12,
                                 backgroundColor: Colors.white,
-                                backgroundImage: NetworkImage(
-                                  snapshot.data!.avatar,
-                                ),
+                                backgroundImage:
+                                    avatar != null && avatar.isNotEmpty
+                                        ? NetworkImage(avatar)
+                                        : null,
+                                child: avatar == null || avatar.isEmpty
+                                    ? const Text("No Image")
+                                    : null,
                               ),
                               SizedBox(
                                   height:
                                       MediaQuery.sizeOf(context).height / 100),
                               Text(
-                                snapshot.data!.profile_name,
+                                profileName,
                                 style: const TextStyle(fontSize: 18),
                               ),
                             ],
                           );
                         }
-                        //}  else {
-
-                        // }
                       },
                     ),
                     Column(

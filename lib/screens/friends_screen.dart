@@ -170,6 +170,7 @@ class _FriendsScreenState extends ConsumerState<FriendsScreen> {
                     StreamBuilder(
                     stream: ref.read(profileProvider.notifier).decodeRequests().asStream(),
                     builder: (context, snapshot) {
+                      print(snapshot.data);
                       if (snapshot.data != null) {
                         return ListView(
                           key: const PageStorageKey('page'),

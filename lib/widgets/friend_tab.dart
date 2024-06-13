@@ -131,7 +131,9 @@ class _FriendTabState extends ConsumerState<FriendTab> {
                     )
                   : Row(children: [
                       IconButton(
-                          onPressed: () {},
+                          onPressed: () {
+                            ref.read(profileProvider.notifier).addFriend(widget.friendData.friendProfileId);
+                          },
                           icon: const Icon(
                             Icons.check,
                             color: Colors.green,
@@ -139,7 +141,9 @@ class _FriendTabState extends ConsumerState<FriendTab> {
                           splashRadius: 15),
                       const SizedBox(width: 10),
                       IconButton(
-                          onPressed: () {},
+                          onPressed: () {
+                            ref.read(profileProvider.notifier).removeRequest(widget.friendData.friendProfileId);
+                          },
                           icon: const Icon(
                             Icons.close,
                             color: Colors.red,

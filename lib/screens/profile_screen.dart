@@ -83,10 +83,9 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
   }
 
   Future<void> addFriend() async {
-    final supabase = (await ref.read(supabaseInstance)).client;
     await ref
         .read(profileProvider.notifier)
-        .addFriend(supabase.auth.currentUser!.id, widget.userId);
+        .addFriend(widget.userId);
   }
 
   Future<void> removeFriend() async {

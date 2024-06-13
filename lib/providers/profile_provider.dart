@@ -229,8 +229,9 @@ class ProfileProvider extends StateNotifier<Profile?> {
     return userFriends;
   }
 
-  Future<void> addFriend(currentUserId, friendId) async {
+  Future<void> addFriend(friendId) async {
     final supabaseClient = (await supabase).client;
+    final currentUserId = supabaseClient.auth.currentUser!.id;
     final newFriendMap = {'current': currentUserId, 'friend': friendId};
     final response = await supabaseClient.from('Friends')
     .select()
@@ -253,6 +254,15 @@ class ProfileProvider extends StateNotifier<Profile?> {
         .delete()
         .eq('current', currentUserId)
         .eq('friend', friendId);
+  }
+  Future<void> removeRequest(friendId) async {
+    final supabaseClient = (await supabase).client;
+    final currentUserId = supabaseClient.auth.currentUser!.id;
+    await supabaseClient
+        .from('New_Friends')
+        .delete()
+        .eq('reciver_id', currentUserId)
+        .eq('sender_id', friendId);
   }
 
   Future<bool> isFriend(friendProfileId) async {

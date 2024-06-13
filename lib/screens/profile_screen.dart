@@ -83,7 +83,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
   }
 
   Future<void> addFriend() async {
-    await ref.read(profileProvider.notifier).addFriend(widget.userId);
+    await ref.read(profileProvider.notifier).addFriend(widget.userId, false);
   }
 
   Future<void> removeFriend() async {

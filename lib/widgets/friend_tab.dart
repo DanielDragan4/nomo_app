@@ -132,7 +132,7 @@ class _FriendTabState extends ConsumerState<FriendTab> {
                   : Row(children: [
                       IconButton(
                           onPressed: () {
-                            ref.read(profileProvider.notifier).addFriend(widget.friendData.friendProfileId);
+                            ref.read(profileProvider.notifier).addFriend(widget.friendData.friendProfileId, true);
                           },
                           icon: const Icon(
                             Icons.check,

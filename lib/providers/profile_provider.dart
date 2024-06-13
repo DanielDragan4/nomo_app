@@ -205,7 +205,7 @@ class ProfileProvider extends StateNotifier<Profile?> {
 
     var friends = (await supabaseClient
         .from('new_friends_view')
-        .select('*')
+        .select()
         .eq('reciever_id', supabaseClient.auth.currentUser!.id));
     return friends.toList();
   }
@@ -227,10 +227,11 @@ class ProfileProvider extends StateNotifier<Profile?> {
 
       userFriends.add(friend);
     }
+    print(userFriends);
     return userFriends;
   }
 
-  Future<void> addFriend(friendId) async {
+  Future<void> addFriend(friendId, accepting) async {
     final supabaseClient = (await supabase).client;
     final currentUserId = supabaseClient.auth.currentUser!.id;
     final newFriendMap = {'current': currentUserId, 'friend': friendId};
@@ -241,15 +242,13 @@ class ProfileProvider extends StateNotifier<Profile?> {
     print(response);
 
     await supabaseClient.from('Friends').insert(newFriendMap);
-    if (response.isEmpty) {
+    if (response.isEmpty && !accepting) {
       final newFriendRequest = {
         'reciever_id': friendId,
         'sender_id': currentUserId
       };
-      print(response);
       await supabaseClient.from('New_Friend').insert(newFriendRequest);
     } else if (response.isNotEmpty) {
-      print("$response ----------------------------");
       await supabaseClient
           .from('New_Friend')
           .delete()

@@ -133,7 +133,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                           return Column(
                             children: [
                               CircleAvatar(
-                                radius: MediaQuery.sizeOf(context).width / 6,
+                                radius: MediaQuery.sizeOf(context).width / 12,
                                 child: const Text("No Image"),
                               ),
                               const Text(
@@ -150,7 +150,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                           return Column(
                             children: [
                               CircleAvatar(
-                                radius: MediaQuery.sizeOf(context).width / 6,
+                                radius: MediaQuery.sizeOf(context).width / 12,
                                 child: const Text("No Image"),
                               ),
                               const Text(

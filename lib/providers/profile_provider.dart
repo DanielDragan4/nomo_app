@@ -233,17 +233,19 @@ class ProfileProvider extends StateNotifier<Profile?> {
   Future<void> addFriend(friendId, accepting) async {
     final supabaseClient = (await supabase).client;
     final currentUserId = supabaseClient.auth.currentUser!.id;
-    final newFriendMap = {'current': currentUserId, 'friend': friendId};
+    final newFriendMapCurrent = {'current': currentUserId, 'friend': friendId};
+     final newFriendMapFriend = {'current': friendId, 'friend': currentUserId};
     final response = await supabaseClient.from('New_Friend')
     .select('*')
     .or('reciever_id.eq.$friendId,sender_id.eq.$friendId');
     print(response);
 
-    await supabaseClient.from('Friends').insert(newFriendMap);
     if(response.isEmpty && !accepting) {
       final newFriendRequest = {'reciever_id' : friendId, 'sender_id' : currentUserId};
       await supabaseClient.from('New_Friend').insert(newFriendRequest);
     } else if(response.isNotEmpty) {
+      await supabaseClient.from('Friends').insert(newFriendMapCurrent);
+      await supabaseClient.from('Friends').insert(newFriendMapFriend);
       await supabaseClient.from('New_Friend').delete().eq('id', response.first['id']);
     }
   }

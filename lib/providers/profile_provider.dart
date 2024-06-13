@@ -199,11 +199,52 @@ class ProfileProvider extends StateNotifier<Profile?> {
     }
     return userFriends;
   }
+  Future<List> readRequests() async {
+    final supabaseClient = (await supabase).client;
+
+    var friends = (await supabaseClient
+        .from('new_friends_view')
+        .select('*')
+        .eq('reciver_id', supabaseClient.auth.currentUser!.id));
+    return friends.toList();
+  }
+
+  Future<List<Friend>> decodeRequests() async {
+    final List userFriendsCoded = await readRequests();
+    List<Friend> userFriends = [];
+    final supabaseClient = (await supabase).client;
+
+    for (var f in userFriendsCoded) {
+      String profileUrl =
+          supabaseClient.storage.from('Images').getPublicUrl(f['profile_path']);
+
+      final Friend friend = Friend(
+          friendProfileId: f['sender_id'],
+          avatar: profileUrl,
+          friendUsername: f['username'],
+          friendProfileName: f['profile_name']);
+
+      userFriends.add(friend);
+    }
+    return userFriends;
+  }
 
   Future<void> addFriend(currentUserId, friendId) async {
     final supabaseClient = (await supabase).client;
     final newFriendMap = {'current': currentUserId, 'friend': friendId};
+    final response = await supabaseClient.from('Friends')
+    .select('current, friend')
+    .eq('current', friendId)
+    .eq('friend', friendId)
+    .single();
+
     await supabaseClient.from('Friends').insert(newFriendMap);
+    if(response.isEmpty) {
+      final newFriendRequest = {'reciver_id' : friendId, 'sender_id' : currentUserId};
+      await supabaseClient.from('New_Friend').insert(newFriendRequest);
+    } else {
+      await supabaseClient.from('New_Friend').delete().eq('id', response['id']);
+    }
   }
 
   Future<void> removeFriend(currentUserId, friendId) async {

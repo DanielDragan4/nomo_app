@@ -137,7 +137,8 @@ class _FriendsScreenState extends ConsumerState<FriendsScreen> {
                       );
                     },
                   )
-                : StreamBuilder(
+                : 
+                friends ?StreamBuilder(
                     stream: ref
                         .read(profileProvider.notifier)
                         .decodeFriends()
@@ -146,16 +147,34 @@ class _FriendsScreenState extends ConsumerState<FriendsScreen> {
                       if (snapshot.data != null) {
                         return ListView(
                           key: const PageStorageKey('page'),
-                          children: friends
-                              ? [
-                                  for (Friend i in snapshot.data!)
+                          children: 
+                               [for (Friend i in snapshot.data!)
                                     FriendTab(
                                       friendData: i,
                                       isRequest: true,
                                       toggle: false,
-                                    ),
-                                ]
-                              : [
+                                    ),]
+                              );
+                      } else {
+                        return Center(
+                          child: Text(
+                            'No Friends Were Found. Add Some',
+                            style: TextStyle(
+                                color:
+                                    Theme.of(context).colorScheme.onSecondary),
+                          ),
+                        );
+                      }
+                    })
+                    :
+                    StreamBuilder(
+                    stream: ref.read(profileProvider.notifier).decodeRequests().asStream(),
+                    builder: (context, snapshot) {
+                      if (snapshot.data != null) {
+                        return ListView(
+                          key: const PageStorageKey('page'),
+                          children: 
+                               [
                                   for (Friend i in snapshot.data!)
                                     FriendTab(
                                       friendData: i,
@@ -167,14 +186,14 @@ class _FriendsScreenState extends ConsumerState<FriendsScreen> {
                       } else {
                         return Center(
                           child: Text(
-                            'No Friends Were Found. Add Some',
+                            'No New Friends Were Found. Add Some',
                             style: TextStyle(
                                 color:
                                     Theme.of(context).colorScheme.onSecondary),
                           ),
                         );
                       }
-                    }),
+                    })
           ),
           Row(
             mainAxisAlignment: MainAxisAlignment.end,

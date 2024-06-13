@@ -21,14 +21,14 @@ class TimeBlock extends StatelessWidget {
       decoration: BoxDecoration(
         color: isEvent != null
             ? Theme.of(context).primaryColor.withOpacity(0.6)
-            : Color.fromARGB(245, 244, 67, 54), // Adjust color as needed
+            : const Color.fromARGB(245, 244, 67, 54), // Adjust color as needed
         borderRadius: BorderRadius.circular(5.0), // Rounded corners
       ),
       child: Center(
         child: Text(
           title,
           textAlign: TextAlign.center,
-          style: TextStyle(
+          style: const TextStyle(
             color: Colors.white, // Adjust color as needed
             fontSize: 16.0, // Adjust size as needed
           ),

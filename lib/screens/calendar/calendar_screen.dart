@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:nomo/providers/attending_events_provider.dart';
 import 'package:nomo/providers/profile_provider.dart';
-import 'package:nomo/screens/calendar/day_screen.dart';
 import 'package:nomo/screens/calendar/month_widget.dart';
 import 'package:nomo/screens/new_event_screen.dart';
 
@@ -54,19 +53,19 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
           padding: EdgeInsets.only(
             bottom: MediaQuery.of(context).viewInsets.bottom,
           ),
-          child: Container(
+          child: SizedBox(
             height: 300,
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                SizedBox(height: 10),
+                const SizedBox(height: 10),
                 Text(
                   'Select Time Range',
                   style: TextStyle(
                     color: Theme.of(context).colorScheme.onSecondary,
                   ),
                 ),
-                SizedBox(height: 20),
+                const SizedBox(height: 20),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: [
@@ -81,7 +80,7 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
                         startTime == null
                             ? 'Start Time'
                             : formatTimeOfDay(startTime!),
-                        style: TextStyle(color: Colors.white),
+                        style: const TextStyle(color: Colors.white),
                       ),
                     ),
                     ElevatedButton(
@@ -95,7 +94,7 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
                         endTime == null
                             ? 'End Time'
                             : formatTimeOfDay(endTime!),
-                        style: TextStyle(color: Colors.white),
+                        style: const TextStyle(color: Colors.white),
                       ),
                     ),
                   ],
@@ -103,11 +102,11 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
                 Padding(
                   padding: const EdgeInsets.all(8.0),
                   child: TextField(
-                    decoration: InputDecoration(
+                    decoration: const InputDecoration(
                       labelText: 'Title',
                     ),
                     style: TextStyle(
-                      color: Theme.of(context).colorScheme.onBackground,
+                      color: Theme.of(context).colorScheme.onSurface,
                     ),
                     onChanged: (value) {
                       blockTitle = value;
@@ -118,7 +117,7 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
                   onPressed: () {
                     _confirmTimeRange(context, selectedDate);
                   },
-                  child: Text('Confirm'),
+                  child: const Text('Confirm'),
                 ),
               ],
             ),
@@ -135,12 +134,6 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
         blockTitle!.isNotEmpty &&
         selectedDate != null) {
       final profileId = ref.read(profileProvider)!.profile_id;
-      if (profileId == null) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Profile ID is missing')),
-        );
-        return;
-      }
 
       final startDateTime = DateTime(
         selectedDate.year,
@@ -172,7 +165,7 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
       Navigator.of(context).pop();
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
+        const SnackBar(
             content: Text('Please enter all the details for the time block')),
       );
     }
@@ -211,9 +204,9 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
     final int lastOfMonth = DateTime(yearDisplayed, monthDisplayed + 1, 0).day;
 
     return Scaffold(
-      backgroundColor: Theme.of(context).colorScheme.background,
+      backgroundColor: Theme.of(context).colorScheme.surface,
       appBar: AppBar(
-        backgroundColor: Theme.of(context).colorScheme.background,
+        backgroundColor: Theme.of(context).colorScheme.surface,
         flexibleSpace: PreferredSize(
           preferredSize: const Size.fromHeight(kToolbarHeight),
           child: Container(

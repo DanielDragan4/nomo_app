@@ -3,7 +3,6 @@ import 'dart:async';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_branch_sdk/flutter_branch_sdk.dart';
-import 'package:http/http.dart';
 import 'package:nomo/providers/saved_session_provider.dart';
 import 'package:nomo/providers/supabase_provider.dart';
 import 'package:nomo/providers/user_signup_provider.dart';
@@ -146,7 +145,7 @@ class _AppState extends ConsumerState<App> {
                         seedColor: const Color.fromARGB(255, 109, 51, 146),
                         onPrimaryContainer:
                             const Color.fromARGB(255, 109, 51, 146))
-                    .copyWith(background: Colors.black)),
+                    .copyWith(surface: Colors.black)),
             home: StreamBuilder(
               stream: ref.watch(currentUserProvider.notifier).stream,
               builder: (context, snapshot) {

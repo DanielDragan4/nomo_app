@@ -2,14 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:nomo/models/friend_model.dart';
 import 'package:nomo/providers/profile_provider.dart';
-import 'package:nomo/providers/supabase_provider.dart';
 import 'package:nomo/screens/availability_screen.dart';
 import 'package:nomo/screens/chat_screen.dart';
 import 'package:nomo/screens/profile_screen.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
 
 class FriendTab extends ConsumerStatefulWidget {
-  FriendTab(
+  const FriendTab(
       {super.key,
       required this.friendData,
       required this.isRequest,

@@ -1,10 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:nomo/models/comments_model.dart';
 import 'package:nomo/models/events_model.dart';
 import 'package:nomo/providers/events_provider.dart';
 import 'package:nomo/providers/supabase_provider.dart';
-import 'package:nomo/widgets/comment_widget.dart';
 import 'package:nomo/widgets/comments_section_widget.dart';
 import 'package:nomo/widgets/event_info.dart';
 
@@ -57,9 +55,9 @@ class _DetailedEventScreenState extends ConsumerState<DetailedEventScreen> {
         "${date.month}/${date.day}/${date.year} at ${getHour()}";
 
     return Scaffold(
-      backgroundColor: Theme.of(context).colorScheme.background,
+      backgroundColor: Theme.of(context).colorScheme.surface,
       appBar: AppBar(
-        backgroundColor: Theme.of(context).colorScheme.background,
+        backgroundColor: Theme.of(context).colorScheme.surface,
         toolbarHeight: 75,
         titleTextStyle: Theme.of(context).appBarTheme.titleTextStyle,
         title: Center(

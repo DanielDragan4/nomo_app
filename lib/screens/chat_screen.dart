@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:nomo/models/friend_model.dart';
-import 'package:nomo/models/message_model.dart';
 import 'package:nomo/providers/chats_provider.dart';
-import 'package:nomo/providers/supabase_provider.dart';
 import 'package:nomo/widgets/message_widget.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
@@ -46,7 +44,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
           .stream(primaryKey: ['id']) // Ensure the primary key is specified
           .eq('chat_id', chatID)
           .order('created_at', ascending: false)
-          .map((event) => event.map((e) => e as Map<String, dynamic>).toList());
+          .map((event) => event.map((e) => e).toList());
     });
   }
 
@@ -59,16 +57,16 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
           .stream(primaryKey: ['group_message_id']) // Ensure the primary key is specified
           .eq('group_id', widget.groupInfo!['group_id']!)
           .order('created_at', ascending: false)
-          .map((event) => event.map((e) => e as Map<String, dynamic>).toList());
+          .map((event) => event.map((e) => e).toList());
     });
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Theme.of(context).colorScheme.background,
+      backgroundColor: Theme.of(context).colorScheme.surface,
       appBar: AppBar(
-        backgroundColor: Theme.of(context).colorScheme.background,
+        backgroundColor: Theme.of(context).colorScheme.surface,
         title: Text((widget.groupInfo == null)
             ? widget.chatterUser!.friendProfileName
             : widget.groupInfo!['title']),

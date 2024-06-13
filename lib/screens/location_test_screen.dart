@@ -191,12 +191,12 @@ class _LocationTestScreenState extends State<LocationTestScreen> {
                       fontSize: 24,
                       color: Theme.of(context).colorScheme.onSecondary),
                 ),
-                SizedBox(height: 20),
+                const SizedBox(height: 20),
                 ElevatedButton(
                   onPressed: _getCurrentPosition,
-                  child: Text('Get Current Location'),
+                  child: const Text('Get Current Location'),
                 ),
-                SizedBox(height: 10),
+                const SizedBox(height: 10),
                 (!hasPermission)
                     ? AddressSearchField(controller: manualLocation)
                     : const SizedBox(),
@@ -234,7 +234,6 @@ class _LocationTestScreenState extends State<LocationTestScreen> {
                           // Logic to show events based on location or manually entered community
                         },
                         child: TextButton(
-                          child: Text('See Events'),
                           onPressed: (_currentPosition != null)
                               ? () async {
                                   final saveRadius =
@@ -247,12 +246,13 @@ class _LocationTestScreenState extends State<LocationTestScreen> {
                                               const NavBar()));
                                 }
                               : null,
+                          child: const Text('See Events'),
                         ),
                       )
                     : ElevatedButton(
                         onPressed: () {},
                         child: TextButton(
-                          child: Text('Save Location Data'),
+                          child: const Text('Save Location Data'),
                           onPressed: () async {
                             final saveRadius =
                                 await SharedPreferences.getInstance();

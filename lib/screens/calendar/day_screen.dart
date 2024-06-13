@@ -107,7 +107,7 @@ class _DayScreenState extends ConsumerState<DayScreen> {
     } else {
       // Show a message if the title is empty
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Please enter a title for the time block')),
+        const SnackBar(content: Text('Please enter a title for the time block')),
       );
     }
   }
@@ -154,7 +154,7 @@ class _DayScreenState extends ConsumerState<DayScreen> {
     } else {
       // Show a message if the title is empty
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Please enter a title for the time block')),
+        const SnackBar(content: Text('Please enter a title for the time block')),
       );
     }
   }
@@ -174,19 +174,19 @@ class _DayScreenState extends ConsumerState<DayScreen> {
           padding: EdgeInsets.only(
             bottom: MediaQuery.of(context).viewInsets.bottom,
           ),
-          child: Container(
+          child: SizedBox(
             height: 300,
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                SizedBox(height: 10),
+                const SizedBox(height: 10),
                 Text(
                   'Select Time Range',
                   style: TextStyle(
                     color: Theme.of(context).colorScheme.onSecondary,
                   ),
                 ),
-                SizedBox(height: 20),
+                const SizedBox(height: 20),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: [
@@ -201,7 +201,7 @@ class _DayScreenState extends ConsumerState<DayScreen> {
                         startTime == null
                             ? 'Start Time'
                             : formatTimeOfDay(startTime!),
-                        style: TextStyle(color: Colors.white),
+                        style: const TextStyle(color: Colors.white),
                       ),
                     ),
                     ElevatedButton(
@@ -215,7 +215,7 @@ class _DayScreenState extends ConsumerState<DayScreen> {
                         endTime == null
                             ? 'End Time'
                             : formatTimeOfDay(endTime!),
-                        style: TextStyle(color: Colors.white),
+                        style: const TextStyle(color: Colors.white),
                       ),
                     ),
                   ],
@@ -223,11 +223,11 @@ class _DayScreenState extends ConsumerState<DayScreen> {
                 Padding(
                   padding: const EdgeInsets.all(8.0),
                   child: TextField(
-                    decoration: InputDecoration(
+                    decoration: const InputDecoration(
                       labelText: 'Title',
                     ),
                     style: TextStyle(
-                      color: Theme.of(context).colorScheme.onBackground,
+                      color: Theme.of(context).colorScheme.onSurface,
                     ),
                     onChanged: (value) {
                       blockTitle = value;
@@ -239,7 +239,7 @@ class _DayScreenState extends ConsumerState<DayScreen> {
                     _confirmTimeRange(
                         context); // this is where the block is created
                   },
-                  child: Text('Confirm'),
+                  child: const Text('Confirm'),
                 ),
               ],
             ),
@@ -264,19 +264,19 @@ class _DayScreenState extends ConsumerState<DayScreen> {
           padding: EdgeInsets.only(
             bottom: MediaQuery.of(context).viewInsets.bottom,
           ),
-          child: Container(
+          child: SizedBox(
             height: 300,
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                SizedBox(height: 10),
+                const SizedBox(height: 10),
                 Text(
                   'Edit Time Block',
                   style: TextStyle(
                     color: Theme.of(context).colorScheme.onSecondary,
                   ),
                 ),
-                SizedBox(height: 20),
+                const SizedBox(height: 20),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: [
@@ -299,7 +299,7 @@ class _DayScreenState extends ConsumerState<DayScreen> {
                       },
                       child: Text(
                         formatTimeOfDay(startTime!),
-                        style: TextStyle(color: Colors.white),
+                        style: const TextStyle(color: Colors.white),
                       ),
                     ),
                     ElevatedButton(
@@ -321,7 +321,7 @@ class _DayScreenState extends ConsumerState<DayScreen> {
                       },
                       child: Text(
                         formatTimeOfDay(endTime!),
-                        style: TextStyle(color: Colors.white),
+                        style: const TextStyle(color: Colors.white),
                       ),
                     ),
                   ],
@@ -329,11 +329,11 @@ class _DayScreenState extends ConsumerState<DayScreen> {
                 Padding(
                   padding: const EdgeInsets.all(8.0),
                   child: TextField(
-                    decoration: InputDecoration(
+                    decoration: const InputDecoration(
                       labelText: 'Title',
                     ),
                     style: TextStyle(
-                      color: Theme.of(context).colorScheme.onBackground,
+                      color: Theme.of(context).colorScheme.onSurface,
                     ),
                     controller: titleController,
                     onChanged: (value) {
@@ -437,10 +437,10 @@ class _DayScreenState extends ConsumerState<DayScreen> {
                       const Border(bottom: BorderSide(), right: BorderSide())),
               width: 80,
               alignment: Alignment.centerLeft,
-              padding: EdgeInsets.symmetric(horizontal: 8.0),
+              padding: const EdgeInsets.symmetric(horizontal: 8.0),
               child: Text(
-                '$timeLabel',
-                style: TextStyle(color: const Color.fromARGB(255, 0, 0, 0)),
+                timeLabel,
+                style: const TextStyle(color: Color.fromARGB(255, 0, 0, 0)),
               ),
             ),
             Expanded(
@@ -501,7 +501,7 @@ class _DayScreenState extends ConsumerState<DayScreen> {
               children: [
                 ListView(
                   shrinkWrap: true,
-                  physics: NeverScrollableScrollPhysics(),
+                  physics: const NeverScrollableScrollPhysics(),
                   children: hourLabels,
                 ),
                 ...timeBlocks,

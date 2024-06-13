@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:nomo/providers/profile_provider.dart';
 import 'package:nomo/screens/login_screen.dart';
-import 'package:nomo/screens/settings/setting_about.dart';
 import 'package:nomo/screens/settings/setting_template.dart';
 import 'package:nomo/widgets/setting_button.dart';
 
@@ -145,9 +144,9 @@ class _SettingScreenState extends ConsumerState<SettingScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Theme.of(context).colorScheme.background,
+      backgroundColor: Theme.of(context).colorScheme.surface,
       appBar: AppBar(
-        backgroundColor: Theme.of(context).colorScheme.background,
+        backgroundColor: Theme.of(context).colorScheme.surface,
         flexibleSpace: PreferredSize(
           preferredSize: const Size.fromHeight(kToolbarHeight),
           child: Container(
@@ -194,7 +193,7 @@ class _SettingScreenState extends ConsumerState<SettingScreen> {
           ),
           const Divider(),
           ListTile(
-            title: Text('Make Private', style: TextStyle(fontSize: 20)),
+            title: const Text('Make Private', style: TextStyle(fontSize: 20)),
             trailing: Switch(
               value: privateSwitch,
               onChanged: (newValue) {
@@ -224,7 +223,7 @@ class _SettingScreenState extends ConsumerState<SettingScreen> {
           Padding(
             padding: const EdgeInsets.only(left: 40.0),
             child: ListTile(
-              title: Text('Friends Only', style: TextStyle(fontSize: 20)),
+              title: const Text('Friends Only', style: TextStyle(fontSize: 20)),
               trailing: Switch(
                 value: newEventSwitch ? newEventFriendsOnlySwitch : false,
                 onChanged: newEventSwitch
@@ -250,7 +249,7 @@ class _SettingScreenState extends ConsumerState<SettingScreen> {
           Padding(
             padding: const EdgeInsets.only(left: 40.0),
             child: ListTile(
-              title: Text('Friends Only', style: TextStyle(fontSize: 20)),
+              title: const Text('Friends Only', style: TextStyle(fontSize: 20)),
               trailing: Switch(
                 value: joinedEventSwitch ? joinedEventFriendsOnlySwitch : false,
                 onChanged: joinedEventSwitch
@@ -265,7 +264,7 @@ class _SettingScreenState extends ConsumerState<SettingScreen> {
             ),
           ),
           ListTile(
-            title: Text('Event Deleted', style: TextStyle(fontSize: 20)),
+            title: const Text('Event Deleted', style: TextStyle(fontSize: 20)),
             trailing: Switch(
               value: eventDeletedSwitch,
               onChanged: (newValue) {
@@ -276,7 +275,7 @@ class _SettingScreenState extends ConsumerState<SettingScreen> {
           Padding(
             padding: const EdgeInsets.only(left: 40.0),
             child: ListTile(
-              title: Text('Friends Only', style: TextStyle(fontSize: 20)),
+              title: const Text('Friends Only', style: TextStyle(fontSize: 20)),
               trailing: Switch(
                 value:
                     eventDeletedSwitch ? eventDeletedFriendsOnlySwitch : false,
@@ -303,7 +302,7 @@ class _SettingScreenState extends ConsumerState<SettingScreen> {
           Padding(
             padding: const EdgeInsets.only(left: 40.0),
             child: ListTile(
-              title: Text('Friends Only', style: TextStyle(fontSize: 20)),
+              title: const Text('Friends Only', style: TextStyle(fontSize: 20)),
               trailing: Switch(
                 value: messageSwitch ? messageFriendsOnlySwitch : false,
                 onChanged: messageSwitch
@@ -332,7 +331,7 @@ class _SettingScreenState extends ConsumerState<SettingScreen> {
           ),
           const Divider(),
           ListTile(
-            title: Text('Camera', style: TextStyle(fontSize: 20)),
+            title: const Text('Camera', style: TextStyle(fontSize: 20)),
             trailing: Switch(
               value: cameraSwitch,
               onChanged: (newValue) {
@@ -350,7 +349,7 @@ class _SettingScreenState extends ConsumerState<SettingScreen> {
             ),
           ),
           ListTile(
-            title: Text('Contacts', style: TextStyle(fontSize: 20)),
+            title: const Text('Contacts', style: TextStyle(fontSize: 20)),
             trailing: Switch(
               value: contactSwitch,
               onChanged: (newValue) {

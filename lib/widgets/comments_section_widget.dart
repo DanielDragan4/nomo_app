@@ -45,7 +45,7 @@ class _CommentsSectionState extends ConsumerState<CommentsSection> {
     final bool activeComments;
     bool inputComment = false;
     
-    if(commentsList != null && commentsList.isNotEmpty) {
+    if(commentsList.isNotEmpty) {
       activeComments = true;
     }else {
       activeComments = false;
@@ -98,7 +98,7 @@ class _CommentsSectionState extends ConsumerState<CommentsSection> {
                     recieveComments();
                   });
                   
-                }, icon: Icon(Icons.send_rounded),color: Theme.of(context).colorScheme.onSecondary)
+                }, icon: const Icon(Icons.send_rounded),color: Theme.of(context).colorScheme.onSecondary)
                 :
                 SizedBox(
                   width: MediaQuery.of(context).size.width * .1,

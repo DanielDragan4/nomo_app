@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 class Help extends StatefulWidget {
-  Help({super.key});
+  const Help({super.key});
 
   @override
   State<Help> createState() {
@@ -17,12 +17,12 @@ class _HelpState extends State<Help> {
         const ListTile(
             title: Text("This is where Helpful Info and Links will be:",
                 style: TextStyle(fontSize: 25))),
-        ListTile(title: Text("Helpful Link X", style: TextStyle(fontSize: 20))),
-        ListTile(title: Text("Helpful Link Y", style: TextStyle(fontSize: 20))),
-        ListTile(title: Text("Helpful Link Z", style: TextStyle(fontSize: 20))),
+        const ListTile(title: Text("Helpful Link X", style: TextStyle(fontSize: 20))),
+        const ListTile(title: Text("Helpful Link Y", style: TextStyle(fontSize: 20))),
+        const ListTile(title: Text("Helpful Link Z", style: TextStyle(fontSize: 20))),
         const Divider(),
         ListTile(
-          leading: Text("Contact Us", style: TextStyle(fontSize: 15)),
+          leading: const Text("Contact Us", style: TextStyle(fontSize: 15)),
           contentPadding:
               const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
           title: const Text(

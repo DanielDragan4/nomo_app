@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:nomo/widgets/setting_button.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class Following extends StatefulWidget {
@@ -60,7 +59,7 @@ class _FollowingState extends State<Following> {
     return ListView(
       children: [
         ListTile(
-          title: Text('New Event Created', style: TextStyle(fontSize: 20)),
+          title: const Text('New Event Created', style: TextStyle(fontSize: 20)),
           trailing: Switch(
             value: newEventSwitch,
             onChanged: (newValue) {
@@ -69,7 +68,7 @@ class _FollowingState extends State<Following> {
           ),
         ),
         ListTile(
-          title: Text('New Event Joined', style: TextStyle(fontSize: 20)),
+          title: const Text('New Event Joined', style: TextStyle(fontSize: 20)),
           trailing: Switch(
             value: joinedEventSwitch,
             onChanged: (newValue) {
@@ -78,7 +77,7 @@ class _FollowingState extends State<Following> {
           ),
         ),
         ListTile(
-          title: Text('Availability Changes', style: TextStyle(fontSize: 20)),
+          title: const Text('Availability Changes', style: TextStyle(fontSize: 20)),
           trailing: Switch(
             value: availabilitySwitch,
             onChanged: (newValue) {

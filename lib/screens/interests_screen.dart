@@ -2,12 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:nomo/screens/NavBar.dart';
 import 'package:nomo/providers/profile_provider.dart';
-import 'package:nomo/providers/supabase_provider.dart';
 import 'package:nomo/models/interests_enum.dart';
 import 'package:nomo/providers/saved_session_provider.dart';
 import 'package:nomo/providers/user_signup_provider.dart';
 import 'package:nomo/screens/location_test_screen.dart';
-import 'package:nomo/screens/new_event_screen.dart';
 
 class InterestsScreen extends ConsumerStatefulWidget {
   InterestsScreen(
@@ -39,9 +37,9 @@ class _InterestsScreenState extends ConsumerState<InterestsScreen> {
   @override
   void initState() {
     super.initState();
-    if (widget.isEditing)
+    if (widget.isEditing) {
       initializeSelectedOptions();
-    else if (widget.creatingEvent != null &&
+    } else if (widget.creatingEvent != null &&
         widget.selectedInterests!.isNotEmpty) {
       _selectedOptions = widget.selectedInterests!;
       _selectedCount = _selectedOptions.values.where((value) => value).length;
@@ -138,7 +136,7 @@ class _InterestsScreenState extends ConsumerState<InterestsScreen> {
                       preferredSize: const Size.fromHeight(kToolbarHeight / 2),
                       child: Text("Select up to 5 of your interests",
                           style: TextStyle(
-                              fontSize: 20, color: colorScheme.onBackground)),
+                              fontSize: 20, color: colorScheme.onSurface)),
                     )
                   : null,
               centerTitle: true,
@@ -194,7 +192,7 @@ class _InterestsScreenState extends ConsumerState<InterestsScreen> {
                 height: widget.isEditing ? 90 : 110,
                 child: Container(
                   decoration: BoxDecoration(
-                    color: colorScheme.background,
+                    color: colorScheme.surface,
                   ),
                   child: Column(
                     children: [
@@ -257,7 +255,7 @@ class _InterestsScreenState extends ConsumerState<InterestsScreen> {
                                           MaterialPageRoute(
                                               builder: (context) =>
                                                   //const NavBar()
-                                          LocationTestScreen(isCreation: true)
+                                          const LocationTestScreen(isCreation: true)
                                       ));
                                     }
                                   } else {

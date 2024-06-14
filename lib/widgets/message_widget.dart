@@ -2,12 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class MessageWidget extends ConsumerWidget {
-  MessageWidget(
-      {super.key, required this.message, required this.currentUser, this.otherAvatar});
+  const MessageWidget(
+      {super.key, required this.message, required this.currentUser, required this.otherAvatar});
 
   final message;
   final currentUser;
-  String? otherAvatar;
+  final String otherAvatar;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -23,7 +23,7 @@ class MessageWidget extends ConsumerWidget {
         children: [
           !isMe ?
           CircleAvatar(
-            backgroundImage: NetworkImage(otherAvatar!),
+            backgroundImage: NetworkImage(otherAvatar),
           ) : 
           SizedBox(),
           SizedBox(width: MediaQuery.of(context).size.width *.05,),

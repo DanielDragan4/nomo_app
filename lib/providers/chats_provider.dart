@@ -85,7 +85,9 @@ class ChatsProvider extends StateNotifier<List?> {
     final List codedGroup = await supabaseClient.from('group_view').select().eq('group_id', groupId);
     for(var member in codedGroup) {
       var id = member['profile_id'];
-      var avatarURL = member['profile_images'];
+      String avatarURL = supabaseClient.storage
+        .from('Images')
+        .getPublicUrl(member['profile_path']);
       groupMemberIds.add({'id': id, 'avatar' : avatarURL});
     }
     return groupMemberIds;

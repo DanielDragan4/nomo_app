@@ -96,7 +96,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
                               avatar = widget.chatterUser?.avatar;
                             } else {
                               for(var image in userIdAndAvatar!) {
-                                if (image['id'] == snapshot.data![index]['sender_id']) {
+                                if (image['id'] == message['sender_id']) {
                                   avatar = image['avatar'];
                                   break;
                                 }

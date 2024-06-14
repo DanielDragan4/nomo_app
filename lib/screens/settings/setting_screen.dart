@@ -1,14 +1,15 @@
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
+import 'package:permission_handler/permission_handler.dart' as perm_handler;
+import 'package:location/location.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:nomo/providers/profile_provider.dart';
 import 'package:nomo/screens/login_screen.dart';
 import 'package:nomo/screens/settings/setting_template.dart';
 import 'package:nomo/widgets/setting_button.dart';
-
 import 'package:nomo/providers/saved_session_provider.dart';
 import 'package:nomo/providers/supabase_provider.dart';
-
-import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 class SettingScreen extends ConsumerStatefulWidget {
   SettingScreen({super.key, this.isCorp});
@@ -25,7 +26,6 @@ class _SettingScreenState extends ConsumerState<SettingScreen> {
   late bool locationSwitch = false;
   late bool contactSwitch = false;
   late bool notifSwitch = false;
-
   late bool newEventSwitch = false;
   late bool newEventFriendsOnlySwitch = false;
   late bool joinedEventSwitch = false;
@@ -64,7 +64,8 @@ class _SettingScreenState extends ConsumerState<SettingScreen> {
           break;
         case 'notif':
           notifSwitch = !notifSwitch;
-          prefs.setBool('notif', notifSwitch);
+          prefs.setBool('notif', notifSwitch); // Save notification switch state
+          handleNotificationSwitch();
           break;
         case 'newEvent':
           newEventSwitch = !newEventSwitch;
@@ -117,6 +118,34 @@ class _SettingScreenState extends ConsumerState<SettingScreen> {
           break;
       }
     });
+  }
+
+  void handleNotificationSwitch() async {
+    final perm_handler.PermissionStatus status =
+        await perm_handler.Permission.notification.status;
+    print('Notification permission status: $status');
+    if (notifSwitch) {
+      if (status.isGranted) {
+        FirebaseMessaging.instance.subscribeToTopic('notifications');
+        print('Subscribed to notifications');
+      } else {
+        final perm_handler.PermissionStatus requestStatus =
+            await perm_handler.Permission.notification.request();
+        print('Notification permission requested: $requestStatus');
+        if (requestStatus.isGranted) {
+          FirebaseMessaging.instance.subscribeToTopic('notifications');
+          print('Subscribed to notifications after request');
+        } else {
+          setState(() {
+            notifSwitch = false;
+          });
+          print('Notification permission denied');
+        }
+      }
+    } else {
+      FirebaseMessaging.instance.unsubscribeFromTopic('notifications');
+      print('Unsubscribed from notifications');
+    }
   }
 
   void loadData() async {
@@ -358,7 +387,8 @@ class _SettingScreenState extends ConsumerState<SettingScreen> {
             ),
           ),
           ListTile(
-            title: Text('Device Notifications', style: TextStyle(fontSize: 20)),
+            title: const Text('Device Notifications',
+                style: TextStyle(fontSize: 20)),
             trailing: Switch(
               value: notifSwitch,
               onChanged: (newValue) {

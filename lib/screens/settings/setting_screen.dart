@@ -22,7 +22,7 @@ class SettingScreen extends ConsumerStatefulWidget {
 class _SettingScreenState extends ConsumerState<SettingScreen> {
   late bool privateSwitch = false;
   late bool cameraSwitch = false;
-  late bool micSwitch = false;
+  late bool locationSwitch = false;
   late bool contactSwitch = false;
   late bool notifSwitch = false;
 
@@ -32,8 +32,8 @@ class _SettingScreenState extends ConsumerState<SettingScreen> {
   late bool joinedEventFriendsOnlySwitch = false;
   late bool eventDeletedSwitch = false;
   late bool eventDeletedFriendsOnlySwitch = false;
-  late bool availabilitySwitch = false;
-  late bool availabilityFriendsOnlySwitch = false;
+  late bool messageSwitch = false;
+  late bool messageFriendsOnlySwitch = false;
 
   @override
   void initState() {
@@ -54,9 +54,9 @@ class _SettingScreenState extends ConsumerState<SettingScreen> {
           cameraSwitch = !cameraSwitch;
           prefs.setBool('camera', cameraSwitch);
           break;
-        case 'mic':
-          micSwitch = !micSwitch;
-          prefs.setBool('mic', micSwitch);
+        case 'location':
+          locationSwitch = !locationSwitch;
+          prefs.setBool('location', locationSwitch);
           break;
         case 'contact':
           contactSwitch = !contactSwitch;
@@ -103,18 +103,17 @@ class _SettingScreenState extends ConsumerState<SettingScreen> {
           prefs.setBool(
               'eventDeletedFriendsOnly', eventDeletedFriendsOnlySwitch);
           break;
-        case 'availability':
-          availabilitySwitch = !availabilitySwitch;
-          prefs.setBool('availability', availabilitySwitch);
-          if (!availabilitySwitch) {
-            availabilityFriendsOnlySwitch = false;
-            prefs.setBool('availabilityFriendsOnly', false);
+        case 'message':
+          messageSwitch = !messageSwitch;
+          prefs.setBool('message', messageSwitch);
+          if (!messageSwitch) {
+            messageFriendsOnlySwitch = false;
+            prefs.setBool('messageFriendsOnly', false);
           }
           break;
-        case 'availabilityFriendsOnly':
-          availabilityFriendsOnlySwitch = !availabilityFriendsOnlySwitch;
-          prefs.setBool(
-              'availabilityFriendsOnly', availabilityFriendsOnlySwitch);
+        case 'messageFriendsOnly':
+          messageFriendsOnlySwitch = !messageFriendsOnlySwitch;
+          prefs.setBool('messageFriendsOnly', messageFriendsOnlySwitch);
           break;
       }
     });
@@ -125,7 +124,7 @@ class _SettingScreenState extends ConsumerState<SettingScreen> {
     setState(() {
       privateSwitch = prefs.getBool('private') ?? false;
       cameraSwitch = prefs.getBool('camera') ?? false;
-      micSwitch = prefs.getBool('mic') ?? false;
+      locationSwitch = prefs.getBool('location') ?? false;
       contactSwitch = prefs.getBool('contact') ?? false;
       notifSwitch = prefs.getBool('notif') ?? false;
 
@@ -137,9 +136,8 @@ class _SettingScreenState extends ConsumerState<SettingScreen> {
       eventDeletedSwitch = prefs.getBool('eventDeleted') ?? false;
       eventDeletedFriendsOnlySwitch =
           prefs.getBool('eventDeletedFriendsOnly') ?? false;
-      availabilitySwitch = prefs.getBool('availability') ?? false;
-      availabilityFriendsOnlySwitch =
-          prefs.getBool('availabilityFriendsOnly') ?? false;
+      messageSwitch = prefs.getBool('message') ?? false;
+      messageFriendsOnlySwitch = prefs.getBool('messageFriendsOnly') ?? false;
     });
   }
 
@@ -214,7 +212,7 @@ class _SettingScreenState extends ConsumerState<SettingScreen> {
           ),
           const Divider(),
           ListTile(
-            title: const Text('New Event Created', style: TextStyle(fontSize: 20)),
+            title: Text('New Event Created', style: TextStyle(fontSize: 20)),
             trailing: Switch(
               value: newEventSwitch,
               onChanged: (newValue) {
@@ -240,7 +238,7 @@ class _SettingScreenState extends ConsumerState<SettingScreen> {
             ),
           ),
           ListTile(
-            title: const Text('New Event Joined', style: TextStyle(fontSize: 20)),
+            title: Text('New Event Joined', style: TextStyle(fontSize: 20)),
             trailing: Switch(
               value: joinedEventSwitch,
               onChanged: (newValue) {
@@ -293,11 +291,11 @@ class _SettingScreenState extends ConsumerState<SettingScreen> {
             ),
           ),
           ListTile(
-            title: const Text('Availability Changes', style: TextStyle(fontSize: 20)),
+            title: Text('Incoming Message', style: TextStyle(fontSize: 20)),
             trailing: Switch(
-              value: availabilitySwitch,
+              value: messageSwitch,
               onChanged: (newValue) {
-                updateSwitchValue('availability');
+                updateSwitchValue('message');
               },
             ),
           ),
@@ -306,14 +304,13 @@ class _SettingScreenState extends ConsumerState<SettingScreen> {
             child: ListTile(
               title: const Text('Friends Only', style: TextStyle(fontSize: 20)),
               trailing: Switch(
-                value:
-                    availabilitySwitch ? availabilityFriendsOnlySwitch : false,
-                onChanged: availabilitySwitch
+                value: messageSwitch ? messageFriendsOnlySwitch : false,
+                onChanged: messageSwitch
                     ? (newValue) {
-                        updateSwitchValue('availabilityFriendsOnly');
+                        updateSwitchValue('messageFriendsOnly');
                       }
                     : null,
-                activeColor: availabilitySwitch
+                activeColor: messageSwitch
                     ? Theme.of(context).primaryColor
                     : Colors.grey,
               ),
@@ -343,11 +340,11 @@ class _SettingScreenState extends ConsumerState<SettingScreen> {
             ),
           ),
           ListTile(
-            title: const Text('Microphone', style: TextStyle(fontSize: 20)),
+            title: Text('Location', style: TextStyle(fontSize: 20)),
             trailing: Switch(
-              value: micSwitch,
+              value: locationSwitch,
               onChanged: (newValue) {
-                updateSwitchValue('mic');
+                updateSwitchValue('location');
               },
             ),
           ),
@@ -361,7 +358,7 @@ class _SettingScreenState extends ConsumerState<SettingScreen> {
             ),
           ),
           ListTile(
-            title: const Text('Device Notifications', style: TextStyle(fontSize: 20)),
+            title: Text('Device Notifications', style: TextStyle(fontSize: 20)),
             trailing: Switch(
               value: notifSwitch,
               onChanged: (newValue) {

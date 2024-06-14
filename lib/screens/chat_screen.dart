@@ -19,6 +19,7 @@ class ChatScreen extends ConsumerStatefulWidget {
 class _ChatScreenState extends ConsumerState<ChatScreen> {
   final TextEditingController _controller = TextEditingController();
   final ScrollController _scrollController = ScrollController();
+  List? userIdAndAvatar;
   Stream<List<Map<String, dynamic>>>? _chatStream;
   late final state;
 
@@ -51,6 +52,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
   Future<void> _initializeGroupChatStream() async {
     final supabaseClient =
         Supabase.instance.client; // Ensure the client is initialized correctly
+      userIdAndAvatar = await ref.read(chatsProvider.notifier).getMemberIdAndAvatar(widget.groupInfo!['group_id']!);
     setState(() {
       _chatStream = supabaseClient
           .from('Group_Messages')
@@ -89,8 +91,20 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
                           controller: _scrollController,
                           itemBuilder: (context, index) {
                             var message = snapshot.data![index];
+                            var avatar;
+                            if(widget.chatterUser != null) {
+                              avatar = widget.chatterUser?.avatar;
+                            } else {
+                              for(var image in userIdAndAvatar!) {
+                                if (image['id'] == snapshot.data![index]['sender_id']) {
+                                  avatar = image['avatar'];
+                                  break;
+                                }
+                              }
+                            }
                             return MessageWidget(
                                 message: message,
+                                otherAvatar: avatar,
                                 currentUser: widget.currentUser);
                           },
                         );

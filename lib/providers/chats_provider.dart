@@ -79,6 +79,17 @@ class ChatsProvider extends StateNotifier<List?> {
     }
     return groupMemberIds;
   }
+  Future<List<Map>> getMemberIdAndAvatar(groupId) async{
+    final supabaseClient = (await supabase).client;
+    List<Map> groupMemberIds = [];
+    final List codedGroup = await supabaseClient.from('group_view').select().eq('group_id', groupId);
+    for(var member in codedGroup) {
+      var id = member['profile_id'];
+      var avatarURL = member['profile_images'];
+      groupMemberIds.add({'id': id, 'avatar' : avatarURL});
+    }
+    return groupMemberIds;
+  }
 
   Future<List> getGroupChatInfo() async {
     final supabaseClient = (await supabase).client;

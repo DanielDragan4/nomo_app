@@ -609,6 +609,7 @@ class _NewEventScreenState extends ConsumerState<NewEventScreen> {
             ),
             ElevatedButton(
                 onPressed: () async {
+                  FocusManager.instance.primaryFocus?.unfocus();
                   final selectedInterests = await Navigator.push(
                     context,
                     MaterialPageRoute(
@@ -665,6 +666,7 @@ class _NewEventScreenState extends ConsumerState<NewEventScreen> {
                 onPressed: enableButton
                     ? widget.isNewEvent
                         ? () {
+                            FocusManager.instance.primaryFocus?.unfocus();
                             createEvent(
                               _selectedStartTime!,
                               _selectedEndTime!,
@@ -716,6 +718,7 @@ class _NewEventScreenState extends ConsumerState<NewEventScreen> {
                 padding: const EdgeInsets.only(top: 20),
                 child: ElevatedButton(
                   onPressed: () {
+                    FocusManager.instance.primaryFocus?.unfocus();
                     showDialog(
                         context: context,
                         builder: (context) => AlertDialog(

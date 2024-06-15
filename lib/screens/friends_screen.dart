@@ -4,6 +4,7 @@ import 'package:nomo/models/friend_model.dart';
 import 'package:nomo/providers/chats_provider.dart';
 import 'package:nomo/providers/profile_provider.dart';
 import 'package:nomo/screens/groupchat_create_screen.dart';
+import 'package:nomo/screens/notifications_screen.dart';
 import 'package:nomo/screens/search_screen.dart';
 import 'package:nomo/widgets/friend_tab.dart';
 import 'package:nomo/widgets/group_tab.dart';
@@ -42,12 +43,28 @@ class _FriendsScreenState extends ConsumerState<FriendsScreen> {
               bottom: 5,
             ),
             alignment: Alignment.bottomCenter,
-            child: Text(widget.isGroupChats ? 'Groups' : 'Friends',
-                style: TextStyle(
-                  color: Theme.of(context).primaryColor,
-                  fontWeight: FontWeight.w800,
-                  fontSize: 30,
-                )),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text(widget.isGroupChats ? 'Groups' : 'Friends',
+                    style: TextStyle(
+                      color: Theme.of(context).primaryColor,
+                      fontWeight: FontWeight.w800,
+                      fontSize: 30,
+                    )),
+                    IconButton(
+                onPressed: () {
+                  Navigator.of(context).push(MaterialPageRoute(
+                      builder: (context) {
+                        return NotificationsScreen();
+                      },));
+                },
+                icon: Icon(Icons.notifications_active, color: Theme.of(context).colorScheme.onSecondary,),
+                iconSize: MediaQuery.of(context).devicePixelRatio *10,
+                padding: const EdgeInsets.only(top: 10,bottom: 10, left: 15,),
+              ),
+              ],
+            ),
           ),
         ),
         bottom: PreferredSize(

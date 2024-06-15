@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_branch_sdk/flutter_branch_sdk.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:nomo/providers/saved_session_provider.dart';
 import 'package:nomo/providers/supabase_provider.dart';
 import 'package:nomo/providers/user_signup_provider.dart';
@@ -125,8 +126,9 @@ class _AppState extends ConsumerState<App> {
                   onPrimaryContainer: const Color.fromARGB(255, 80, 12, 122)),
               bottomNavigationBarTheme: const BottomNavigationBarThemeData(
                 selectedItemColor: Color.fromARGB(255, 80, 12, 122),
-                unselectedItemColor: Colors.grey,
+                unselectedItemColor: Color.fromARGB(255, 158, 158, 158),
               ),
+              textTheme: GoogleFonts.nunitoTextTheme(),
               primaryColor: const Color.fromARGB(255, 80, 12, 122),
             ),
             darkTheme: ThemeData().copyWith(
@@ -145,7 +147,9 @@ class _AppState extends ConsumerState<App> {
                         seedColor: const Color.fromARGB(255, 109, 51, 146),
                         onPrimaryContainer:
                             const Color.fromARGB(255, 109, 51, 146))
-                    .copyWith(surface: Colors.black)),
+                    .copyWith(surface: Colors.black),
+                    textTheme: GoogleFonts.nunitoTextTheme(),
+                    ),
             home: StreamBuilder(
               stream: ref.watch(currentUserProvider.notifier).stream,
               builder: (context, snapshot) {

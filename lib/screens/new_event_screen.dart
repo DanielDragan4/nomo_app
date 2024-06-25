@@ -15,7 +15,7 @@ import 'package:nomo/widgets/address_search_widget.dart';
 import 'package:uuid/uuid.dart';
 import 'package:image_picker/image_picker.dart';
 
-const List<String> list = <String>['Public', 'Private', 'Selective'];
+const List<String> list = <String>['Public', 'Selective', 'Private'];
 
 class NewEventScreen extends ConsumerStatefulWidget {
   const NewEventScreen(

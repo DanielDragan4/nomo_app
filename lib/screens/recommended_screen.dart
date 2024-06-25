@@ -50,7 +50,7 @@ class RecommendedScreen extends ConsumerWidget {
                       builder: ((context) => const SearchScreen())));
                 },
                 icon: const Icon(Icons.search),
-                iconSize: MediaQuery.of(context).devicePixelRatio *12,
+                iconSize: MediaQuery.of(context).devicePixelRatio * 12,
                 padding: const EdgeInsets.only(bottom: 8, right: 15),
               ),
             ],

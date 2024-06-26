@@ -60,35 +60,45 @@ class ChatsProvider extends StateNotifier<List?> {
     await supabaseClient.from('Messages').insert(newMessage);
   }
 
-  Future<List> getGroupChatIds() async{
+  Future<List> getGroupChatIds() async {
     final supabaseClient = (await supabase).client;
     List groupChatIds = [];
-    final List codedGroup = await supabaseClient.from('Group_Members').select().eq('profile_id', supabaseClient.auth.currentUser!.id);
-    for(var member in codedGroup) {
+    final List codedGroup = await supabaseClient
+        .from('Group_Members')
+        .select()
+        .eq('profile_id', supabaseClient.auth.currentUser!.id);
+    for (var member in codedGroup) {
       groupChatIds.add(member['group_id']);
     }
     return groupChatIds;
   }
 
-  Future<List<String>> getGroupMemberIds(groupId) async{
+  Future<List<String>> getGroupMemberIds(groupId) async {
     final supabaseClient = (await supabase).client;
     List<String> groupMemberIds = [];
-    final List codedGroup = await supabaseClient.from('Group_Members').select().eq('group_id', groupId);
-    for(var member in codedGroup) {
+    final List codedGroup = await supabaseClient
+        .from('Group_Members')
+        .select()
+        .eq('group_id', groupId);
+    for (var member in codedGroup) {
       groupMemberIds.add(member['profile_id']);
     }
     return groupMemberIds;
   }
-  Future<List<Map>> getMemberIdAndAvatar(groupId) async{
+
+  Future<List<Map>> getMemberIdAndAvatar(groupId) async {
     final supabaseClient = (await supabase).client;
     List<Map> groupMemberIds = [];
-    final List codedGroup = await supabaseClient.from('group_view').select().eq('group_id', groupId);
-    for(var member in codedGroup) {
+    final List codedGroup = await supabaseClient
+        .from('group_view')
+        .select()
+        .eq('group_id', groupId);
+    for (var member in codedGroup) {
       var id = member['profile_id'];
       String avatarURL = supabaseClient.storage
-        .from('Images')
-        .getPublicUrl(member['profile_path']);
-      groupMemberIds.add({'id': id, 'avatar' : avatarURL});
+          .from('Images')
+          .getPublicUrl(member['profile_path']);
+      groupMemberIds.add({'id': id, 'avatar': avatarURL});
     }
     return groupMemberIds;
   }
@@ -100,18 +110,17 @@ class ChatsProvider extends StateNotifier<List?> {
 
     final List codedGroupInfo = await supabaseClient.from('Groups').select();
 
-    for(var group in codedGroupInfo) {
-      for(var chatId in chatIds) {
-        if(chatId == group['group_id']) {
-          groupInfo.add({'group_id' : chatId, 'title' : group['name']});
+    for (var group in codedGroupInfo) {
+      for (var chatId in chatIds) {
+        if (chatId == group['group_id']) {
+          groupInfo.add({'group_id': chatId, 'title': group['name']});
         }
       }
     }
     return groupInfo;
-  } 
+  }
 
-  Future<void> sendGroupMessage(
-      String groupID, String message) async {
+  Future<void> sendGroupMessage(String groupID, String message) async {
     final supabaseClient = (await supabase).client;
     var newMessage = {
       'sender_id': supabaseClient.auth.currentUser!.id,
@@ -128,16 +137,16 @@ class ChatsProvider extends StateNotifier<List?> {
     var newChat = {
       'name': title,
     };
-    var newGroup = await supabaseClient.from('Groups').insert(newChat).select().single();
+    var newGroup =
+        await supabaseClient.from('Groups').insert(newChat).select().single();
 
-    for(var user in users) {
+    for (var user in users) {
       var newMember = {
-        'group_id' : newGroup['group_id'],
+        'group_id': newGroup['group_id'],
         'profile_id': user,
-    };
+      };
       await supabaseClient.from('Group_Members').insert(newMember);
     }
-
   }
 }
 

@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:nomo/main.dart';
 import 'package:nomo/models/friend_model.dart';
 import 'package:nomo/providers/chats_provider.dart';
 import 'package:nomo/widgets/message_widget.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:nomo/providers/chat_id_provider.dart';
 
 class ChatScreen extends ConsumerStatefulWidget {
   ChatScreen(
@@ -16,21 +18,57 @@ class ChatScreen extends ConsumerStatefulWidget {
   _ChatScreenState createState() => _ChatScreenState();
 }
 
-class _ChatScreenState extends ConsumerState<ChatScreen> {
+class _ChatScreenState extends ConsumerState<ChatScreen> with RouteAware {
   final TextEditingController _controller = TextEditingController();
   final ScrollController _scrollController = ScrollController();
   List? userIdAndAvatar;
   Stream<List<Map<String, dynamic>>>? _chatStream;
-  late final state;
+  String? chatID;
 
   @override
   void initState() {
     super.initState();
     if (widget.groupInfo == null) {
       _initializeChatStream();
+      _fetchChatID();
     } else {
       _initializeGroupChatStream();
+      // Update activeChatId in App state
+      ref
+          .read(activeChatIdProvider.notifier)
+          .setActiveChatId(widget.groupInfo!['group_id']);
     }
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    // Register route observer when the widget is created
+    routeObserver.subscribe(this, ModalRoute.of(context)!);
+  }
+
+  @override
+  void dispose() {
+    // Unsubscribe route observer when the widget is disposed
+    routeObserver.unsubscribe(this);
+    super.dispose();
+  }
+
+  @override
+  void didPop() {
+    // Clear activeChatId when returning to this screen
+    ref.read(activeChatIdProvider.notifier).setActiveChatId(null);
+  }
+
+  Future<void> _fetchChatID() async {
+    final id = await ref
+        .read(chatsProvider.notifier)
+        .readChatId(widget.currentUser, widget.chatterUser!.friendProfileId);
+    setState(() {
+      chatID = id;
+    });
+    // Set activeChatId for direct chat
+    ref.read(activeChatIdProvider.notifier).setActiveChatId(chatID);
   }
 
   Future<void> _initializeChatStream() async {
@@ -52,11 +90,15 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
   Future<void> _initializeGroupChatStream() async {
     final supabaseClient =
         Supabase.instance.client; // Ensure the client is initialized correctly
-      userIdAndAvatar = await ref.read(chatsProvider.notifier).getMemberIdAndAvatar(widget.groupInfo!['group_id']!);
+    userIdAndAvatar = await ref
+        .read(chatsProvider.notifier)
+        .getMemberIdAndAvatar(widget.groupInfo!['group_id']!);
     setState(() {
       _chatStream = supabaseClient
           .from('Group_Messages')
-          .stream(primaryKey: ['group_message_id']) // Ensure the primary key is specified
+          .stream(primaryKey: [
+            'group_message_id'
+          ]) // Ensure the primary key is specified
           .eq('group_id', widget.groupInfo!['group_id']!)
           .order('created_at', ascending: false)
           .map((event) => event.map((e) => e).toList());
@@ -92,10 +134,10 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
                           itemBuilder: (context, index) {
                             var message = snapshot.data![index];
                             var avatar;
-                            if(widget.chatterUser != null) {
+                            if (widget.chatterUser != null) {
                               avatar = widget.chatterUser?.avatar;
                             } else {
-                              for(var image in userIdAndAvatar!) {
+                              for (var image in userIdAndAvatar!) {
                                 if (image['id'] == message['sender_id']) {
                                   avatar = image['avatar'];
                                   break;
@@ -154,8 +196,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
                     } else {
                       if (_controller.text.trim().isNotEmpty) {
                         ref.read(chatsProvider.notifier).sendGroupMessage(
-                            widget.groupInfo!['group_id'],
-                            _controller.text);
+                            widget.groupInfo!['group_id'], _controller.text);
                         _controller.clear();
                       }
                     }

@@ -114,6 +114,11 @@ Deno.serve(async (req) => {
         notification: {
           title: `New message from ${senderName}`,
           body: message
+        },
+        data: {
+          chat_id: chat_id,
+          message: message,
+          sender: senderName,
         }
       }
     })

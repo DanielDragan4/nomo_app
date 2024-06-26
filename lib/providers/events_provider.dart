@@ -31,6 +31,7 @@ class EventProvider extends StateNotifier<List?> {
 
   Future<void> deCodeData() async {
     final codedList = await readEvents();
+    print(codedList.length);
 
     List<Event> deCodedList = [];
     final supabaseClient = (await supabase).client;
@@ -45,7 +46,7 @@ class EventProvider extends StateNotifier<List?> {
           .getPublicUrl(eventData['event_path']);
       bool bookmarked = false;
       for (var bookmark in eventData['bookmarked']) {
-        if (bookmark['user_id'] == supabaseClient.auth.currentUser!.id) {
+        if (bookmark == supabaseClient.auth.currentUser!.id) {
           bookmarked = true;
           break;
         } else {
@@ -75,7 +76,7 @@ class EventProvider extends StateNotifier<List?> {
 
       bool attending = false;
       for (var i = 0; i < deCodedEvent.attendees.length; i++) {
-        if (deCodedEvent.attendees[i]['user_id'] ==
+        if (deCodedEvent.attendees[i] ==
             supabaseClient.auth.currentUser!.id) {
           attending = true;
           deCodedEvent.attending = true;

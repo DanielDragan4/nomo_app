@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:geocoding/geocoding.dart';
 import 'package:nomo/models/events_model.dart';
 import 'package:nomo/models/interests_enum.dart';
 import 'package:nomo/providers/events_provider.dart';
@@ -45,6 +46,7 @@ class _NewEventScreenState extends ConsumerState<NewEventScreen> {
   final _title = TextEditingController();
   final _description = TextEditingController();
   final _locationController = TextEditingController();
+  bool virtualEvent = false;
   Map<Interests, bool> categories = {};
 
   @override
@@ -238,6 +240,11 @@ class _NewEventScreenState extends ConsumerState<NewEventScreen> {
     });
   }
 
+  Future<String> getCords(location) async {
+    List<Location> locations = await locationFromAddress(location);
+    return 'POINT(${locations.first.longitude} ${locations.first.latitude})';
+  }
+
   Future<void> createEvent(
       TimeOfDay selectedStart,
       TimeOfDay selectedEnd,
@@ -256,6 +263,11 @@ class _NewEventScreenState extends ConsumerState<NewEventScreen> {
     var imageId = await uploadImage(selectedImage);
     final supabase = (await ref.read(supabaseInstance)).client;
 
+    var point;
+    if(virtualEvent) {
+      point = null;
+    }
+    point = await getCords(location);
     final newEventRowMap = {
       'time_start': DateFormat('yyyy-MM-dd HH:mm:ss').format(start),
       'time_end': DateFormat('yyyy-MM-dd HH:mm:ss').format(end),
@@ -264,7 +276,9 @@ class _NewEventScreenState extends ConsumerState<NewEventScreen> {
       'host': supabase.auth.currentUser!.id,
       'invitationType': inviteType,
       'image_id': imageId,
-      'title': title
+      'title': title,
+      'is_virtual' : virtualEvent,
+      'point': point
     };
     if (categories.isNotEmpty) {
       final List<String> interestStrings = categories.entries
@@ -556,6 +570,31 @@ class _NewEventScreenState extends ConsumerState<NewEventScreen> {
                       }).toList(),
                     ),
                   ),
+                  Text(
+                    "Virtual",
+                    style: TextStyle(
+                        fontSize: 15,
+                        color: Theme.of(context).colorScheme.onSecondary),
+                  ),
+                  IconButton(
+                      onPressed: () {
+                        setState(() {
+                          virtualEvent = !virtualEvent;
+                          if(virtualEvent) {
+                            _locationController.text = 'Virtual';
+                          } else {
+                            _locationController.clear();
+                          }
+                        });
+                      },
+                      icon: virtualEvent ? Icon(
+                        Icons.check_box_outlined,
+                        color: Theme.of(context).colorScheme.onSecondary,
+                      )
+                      : Icon(
+                        Icons.check_box_outline_blank,
+                        color: Theme.of(context).colorScheme.onSecondary,
+                      ))
                 ],
               ),
             ),

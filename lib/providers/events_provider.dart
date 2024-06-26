@@ -1,7 +1,11 @@
+import 'dart:convert';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:nomo/models/events_model.dart';
 import 'package:nomo/models/comments_model.dart';
 import 'package:nomo/providers/supabase_provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 class EventProvider extends StateNotifier<List?> {
@@ -12,9 +16,16 @@ class EventProvider extends StateNotifier<List?> {
 
   Future<List> readEvents() async {
     final supabaseClient = (await supabase).client;
-    var events = await supabaseClient
-        .from('recommended_events')
-        .select('*, Attendees(user_id), Bookmarked(user_id)');
+    final getLocation = await SharedPreferences.getInstance();
+    final exsistingLocation = getLocation.getStringList('savedLocation');
+    final setRadius = getLocation.getStringList('savedRadius');
+    final _currentPosition = Position.fromMap(json.decode(exsistingLocation![0]));
+    final _preferredRadius = double.parse(setRadius!.first);
+    var events = await supabaseClient.rpc('get_recommended_events', params:{
+        'user_lon': _currentPosition.longitude,
+        'user_lat': _currentPosition.latitude,
+        'radius': _preferredRadius
+    });
     return events.toList();
   }
 
@@ -25,6 +36,7 @@ class EventProvider extends StateNotifier<List?> {
     final supabaseClient = (await supabase).client;
 
     for (var eventData in codedList) {
+      print(eventData);
       String profilePictureUrl = supabaseClient.storage
           .from('Images')
           .getPublicUrl(eventData['profile_path']);
@@ -32,7 +44,7 @@ class EventProvider extends StateNotifier<List?> {
           .from('Images')
           .getPublicUrl(eventData['event_path']);
       bool bookmarked = false;
-      for (var bookmark in eventData['Bookmarked']) {
+      for (var bookmark in eventData['bookmarked']) {
         if (bookmark['user_id'] == supabaseClient.auth.currentUser!.id) {
           bookmarked = true;
           break;
@@ -45,14 +57,14 @@ class EventProvider extends StateNotifier<List?> {
         description: eventData['description'],
         sdate: eventData['time_start'],
         eventId: eventData['event_id'],
-        eventType: eventData['invitationType'],
+        eventType: eventData['invitationtype'],
         host: eventData['host'],
         imageId: eventData['image_id'],
         imageUrl: eventUrl,
         location: eventData['location'],
         title: eventData['title'],
         edate: eventData['time_end'],
-        attendees: eventData['Attendees'],
+        attendees: eventData['attendees'],
         hostProfileUrl: profilePictureUrl,
         hostUsername: eventData['username'],
         profileName: eventData['profile_name'],

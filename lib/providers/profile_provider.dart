@@ -364,6 +364,10 @@ class ProfileProvider extends StateNotifier<Profile?> {
         .order('start_time', ascending: true);
 
     print(duration);
+
+    if(blockedTimes.isEmpty) {
+      availableTimes.add({'start_time': startDate, 'end_time': endDate});
+    }
     for (var blocked in blockedTimes) {
       DateTime blockedStart = DateTime.parse(blocked['start_time']);
       DateTime blockedEnd = DateTime.parse(blocked['end_time']);

@@ -17,6 +17,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:nomo/firebase_options.dart';
 import 'package:overlay_support/overlay_support.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 bool isFcmInitialized = false;
@@ -30,6 +31,8 @@ void main() async {
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
+
+  await SharedPreferences.getInstance();
 
   runApp(
     const OverlaySupport.global(child: ProviderScope(child: App())),
@@ -96,11 +99,20 @@ class _AppState extends ConsumerState<App> {
     if (eventTitle != null &&
         hostUsername != null &&
         eventDescription != null) {
-      ref.read(unreadNotificationsProvider.notifier).addNotification(
-            "$hostUsername has deleted $eventTitle",
-            eventDescription,
-          );
-      ref.read(notificationBellProvider.notifier).setBellState(true);
+      if (message.data['type'] == 'DELETE') {
+        ref.read(unreadNotificationsProvider.notifier).addNotification(
+              "$hostUsername has deleted '$eventTitle'",
+              eventDescription,
+            );
+        ref.read(notificationBellProvider.notifier).setBellState(true);
+      }
+      if (message.data['type'] == 'UPDATE') {
+        ref.read(unreadNotificationsProvider.notifier).addNotification(
+              "$hostUsername has updated '$eventTitle'",
+              eventDescription,
+            );
+        ref.read(notificationBellProvider.notifier).setBellState(true);
+      }
     } else {
       print("Missing data in notification");
     }

@@ -41,13 +41,13 @@ class NotificationItem extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 5.0),
-              Text(
-                details,
-                style: TextStyle(
-                  fontSize: 14.0,
-                  color: Colors.grey[600],
-                ),
-              ),
+              // Text(
+              //   details,
+              //   style: TextStyle(
+              //     fontSize: 14.0,
+              //     color: Colors.grey[600],
+              //   ),
+              // ),
             ],
           ),
         ),

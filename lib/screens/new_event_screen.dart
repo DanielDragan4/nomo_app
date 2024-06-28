@@ -264,7 +264,7 @@ class _NewEventScreenState extends ConsumerState<NewEventScreen> {
     final supabase = (await ref.read(supabaseInstance)).client;
 
     var point;
-    if(virtualEvent) {
+    if (virtualEvent) {
       point = null;
     }
     point = await getCords(location);
@@ -277,7 +277,7 @@ class _NewEventScreenState extends ConsumerState<NewEventScreen> {
       'invitationType': inviteType,
       'image_id': imageId,
       'title': title,
-      'is_virtual' : virtualEvent,
+      'is_virtual': virtualEvent,
       'point': point
     };
     if (categories.isNotEmpty) {
@@ -580,21 +580,22 @@ class _NewEventScreenState extends ConsumerState<NewEventScreen> {
                       onPressed: () {
                         setState(() {
                           virtualEvent = !virtualEvent;
-                          if(virtualEvent) {
+                          if (virtualEvent) {
                             _locationController.text = 'Virtual';
                           } else {
                             _locationController.clear();
                           }
                         });
                       },
-                      icon: virtualEvent ? Icon(
-                        Icons.check_box_outlined,
-                        color: Theme.of(context).colorScheme.onSecondary,
-                      )
-                      : Icon(
-                        Icons.check_box_outline_blank,
-                        color: Theme.of(context).colorScheme.onSecondary,
-                      ))
+                      icon: virtualEvent
+                          ? Icon(
+                              Icons.check_box_outlined,
+                              color: Theme.of(context).colorScheme.onSecondary,
+                            )
+                          : Icon(
+                              Icons.check_box_outline_blank,
+                              color: Theme.of(context).colorScheme.onSecondary,
+                            ))
                 ],
               ),
             ),
@@ -737,9 +738,12 @@ class _NewEventScreenState extends ConsumerState<NewEventScreen> {
                               _title.text,
                               _description.text,
                             );
-                            Navigator.of(context).push(MaterialPageRoute(
-                                builder: ((context) =>
-                                    const RecommendedScreen())));
+                            Navigator.of(context)
+                                .pushAndRemoveUntil(
+                                    MaterialPageRoute(
+                                        builder: ((context) => const NavBar())),
+                                    (route) => false)
+                                .then((result) => Navigator.pop(context));
                             ScaffoldMessenger.of(context).hideCurrentSnackBar();
                             ScaffoldMessenger.of(context).showSnackBar(
                               const SnackBar(

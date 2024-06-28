@@ -115,6 +115,11 @@ Deno.serve(async (req) => {
           notification: {
             title: `${hostProfileName.profile_name} has deleted an Event`,
             body: `"${payload.old_record.title}"`
+          },
+          data: {
+            hostUsername: hostProfileName.profile_name,
+            eventTitle: payload.old_record.title,
+            eventDescription: payload.old_record.description,
           }
         }
       })
@@ -131,8 +136,15 @@ Deno.serve(async (req) => {
   // Await all notifications to be sent
   const results = await Promise.all(notifications)
 
+  // Return the updated/deleted event title and description as data
+  const responseData = {
+    title: payload.old_record.title,
+    description: payload.old_record.description,
+    notifications: results
+  }
+
   return new Response(
-    JSON.stringify(results),
+    JSON.stringify(responseData),
     { headers: { "Content-Type": "application/json" } },
   )
 })

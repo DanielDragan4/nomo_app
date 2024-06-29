@@ -210,7 +210,7 @@ class _LocationTestScreenState extends State<LocationTestScreen> {
                 Slider(
                   value: _preferredRadius,
                   min: 1,
-                  max: 50,
+                  max: 100,
                   divisions: 99,
                   label: '${_preferredRadius.round()} miles',
                   onChanged: (double value) {

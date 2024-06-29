@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:nomo/models/events_model.dart';
+import 'package:nomo/models/friend_model.dart';
 import 'package:nomo/models/profile_model.dart';
 import 'package:nomo/providers/attending_events_provider.dart';
 import 'package:nomo/providers/profile_provider.dart';
 import 'package:nomo/providers/supabase_provider.dart';
+import 'package:nomo/screens/chat_screen.dart';
 import 'package:nomo/widgets/event_tab.dart';
 import 'package:nomo/screens/create_account_screen.dart';
 import 'package:nomo/widgets/profile_dropdown.dart';
@@ -312,7 +314,26 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                                       borderRadius: BorderRadius.circular(100),
                                       color: Theme.of(context).primaryColor),
                                   child: IconButton(
-                                    onPressed: () {},
+                                    onPressed: () async {
+                                      Friend friend = Friend(
+                                          avatar: (await profileInfo)?.avatar,
+                                          friendProfileId: widget.userId!,
+                                          friendProfileName:
+                                              (await profileInfo)!.profile_name,
+                                          friendUsername:
+                                              (await profileInfo)!.username);
+                                      Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                              builder: (context) => ChatScreen(
+                                                    chatterUser: friend,
+                                                    currentUser: ref
+                                                        .read(profileProvider
+                                                            .notifier)
+                                                        .state!
+                                                        .profile_id,
+                                                  )));
+                                    },
                                     icon: const Icon(Icons.message),
                                   ),
                                 ),

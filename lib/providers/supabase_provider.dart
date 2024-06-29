@@ -48,6 +48,23 @@ class AuthProvider extends StateNotifier<Session?> {
     }
   }
 
+  Future<bool> signInWithIdToken(idToken, accessToken) async {
+    final AuthResponse res = await (await supabase).client.auth.signInWithIdToken(
+    provider: OAuthProvider.google,
+    idToken: idToken,
+    accessToken: accessToken,
+    );
+    var user = await (await supabase).client.from('Profiles').select('profile_id').eq('profile_id', res.user!.id);
+
+    state  = res.session;
+    saveData();
+    
+    if(user.isEmpty) {
+      return true;
+    }
+    return false;
+  }
+
   void saveData() {
     SharedPreferences.getInstance()
         .then((value) => value.setStringList("savedSession", [

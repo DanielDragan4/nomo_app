@@ -18,6 +18,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:nomo/firebase_options.dart';
 import 'package:overlay_support/overlay_support.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
@@ -27,6 +28,17 @@ final routeObserver = RouteObserver<ModalRoute<void>>();
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  // Request location permission
+  var status = await Permission.location.request();
+
+  // Handle the response
+  if (status.isGranted) {
+    print('Location permission granted');
+  } else {
+    print('Location permission denied');
+  }
+
   await FlutterBranchSdk.init(enableLogging: false, disableTracking: false);
 
   await Firebase.initializeApp(

@@ -53,14 +53,19 @@ class _SettingScreenState extends ConsumerState<SettingScreen> {
         case 'camera':
           cameraSwitch = !cameraSwitch;
           prefs.setBool('camera', cameraSwitch);
+          handlePermissionToggle(perm_handler.Permission.camera, cameraSwitch);
           break;
         case 'location':
           locationSwitch = !locationSwitch;
           prefs.setBool('location', locationSwitch);
+          handlePermissionToggle(
+              perm_handler.Permission.location, locationSwitch);
           break;
         case 'contact':
           contactSwitch = !contactSwitch;
           prefs.setBool('contact', contactSwitch);
+          handlePermissionToggle(
+              perm_handler.Permission.contacts, contactSwitch);
           break;
         case 'notif':
           notifSwitch = !notifSwitch;
@@ -120,10 +125,38 @@ class _SettingScreenState extends ConsumerState<SettingScreen> {
     });
   }
 
+  Future<void> handlePermissionToggle(
+      perm_handler.Permission permission, bool enabled) async {
+    final status = await permission.status;
+    if (enabled && !status.isGranted) {
+      final result = await permission.request();
+      if (!result.isGranted) {
+        setState(() {
+          switch (permission) {
+            case perm_handler.Permission.camera:
+              cameraSwitch = false;
+              break;
+            case perm_handler.Permission.location:
+              locationSwitch = false;
+              break;
+            case perm_handler.Permission.contacts:
+              contactSwitch = false;
+              break;
+            default:
+              break;
+          }
+        });
+      }
+    } else if (!enabled && status.isGranted) {
+      perm_handler.openAppSettings();
+    }
+  }
+
   void handleNotificationSwitch() async {
     final perm_handler.PermissionStatus status =
         await perm_handler.Permission.notification.status;
     print('Notification permission status: $status');
+
     if (notifSwitch) {
       if (status.isGranted) {
         FirebaseMessaging.instance.subscribeToTopic('notifications');
@@ -132,6 +165,7 @@ class _SettingScreenState extends ConsumerState<SettingScreen> {
         final perm_handler.PermissionStatus requestStatus =
             await perm_handler.Permission.notification.request();
         print('Notification permission requested: $requestStatus');
+
         if (requestStatus.isGranted) {
           FirebaseMessaging.instance.subscribeToTopic('notifications');
           print('Subscribed to notifications after request');
@@ -145,6 +179,7 @@ class _SettingScreenState extends ConsumerState<SettingScreen> {
     } else {
       FirebaseMessaging.instance.unsubscribeFromTopic('notifications');
       print('Unsubscribed from notifications');
+      perm_handler.openAppSettings();
     }
   }
 
@@ -168,6 +203,38 @@ class _SettingScreenState extends ConsumerState<SettingScreen> {
       messageSwitch = prefs.getBool('message') ?? false;
       messageFriendsOnlySwitch = prefs.getBool('messageFriendsOnly') ?? false;
     });
+    // Check camera permission status
+    final cameraStatus = await perm_handler.Permission.camera.status;
+    if (cameraStatus.isGranted) {
+      setState(() {
+        cameraSwitch = true;
+      });
+    }
+
+    // Check location permission status
+    final locationStatus = await perm_handler.Permission.location.status;
+    if (locationStatus.isGranted) {
+      setState(() {
+        locationSwitch = true;
+      });
+    }
+
+    // Check contacts permission status
+    final contactsStatus = await perm_handler.Permission.contacts.status;
+    if (contactsStatus.isGranted) {
+      setState(() {
+        contactSwitch = true;
+      });
+    }
+
+    // Check notification permission status
+    final notificationStatus =
+        await perm_handler.Permission.notification.status;
+    if (notificationStatus.isGranted) {
+      setState(() {
+        notifSwitch = true;
+      });
+    }
   }
 
   @override
@@ -364,29 +431,32 @@ class _SettingScreenState extends ConsumerState<SettingScreen> {
             title: const Text('Camera', style: TextStyle(fontSize: 20)),
             trailing: Switch(
               value: cameraSwitch,
-              onChanged: (newValue) {
+              onChanged: (newValue) async {
                 updateSwitchValue('camera');
               },
             ),
           ),
+
           ListTile(
             title: Text('Location', style: TextStyle(fontSize: 20)),
             trailing: Switch(
               value: locationSwitch,
-              onChanged: (newValue) {
+              onChanged: (newValue) async {
                 updateSwitchValue('location');
               },
             ),
           ),
+
           ListTile(
             title: const Text('Contacts', style: TextStyle(fontSize: 20)),
             trailing: Switch(
               value: contactSwitch,
-              onChanged: (newValue) {
+              onChanged: (newValue) async {
                 updateSwitchValue('contact');
               },
             ),
           ),
+
           ListTile(
             title: const Text('Device Notifications',
                 style: TextStyle(fontSize: 20)),

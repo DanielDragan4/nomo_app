@@ -12,15 +12,18 @@ class DataManagement extends StatefulWidget {
 class _DataManagementState extends State<DataManagement> {
   @override
   Widget build(BuildContext context) {
-    return ListView(
-      children: const [
-        ListTile(
-            title: Text("Data Management Settings:",
-                style: TextStyle(fontSize: 25))),
-        ListTile(
-            title:
-                Text("No Data to Manage Yet", style: TextStyle(fontSize: 20))),
-      ],
+    return Scaffold(
+      backgroundColor: Theme.of(context).colorScheme.surface,
+      body: ListView(
+        children: const [
+          ListTile(
+              title: Text("Data Management Settings:",
+                  style: TextStyle(fontSize: 25))),
+          ListTile(
+              title: Text("No Data to Manage Yet",
+                  style: TextStyle(fontSize: 20))),
+        ],
+      ),
     );
   }
 }

@@ -12,14 +12,18 @@ class Status extends StatefulWidget {
 class _StatusState extends State<Status> {
   @override
   Widget build(BuildContext context) {
-    return ListView(
-      children: const [
-        ListTile(
-            title: Text("Account Status Settings:",
-                style: TextStyle(fontSize: 25))),
-        ListTile(
-            title: Text("Idk, account stuff", style: TextStyle(fontSize: 20))),
-      ],
+    return Scaffold(
+      backgroundColor: Theme.of(context).colorScheme.surface,
+      body: ListView(
+        children: const [
+          ListTile(
+              title: Text("Account Status Settings:",
+                  style: TextStyle(fontSize: 25))),
+          ListTile(
+              title:
+                  Text("Idk, account stuff", style: TextStyle(fontSize: 20))),
+        ],
+      ),
     );
   }
 }

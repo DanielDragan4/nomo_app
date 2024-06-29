@@ -12,14 +12,18 @@ class Blocked extends StatefulWidget {
 class _BlockedState extends State<Blocked> {
   @override
   Widget build(BuildContext context) {
-    return ListView(
-      children: const [
-        ListTile(
-            title: Text("Blocked People Settings:",
-                style: TextStyle(fontSize: 25))),
-        ListTile(
-            title: Text("No Blocked Ppl Yet", style: TextStyle(fontSize: 20))),
-      ],
+    return Scaffold(
+      backgroundColor: Theme.of(context).colorScheme.surface,
+      body: ListView(
+        children: const [
+          ListTile(
+              title: Text("Blocked People Settings:",
+                  style: TextStyle(fontSize: 25))),
+          ListTile(
+              title:
+                  Text("No Blocked Ppl Yet", style: TextStyle(fontSize: 20))),
+        ],
+      ),
     );
   }
 }

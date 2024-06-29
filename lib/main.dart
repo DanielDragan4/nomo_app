@@ -9,6 +9,7 @@ import 'package:nomo/providers/notification-provider.dart';
 import 'package:nomo/providers/profile_provider.dart';
 import 'package:nomo/providers/saved_session_provider.dart';
 import 'package:nomo/providers/supabase_provider.dart';
+import 'package:nomo/providers/theme_provider.dart';
 import 'package:nomo/providers/user_signup_provider.dart';
 import 'package:nomo/screens/NavBar.dart';
 import 'package:nomo/screens/create_account_screen.dart';
@@ -59,28 +60,6 @@ void navigateToEvent(String eventId) {
   navigatorKey.currentState?.push(MaterialPageRoute(
     builder: (context) => DetailedEventScreen(linkEventId: eventId),
   ));
-}
-
-final themeModeProvider = StateNotifierProvider<ThemeModeNotifier, ThemeMode>(
-  (ref) => ThemeModeNotifier(),
-);
-
-class ThemeModeNotifier extends StateNotifier<ThemeMode> {
-  ThemeModeNotifier() : super(ThemeMode.system) {
-    _loadThemeMode();
-  }
-
-  Future<void> _loadThemeMode() async {
-    final prefs = await SharedPreferences.getInstance();
-    final themeModeIndex = prefs.getInt('theme_mode') ?? ThemeMode.system.index;
-    state = ThemeMode.values[themeModeIndex];
-  }
-
-  Future<void> setThemeMode(ThemeMode mode) async {
-    state = mode;
-    final prefs = await SharedPreferences.getInstance();
-    prefs.setInt('theme_mode', mode.index);
-  }
 }
 
 class App extends ConsumerStatefulWidget {

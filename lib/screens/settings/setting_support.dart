@@ -12,14 +12,17 @@ class Support extends StatefulWidget {
 class _SupportState extends State<Support> {
   @override
   Widget build(BuildContext context) {
-    return ListView(
-      children: const [
-        ListTile(
-            title: Text("Support Settings:", style: TextStyle(fontSize: 25))),
-        ListTile(
-            title: Text("Give us money, then we'll talk",
-                style: TextStyle(fontSize: 20))),
-      ],
+    return Scaffold(
+      backgroundColor: Theme.of(context).colorScheme.surface,
+      body: ListView(
+        children: const [
+          ListTile(
+              title: Text("Support Settings:", style: TextStyle(fontSize: 25))),
+          ListTile(
+              title: Text("Give us money, then we'll talk",
+                  style: TextStyle(fontSize: 20))),
+        ],
+      ),
     );
   }
 }

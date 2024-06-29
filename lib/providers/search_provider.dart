@@ -86,6 +86,7 @@ class SearchProvider extends StateNotifier<List<dynamic>> {
         bookmarked: bookmarked,
         attending: false,
         isHost: false,
+        friends: eventData['friends_attending']
       );
 
       // Set attending and isHost flags
@@ -145,6 +146,7 @@ class SearchProvider extends StateNotifier<List<dynamic>> {
         bookmarked: bookmarked,
         attending: false,
         isHost: false,
+        friends: eventData['friends_attending']
       );
 
       // Set attending and isHost flags

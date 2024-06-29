@@ -18,6 +18,7 @@ class Event {
     required this.bookmarked,
     required this.attending,
     required this.isHost,
+    required this.friends
   });
 
   final eventId;
@@ -37,4 +38,5 @@ class Event {
   late bool bookmarked;
   late bool attending;
   late bool isHost;
+  final friends;
 }

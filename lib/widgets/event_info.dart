@@ -127,11 +127,7 @@ class _EventInfoState extends ConsumerState<EventInfo> {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           const Column(
-              // crossAxisAlignment: CrossAxisAlignment.start,
-              // children: [
-              //   Text("${widget.eventsData.attendies} Attending"),
-              //   Text("${widget.eventsData.friends.length} Friends Attending"),
-              // ],
+
               ),
           Expanded(
             child: Row(
@@ -148,7 +144,7 @@ class _EventInfoState extends ConsumerState<EventInfo> {
                           color: Theme.of(context).colorScheme.onSecondary),
                     ),
                     Text(
-                      'XXX Friends Attending',
+                      '${widget.eventsData.friends.length.toString()} Friends',
                       style: TextStyle(
                           fontWeight: FontWeight.bold,
                           fontSize: MediaQuery.of(context).size.width * .037,
@@ -157,7 +153,7 @@ class _EventInfoState extends ConsumerState<EventInfo> {
                   ],
                 ),
                 SizedBox(
-                  width: MediaQuery.of(context).size.width / 9,
+                  width: MediaQuery.of(context).size.width / 3.75,
                 ),
                 FutureBuilder(
                   future: ref.read(supabaseInstance),
@@ -182,21 +178,6 @@ class _EventInfoState extends ConsumerState<EventInfo> {
                             break;
                           }
                         }
-                        // for (var i = 0;
-                        //     i < widget.eventsData.attendees.length;
-                        //     i++) {
-                        //   if (((widget.eventsData.attendees[i] != null) &&
-                        //       (widget.eventsData.attendees[i] ==
-                        //           currentUser))) {
-                        //     if (((widget.eventsData.attendees[i]['user_id'] !=
-                        //             null) &&
-                        //         (widget.eventsData.attendees[i]['user_id'] ==
-                        //             currentUser))) {
-                        //       joinOrLeave = true;
-                        //       break;
-                        //     }
-                        //   }
-                        // }
                         if (!joinOrLeave) {
                           text = 'Join';
                           return ElevatedButton(

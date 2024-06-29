@@ -56,7 +56,9 @@ class AttendEventProvider extends StateNotifier<List<Event>> {
           profileName: eventData['profile_name'],
           bookmarked: bookmarked,
           attending: false,
-          isHost: false);
+          isHost: false,
+          friends: eventData['friends_attending']
+          );
 
       bool attending = false;
       for (var i = 0; i < deCodedEvent.attendees.length; i++) {
@@ -119,7 +121,9 @@ class AttendEventProvider extends StateNotifier<List<Event>> {
           profileName: eventData['profile_name'],
           bookmarked: bookmarked,
           attending: false,
-          isHost: false);
+          isHost: false,
+          friends: eventData['friends_attending']
+          );
 
       bool attending = false;
       for (var i = 0; i < deCodedEvent.attendees.length; i++) {

@@ -4,6 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_branch_sdk/flutter_branch_sdk.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:nomo/providers/chat_id_provider.dart';
+import 'package:nomo/providers/notification-bell_provider.dart';
+import 'package:nomo/providers/notification-provider.dart';
 import 'package:nomo/providers/saved_session_provider.dart';
 import 'package:nomo/providers/supabase_provider.dart';
 import 'package:nomo/providers/user_signup_provider.dart';
@@ -15,6 +17,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:nomo/firebase_options.dart';
 import 'package:overlay_support/overlay_support.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 bool isFcmInitialized = false;
@@ -28,6 +31,8 @@ void main() async {
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
+
+  await SharedPreferences.getInstance();
 
   runApp(
     const OverlaySupport.global(child: ProviderScope(child: App())),
@@ -53,6 +58,79 @@ class App extends ConsumerStatefulWidget {
 class _AppState extends ConsumerState<App> {
   StreamSubscription<Map>? streamSubscription;
   FirebaseMessaging _firebaseMessaging = FirebaseMessaging.instance;
+
+  @override
+  void initState() {
+    super.initState();
+    streamSubscription = FlutterBranchSdk.listSession().listen((data) {
+      if (data.containsKey("+clicked_branch_link") &&
+          data["+clicked_branch_link"] == true) {
+        String eventId = data["event_id"];
+        navigateToEvent(eventId);
+      }
+    }, onError: (error) {
+      print('listSession error: ${error.toString()}');
+    });
+
+    _firebaseMessaging.setForegroundNotificationPresentationOptions(
+      alert: true,
+      badge: true,
+      sound: true,
+    );
+    FirebaseMessaging.onMessage.listen((RemoteMessage message) {
+      handleMessage(message);
+    });
+  }
+
+  @override
+  void dispose() {
+    streamSubscription?.cancel();
+    super.dispose();
+  }
+
+  void handleMessage(RemoteMessage message) {
+    print("Received message: ${message.notification?.title}");
+    print("Message data: ${message.data}");
+
+    String? eventTitle = message.data['eventTitle'];
+    String? hostUsername = message.data['hostUsername'];
+    String? eventDescription = message.data['eventDescription'];
+
+    if (eventTitle != null &&
+        hostUsername != null &&
+        eventDescription != null) {
+      if (message.data['type'] == 'DELETE') {
+        ref.read(unreadNotificationsProvider.notifier).addNotification(
+              "$hostUsername has deleted '$eventTitle'",
+              eventDescription,
+            );
+        ref.read(notificationBellProvider.notifier).setBellState(true);
+      }
+      if (message.data['type'] == 'UPDATE') {
+        ref.read(unreadNotificationsProvider.notifier).addNotification(
+              "$hostUsername has updated '$eventTitle'",
+              eventDescription,
+            );
+        ref.read(notificationBellProvider.notifier).setBellState(true);
+      }
+    } else {
+      print("Missing data in notification");
+    }
+
+    String? chatId = message.data['chat_id'];
+    String? activeChatId = ref.read(activeChatIdProvider);
+
+    print('active: $activeChatId');
+    print('current: $chatId');
+
+    if (activeChatId != chatId || activeChatId == null) {
+      showSimpleNotification(
+        context,
+        message.notification?.body ?? 'New Message',
+        message.notification?.title ?? 'Notification',
+      );
+    }
+  }
 
   void showSimpleNotification(
       BuildContext context, String message, String sender,
@@ -85,46 +163,6 @@ class _AppState extends ConsumerState<App> {
       },
       duration: Duration(seconds: 5),
     );
-  }
-
-  @override
-  void initState() {
-    super.initState();
-    streamSubscription = FlutterBranchSdk.listSession().listen((data) {
-      if (data.containsKey("+clicked_branch_link") &&
-          data["+clicked_branch_link"] == true) {
-        String eventId = data["event_id"];
-        navigateToEvent(eventId);
-      }
-    }, onError: (error) {
-      print('listSession error: ${error.toString()}');
-    });
-
-    _firebaseMessaging.setForegroundNotificationPresentationOptions(
-      alert: true,
-      badge: true,
-      sound: true,
-    );
-    FirebaseMessaging.onMessage.listen((RemoteMessage message) {
-      print("Received message: ${message.notification?.title}");
-      print("Message data: ${message.data}");
-
-      String? chatId = message.data['chat_id'];
-      String? activeChatId = ref.read(activeChatIdProvider);
-      print('active: $activeChatId');
-      print('current: $chatId');
-
-      if (activeChatId != chatId || activeChatId == null) {
-        showSimpleNotification(context,
-            message.data['message'] ?? 'New Message', message.data['sender']);
-      }
-    });
-  }
-
-  @override
-  void dispose() {
-    streamSubscription?.cancel();
-    super.dispose();
   }
 
   Future<void> _setFcmToken(String fcmToken, SupabaseClient client) async {

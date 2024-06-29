@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:nomo/models/friend_model.dart';
 import 'package:nomo/providers/chats_provider.dart';
+import 'package:nomo/providers/notification-bell_provider.dart';
+import 'package:nomo/providers/notification-provider.dart';
 import 'package:nomo/providers/profile_provider.dart';
 import 'package:nomo/screens/groupchat_create_screen.dart';
 import 'package:nomo/screens/notifications_screen.dart';
@@ -29,6 +31,7 @@ class _FriendsScreenState extends ConsumerState<FriendsScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final hasUnreadNotifications = ref.watch(notificationBellProvider);
     //Start on friends list. If false, show requests list
 
     return Scaffold(
@@ -52,17 +55,31 @@ class _FriendsScreenState extends ConsumerState<FriendsScreen> {
                       fontWeight: FontWeight.w800,
                       fontSize: 30,
                     )),
-                    IconButton(
-                onPressed: () {
-                  Navigator.of(context).push(MaterialPageRoute(
-                      builder: (context) {
-                        return NotificationsScreen();
-                      },));
-                },
-                icon: Icon(Icons.notifications_active, color: Theme.of(context).colorScheme.onSecondary,),
-                iconSize: MediaQuery.of(context).devicePixelRatio *10,
-                padding: const EdgeInsets.only(top: 10,bottom: 10, left: 15,),
-              ),
+                IconButton(
+                  onPressed: () {
+                    Navigator.of(context).push(MaterialPageRoute(
+                      builder: (context) => const NotificationsScreen(),
+                    ));
+
+                    // Mark notifications as read when notifications icon is tapped
+                    ref
+                        .read(notificationBellProvider.notifier)
+                        .setBellState(false);
+                    print(
+                        'Bell state set to false after viewing notifications.');
+                  },
+                  icon: hasUnreadNotifications
+                      ? Icon(
+                          Icons.notifications_active,
+                          color: Theme.of(context).colorScheme.primary,
+                        )
+                      : Icon(
+                          Icons.notifications_none,
+                          color: Theme.of(context).colorScheme.onSecondary,
+                        ),
+                  iconSize: MediaQuery.of(context).devicePixelRatio * 10,
+                  padding: const EdgeInsets.only(top: 10, bottom: 10, left: 15),
+                ),
               ],
             ),
           ),
@@ -135,64 +152,67 @@ class _FriendsScreenState extends ConsumerState<FriendsScreen> {
                   ],
           ),
           Expanded(
-            child: widget.isGroupChats
-                ? FutureBuilder(
-                    future: ref.read(chatsProvider.notifier).getGroupChatInfo(),
-                    builder: (context, snapshot) {
-                      if (snapshot.data != null) {
-                        return ListView(
-                          children: [
-                            for (var groupChat in snapshot.data!)
-                              GroupTab(groupData: groupChat)
-                          ],
+              child: widget.isGroupChats
+                  ? FutureBuilder(
+                      future:
+                          ref.read(chatsProvider.notifier).getGroupChatInfo(),
+                      builder: (context, snapshot) {
+                        if (snapshot.data != null) {
+                          return ListView(
+                            children: [
+                              for (var groupChat in snapshot.data!)
+                                GroupTab(groupData: groupChat)
+                            ],
+                          );
+                        }
+                        return Text(
+                          'Loading Groups',
+                          style: TextStyle(
+                              color: Theme.of(context).colorScheme.onSecondary),
                         );
-                      }
-                      return Text(
-                        'Loading Groups',
-                        style: TextStyle(
-                            color: Theme.of(context).colorScheme.onSecondary),
-                      );
-                    },
-                  )
-                : 
-                friends ?StreamBuilder(
-                    stream: ref
-                        .read(profileProvider.notifier)
-                        .decodeFriends()
-                        .asStream(),
-                    builder: (context, snapshot) {
-                      if (snapshot.data != null) {
-                        return ListView(
-                          key: const PageStorageKey('page'),
-                          children: 
-                               [for (Friend i in snapshot.data!)
-                                    FriendTab(
-                                      friendData: i,
-                                      isRequest: true,
-                                      toggle: false,
-                                    ),]
+                      },
+                    )
+                  : friends
+                      ? StreamBuilder(
+                          stream: ref
+                              .read(profileProvider.notifier)
+                              .decodeFriends()
+                              .asStream(),
+                          builder: (context, snapshot) {
+                            if (snapshot.data != null) {
+                              return ListView(
+                                  key: const PageStorageKey('page'),
+                                  children: [
+                                    for (Friend i in snapshot.data!)
+                                      FriendTab(
+                                        friendData: i,
+                                        isRequest: true,
+                                        toggle: false,
+                                      ),
+                                  ]);
+                            } else {
+                              return Center(
+                                child: Text(
+                                  'No Friends Were Found. Add Some',
+                                  style: TextStyle(
+                                      color: Theme.of(context)
+                                          .colorScheme
+                                          .onSecondary),
+                                ),
                               );
-                      } else {
-                        return Center(
-                          child: Text(
-                            'No Friends Were Found. Add Some',
-                            style: TextStyle(
-                                color:
-                                    Theme.of(context).colorScheme.onSecondary),
-                          ),
-                        );
-                      }
-                    })
-                    :
-                    StreamBuilder(
-                    stream: ref.read(profileProvider.notifier).decodeRequests().asStream(),
-                    builder: (context, snapshot) {
-                      print(snapshot.data);
-                      if (snapshot.data != null) {
-                        return ListView(
-                          key: const PageStorageKey('page'),
-                          children: 
-                               [
+                            }
+                          })
+                      : StreamBuilder(
+                          stream: ref
+                              .read(profileProvider.notifier)
+                              .decodeRequests()
+                              .asStream(),
+                          builder: (context, snapshot) {
+                            print(snapshot.data);
+                            if (snapshot.data != null) {
+                              return ListView(
+                                key: const PageStorageKey('page'),
+                                children: [
                                   for (Friend i in snapshot.data!)
                                     FriendTab(
                                       friendData: i,
@@ -200,19 +220,19 @@ class _FriendsScreenState extends ConsumerState<FriendsScreen> {
                                       toggle: false,
                                     )
                                 ],
-                        );
-                      } else {
-                        return Center(
-                          child: Text(
-                            'No New Friends Were Found. Add Some',
-                            style: TextStyle(
-                                color:
-                                    Theme.of(context).colorScheme.onSecondary),
-                          ),
-                        );
-                      }
-                    })
-          ),
+                              );
+                            } else {
+                              return Center(
+                                child: Text(
+                                  'No New Friends Were Found. Add Some',
+                                  style: TextStyle(
+                                      color: Theme.of(context)
+                                          .colorScheme
+                                          .onSecondary),
+                                ),
+                              );
+                            }
+                          })),
           Row(
             mainAxisAlignment: MainAxisAlignment.end,
             children: (widget.isGroupChats)

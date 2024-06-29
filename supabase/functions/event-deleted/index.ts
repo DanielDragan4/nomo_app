@@ -28,7 +28,7 @@ interface Event {
 }
 
 interface WebhookPayload {
-  type: 'DELETE'
+  type: 'DELETE' | 'UPDATE' // Handle both DELETE and UPDATE events
   table: string
   record: null | Event
   schema: 'public',
@@ -45,96 +45,217 @@ Deno.serve(async (req) => {
 
   console.log('Received payload:', JSON.stringify(payload, null, 2))
 
-  // Ensure the event type is DELETE
-  if (payload.type !== 'DELETE') {
+  // Ensure the event type is DELETE or UPDATE
+  if (payload.type !== 'DELETE' && payload.type !== 'UPDATE') {
     return new Response('Invalid event type', { status: 400 })
   }
 
-  const { data: hostProfileName, error: hostProfileError } = await supabase
-    .from('Profiles')
-    .select('profile_name')
-    .eq('profile_id', payload.old_record.host)
-    .single()
+  // Handle DELETE event
+  if (payload.type === 'DELETE') {
+    const { data: hostProfileName, error: hostProfileError } = await supabase
+      .from('Profiles')
+      .select('profile_name')
+      .eq('profile_id', payload.old_record.host)
+      .single()
 
     if (hostProfileError) {
       console.error('Error fetching host profile:', hostProfileError)
       return new Response('Internal Server Error', { status: 500 })
     }
 
-  const { data: friends, error } = await supabase
-    .from('Friends')
-    .select('friend')
-    .eq('current', payload.old_record.host)
+    const { data: friends, error } = await supabase
+      .from('Friends')
+      .select('friend')
+      .eq('current', payload.old_record.host)
 
-  if (error) {
-    console.error('Error fetching friends:', error)
-    return new Response('Internal Server Error', { status: 500 })
-  }
-
-  if (friends.length === 0) {
-    return new Response('No friends found', { status: 404 })
-  }
-
-  const friendIds = friends.map(f => f.friend)
-
-  // Fetch all FCM tokens of friends
-  const { data: profiles, error: profileError } = await supabase
-    .from('Profiles')
-    .select('fcm_token')
-    .in('profile_id', friendIds)
-
-  if (profileError) {
-    console.error('Error fetching FCM tokens:', profileError)
-    return new Response('Internal Server Error', { status: 500 })
-  }
-
-  // Import the service account details
-  const { default: serviceAccount } = await import('../service-account.json', {
-    with: { type: 'json' },
-  })
-
-  // Get the access token
-  const accessToken = await getAccessToken({
-    clientEmail: serviceAccount.client_email,
-    privateKey: serviceAccount.private_key,
-  })
-
-  // Send notifications to all users
-  const notifications = profiles.map(async profile => {
-    const fcmToken = profile.fcm_token
-
-    const res = await fetch(`https://fcm.googleapis.com/v1/projects/nomo-app-c3417/messages:send`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${accessToken}`,
-      },
-      body: JSON.stringify({
-        message: {
-          token: fcmToken,
-          notification: {
-            title: `${hostProfileName.profile_name} has deleted an Event`,
-            body: `"${payload.old_record.title}"`
-          }
-        }
-      })
-    })
-
-    const resData = await res.json()
-    if (res.status < 200 || res.status > 299) {
-      console.error('Error sending notification:', resData)
+    if (error) {
+      console.error('Error fetching friends:', error)
+      return new Response('Internal Server Error', { status: 500 })
     }
 
-    return resData
-  })
+    if (friends.length === 0) {
+      return new Response('No friends found', { status: 404 })
+    }
 
-  // Await all notifications to be sent
-  const results = await Promise.all(notifications)
+    const friendIds = friends.map(f => f.friend)
 
-  return new Response(
-    JSON.stringify(results),
-    { headers: { "Content-Type": "application/json" } },
-  )
+    // Fetch all FCM tokens of friends
+    const { data: profiles, error: profileError } = await supabase
+      .from('Profiles')
+      .select('fcm_token')
+      .in('profile_id', friendIds)
+
+    if (profileError) {
+      console.error('Error fetching FCM tokens:', profileError)
+      return new Response('Internal Server Error', { status: 500 })
+    }
+
+    // Import the service account details
+    const { default: serviceAccount } = await import('../service-account.json', {
+      with: { type: 'json' },
+    })
+
+    // Get the access token
+    const accessToken = await getAccessToken({
+      clientEmail: serviceAccount.client_email,
+      privateKey: serviceAccount.private_key,
+    })
+
+    // Send notifications to all users
+    const notifications = profiles.map(async profile => {
+      const fcmToken = profile.fcm_token
+
+      const res = await fetch(`https://fcm.googleapis.com/v1/projects/nomo-app-c3417/messages:send`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${accessToken}`,
+        },
+        body: JSON.stringify({
+          message: {
+            token: fcmToken,
+            notification: {
+              title: `${hostProfileName.profile_name} has deleted an Event`,
+              body: `"${payload.old_record.title}"`
+            },
+            data: {
+              hostUsername: hostProfileName.profile_name,
+              eventTitle: payload.old_record.title,
+              eventDescription: payload.old_record.description,
+              type: payload.type
+            }
+          }
+        })
+      })
+
+      const resData = await res.json()
+      if (res.status < 200 || res.status > 299) {
+        console.error('Error sending notification:', resData)
+      }
+
+      return resData
+    })
+
+    // Await all notifications to be sent
+    const results = await Promise.all(notifications)
+
+    // Return the updated/deleted event title and description as data
+    const responseData = {
+      title: payload.old_record.title,
+      description: payload.old_record.description,
+      notifications: results
+    }
+
+    return new Response(
+      JSON.stringify(responseData),
+      { headers: { "Content-Type": "application/json" } },
+    )
+  }
+
+  // Handle UPDATE event (for demonstration)
+  if (payload.type === 'UPDATE') {
+    
+    const { data: hostProfileName, error: hostProfileError } = await supabase
+      .from('Profiles')
+      .select('profile_name')
+      .eq('profile_id', payload.old_record.host)
+      .single()
+
+    if (hostProfileError) {
+      console.error('Error fetching host profile:', hostProfileError)
+      return new Response('Internal Server Error', { status: 500 })
+    }
+
+    const { data: friends, error } = await supabase
+      .from('Friends')
+      .select('friend')
+      .eq('current', payload.old_record.host)
+
+    if (error) {
+      console.error('Error fetching friends:', error)
+      return new Response('Internal Server Error', { status: 500 })
+    }
+
+    if (friends.length === 0) {
+      return new Response('No friends found', { status: 404 })
+    }
+
+    const friendIds = friends.map(f => f.friend)
+
+    // Fetch all FCM tokens of friends
+    const { data: profiles, error: profileError } = await supabase
+      .from('Profiles')
+      .select('fcm_token')
+      .in('profile_id', friendIds)
+
+    if (profileError) {
+      console.error('Error fetching FCM tokens:', profileError)
+      return new Response('Internal Server Error', { status: 500 })
+    }
+
+    // Import the service account details
+    const { default: serviceAccount } = await import('../service-account.json', {
+      with: { type: 'json' },
+    })
+
+    // Get the access token
+    const accessToken = await getAccessToken({
+      clientEmail: serviceAccount.client_email,
+      privateKey: serviceAccount.private_key,
+    })
+
+    // Send notifications to all users
+    const notifications = profiles.map(async profile => {
+      const fcmToken = profile.fcm_token
+
+      const res = await fetch(`https://fcm.googleapis.com/v1/projects/nomo-app-c3417/messages:send`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${accessToken}`,
+        },
+        body: JSON.stringify({
+          message: {
+            token: fcmToken,
+            notification: {
+              title: `${hostProfileName.profile_name} has updated an Event`,
+              body: `"${payload.old_record.title}"`
+            },
+            data: {
+              hostUsername: hostProfileName.profile_name,
+              eventTitle: payload.old_record.title,
+              eventDescription: payload.old_record.description,
+              type: payload.type
+            }
+          }
+        })
+      })
+
+      const resData = await res.json()
+      if (res.status < 200 || res.status > 299) {
+        console.error('Error sending notification:', resData)
+      }
+
+      return resData
+    })
+
+    // Await all notifications to be sent
+    const results = await Promise.all(notifications)
+
+    // Return the updated/deleted event title and description as data
+    const responseData = {
+      title: payload.old_record.title,
+      description: payload.old_record.description,
+      notifications: results
+    }
+    
+    return new Response(
+      JSON.stringify({ message: 'Event updated', event: payload.record }),
+      { headers: { "Content-Type": "application/json" } },
+    )
+  }
+
+  return new Response('Unhandled event type', { status: 400 })
 })
 
 const getAccessToken = ({
@@ -163,11 +284,18 @@ const getAccessToken = ({
 /* To invoke locally:
 
   1. Run `supabase start` (see: https://supabase.com/docs/reference/cli/supabase-start)
-  2. Make an HTTP request:
+  2. Make an HTTP request for DELETE:
 
   curl -i --location --request POST 'http://127.0.0.1:54321/functions/v1/event-deleted' \
     --header 'Authorization: Bearer YOUR_JWT_TOKEN' \
     --header 'Content-Type: application/json' \
     --data '{"type":"DELETE","table":"Events","record":null,"old_record":{"eventId":"1","imageId":"1","imageUrl":"http://example.com/image.jpg","title":"Old Event","location":"Event Location","description":"Event Description","eventType":"Type","hostUsername":"hostuser","hostProfileUrl":"http://example.com/profile.jpg","profileName":"Host Name","bookmarked":false,"attending":true,"isHost":true,"host":"host-id"}}'
+
+  3. Make an HTTP request for UPDATE (example):
+
+  curl -i --location --request POST 'http://127.0.0.1:54321/functions/v1/event-deleted' \
+    --header 'Authorization: Bearer YOUR_JWT_TOKEN' \
+    --header 'Content-Type: application/json' \
+    --data '{"type":"UPDATE","table":"Events","record":{"eventId":"2","imageId":"2","imageUrl":"http://example.com/image2.jpg","title":"Updated Event","location":"Updated Location","description":"Updated Description","eventType":"Type","hostUsername":"hostuser","hostProfileUrl":"http://example.com/profile.jpg","profileName":"Host Name","bookmarked":false,"attending":true,"isHost":true,"host":"host-id"},"old_record":{"eventId":"2","imageId":"2","imageUrl":"http://example.com/image2.jpg","title":"Old Event","location":"Event Location","description":"Event Description","eventType":"Type","hostUsername":"hostuser","hostProfileUrl":"http://example.com/profile.jpg","profileName":"Host Name","bookmarked":false,"attending":true,"isHost":true,"host":"host-id"}}'
 
 */

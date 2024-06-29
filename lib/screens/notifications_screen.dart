@@ -1,25 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:nomo/models/friend_model.dart';
-import 'package:nomo/providers/chats_provider.dart';
-import 'package:nomo/providers/profile_provider.dart';
-import 'package:nomo/screens/groupchat_create_screen.dart';
-import 'package:nomo/screens/search_screen.dart';
-import 'package:nomo/widgets/friend_tab.dart';
-import 'package:nomo/widgets/group_tab.dart';
+import 'package:nomo/providers/notification-provider.dart';
+import 'package:nomo/widgets/notification.dart';
 
 class NotificationsScreen extends ConsumerStatefulWidget {
   const NotificationsScreen({super.key});
 
   @override
-  ConsumerState<NotificationsScreen> createState() => _NotificationsScreenState();
+  ConsumerState<NotificationsScreen> createState() =>
+      _NotificationsScreenState();
 }
 
 class _NotificationsScreenState extends ConsumerState<NotificationsScreen> {
-
   @override
   Widget build(BuildContext context) {
-    //Start on friends list. If false, show requests list
+    final notifications = ref.watch(unreadNotificationsProvider);
 
     return Scaffold(
       backgroundColor: Theme.of(context).colorScheme.surface,
@@ -54,15 +49,26 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen> {
           ),
         ),
       ),
-      body: Column(
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children:
-                [],
-          ),
-        ],
-      ),
+      body: ListView.builder(
+          itemCount: notifications.length,
+          itemBuilder: (context, index) {
+            return Dismissible(
+              key: Key(notifications[index].title),
+              onDismissed: (direction) {
+                ref
+                    .read(unreadNotificationsProvider.notifier)
+                    .removeNotification(index);
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('Notification dismissed')),
+                );
+              },
+              background: Container(color: Colors.red),
+              child: NotificationItem(
+                title: notifications[index].title,
+                details: notifications[index].description,
+              ),
+            );
+          }),
     );
   }
 }

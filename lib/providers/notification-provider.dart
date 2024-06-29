@@ -1,12 +1,13 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:nomo/providers/notification-bell_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
 
 class NotificationData {
   final String title;
-  final String description;
+  final String? description;
 
-  NotificationData({required this.title, required this.description});
+  NotificationData({required this.title, this.description});
 
   Map<String, dynamic> toJson() => {
         'title': title,
@@ -23,39 +24,35 @@ class NotificationData {
 
 class UnreadNotificationsNotifier
     extends StateNotifier<List<NotificationData>> {
-  UnreadNotificationsNotifier() : super([]) {
+  UnreadNotificationsNotifier(this._ref) : super([]) {
     _loadNotifications();
   }
 
-  void addNotification(String title, String description) {
+  final Ref _ref;
+
+  void addNotification(String title) {
     state = [
       ...state,
-      NotificationData(title: title, description: description)
+      NotificationData(
+        title: title,
+      )
     ];
     _saveNotifications();
-    // Update the notification bell state when a new notification is added
-    _updateNotificationBellState();
+    _updateNotificationBellState(true);
   }
 
   void removeNotification(int index) {
     state = [...state.sublist(0, index), ...state.sublist(index + 1)];
     _saveNotifications();
-    // Check if there are any notifications left to decide the bell state
+    if (state.isEmpty) {
+      _updateNotificationBellState(false);
+    }
   }
 
-  //Here if we ever want a clear all notifs button
   void clearNotifications() {
     state = [];
     _saveNotifications();
-    // No notifications left, update bell state to false
-    _updateNotificationBellState();
-  }
-
-  void _updateNotificationBellState() async {
-    final prefs = await SharedPreferences.getInstance();
-    final bool hasUnreadNotifications = state.isNotEmpty;
-    await prefs.setBool('hasUnreadNotifications', hasUnreadNotifications);
-    print('Bell state updated to: $hasUnreadNotifications');
+    _updateNotificationBellState(false);
   }
 
   void _saveNotifications() async {
@@ -75,10 +72,21 @@ class UnreadNotificationsNotifier
           .toList();
     }
   }
+
+  void _updateNotificationBellState(bool hasUnreadNotifications) {
+    _ref
+        .read(notificationBellProvider.notifier)
+        .setBellState(hasUnreadNotifications);
+  }
 }
 
 final unreadNotificationsProvider =
     StateNotifierProvider<UnreadNotificationsNotifier, List<NotificationData>>(
         (ref) {
-  return UnreadNotificationsNotifier();
+  return UnreadNotificationsNotifier(ref);
+});
+
+final appInitializationProvider = Provider((ref) async {
+  await ref.read(notificationBellProvider.notifier).loadBellState();
+  ref.read(unreadNotificationsProvider.notifier)._loadNotifications();
 });

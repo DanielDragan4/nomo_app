@@ -6,6 +6,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:nomo/providers/chat_id_provider.dart';
 import 'package:nomo/providers/notification-bell_provider.dart';
 import 'package:nomo/providers/notification-provider.dart';
+import 'package:nomo/providers/profile_provider.dart';
 import 'package:nomo/providers/saved_session_provider.dart';
 import 'package:nomo/providers/supabase_provider.dart';
 import 'package:nomo/providers/user_signup_provider.dart';
@@ -88,47 +89,145 @@ class _AppState extends ConsumerState<App> {
     super.dispose();
   }
 
-  void handleMessage(RemoteMessage message) {
+  void handleMessage(RemoteMessage message) async {
     print("Received message: ${message.notification?.title}");
     print("Message data: ${message.data}");
 
-    String? eventTitle = message.data['eventTitle'];
-    String? hostUsername = message.data['hostUsername'];
-    String? eventDescription = message.data['eventDescription'];
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
 
-    if (eventTitle != null &&
-        hostUsername != null &&
-        eventDescription != null) {
-      if (message.data['type'] == 'DELETE') {
-        ref.read(unreadNotificationsProvider.notifier).addNotification(
-              "$hostUsername has deleted '$eventTitle'",
-              eventDescription,
-            );
-        ref.read(notificationBellProvider.notifier).setBellState(true);
-      }
-      if (message.data['type'] == 'UPDATE') {
-        ref.read(unreadNotificationsProvider.notifier).addNotification(
-              "$hostUsername has updated '$eventTitle'",
-              eventDescription,
-            );
-        ref.read(notificationBellProvider.notifier).setBellState(true);
-      }
-    } else {
-      print("Missing data in notification");
-    }
+    bool eventDeletedSwitch = prefs.getBool('eventDeleted') ?? true;
+    bool joinedEventSwitch = prefs.getBool('joinedEvent') ?? true;
+    bool joinedEventFriendsOnlySwitch =
+        prefs.getBool('joinedEventFriendsOnly') ?? false;
+    bool newEventSwitch = prefs.getBool('newEvent') ?? true;
+    // bool newEventFriendsOnlySwitch =
+    //     prefs.getBool('newEventFriendsOnly') ?? false;
+    bool messageSwitch = prefs.getBool('message') ?? true;
+    bool messageFriendsOnlySwitch =
+        prefs.getBool('messageFriendsOnly') ?? false;
 
-    String? chatId = message.data['chat_id'];
-    String? activeChatId = ref.read(activeChatIdProvider);
+    String? type = message.data['type'];
 
-    print('active: $activeChatId');
-    print('current: $chatId');
-
-    if (activeChatId != chatId || activeChatId == null) {
+    // if (eventTitle != null &&
+    //     hostUsername != null &&
+    //     eventDescription != null) {
+    if (type == 'DELETE' && eventDeletedSwitch) {
+      print('DELETE notification handling');
+      String eventTitle = message.data['eventTitle'];
+      String hostUsername = message.data['hostUsername'];
+      //String eventDescription = message.data['eventDescription'];
+      ref.read(unreadNotificationsProvider.notifier).addNotification(
+            "$hostUsername has deleted '$eventTitle'",
+          );
+      ref.read(notificationBellProvider.notifier).setBellState(true);
       showSimpleNotification(
         context,
         message.notification?.body ?? 'New Message',
         message.notification?.title ?? 'Notification',
       );
+    }
+    if (type == 'UPDATE' && eventDeletedSwitch) {
+      print('UPDATE notification handling');
+      String eventTitle = message.data['eventTitle'];
+      String hostUsername = message.data['hostUsername'];
+      //String eventDescription = message.data['eventDescription'];
+      ref.read(unreadNotificationsProvider.notifier).addNotification(
+            "$hostUsername has updated '$eventTitle'",
+          );
+      ref.read(notificationBellProvider.notifier).setBellState(true);
+      showSimpleNotification(
+        context,
+        message.notification?.body ?? 'New Message',
+        message.notification?.title ?? 'Notification',
+      );
+    }
+    if (type == 'JOIN' && joinedEventSwitch) {
+      print('JOIN notification handling');
+      String attendeeName = message.data['attendeeName'];
+      String attendeeId = message.data['attendeeId'];
+      String eventTitle = message.data['eventTitle'];
+      if (joinedEventFriendsOnlySwitch) {
+        bool isFriend =
+            await ref.read(profileProvider.notifier).isFriend(attendeeId);
+        if (isFriend) {
+          ref.read(unreadNotificationsProvider.notifier).addNotification(
+              "$attendeeName has joined your event, '$eventTitle'");
+          ref.read(notificationBellProvider.notifier).setBellState(true);
+          showSimpleNotification(
+            context,
+            message.notification?.body ?? 'New Message',
+            message.notification?.title ?? 'Notification',
+          );
+        }
+      } else {
+        ref.read(unreadNotificationsProvider.notifier).addNotification(
+            "$attendeeName has joined your event, '$eventTitle'");
+        ref.read(notificationBellProvider.notifier).setBellState(true);
+        showSimpleNotification(
+          context,
+          message.notification?.body ?? 'New Message',
+          message.notification?.title ?? 'Notification',
+        );
+      }
+    }
+    if (type == 'CREATE' && newEventSwitch) {
+      print('CREATE notification handling');
+      String hostUsername = message.data['hostUsername'];
+      String eventTitle = message.data['eventTitle'];
+      //String eventDescription = message.data['eventDescription'];
+      ref.read(unreadNotificationsProvider.notifier).addNotification(
+            "$hostUsername has created an event, '$eventTitle'",
+          );
+      ref.read(notificationBellProvider.notifier).setBellState(true);
+      showSimpleNotification(
+        context,
+        message.notification?.body ?? 'New Message',
+        message.notification?.title ?? 'Notification',
+      );
+    }
+    if (type == 'REQUEST') {
+      print('REQUEST notification handling');
+      String senderName = message.data['senderName'];
+      ref
+          .read(unreadNotificationsProvider.notifier)
+          .addNotification("$senderName has sent you a Friend Request");
+      ref.read(notificationBellProvider.notifier).setBellState(true);
+      showSimpleNotification(
+        context,
+        message.notification?.body ?? 'New Message',
+        message.notification?.title ?? 'Notification',
+      );
+    }
+    if (type == 'DM') {
+      print('DM notification handling');
+      String? senderId = message.data['sender_id'];
+      String? chatId = message.data['chat_id'];
+      String? activeChatId = ref.read(activeChatIdProvider);
+
+      print('active: $activeChatId');
+      print('current: $chatId');
+
+      if ((activeChatId != chatId || activeChatId == null) && messageSwitch) {
+        if (messageFriendsOnlySwitch) {
+          bool isFriend =
+              await ref.read(profileProvider.notifier).isFriend(senderId);
+          if (isFriend) {
+            showSimpleNotification(
+              context,
+              message.notification?.body ?? 'New Message',
+              message.notification?.title ?? 'Notification',
+            );
+          }
+        } else {
+          showSimpleNotification(
+            context,
+            message.notification?.body ?? 'New Message',
+            message.notification?.title ?? 'Notification',
+          );
+        }
+      } else {
+        print("Missing data in notification");
+      }
     }
   }
 
@@ -200,6 +299,7 @@ class _AppState extends ConsumerState<App> {
   @override
   Widget build(BuildContext context) {
     final supabase = ref.watch(supabaseClientProvider);
+    ref.read(appInitializationProvider);
 
     void loadData() {
       ref.read(savedSessionProvider.notifier).changeSessionDataList();

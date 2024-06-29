@@ -26,13 +26,13 @@ class _SettingScreenState extends ConsumerState<SettingScreen> {
   late bool locationSwitch = false;
   late bool contactSwitch = false;
   late bool notifSwitch = false;
-  late bool newEventSwitch = false;
-  late bool newEventFriendsOnlySwitch = false;
-  late bool joinedEventSwitch = false;
+  late bool newEventSwitch = true;
+  //late bool newEventFriendsOnlySwitch = false;
+  late bool joinedEventSwitch = true;
   late bool joinedEventFriendsOnlySwitch = false;
-  late bool eventDeletedSwitch = false;
-  late bool eventDeletedFriendsOnlySwitch = false;
-  late bool messageSwitch = false;
+  late bool eventDeletedSwitch = true;
+  //late bool eventDeletedFriendsOnlySwitch = false;
+  late bool messageSwitch = true;
   late bool messageFriendsOnlySwitch = false;
 
   @override
@@ -70,15 +70,15 @@ class _SettingScreenState extends ConsumerState<SettingScreen> {
         case 'newEvent':
           newEventSwitch = !newEventSwitch;
           prefs.setBool('newEvent', newEventSwitch);
-          if (!newEventSwitch) {
-            newEventFriendsOnlySwitch = false;
-            prefs.setBool('newEventFriendsOnly', false);
-          }
+          //   if (!newEventSwitch) {
+          //     newEventFriendsOnlySwitch = false;
+          //     prefs.setBool('newEventFriendsOnly', false);
+          //   }
           break;
-        case 'newEventFriendsOnly':
-          newEventFriendsOnlySwitch = !newEventFriendsOnlySwitch;
-          prefs.setBool('newEventFriendsOnly', newEventFriendsOnlySwitch);
-          break;
+        // case 'newEventFriendsOnly':
+        //   newEventFriendsOnlySwitch = !newEventFriendsOnlySwitch;
+        //   prefs.setBool('newEventFriendsOnly', newEventFriendsOnlySwitch);
+        //  break;
         case 'joinedEvent':
           joinedEventSwitch = !joinedEventSwitch;
           prefs.setBool('joinedEvent', joinedEventSwitch);
@@ -94,16 +94,16 @@ class _SettingScreenState extends ConsumerState<SettingScreen> {
         case 'eventDeleted':
           eventDeletedSwitch = !eventDeletedSwitch;
           prefs.setBool('eventDeleted', eventDeletedSwitch);
-          if (!eventDeletedSwitch) {
-            eventDeletedFriendsOnlySwitch = false;
-            prefs.setBool('eventDeletedFriendsOnly', false);
-          }
+          // if (!eventDeletedSwitch) {
+          //   eventDeletedFriendsOnlySwitch = false;
+          //   prefs.setBool('eventDeletedFriendsOnly', false);
+          // }
           break;
-        case 'eventDeletedFriendsOnly':
-          eventDeletedFriendsOnlySwitch = !eventDeletedFriendsOnlySwitch;
-          prefs.setBool(
-              'eventDeletedFriendsOnly', eventDeletedFriendsOnlySwitch);
-          break;
+        // case 'eventDeletedFriendsOnly':
+        //   eventDeletedFriendsOnlySwitch = !eventDeletedFriendsOnlySwitch;
+        //   prefs.setBool(
+        //       'eventDeletedFriendsOnly', eventDeletedFriendsOnlySwitch);
+        //   break;
         case 'message':
           messageSwitch = !messageSwitch;
           prefs.setBool('message', messageSwitch);
@@ -158,13 +158,13 @@ class _SettingScreenState extends ConsumerState<SettingScreen> {
       notifSwitch = prefs.getBool('notif') ?? false;
 
       newEventSwitch = prefs.getBool('newEvent') ?? false;
-      newEventFriendsOnlySwitch = prefs.getBool('newEventFriendsOnly') ?? false;
+      //newEventFriendsOnlySwitch = prefs.getBool('newEventFriendsOnly') ?? false;
       joinedEventSwitch = prefs.getBool('joinedEvent') ?? false;
       joinedEventFriendsOnlySwitch =
           prefs.getBool('joinedEventFriendsOnly') ?? false;
       eventDeletedSwitch = prefs.getBool('eventDeleted') ?? false;
-      eventDeletedFriendsOnlySwitch =
-          prefs.getBool('eventDeletedFriendsOnly') ?? false;
+      //eventDeletedFriendsOnlySwitch =
+      //    prefs.getBool('eventDeletedFriendsOnly') ?? false;
       messageSwitch = prefs.getBool('message') ?? false;
       messageFriendsOnlySwitch = prefs.getBool('messageFriendsOnly') ?? false;
     });
@@ -249,23 +249,23 @@ class _SettingScreenState extends ConsumerState<SettingScreen> {
               },
             ),
           ),
-          Padding(
-            padding: const EdgeInsets.only(left: 40.0),
-            child: ListTile(
-              title: const Text('Friends Only', style: TextStyle(fontSize: 20)),
-              trailing: Switch(
-                value: newEventSwitch ? newEventFriendsOnlySwitch : false,
-                onChanged: newEventSwitch
-                    ? (newValue) {
-                        updateSwitchValue('newEventFriendsOnly');
-                      }
-                    : null,
-                activeColor: newEventSwitch
-                    ? Theme.of(context).primaryColor
-                    : Colors.grey,
-              ),
-            ),
-          ),
+          // Padding(
+          //   padding: const EdgeInsets.only(left: 40.0),
+          //   child: ListTile(
+          //     title: const Text('Friends Only', style: TextStyle(fontSize: 20)),
+          //     trailing: Switch(
+          //       value: newEventSwitch ? newEventFriendsOnlySwitch : false,
+          //       onChanged: newEventSwitch
+          //           ? (newValue) {
+          //               updateSwitchValue('newEventFriendsOnly');
+          //             }
+          //           : null,
+          //       activeColor: newEventSwitch
+          //           ? Theme.of(context).primaryColor
+          //           : Colors.grey,
+          //     ),
+          //   ),
+          // ),
           ListTile(
             title: Text('New Event Joined', style: TextStyle(fontSize: 20)),
             trailing: Switch(
@@ -293,7 +293,8 @@ class _SettingScreenState extends ConsumerState<SettingScreen> {
             ),
           ),
           ListTile(
-            title: const Text('Event Deleted', style: TextStyle(fontSize: 20)),
+            title: const Text('Event Deleted or Updated',
+                style: TextStyle(fontSize: 20)),
             trailing: Switch(
               value: eventDeletedSwitch,
               onChanged: (newValue) {
@@ -301,24 +302,24 @@ class _SettingScreenState extends ConsumerState<SettingScreen> {
               },
             ),
           ),
-          Padding(
-            padding: const EdgeInsets.only(left: 40.0),
-            child: ListTile(
-              title: const Text('Friends Only', style: TextStyle(fontSize: 20)),
-              trailing: Switch(
-                value:
-                    eventDeletedSwitch ? eventDeletedFriendsOnlySwitch : false,
-                onChanged: eventDeletedSwitch
-                    ? (newValue) {
-                        updateSwitchValue('eventDeletedFriendsOnly');
-                      }
-                    : null,
-                activeColor: eventDeletedSwitch
-                    ? Theme.of(context).primaryColor
-                    : Colors.grey,
-              ),
-            ),
-          ),
+          // Padding(
+          //   padding: const EdgeInsets.only(left: 40.0),
+          //   child: ListTile(
+          //     title: const Text('Friends Only', style: TextStyle(fontSize: 20)),
+          //     trailing: Switch(
+          //       value:
+          //           eventDeletedSwitch ? eventDeletedFriendsOnlySwitch : false,
+          //       onChanged: eventDeletedSwitch
+          //           ? (newValue) {
+          //               updateSwitchValue('eventDeletedFriendsOnly');
+          //             }
+          //           : null,
+          //       activeColor: eventDeletedSwitch
+          //           ? Theme.of(context).primaryColor
+          //           : Colors.grey,
+          //     ),
+          //   ),
+          // ),
           ListTile(
             title: Text('Incoming Message', style: TextStyle(fontSize: 20)),
             trailing: Switch(

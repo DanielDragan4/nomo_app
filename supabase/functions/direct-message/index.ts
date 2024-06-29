@@ -116,9 +116,11 @@ Deno.serve(async (req) => {
           body: message
         },
         data: {
+          type: 'DM',
           chat_id: chat_id,
           message: message,
           sender: senderName,
+          senderId: sender_id,
         }
       }
     })

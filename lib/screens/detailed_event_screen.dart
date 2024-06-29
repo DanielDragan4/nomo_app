@@ -24,7 +24,7 @@ class DetailedEventScreen extends ConsumerStatefulWidget {
 
 class _DetailedEventScreenState extends ConsumerState<DetailedEventScreen> {
 
-  late Event event;
+  var event;
 
   Future<void> _initalizeEventData() async{
     if(widget.linkEventId != null) {
@@ -41,20 +41,25 @@ class _DetailedEventScreenState extends ConsumerState<DetailedEventScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final DateTime date = DateTime.parse(event.sdate);
 
-    String getHour() {
-      if (date.hour > 12) {
-        return ('${(date.hour - 12)} P.M.');
-      } else {
-        return ("${date.hour} A.M.");
+    var formattedDate;
+
+    if(event != null) {
+      final DateTime date = DateTime.parse(event.sdate);
+
+      String getHour() {
+        if (date.hour > 12) {
+          return ('${(date.hour - 12)} P.M.');
+        } else {
+          return ("${date.hour} A.M.");
+        }
       }
+
+      formattedDate =
+          "${date.month}/${date.day}/${date.year} at ${getHour()}";
     }
 
-    var formattedDate =
-        "${date.month}/${date.day}/${date.year} at ${getHour()}";
-
-    return Scaffold(
+    return (event != null) ? Scaffold( 
       backgroundColor: Theme.of(context).colorScheme.surface,
       appBar: AppBar(
         backgroundColor: Theme.of(context).colorScheme.surface,
@@ -188,8 +193,17 @@ class _DetailedEventScreenState extends ConsumerState<DetailedEventScreen> {
                 const Divider(),
                 CommentsSection(eventId: event.eventId)
               ])))
-        ]),
+        ],
       ),
+      ),
+    )
+    : Scaffold(
+      backgroundColor: Theme.of(context).colorScheme.surface,
+       body: const Column(
+        children: [
+          CircularProgressIndicator()
+        ],
+      )
     );
   }
 }

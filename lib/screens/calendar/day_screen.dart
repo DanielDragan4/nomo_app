@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:nomo/models/availability_model.dart';
 import 'package:nomo/providers/profile_provider.dart';
 import 'package:nomo/screens/calendar/time_block.dart';
+import 'package:nomo/screens/detailed_event_screen.dart';
 
 class DayScreen extends ConsumerStatefulWidget {
   DayScreen({super.key, required this.day, required this.blockedTime});
@@ -23,6 +24,7 @@ class _DayScreenState extends ConsumerState<DayScreen> {
             'start': null,
             'end': null,
             'isEvent': false,
+            'event_id' : null,
             'id': ''
           });
   TimeOfDay? startTime; // s time
@@ -42,6 +44,7 @@ class _DayScreenState extends ConsumerState<DayScreen> {
       DateTime end = availability.eTime;
       String title = availability.blockTitle;
       String id = availability.availId ?? '';
+      String? event_id = availability.eventId;
 
       int startMinutes = start.hour * 60 + start.minute;
       int endMinutes = end.hour * 60 + end.minute;
@@ -53,6 +56,7 @@ class _DayScreenState extends ConsumerState<DayScreen> {
           'start': TimeOfDay(hour: start.hour, minute: start.minute),
           'end': TimeOfDay(hour: end.hour, minute: end.minute),
           if (availability.eventId != null) 'isEvent': true,
+          'event_id' : event_id,
           'id': id
         };
       }
@@ -476,8 +480,11 @@ class _DayScreenState extends ConsumerState<DayScreen> {
             right: 0,
             child: GestureDetector(
               onTap: () {
+                if(blockedHours[blockStart]['event_id'] == null){
                 _showEditTimeBlock(context, availID, blockStart, blockEnd - 1,
                     blockedHours[blockStart]['title']);
+                }
+                Navigator.of(context).push(MaterialPageRoute(builder: (context) => DetailedEventScreen(linkEventId: blockedHours[blockStart]['event_id'],),));
               },
               child: TimeBlock(
                 title: blockedHours[blockStart]['title'],

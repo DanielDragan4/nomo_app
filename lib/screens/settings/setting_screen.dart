@@ -26,13 +26,13 @@ class _SettingScreenState extends ConsumerState<SettingScreen> {
   late bool locationSwitch = false;
   late bool contactSwitch = false;
   late bool notifSwitch = false;
-  late bool newEventSwitch = false;
-  late bool newEventFriendsOnlySwitch = false;
-  late bool joinedEventSwitch = false;
+  late bool newEventSwitch = true;
+  //late bool newEventFriendsOnlySwitch = false;
+  late bool joinedEventSwitch = true;
   late bool joinedEventFriendsOnlySwitch = false;
-  late bool eventDeletedSwitch = false;
-  late bool eventDeletedFriendsOnlySwitch = false;
-  late bool messageSwitch = false;
+  late bool eventDeletedSwitch = true;
+  //late bool eventDeletedFriendsOnlySwitch = false;
+  late bool messageSwitch = true;
   late bool messageFriendsOnlySwitch = false;
 
   @override
@@ -53,14 +53,19 @@ class _SettingScreenState extends ConsumerState<SettingScreen> {
         case 'camera':
           cameraSwitch = !cameraSwitch;
           prefs.setBool('camera', cameraSwitch);
+          handlePermissionToggle(perm_handler.Permission.camera, cameraSwitch);
           break;
         case 'location':
           locationSwitch = !locationSwitch;
           prefs.setBool('location', locationSwitch);
+          handlePermissionToggle(
+              perm_handler.Permission.location, locationSwitch);
           break;
         case 'contact':
           contactSwitch = !contactSwitch;
           prefs.setBool('contact', contactSwitch);
+          handlePermissionToggle(
+              perm_handler.Permission.contacts, contactSwitch);
           break;
         case 'notif':
           notifSwitch = !notifSwitch;
@@ -70,15 +75,15 @@ class _SettingScreenState extends ConsumerState<SettingScreen> {
         case 'newEvent':
           newEventSwitch = !newEventSwitch;
           prefs.setBool('newEvent', newEventSwitch);
-          if (!newEventSwitch) {
-            newEventFriendsOnlySwitch = false;
-            prefs.setBool('newEventFriendsOnly', false);
-          }
+          //   if (!newEventSwitch) {
+          //     newEventFriendsOnlySwitch = false;
+          //     prefs.setBool('newEventFriendsOnly', false);
+          //   }
           break;
-        case 'newEventFriendsOnly':
-          newEventFriendsOnlySwitch = !newEventFriendsOnlySwitch;
-          prefs.setBool('newEventFriendsOnly', newEventFriendsOnlySwitch);
-          break;
+        // case 'newEventFriendsOnly':
+        //   newEventFriendsOnlySwitch = !newEventFriendsOnlySwitch;
+        //   prefs.setBool('newEventFriendsOnly', newEventFriendsOnlySwitch);
+        //  break;
         case 'joinedEvent':
           joinedEventSwitch = !joinedEventSwitch;
           prefs.setBool('joinedEvent', joinedEventSwitch);
@@ -94,16 +99,16 @@ class _SettingScreenState extends ConsumerState<SettingScreen> {
         case 'eventDeleted':
           eventDeletedSwitch = !eventDeletedSwitch;
           prefs.setBool('eventDeleted', eventDeletedSwitch);
-          if (!eventDeletedSwitch) {
-            eventDeletedFriendsOnlySwitch = false;
-            prefs.setBool('eventDeletedFriendsOnly', false);
-          }
+          // if (!eventDeletedSwitch) {
+          //   eventDeletedFriendsOnlySwitch = false;
+          //   prefs.setBool('eventDeletedFriendsOnly', false);
+          // }
           break;
-        case 'eventDeletedFriendsOnly':
-          eventDeletedFriendsOnlySwitch = !eventDeletedFriendsOnlySwitch;
-          prefs.setBool(
-              'eventDeletedFriendsOnly', eventDeletedFriendsOnlySwitch);
-          break;
+        // case 'eventDeletedFriendsOnly':
+        //   eventDeletedFriendsOnlySwitch = !eventDeletedFriendsOnlySwitch;
+        //   prefs.setBool(
+        //       'eventDeletedFriendsOnly', eventDeletedFriendsOnlySwitch);
+        //   break;
         case 'message':
           messageSwitch = !messageSwitch;
           prefs.setBool('message', messageSwitch);
@@ -120,10 +125,38 @@ class _SettingScreenState extends ConsumerState<SettingScreen> {
     });
   }
 
+  Future<void> handlePermissionToggle(
+      perm_handler.Permission permission, bool enabled) async {
+    final status = await permission.status;
+    if (enabled && !status.isGranted) {
+      final result = await permission.request();
+      if (!result.isGranted) {
+        setState(() {
+          switch (permission) {
+            case perm_handler.Permission.camera:
+              cameraSwitch = false;
+              break;
+            case perm_handler.Permission.location:
+              locationSwitch = false;
+              break;
+            case perm_handler.Permission.contacts:
+              contactSwitch = false;
+              break;
+            default:
+              break;
+          }
+        });
+      }
+    } else if (!enabled && status.isGranted) {
+      perm_handler.openAppSettings();
+    }
+  }
+
   void handleNotificationSwitch() async {
     final perm_handler.PermissionStatus status =
         await perm_handler.Permission.notification.status;
     print('Notification permission status: $status');
+
     if (notifSwitch) {
       if (status.isGranted) {
         FirebaseMessaging.instance.subscribeToTopic('notifications');
@@ -132,6 +165,7 @@ class _SettingScreenState extends ConsumerState<SettingScreen> {
         final perm_handler.PermissionStatus requestStatus =
             await perm_handler.Permission.notification.request();
         print('Notification permission requested: $requestStatus');
+
         if (requestStatus.isGranted) {
           FirebaseMessaging.instance.subscribeToTopic('notifications');
           print('Subscribed to notifications after request');
@@ -145,6 +179,7 @@ class _SettingScreenState extends ConsumerState<SettingScreen> {
     } else {
       FirebaseMessaging.instance.unsubscribeFromTopic('notifications');
       print('Unsubscribed from notifications');
+      perm_handler.openAppSettings();
     }
   }
 
@@ -158,16 +193,48 @@ class _SettingScreenState extends ConsumerState<SettingScreen> {
       notifSwitch = prefs.getBool('notif') ?? false;
 
       newEventSwitch = prefs.getBool('newEvent') ?? false;
-      newEventFriendsOnlySwitch = prefs.getBool('newEventFriendsOnly') ?? false;
+      //newEventFriendsOnlySwitch = prefs.getBool('newEventFriendsOnly') ?? false;
       joinedEventSwitch = prefs.getBool('joinedEvent') ?? false;
       joinedEventFriendsOnlySwitch =
           prefs.getBool('joinedEventFriendsOnly') ?? false;
       eventDeletedSwitch = prefs.getBool('eventDeleted') ?? false;
-      eventDeletedFriendsOnlySwitch =
-          prefs.getBool('eventDeletedFriendsOnly') ?? false;
+      //eventDeletedFriendsOnlySwitch =
+      //    prefs.getBool('eventDeletedFriendsOnly') ?? false;
       messageSwitch = prefs.getBool('message') ?? false;
       messageFriendsOnlySwitch = prefs.getBool('messageFriendsOnly') ?? false;
     });
+    // Check camera permission status
+    final cameraStatus = await perm_handler.Permission.camera.status;
+    if (cameraStatus.isGranted) {
+      setState(() {
+        cameraSwitch = true;
+      });
+    }
+
+    // Check location permission status
+    final locationStatus = await perm_handler.Permission.location.status;
+    if (locationStatus.isGranted) {
+      setState(() {
+        locationSwitch = true;
+      });
+    }
+
+    // Check contacts permission status
+    final contactsStatus = await perm_handler.Permission.contacts.status;
+    if (contactsStatus.isGranted) {
+      setState(() {
+        contactSwitch = true;
+      });
+    }
+
+    // Check notification permission status
+    final notificationStatus =
+        await perm_handler.Permission.notification.status;
+    if (notificationStatus.isGranted) {
+      setState(() {
+        notifSwitch = true;
+      });
+    }
   }
 
   @override
@@ -249,23 +316,23 @@ class _SettingScreenState extends ConsumerState<SettingScreen> {
               },
             ),
           ),
-          Padding(
-            padding: const EdgeInsets.only(left: 40.0),
-            child: ListTile(
-              title: const Text('Friends Only', style: TextStyle(fontSize: 20)),
-              trailing: Switch(
-                value: newEventSwitch ? newEventFriendsOnlySwitch : false,
-                onChanged: newEventSwitch
-                    ? (newValue) {
-                        updateSwitchValue('newEventFriendsOnly');
-                      }
-                    : null,
-                activeColor: newEventSwitch
-                    ? Theme.of(context).primaryColor
-                    : Colors.grey,
-              ),
-            ),
-          ),
+          // Padding(
+          //   padding: const EdgeInsets.only(left: 40.0),
+          //   child: ListTile(
+          //     title: const Text('Friends Only', style: TextStyle(fontSize: 20)),
+          //     trailing: Switch(
+          //       value: newEventSwitch ? newEventFriendsOnlySwitch : false,
+          //       onChanged: newEventSwitch
+          //           ? (newValue) {
+          //               updateSwitchValue('newEventFriendsOnly');
+          //             }
+          //           : null,
+          //       activeColor: newEventSwitch
+          //           ? Theme.of(context).primaryColor
+          //           : Colors.grey,
+          //     ),
+          //   ),
+          // ),
           ListTile(
             title: Text('New Event Joined', style: TextStyle(fontSize: 20)),
             trailing: Switch(
@@ -293,7 +360,8 @@ class _SettingScreenState extends ConsumerState<SettingScreen> {
             ),
           ),
           ListTile(
-            title: const Text('Event Deleted', style: TextStyle(fontSize: 20)),
+            title: const Text('Event Deleted or Updated',
+                style: TextStyle(fontSize: 20)),
             trailing: Switch(
               value: eventDeletedSwitch,
               onChanged: (newValue) {
@@ -301,24 +369,24 @@ class _SettingScreenState extends ConsumerState<SettingScreen> {
               },
             ),
           ),
-          Padding(
-            padding: const EdgeInsets.only(left: 40.0),
-            child: ListTile(
-              title: const Text('Friends Only', style: TextStyle(fontSize: 20)),
-              trailing: Switch(
-                value:
-                    eventDeletedSwitch ? eventDeletedFriendsOnlySwitch : false,
-                onChanged: eventDeletedSwitch
-                    ? (newValue) {
-                        updateSwitchValue('eventDeletedFriendsOnly');
-                      }
-                    : null,
-                activeColor: eventDeletedSwitch
-                    ? Theme.of(context).primaryColor
-                    : Colors.grey,
-              ),
-            ),
-          ),
+          // Padding(
+          //   padding: const EdgeInsets.only(left: 40.0),
+          //   child: ListTile(
+          //     title: const Text('Friends Only', style: TextStyle(fontSize: 20)),
+          //     trailing: Switch(
+          //       value:
+          //           eventDeletedSwitch ? eventDeletedFriendsOnlySwitch : false,
+          //       onChanged: eventDeletedSwitch
+          //           ? (newValue) {
+          //               updateSwitchValue('eventDeletedFriendsOnly');
+          //             }
+          //           : null,
+          //       activeColor: eventDeletedSwitch
+          //           ? Theme.of(context).primaryColor
+          //           : Colors.grey,
+          //     ),
+          //   ),
+          // ),
           ListTile(
             title: Text('Incoming Message', style: TextStyle(fontSize: 20)),
             trailing: Switch(
@@ -363,29 +431,32 @@ class _SettingScreenState extends ConsumerState<SettingScreen> {
             title: const Text('Camera', style: TextStyle(fontSize: 20)),
             trailing: Switch(
               value: cameraSwitch,
-              onChanged: (newValue) {
+              onChanged: (newValue) async {
                 updateSwitchValue('camera');
               },
             ),
           ),
+
           ListTile(
             title: Text('Location', style: TextStyle(fontSize: 20)),
             trailing: Switch(
               value: locationSwitch,
-              onChanged: (newValue) {
+              onChanged: (newValue) async {
                 updateSwitchValue('location');
               },
             ),
           ),
+
           ListTile(
             title: const Text('Contacts', style: TextStyle(fontSize: 20)),
             trailing: Switch(
               value: contactSwitch,
-              onChanged: (newValue) {
+              onChanged: (newValue) async {
                 updateSwitchValue('contact');
               },
             ),
           ),
+
           ListTile(
             title: const Text('Device Notifications',
                 style: TextStyle(fontSize: 20)),

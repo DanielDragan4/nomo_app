@@ -12,14 +12,17 @@ class Payment extends StatefulWidget {
 class _PaymentState extends State<Payment> {
   @override
   Widget build(BuildContext context) {
-    return ListView(
-      children: const [
-        ListTile(
-            title: Text("Payment Settings:", style: TextStyle(fontSize: 25))),
-        ListTile(
-            title: Text("You haven't given us access to your money yet",
-                style: TextStyle(fontSize: 20))),
-      ],
+    return Scaffold(
+      backgroundColor: Theme.of(context).colorScheme.surface,
+      body: ListView(
+        children: const [
+          ListTile(
+              title: Text("Payment Settings:", style: TextStyle(fontSize: 25))),
+          ListTile(
+              title: Text("You haven't given us access to your money yet",
+                  style: TextStyle(fontSize: 20))),
+        ],
+      ),
     );
   }
 }

@@ -12,14 +12,17 @@ class AuthSetting extends StatefulWidget {
 class _AuthSettingState extends State<AuthSetting> {
   @override
   Widget build(BuildContext context) {
-    return ListView(
-      children: const [
-        ListTile(
-            title: Text("Authentication Settings:",
-                style: TextStyle(fontSize: 25))),
-        ListTile(
-            title: Text("No Auth Stuff Yet", style: TextStyle(fontSize: 20))),
-      ],
+    return Scaffold(
+      backgroundColor: Theme.of(context).colorScheme.surface,
+      body: ListView(
+        children: const [
+          ListTile(
+              title: Text("Authentication Settings:",
+                  style: TextStyle(fontSize: 25))),
+          ListTile(
+              title: Text("No Auth Stuff Yet", style: TextStyle(fontSize: 20))),
+        ],
+      ),
     );
   }
 }

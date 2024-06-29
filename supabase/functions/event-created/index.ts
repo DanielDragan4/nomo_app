@@ -109,7 +109,12 @@ Deno.serve(async (req) => {
           token: fcmToken,
           notification: {
             title: `New Event Created by ${hostProfileName.profile_name}`,
-            body: `View "${payload.record.title}"`
+            body: `"${payload.record.title}"`
+          },
+          data: {
+            hostUsername: hostProfileName.profile_name,
+            eventTitle: payload.record.title,
+            type: 'CREATE'
           }
         }
       })

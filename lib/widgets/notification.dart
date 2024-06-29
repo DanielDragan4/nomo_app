@@ -2,12 +2,12 @@ import 'package:flutter/material.dart';
 
 class NotificationItem extends StatelessWidget {
   final String title;
-  final String details;
+  final String? details;
 
   const NotificationItem({
     Key? key,
     required this.title,
-    required this.details,
+    this.details,
   }) : super(key: key);
 
   @override

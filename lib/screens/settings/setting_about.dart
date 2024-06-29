@@ -12,13 +12,16 @@ class About extends StatefulWidget {
 class _AboutState extends State<About> {
   @override
   Widget build(BuildContext context) {
-    return ListView(
-      children: const [
-        ListTile(title: Text("About Us:", style: TextStyle(fontSize: 25))),
-        ListTile(
-            title: Text("I have nothing to write about us rn",
-                style: TextStyle(fontSize: 20))),
-      ],
+    return Scaffold(
+      backgroundColor: Theme.of(context).colorScheme.surface,
+      body: ListView(
+        children: const [
+          ListTile(title: Text("About Us:", style: TextStyle(fontSize: 25))),
+          ListTile(
+              title: Text("I have nothing to write about us rn",
+                  style: TextStyle(fontSize: 20))),
+        ],
+      ),
     );
   }
 }

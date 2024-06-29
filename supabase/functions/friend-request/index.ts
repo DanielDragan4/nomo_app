@@ -88,6 +88,10 @@ Deno.serve(async (req) => {
         notification: {
           title: 'New Friend Request',
           body: `${senderName} sent you a friend request.`,
+        },
+        data: {
+          senderName: senderName,
+          type: 'REQUEST',
         }
       }
     })

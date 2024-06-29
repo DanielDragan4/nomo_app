@@ -12,12 +12,15 @@ class Analytics extends StatefulWidget {
 class _AnalyticsState extends State<Analytics> {
   @override
   Widget build(BuildContext context) {
-    return ListView(
-      children: const [
-        ListTile(title: Text("Analytics:", style: TextStyle(fontSize: 25))),
-        ListTile(
-            title: Text("No Analytics Yet", style: TextStyle(fontSize: 20))),
-      ],
+    return Scaffold(
+      backgroundColor: Theme.of(context).colorScheme.surface,
+      body: ListView(
+        children: const [
+          ListTile(title: Text("Analytics:", style: TextStyle(fontSize: 25))),
+          ListTile(
+              title: Text("No Analytics Yet", style: TextStyle(fontSize: 20))),
+        ],
+      ),
     );
   }
 }

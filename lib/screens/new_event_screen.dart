@@ -322,6 +322,12 @@ class _NewEventScreenState extends ConsumerState<NewEventScreen> {
 
     final Map newEventRowMap;
     final supabase = (await ref.watch(supabaseInstance)).client;
+    var point;
+
+    if (virtualEvent) {
+      point = null;
+    }
+    point = await getCords(location);
 
     if (selectedImage != null) {
       final previousImage = await supabase
@@ -332,6 +338,7 @@ class _NewEventScreenState extends ConsumerState<NewEventScreen> {
           .then((response) => response['image_url'] as String);
       await supabase.storage.from('Images').remove([previousImage]);
       var imageId = await uploadImage(selectedImage);
+      
 
       newEventRowMap = {
         'time_start': DateFormat('yyyy-MM-dd HH:mm:ss').format(start),
@@ -340,7 +347,8 @@ class _NewEventScreenState extends ConsumerState<NewEventScreen> {
         'description': description,
         'invitationType': inviteType,
         'image_id': imageId,
-        'title': title
+        'title': title,
+        'point' : point
       };
     } else {
       newEventRowMap = {
@@ -349,7 +357,8 @@ class _NewEventScreenState extends ConsumerState<NewEventScreen> {
         'location': location,
         'description': description,
         'invitationType': inviteType,
-        'title': title
+        'title': title,
+        'point' : point
       };
     }
 

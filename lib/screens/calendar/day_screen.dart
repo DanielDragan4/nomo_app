@@ -8,7 +8,7 @@ import 'package:nomo/screens/detailed_event_screen.dart';
 class DayScreen extends ConsumerStatefulWidget {
   DayScreen({super.key, required this.day, required this.blockedTime});
 
-  DateTime day; // the specipsic day
+  DateTime day; // the specific day
   List<Availability> blockedTime;
 
   @override
@@ -16,17 +16,43 @@ class DayScreen extends ConsumerStatefulWidget {
 }
 
 class _DayScreenState extends ConsumerState<DayScreen> {
+  late List<Availability> currentBlockedTime;
+
+  @override
+  void didUpdateWidget(DayScreen oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.day != widget.day) {
+      availabilityByDay();
+      _initializeBlockedHours();
+    }
+  }
+
+  void availabilityByDay() {
+    List<Availability> availabilityByDay = [];
+
+    for (var avail in widget.blockedTime) {
+      if (avail.sTime.day == widget.day.day) {
+        availabilityByDay.add(avail);
+      }
+    }
+    setState(() {
+      currentBlockedTime = availabilityByDay;
+    });
+  }
+
   List<Map<String, dynamic>> blockedHours = List.generate(
-      24 * 60,
-      (index) => {
-            'blocked': false,
-            'title': '',
-            'start': null,
-            'end': null,
-            'isEvent': false,
-            'event_id' : null,
-            'id': ''
-          });
+    24 * 60,
+    (index) => {
+      'blocked': false,
+      'title': '',
+      'start': null,
+      'end': null,
+      'isEvent': false,
+      'event_id': null,
+      'id': ''
+    },
+  );
+
   TimeOfDay? startTime; // s time
   TimeOfDay? endTime; // e time
   String? blockTitle;
@@ -34,12 +60,12 @@ class _DayScreenState extends ConsumerState<DayScreen> {
   @override
   void initState() {
     super.initState();
-    print("blockedTime: ${widget.blockedTime}");
+    availabilityByDay();
     _initializeBlockedHours();
   }
 
   void _initializeBlockedHours() {
-    for (var availability in widget.blockedTime) {
+    for (var availability in currentBlockedTime) {
       DateTime start = availability.sTime;
       DateTime end = availability.eTime;
       String title = availability.blockTitle;
@@ -56,7 +82,7 @@ class _DayScreenState extends ConsumerState<DayScreen> {
           'start': TimeOfDay(hour: start.hour, minute: start.minute),
           'end': TimeOfDay(hour: end.hour, minute: end.minute),
           if (availability.eventId != null) 'isEvent': true,
-          'event_id' : event_id,
+          'event_id': event_id,
           'id': id
         };
       }
@@ -65,9 +91,10 @@ class _DayScreenState extends ConsumerState<DayScreen> {
 
   Future<void> _selectTime(BuildContext context, bool isStartTime) async {
     final pickedTime = await showTimePicker(
-        context: context,
-        initialTime: TimeOfDay.now(),
-        initialEntryMode: TimePickerEntryMode.input);
+      context: context,
+      initialTime: TimeOfDay.now(),
+      initialEntryMode: TimePickerEntryMode.input,
+    );
 
     if (pickedTime != null) {
       setState(() {

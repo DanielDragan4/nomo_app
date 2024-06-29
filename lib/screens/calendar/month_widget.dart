@@ -5,7 +5,8 @@ import 'package:nomo/models/events_model.dart';
 import 'package:nomo/providers/attending_events_provider.dart';
 import 'package:nomo/providers/profile_provider.dart';
 import 'package:nomo/screens/calendar/event_cal_tab.dart';
-import 'package:nomo/screens/calendar/day_screen.dart'; // Make sure to import DayScreen
+import 'package:nomo/screens/calendar/day_screen.dart';
+import 'package:nomo/widgets/DayScreenPageView.dart'; // Make sure to import DayScreen
 
 class Month extends ConsumerWidget {
   Month(
@@ -296,15 +297,6 @@ class DayButton extends StatelessWidget {
   final List<Availability> availabilityByMonth;
   final bool hasBlockedTime;
 
-  List<Availability> availabilityByDay() {
-    List<Availability> availabilityByDay = [];
-    for (var avail in availabilityByMonth) {
-      if (avail.sTime.day == currentDate.day) {
-        availabilityByDay.add(avail);
-      }
-    }
-    return availabilityByDay;
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -313,12 +305,11 @@ class DayButton extends StatelessWidget {
         GestureDetector(
           onTap: () {
             print("month avail: ${availabilityByMonth.isNotEmpty}");
-            print("day avail: ${availabilityByDay().isNotEmpty}");
             if (currentDate.month == selectedMonth) {
               Navigator.of(context).push(MaterialPageRoute(
-                  builder: ((context) => DayScreen(
-                        day: currentDate,
-                        blockedTime: availabilityByDay(),
+                  builder: ((context) => DayScreenPageView(
+                        initialDay: currentDate,
+                        blockedTime: availabilityByMonth,
                       ))));
             }
           },

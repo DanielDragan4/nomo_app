@@ -103,37 +103,37 @@ class _AppState extends ConsumerState<App> {
     super.dispose();
   }
 
-  Future<void> _setFcmToken(String fcmToken, SupabaseClient client) async {
-    final userId = client.auth.currentUser?.id;
-    if (userId != null) {
-      await client.from('Profiles').upsert({
-        'profile_id': userId,
-        'fcm_token': fcmToken,
-      });
-    }
-  }
+  // Future<void> _setFcmToken(String fcmToken, SupabaseClient client) async {
+  //   final userId = client.auth.currentUser?.id;
+  //   if (userId != null) {
+  //     await client.from('Profiles').upsert({
+  //       'profile_id': userId,
+  //       'fcm_token': fcmToken,
+  //     });
+  //   }
+  // }
 
-  Future<void> _makeFcm(SupabaseClient client) async {
-    if (!isFcmInitialized) {
-      isFcmInitialized = true;
-      client.auth.onAuthStateChange.listen((event) async {
-        if (event.event == AuthChangeEvent.signedIn) {
-          await FirebaseMessaging.instance.requestPermission();
-          await FirebaseMessaging.instance.getAPNSToken();
-          final fcmToken = await FirebaseMessaging.instance.getToken();
-          if (fcmToken != null) {
-            await _setFcmToken(fcmToken, client);
-          }
-        }
-      });
+  // Future<void> _makeFcm(SupabaseClient client) async {
+  //   if (!isFcmInitialized) {
+  //     isFcmInitialized = true;
+  //     client.auth.onAuthStateChange.listen((event) async {
+  //       if (event.event == AuthChangeEvent.signedIn) {
+  //         await FirebaseMessaging.instance.requestPermission();
+  //         await FirebaseMessaging.instance.getAPNSToken();
+  //         final fcmToken = await FirebaseMessaging.instance.getToken();
+  //         if (fcmToken != null) {
+  //           await _setFcmToken(fcmToken, client);
+  //         }
+  //       }
+  //     });
 
-      FirebaseMessaging.instance.onTokenRefresh.listen(
-        (fcmToken) async {
-          await _setFcmToken(fcmToken, client);
-        },
-      );
-    }
-  }
+  //     FirebaseMessaging.instance.onTokenRefresh.listen(
+  //       (fcmToken) async {
+  //         await _setFcmToken(fcmToken, client);
+  //       },
+  //     );
+  //   }
+  // }
 
   @override
   Widget build(BuildContext context) {
@@ -146,7 +146,7 @@ class _AppState extends ConsumerState<App> {
 
     Widget content = supabase.when(
       data: (client) {
-        _makeFcm(client);
+        //_makeFcm(client);
         return GestureDetector(
           onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
           child: MaterialApp(

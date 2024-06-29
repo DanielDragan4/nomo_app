@@ -197,9 +197,11 @@ class _LocationTestScreenState extends State<LocationTestScreen> {
                   child: const Text('Get Current Location'),
                 ),
                 const SizedBox(height: 10),
-                (!hasPermission)
-                    ? AddressSearchField(controller: manualLocation)
-                    : const SizedBox(),
+                AddressSearchField(controller: manualLocation),
+                ElevatedButton(
+                  onPressed: _setLocationManually,
+                  child: const Text('Enter Manually'),
+                ),
                 SizedBox(height: MediaQuery.of(context).size.height * .2),
                 Text(
                   'Select a Radius for your Events',

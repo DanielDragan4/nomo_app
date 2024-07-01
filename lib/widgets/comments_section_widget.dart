@@ -1,3 +1,5 @@
+// comments_section_widget.dart
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:nomo/models/comments_model.dart';
@@ -11,102 +13,112 @@ class CommentsSection extends ConsumerStatefulWidget {
   final eventId;
 
   @override
-  ConsumerState<CommentsSection> createState() {
-    return _CommentsSectionState();
-  }
+  ConsumerState<CommentsSection> createState() => _CommentsSectionState();
 }
 
 class _CommentsSectionState extends ConsumerState<CommentsSection> {
-   final newComment = TextEditingController();
-   List<Comment> commentsList = [];
+  final newComment = TextEditingController();
+  List<Comment> commentsList = [];
 
   @override
   void initState() {
     super.initState();
-    recieveComments();
+    receiveComments();
   }
 
-  Future<void> recieveComments() async{
-       var readComments = await ref.read(eventsProvider.notifier).getComments(widget.eventId);
-      setState(() {
-        commentsList = readComments;
-      });
-    }
+  Future<void> receiveComments() async {
+    var readComments = await ref.read(eventsProvider.notifier).getComments(widget.eventId);
+    setState(() {
+      commentsList = readComments;
+    });
+  }
 
-   Future<void> postComment(String comment) async {
+  Future<void> postComment(String comment) async {
     final supabase = (await ref.read(supabaseInstance)).client;
     commentsList = await ref.read(eventsProvider.notifier)
-    .postComment(supabase.auth.currentUser!.id, widget.eventId, comment, null);
+        .postComment(supabase.auth.currentUser!.id, widget.eventId, comment, null);
+    setState(() {});
   }
 
   @override
   Widget build(BuildContext context) {
-
-    final bool activeComments;
-    bool inputComment = false;
-    
-    if(commentsList.isNotEmpty) {
-      activeComments = true;
-    }else {
-      activeComments = false;
-    }
-
-    if(newComment.text.isNotEmpty) {
-      setState(() {
-        inputComment = true;        
-      });
-    }
-
-    return Container(
-      child: 
-      Column(
-        children: [
-      (activeComments ?
-        SizedBox(
-          height: MediaQuery.of(context).size.height *.3,
-          child: ListView(
-            children: [
-              for (Comment i in commentsList) 
-                CommentWidget(commentData: i)
-            ],
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding: EdgeInsets.symmetric(
+            horizontal: MediaQuery.of(context).size.width * 0.04,
+            vertical: MediaQuery.of(context).size.height * 0.02,
           ),
-        )
-        :  
-        Text("No Comments Avalible", style: TextStyle(color: Theme.of(context).colorScheme.onSecondary))),
-        Row(
-          children: [
-              TextField(
-                autofocus: false,
-                controller: newComment,
-                  decoration: InputDecoration(
-                    constraints: BoxConstraints(maxHeight: MediaQuery.of(context).size.height *.033, maxWidth:  MediaQuery.of(context).size.width *.86),
-                    contentPadding: EdgeInsets.all(MediaQuery.of(context).size.height *.005),
-                    border: const OutlineInputBorder(
-                      borderRadius: BorderRadius.all(Radius.circular(30)),
+          child: Text(
+            'Comments',
+            style: TextStyle(
+              fontSize: MediaQuery.of(context).size.width * 0.05,
+              fontWeight: FontWeight.bold,
+              color: Theme.of(context).colorScheme.onSecondary,
+            ),
+          ),
+        ),
+        commentsList.isNotEmpty
+            ? SizedBox(
+                height: MediaQuery.of(context).size.height * 0.4,
+                child: ListView.builder(
+                  itemCount: commentsList.length,
+                  itemBuilder: (context, index) => CommentWidget(commentData: commentsList[index]),
+                ),
+              )
+            : Center(
+                child: Padding(
+                  padding: EdgeInsets.all(MediaQuery.of(context).size.height * 0.02),
+                  child: Text(
+                    "No comments available",
+                    style: TextStyle(
+                      color: Theme.of(context).colorScheme.onSecondary.withOpacity(0.6),
+                      fontSize: MediaQuery.of(context).size.width * 0.04,
                     ),
-                    hintText: 'Add a Comment',
-                    hintStyle: TextStyle(color: Theme.of(context).colorScheme.onSecondary),
-                    focusColor:Theme.of(context).colorScheme.onSecondary
+                  ),
+                ),
+              ),
+        Padding(
+          padding: EdgeInsets.all(MediaQuery.of(context).size.width * 0.04),
+          child: Row(
+            children: [
+              Expanded(
+                child: TextField(
+                  controller: newComment,
+                  decoration: InputDecoration(
+                    hintText: 'Add a comment',
+                    hintStyle: TextStyle(color: Theme.of(context).colorScheme.onSecondary.withOpacity(0.6)),
+                    filled: true,
+                    fillColor: Theme.of(context).colorScheme.surface,
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(30),
+                      borderSide: BorderSide.none,
+                    ),
+                    contentPadding: EdgeInsets.symmetric(
+                      horizontal: MediaQuery.of(context).size.width * 0.04,
+                      vertical: MediaQuery.of(context).size.height * 0.015,
+                    ),
                   ),
                   style: TextStyle(color: Theme.of(context).colorScheme.onSecondary),
                 ),
-              inputComment ?
-                IconButton(onPressed: () {
-                  postComment(newComment.text);
-                  setState(() {
+              ),
+              SizedBox(width: MediaQuery.of(context).size.width * 0.02),
+              IconButton(
+                onPressed: () {
+                  if (newComment.text.isNotEmpty) {
+                    postComment(newComment.text);
                     newComment.clear();
-                    recieveComments();
-                  });
-                  
-                }, icon: const Icon(Icons.send_rounded),color: Theme.of(context).colorScheme.onSecondary)
-                :
-                SizedBox(
-                  width: MediaQuery.of(context).size.width * .1,
-                )
-          ],
+                    receiveComments();
+                  }
+                },
+                icon: Icon(Icons.send_rounded),
+                color: Theme.of(context).colorScheme.primary,
+              ),
+            ],
+          ),
         ),
-        ]
-      )         
+      ],
     );
   }
 }

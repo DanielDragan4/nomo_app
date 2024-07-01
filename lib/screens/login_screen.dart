@@ -204,8 +204,8 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                                 width: MediaQuery.of(context).size.width * .38,
                                 child: Row(
                                   children: [
-                                    Image.network(
-                                      'http://pngimg.com/uploads/google/google_PNG19635.png',
+                                    Image.asset(
+                                      'assets/images/google_PNG19635.png',
                                       fit: BoxFit.cover,
                                       scale: MediaQuery.of(context)
                                               .size

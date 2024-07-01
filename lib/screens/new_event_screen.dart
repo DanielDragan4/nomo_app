@@ -266,8 +266,9 @@ class _NewEventScreenState extends ConsumerState<NewEventScreen> {
     var point;
     if (virtualEvent) {
       point = null;
-    }
+    } else {
     point = await getCords(location);
+    }
     final newEventRowMap = {
       'time_start': DateFormat('yyyy-MM-dd HH:mm:ss').format(start),
       'time_end': DateFormat('yyyy-MM-dd HH:mm:ss').format(end),

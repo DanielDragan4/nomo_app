@@ -4,6 +4,7 @@ import 'package:google_sign_in/google_sign_in.dart';
 import 'package:nomo/providers/saved_session_provider.dart';
 import 'package:nomo/providers/supabase_provider.dart';
 import 'package:nomo/providers/user_signup_provider.dart';
+import 'package:nomo/screens/forgot_password_screen.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 class LoginScreen extends ConsumerStatefulWidget {
@@ -14,12 +15,11 @@ class LoginScreen extends ConsumerStatefulWidget {
     return _LoginScreenState();
   }
 }
-  final supabase = Supabase.instance.client;
 
+final supabase = Supabase.instance.client;
 
 class _LoginScreenState extends ConsumerState<LoginScreen> {
   final _form = GlobalKey<FormState>();
-
 
   void _submit(String email, bool login, String pass) async {
     final isValid = _form.currentState!.validate();
@@ -117,6 +117,20 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                               enteredPass = value;
                             },
                           ),
+                          Align(
+                            alignment: Alignment.centerLeft,
+                            child: TextButton(
+                              onPressed: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (context) =>
+                                          ForgotPasswordScreen()),
+                                );
+                              },
+                              child: const Text('Forgot Password?'),
+                            ),
+                          ),
                           const SizedBox(
                             height: 12,
                           ),
@@ -145,50 +159,63 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                                   ? 'Create an Account'
                                   : 'I already have an account.'),
                             ),
-                          ElevatedButton(onPressed: () async{
-                              const webClientId = '360184712841-clbo4mf1nmbkitr4of35spnmcrsqidgq.apps.googleusercontent.com';
-                              const iosClientId = '360184712841-mh9s1b58m7afvd7b06gbf2l5lssi8622.apps.googleusercontent.com';
+                          ElevatedButton(
+                              onPressed: () async {
+                                const webClientId =
+                                    '360184712841-clbo4mf1nmbkitr4of35spnmcrsqidgq.apps.googleusercontent.com';
+                                const iosClientId =
+                                    '360184712841-mh9s1b58m7afvd7b06gbf2l5lssi8622.apps.googleusercontent.com';
 
-                              // Google sign in on Android will work without providing the Android
-                              // Client ID registered on Google Cloud.
+                                // Google sign in on Android will work without providing the Android
+                                // Client ID registered on Google Cloud.
 
-                              final GoogleSignIn googleSignIn = GoogleSignIn(
-                                clientId: iosClientId,
-                                serverClientId: webClientId,
-                              );
-                              final googleUser = await googleSignIn.signIn();
-                              final googleAuth = await googleUser!.authentication;
-                              final accessToken = googleAuth.accessToken;
-                              final idToken = googleAuth.idToken;
-                              print(accessToken);
-                              print(idToken);
+                                final GoogleSignIn googleSignIn = GoogleSignIn(
+                                  clientId: iosClientId,
+                                  serverClientId: webClientId,
+                                );
+                                final googleUser = await googleSignIn.signIn();
+                                final googleAuth =
+                                    await googleUser!.authentication;
+                                final accessToken = googleAuth.accessToken;
+                                final idToken = googleAuth.idToken;
+                                print(accessToken);
+                                print(idToken);
 
-                              if (accessToken == null) {
-                                throw 'No Access Token found.';
-                              }
-                              if (idToken == null) {
-                                throw 'No ID Token found.';
-                              }
-                            bool firstSignIn = await ref.read(currentUserProvider.notifier).signInWithIdToken(idToken, accessToken);
+                                if (accessToken == null) {
+                                  throw 'No Access Token found.';
+                                }
+                                if (idToken == null) {
+                                  throw 'No ID Token found.';
+                                }
+                                bool firstSignIn = await ref
+                                    .read(currentUserProvider.notifier)
+                                    .signInWithIdToken(idToken, accessToken);
 
-                            if(firstSignIn) {
-                              ref.watch(onSignUp.notifier).notifyAccountCreation();
-                            }
-                            ref.read(savedSessionProvider.notifier).changeSessionDataList();
-
-                          }, child: Container(
-                            width: MediaQuery.of(context).size.width *.38,
-                            child: Row(
-                              children: [
-                                Image.network(
-                                  'http://pngimg.com/uploads/google/google_PNG19635.png',
-                                  fit:BoxFit.cover,
-                                  scale: MediaQuery.of(context).size.aspectRatio * 100,
+                                if (firstSignIn) {
+                                  ref
+                                      .watch(onSignUp.notifier)
+                                      .notifyAccountCreation();
+                                }
+                                ref
+                                    .read(savedSessionProvider.notifier)
+                                    .changeSessionDataList();
+                              },
+                              child: Container(
+                                width: MediaQuery.of(context).size.width * .38,
+                                child: Row(
+                                  children: [
+                                    Image.network(
+                                      'http://pngimg.com/uploads/google/google_PNG19635.png',
+                                      fit: BoxFit.cover,
+                                      scale: MediaQuery.of(context)
+                                              .size
+                                              .aspectRatio *
+                                          100,
+                                    ),
+                                    Text('Sign in with Google')
+                                  ],
                                 ),
-                                Text('Sign in with Google')
-                              ],
-                            ),
-                          ))
+                              ))
                         ],
                       ),
                     ),

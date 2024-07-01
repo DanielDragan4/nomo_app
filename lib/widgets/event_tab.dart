@@ -7,188 +7,185 @@ import 'package:nomo/screens/detailed_event_screen.dart';
 import 'package:nomo/screens/profile_screen.dart';
 import 'package:nomo/widgets/event_info.dart';
 
-// ignore: must_be_immutable
 class EventTab extends ConsumerStatefulWidget {
-  EventTab({super.key, required this.eventData, this.bookmarkSet});
+  const EventTab({Key? key, required this.eventData, this.bookmarkSet}) : super(key: key);
 
   final Event eventData;
-  bool? bookmarkSet;
+  final bool? bookmarkSet;
 
   @override
-  ConsumerState<EventTab> createState() {
-    return _EventTabState();
-  }
+  ConsumerState<EventTab> createState() => _EventTabState();
 }
 
 class _EventTabState extends ConsumerState<EventTab> {
   @override
   Widget build(BuildContext context) {
     final DateTime date = DateTime.parse(widget.eventData.sdate);
+    final formattedDate = "${date.month}/${date.day}/${date.year} at ${_getFormattedHour(date)}";
 
-    String getHour() {
-      if (date.hour > 12) {
-        return ('${(date.hour - 12)} P.M.');
-      } else {
-        return ("${date.hour} A.M.");
-      }
-    }
-
-    var formattedDate =
-        "${date.month}/${date.day}/${date.year} at ${getHour()}";
-    return Padding(
-      padding: const EdgeInsets.only(top: 1, bottom: 10, left: 5, right: 5),
-      child: Container(
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(3),
-          border: Border.all(
-            color: const Color.fromARGB(255, 0, 0, 0),
-            width: 2,
-          ),
-        ),
-        child: Column(
-          children: [
-            Padding(
-              padding: EdgeInsets.all(MediaQuery.sizeOf(context).width / 100),
-              child: GestureDetector(
-                onTap: () {
-                  Navigator.of(context).push(MaterialPageRoute(
-                      builder: ((context) => ProfileScreen(
-                            isUser: false,
-                            userId: widget.eventData.host,
-                          ))));
-                },
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  children: [
-                    FutureBuilder(
-                      future: ref.read(supabaseInstance),
-                      builder: (context, snapshot) {
-                        if (snapshot.hasData) {
-                          return CircleAvatar(
-                            radius: MediaQuery.sizeOf(context).width / 20,
-                            backgroundColor: Colors.white,
-                            backgroundImage: NetworkImage(
-                              widget.eventData.hostProfileUrl,
-                            ),
-                          );
-                        } else if (snapshot.hasError) {
-                          return Text('Error loading image: ${snapshot.error}');
-                        } else if (snapshot.connectionState ==
-                            ConnectionState.waiting) {
-                          return const CircularProgressIndicator();
-                        } else {
-                          return const CircularProgressIndicator();
-                        }
-                      },
-                    ),
-                    SizedBox(width: MediaQuery.sizeOf(context).height / 150),
-                    Text(
-                      widget.eventData.hostUsername,
-                      style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: MediaQuery.of(context).size.width * .04,
-                          color: Theme.of(context).colorScheme.onSecondary),
-                    )
-                  ],
-                ),
-              ),
-            ),
-            GestureDetector(
-              onTap: () => Navigator.of(context).push(MaterialPageRoute(
-                  builder: ((context) =>
-                      DetailedEventScreen(eventData: widget.eventData)))),
-              child: Container(
-                width: double.infinity,
-                decoration: const BoxDecoration(
-                    borderRadius: BorderRadius.only(
-                        bottomLeft: Radius.circular(15),
-                        bottomRight: Radius.circular(15))),
-                child: SizedBox(
-                  width: double.infinity,
-                  height: 250,
-                  child: FutureBuilder(
-                    future: ref.read(supabaseInstance),
-                    builder: (context, snapshot) {
-                      if (snapshot.hasData) {
-                        return Image.network(widget.eventData.imageUrl,
-                            fit: BoxFit.fill);
-                      } else if (snapshot.hasError) {
-                        return Text('Error loading image: ${snapshot.error}');
-                      } else if (snapshot.connectionState ==
-                          ConnectionState.waiting) {
-                        return const CircularProgressIndicator();
-                      } else {
-                        return const CircularProgressIndicator();
-                      }
-                    },
-                  ),
-                ),
-              ),
-            ),
-            const SizedBox(
-              height: 5,
-            ),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+    return Card(
+      elevation: 4,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          _buildHostInfo(context),
+          _buildEventImage(context),
+          Padding(
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  widget.eventData.title,
-                  style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                    color: Theme.of(context).colorScheme.onSecondary,
-                    fontSize: MediaQuery.of(context).size.width * .04,
-                  ),
-                ),
-                Text(
-                  formattedDate,
-                  style: TextStyle(
-                      color: Theme.of(context).colorScheme.onSecondary),
-                ),
+                _buildEventTitle(context),
+                const SizedBox(height: 8),
+                _buildEventDate(context, formattedDate),
+                const SizedBox(height: 12),
+                _buildEventLocation(context),
+                const SizedBox(height: 16),
+                EventInfo(eventsData: widget.eventData, bookmarkSet: widget.bookmarkSet),
+                const SizedBox(height: 12),
+                _buildEventDescription(context),
               ],
             ),
-            GestureDetector(
-              onTap: () {
-                MapsLauncher.launchQuery(widget.eventData.location);
-              },
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.start,
-                children: [
-                  const SizedBox(
-                    width: 10,
-                  ),
-                  Text(
-                    widget.eventData.location,
-                    style: TextStyle(
-                      fontWeight: FontWeight.w300,
-                      color: Theme.of(context).colorScheme.onSecondary,
-                      fontSize: MediaQuery.of(context).size.width * .038,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            Container(
-              height: 5,
-            ),
-            EventInfo(
-                eventsData: widget.eventData, bookmarkSet: widget.bookmarkSet),
-            GestureDetector(
-              onTap: () => Navigator.of(context).push(MaterialPageRoute(
-                  builder: ((context) =>
-                      DetailedEventScreen(eventData: widget.eventData)))),
-              child: SizedBox(
-                child: Text(
-                  widget.eventData.description,
-                  overflow: TextOverflow.ellipsis,
-                  maxLines: 3,
-                  style: TextStyle(
-                      color: Theme.of(context).colorScheme.onSecondary),
-                ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildHostInfo(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.all(16),
+      child: GestureDetector(
+        onTap: () => Navigator.of(context).push(MaterialPageRoute(
+          builder: (context) => ProfileScreen(isUser: false, userId: widget.eventData.host),
+        )),
+        child: Row(
+          children: [
+            _buildHostAvatar(context),
+            const SizedBox(width: 12),
+            Text(
+              widget.eventData.hostUsername,
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                fontSize: 16,
+                color: Theme.of(context).colorScheme.onSurface,
               ),
             ),
           ],
         ),
       ),
     );
+  }
+
+  Widget _buildHostAvatar(BuildContext context) {
+    return FutureBuilder(
+      future: ref.read(supabaseInstance),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.done) {
+          return CircleAvatar(
+            radius: 24,
+            backgroundColor: Colors.grey[200],
+            backgroundImage: NetworkImage(widget.eventData.hostProfileUrl),
+          );
+        } else {
+          return const CircleAvatar(
+            radius: 24,
+            backgroundColor: Colors.grey,
+            child: CircularProgressIndicator(),
+          );
+        }
+      },
+    );
+  }
+
+  Widget _buildEventImage(BuildContext context) {
+    return GestureDetector(
+      onTap: () => Navigator.of(context).push(MaterialPageRoute(
+        builder: (context) => DetailedEventScreen(eventData: widget.eventData),
+      )),
+      child: AspectRatio(
+        aspectRatio: 16 / 9,
+        child: FutureBuilder(
+          future: ref.read(supabaseInstance),
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.done) {
+              return Image.network(
+                widget.eventData.imageUrl,
+                fit: BoxFit.cover,
+              );
+            } else {
+              return const Center(child: CircularProgressIndicator());
+            }
+          },
+        ),
+      ),
+    );
+  }
+
+  Widget _buildEventTitle(BuildContext context) {
+    return Text(
+      widget.eventData.title,
+      style: Theme.of(context).textTheme.headlineLarge?.copyWith(
+        fontWeight: FontWeight.bold,
+        color: Theme.of(context).colorScheme.onSurface,
+      ),
+    );
+  }
+
+  Widget _buildEventDate(BuildContext context, String formattedDate) {
+    return Row(
+      children: [
+        Icon(Icons.calendar_today, size: 18, color: Theme.of(context).colorScheme.secondary),
+        const SizedBox(width: 8),
+        Text(
+          formattedDate,
+          style: TextStyle(color: Theme.of(context).colorScheme.secondary),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildEventLocation(BuildContext context) {
+    return GestureDetector(
+      onTap: () => MapsLauncher.launchQuery(widget.eventData.location),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Icon(Icons.location_on, size: 18, color: Theme.of(context).colorScheme.secondary),
+          const SizedBox(width: 8),
+          Expanded(
+            child: Text(
+              widget.eventData.location,
+              style: TextStyle(
+                color: Theme.of(context).colorScheme.secondary,
+                decoration: TextDecoration.underline,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildEventDescription(BuildContext context) {
+    return GestureDetector(
+      onTap: () => Navigator.of(context).push(MaterialPageRoute(
+        builder: (context) => DetailedEventScreen(eventData: widget.eventData),
+      )),
+      child: Text(
+        widget.eventData.description,
+        maxLines: 3,
+        overflow: TextOverflow.ellipsis,
+        style: TextStyle(color: Theme.of(context).colorScheme.onSurface),
+      ),
+    );
+  }
+
+  String _getFormattedHour(DateTime date) {
+    final hour = date.hour > 12 ? date.hour - 12 : date.hour;
+    final period = date.hour >= 12 ? 'P.M.' : 'A.M.';
+    return '$hour $period';
   }
 }

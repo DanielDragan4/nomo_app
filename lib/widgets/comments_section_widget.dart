@@ -45,20 +45,6 @@ class _CommentsSectionState extends ConsumerState<CommentsSection> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Padding(
-          padding: EdgeInsets.symmetric(
-            horizontal: MediaQuery.of(context).size.width * 0.04,
-            vertical: MediaQuery.of(context).size.height * 0.02,
-          ),
-          child: Text(
-            'Comments',
-            style: TextStyle(
-              fontSize: MediaQuery.of(context).size.width * 0.05,
-              fontWeight: FontWeight.bold,
-              color: Theme.of(context).colorScheme.onSecondary,
-            ),
-          ),
-        ),
         commentsList.isNotEmpty
             ? SizedBox(
                 height: MediaQuery.of(context).size.height * 0.4,

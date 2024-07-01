@@ -69,9 +69,9 @@ class AttendEventProvider extends StateNotifier<List<Event>> {
           break;
         }
       }
-
+        print(deCodedEvent.title);
       if ((attending) ||
-          (deCodedEvent.host == supabaseClient.auth.currentUser!.id ||
+          ((deCodedEvent.host == supabaseClient.auth.currentUser!.id) ||
               (bookmarked))) {
         if (deCodedEvent.host == supabaseClient.auth.currentUser!.id) {
           deCodedEvent.isHost = true;

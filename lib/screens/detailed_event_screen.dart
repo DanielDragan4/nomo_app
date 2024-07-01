@@ -8,202 +8,165 @@ import 'package:nomo/widgets/event_info.dart';
 
 class DetailedEventScreen extends ConsumerStatefulWidget {
   DetailedEventScreen({
-    super.key,
+    Key? key,
     this.eventData,
     this.linkEventId,
-  });
+  }) : super(key: key);
 
   Event? eventData;
   final String? linkEventId;
 
   @override
-  ConsumerState<DetailedEventScreen> createState() {
-    return _DetailedEventScreenState();
-  }
+  ConsumerState<DetailedEventScreen> createState() => _DetailedEventScreenState();
 }
 
 class _DetailedEventScreenState extends ConsumerState<DetailedEventScreen> {
+  Event? event;
 
-  var event;
-
-  Future<void> _initalizeEventData() async{
-    if(widget.linkEventId != null) {
-      event = await ref.read(eventsProvider.notifier).deCodeLinkEvent(widget.linkEventId);
+  Future<void> _initializeEventData() async {
+    if (widget.linkEventId != null) {
+      event = await ref.read(eventsProvider.notifier).deCodeLinkEvent(widget.linkEventId!);
     } else {
       event = widget.eventData!;
     }
+    if (mounted) setState(() {});
   }
+
   @override
   void initState() {
-    _initalizeEventData();
     super.initState();
+    _initializeEventData();
   }
 
   @override
   Widget build(BuildContext context) {
-
-    var formattedDate;
-
-    if(event != null) {
-      final DateTime date = DateTime.parse(event.sdate);
-
-      String getHour() {
-        if (date.hour > 12) {
-          return ('${(date.hour - 12)} P.M.');
-        } else {
-          return ("${date.hour} A.M.");
-        }
-      }
-
-      formattedDate =
-          "${date.month}/${date.day}/${date.year} at ${getHour()}";
+    if (event == null) {
+      return Scaffold(
+        backgroundColor: Theme.of(context).colorScheme.surface,
+        body: const Center(child: CircularProgressIndicator()),
+      );
     }
 
-    return (event != null) ? Scaffold( 
+    return Scaffold(
       backgroundColor: Theme.of(context).colorScheme.surface,
       appBar: AppBar(
         backgroundColor: Theme.of(context).colorScheme.surface,
-        toolbarHeight: 75,
-        titleTextStyle: Theme.of(context).appBarTheme.titleTextStyle,
-        title: Center(
-          child: Column(
-            children: [
-              const SizedBox(
-                height: 10,
-              ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: [
-                  Text(event.title,
-                      style: TextStyle(
-                        color: Theme.of(context).primaryColor,
-                        fontWeight: FontWeight.bold,
-                      )),
-                ],
-              ),
-            ],
-          ),
+        elevation: 0,
+        title: Text(
+          event!.title,
+          style: TextStyle(color: Theme.of(context).primaryColor),
         ),
       ),
       body: SingleChildScrollView(
-        child: Column(children: [
-          Padding(
-              padding: const EdgeInsets.all(2.0),
-              child: Container(
-                  child: Column(children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  children: [
-                    Padding(
-                padding:  EdgeInsets.all(MediaQuery.sizeOf(context).width / 100),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    FutureBuilder(
-                      future: ref.read(supabaseInstance),
-                      builder: (context, snapshot) {
-                        if (snapshot.hasData) {
-                          return CircleAvatar(
-                            radius: MediaQuery.sizeOf(context).width / 24,
-                            backgroundColor: Colors.white,
-                            backgroundImage: NetworkImage(
-                              event.hostProfileUrl,
-                            ),
-                          );
-                        } else if (snapshot.hasError) {
-                          return Text('Error loading image: ${snapshot.error}');
-                        } else if (snapshot.connectionState ==
-                            ConnectionState.waiting) {
-                          return const CircularProgressIndicator();
-                        } else {
-                          return const CircularProgressIndicator();
-                        }
-                      },
-                    ),
-                    Text(
-                      event.hostUsername,
-                      style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          color: Theme.of(context).colorScheme.onSecondary,
-                          fontSize: MediaQuery.of(context).size.width * .047),
-                    )
-                  ],
-                ),
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              _buildEventImage(),
+              const SizedBox(height: 16),
+              _buildEventHost(),
+              const SizedBox(height: 16),
+              EventInfo(eventsData: event!),
+              const SizedBox(height: 16),
+              _buildEventDescription(),
+              const SizedBox(height: 24),
+              _buildCommentsSection(),
+            ],
+          )
+        ),
+      ),
+    );
+  }
+
+  Widget _buildEventImage() {
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(8),
+      child: AspectRatio(
+        aspectRatio: 16 / 9,
+        child: Image.network(
+          event!.imageUrl,
+          fit: BoxFit.cover,
+          errorBuilder: (context, error, stackTrace) {
+            return Container(
+              color: Colors.grey[300],
+              child: const Icon(Icons.error),
+            );
+          },
+        ),
+      ),
+    );
+  }
+
+  Widget _buildEventHost() {
+    return Row(
+      children: [
+        CircleAvatar(
+          radius: 20,
+          backgroundImage: NetworkImage(event!.hostProfileUrl),
+        ),
+        const SizedBox(width: 8),
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'Hosted by',
+              style: TextStyle(
+                color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
+                fontSize: 12,
               ),
-              SizedBox(width: MediaQuery.sizeOf(context).width / 2.75),
-                    Text(formattedDate, style: TextStyle(color: Theme.of(context).colorScheme.onSecondary),),
-                  ],
-                ),
-                Container(
-                  width: double.infinity,
-                  decoration: const BoxDecoration(
-                      borderRadius: BorderRadius.only(
-                          bottomLeft: Radius.circular(15),
-                          bottomRight: Radius.circular(15))),
-                  child: SizedBox(
-                    width: double.infinity,
-                    height: 250,
-                    child: FutureBuilder(
-                      future: ref.read(supabaseInstance),
-                      builder: (context, snapshot) {
-                        if (snapshot.hasData) {
-                          return Image.network(event.imageUrl,
-                              fit: BoxFit.fill);
-                        } else if (snapshot.hasError) {
-                          return Text('Error loading image: ${snapshot.error}');
-                        } else if (snapshot.connectionState ==
-                            ConnectionState.waiting) {
-                          return const CircularProgressIndicator();
-                        } else {
-                          return const CircularProgressIndicator();
-                        }
-                      },
-                    ),
-                  ),
-                ),
-                Row(
-              mainAxisAlignment: MainAxisAlignment.start,
-              children: [
-                const SizedBox(
-                  width: 10,
-                ),
-                Text(
-                  event.location,
-                  style: TextStyle(
-                    fontWeight: FontWeight.w400,
-                    color: Theme.of(context).colorScheme.onSecondary,
-                    fontSize: MediaQuery.of(context).size.width * .038,
-                  ),
-                ),
-              ],
             ),
-                Container(
-                  height: 5,
-                ),
-                EventInfo(eventsData: event),
-                SizedBox(
-                  height: MediaQuery.of(context).size.height / 20,
-                  child: Text(event.description, style: TextStyle(color: Theme.of(context).colorScheme.onSecondary),),
-                ),
-                Text('Comments',
-                    style: TextStyle(
-                      color: Theme.of(context).primaryColor,
-                      fontWeight: FontWeight.bold,
-                    )),
-                const Divider(),
-                CommentsSection(eventId: event.eventId)
-              ])))
-        ],
-      ),
-      ),
-    )
-    : Scaffold(
-      backgroundColor: Theme.of(context).colorScheme.surface,
-       body: const Column(
-        children: [
-          CircularProgressIndicator()
-        ],
-      )
+            Text(
+              event!.hostUsername,
+              style: TextStyle(
+                color: Theme.of(context).colorScheme.onSurface,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ],
+        ),
+      ],
+    );
+  }
+
+  Widget _buildEventDescription() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          'About',
+          style: TextStyle(
+            color: Theme.of(context).primaryColor,
+            fontWeight: FontWeight.bold,
+            fontSize: 18,
+          ),
+        ),
+        const SizedBox(height: 8),
+        Text(
+          event!.description,
+          style: TextStyle(
+            color: Theme.of(context).colorScheme.onSurface,
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildCommentsSection() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          'Comments',
+          style: TextStyle(
+            color: Theme.of(context).primaryColor,
+            fontWeight: FontWeight.bold,
+            fontSize: 18,
+          ),
+        ),
+        const SizedBox(height: 8),
+        CommentsSection(eventId: event!.eventId),
+      ],  
     );
   }
 }

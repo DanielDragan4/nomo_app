@@ -1,9 +1,10 @@
+// comment_widget.dart
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:jiffy/jiffy.dart';
 import 'package:nomo/models/comments_model.dart';
 import 'package:nomo/providers/supabase_provider.dart';
-//import 'package:nomo/models/comments_model.dart';
 
 class CommentWidget extends ConsumerWidget {
   const CommentWidget({super.key, required this.commentData});
@@ -12,86 +13,75 @@ class CommentWidget extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    return Container(
-      decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(3),
-          border: Border.all(
-            color: const Color.fromARGB(255, 0, 0, 0),
-            width: .5,
-          ),
-        ),
-      width: double.infinity,
-        child: Padding(
-          padding: EdgeInsets.all(MediaQuery.sizeOf(context).width / 150),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.start,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
+    return Card(
+      elevation: 2,
+      margin: EdgeInsets.symmetric(
+        vertical: MediaQuery.of(context).size.height * 0.005,
+        horizontal: MediaQuery.of(context).size.width * 0.02,
+      ),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Padding(
+        padding: EdgeInsets.all(MediaQuery.of(context).size.width * 0.03),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            FutureBuilder(
+              future: ref.read(supabaseInstance),
+              builder: (context, snapshot) {
+                if (snapshot.hasData) {
+                  return CircleAvatar(
+                    radius: MediaQuery.of(context).size.width * 0.05,
+                    backgroundColor: Colors.grey[200],
+                    backgroundImage: NetworkImage(commentData.profileUrl),
+                  );
+                } else if (snapshot.hasError) {
+                  return Icon(Icons.error, color: Colors.red);
+                } else {
+                  return CircularProgressIndicator();
+                }
+              },
+            ),
+            SizedBox(width: MediaQuery.of(context).size.width * 0.03),
+            Expanded(
+              child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  FutureBuilder(
-                      future: ref.read(supabaseInstance),
-                      builder: (context, snapshot) {
-                        if (snapshot.hasData) {
-                          return CircleAvatar(
-                            radius: MediaQuery.sizeOf(context).width / 25,
-                            backgroundColor: Colors.white,
-                            backgroundImage: NetworkImage(
-                              commentData.profileUrl,
-                            ),
-                          );
-                        } else if (snapshot.hasError) {
-                          return Text('Error loading image: ${snapshot.error}');
-                        } else if (snapshot.connectionState ==
-                            ConnectionState.waiting) {
-                          return const CircularProgressIndicator();
-                        } else {
-                          return const CircularProgressIndicator();
-                        }
-                      },
-                   ),
-                    SizedBox(width: MediaQuery.sizeOf(context).height / 150),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Row(
-                            children: [
-                              Text(
-                                commentData.username,//widget.eventData.hostUsername,
-                                style: TextStyle(
-                                  color: Theme.of(context).colorScheme.onSecondary,
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: MediaQuery.of(context).size.width * .03),
-                              ),
-                              SizedBox(width: MediaQuery.sizeOf(context).height / 150),
-                              Text(
-                                Jiffy.parseFromDateTime(DateTime.parse(commentData.timeStamp)).fromNow() ,
-                                  style: TextStyle(
-                                    color: Theme.of(context).colorScheme.onSecondary,
-                                  fontWeight: FontWeight.w300,
-                                  fontSize: MediaQuery.of(context).size.width * .025),
-                          ),
-                            ],
-                          ),
-                           Text(
-                              commentData.comment_text,
-                              softWrap: true,
-                              style: TextStyle(
-                                color: Theme.of(context).colorScheme.onSecondary,
-                                  fontWeight: FontWeight.w500,
-                                  fontSize: MediaQuery.of(context).size.width * .03
-                                  ),
-                            ),
-                        ],
+                  Row(
+                    children: [
+                      Text(
+                        commentData.username,
+                        style: TextStyle(
+                          color: Theme.of(context).colorScheme.onSecondary,
+                          fontWeight: FontWeight.bold,
+                          fontSize: MediaQuery.of(context).size.width * 0.04,
+                        ),
                       ),
-                    )
+                      SizedBox(width: MediaQuery.of(context).size.width * 0.02),
+                      Text(
+                        Jiffy.parseFromDateTime(DateTime.parse(commentData.timeStamp)).fromNow(),
+                        style: TextStyle(
+                          color: Theme.of(context).colorScheme.onSecondary.withOpacity(0.6),
+                          fontSize: MediaQuery.of(context).size.width * 0.03,
+                        ),
+                      ),
+                    ],
+                  ),
+                  SizedBox(height: MediaQuery.of(context).size.height * 0.01),
+                  Text(
+                    commentData.comment_text,
+                    style: TextStyle(
+                      color: Theme.of(context).colorScheme.onSecondary,
+                      fontSize: MediaQuery.of(context).size.width * 0.035,
+                    ),
+                  ),
                 ],
-              )
-            ],
-          ),
+              ),
+            ),
+          ],
         ),
+      ),
     );
   }
 }

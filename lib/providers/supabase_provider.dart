@@ -79,8 +79,6 @@ class AuthProvider extends StateNotifier<Session?> {
       state = null;
       final removeSession = await SharedPreferences.getInstance();
       removeSession.remove("savedSession");
-      removeSession.remove("savedLocation");
-      removeSession.remove("savedRadius");
     } on AuthException {
       return;
     } catch (error) {

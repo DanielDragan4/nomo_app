@@ -510,8 +510,9 @@ class _DayScreenState extends ConsumerState<DayScreen> {
                 if(blockedHours[blockStart]['event_id'] == null){
                 _showEditTimeBlock(context, availID, blockStart, blockEnd - 1,
                     blockedHours[blockStart]['title']);
-                }
+                } else {
                 Navigator.of(context).push(MaterialPageRoute(builder: (context) => DetailedEventScreen(linkEventId: blockedHours[blockStart]['event_id'],),));
+                }
               },
               child: TimeBlock(
                 title: blockedHours[blockStart]['title'],

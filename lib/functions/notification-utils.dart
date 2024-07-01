@@ -179,6 +179,6 @@ void showSimpleNotification(BuildContext context, String message, String sender,
         ),
       );
     },
-    duration: Duration(seconds: 5),
+    duration: Duration(seconds: 3),
   );
 }

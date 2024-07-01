@@ -8,7 +8,7 @@
 //console.log("Hello from Functions!")
 
 import { createClient } from 'npm:@supabase/supabase-js@2'
-import {JWT} from 'npm:google-auth-library@9'
+import {JWT} from 'npm:google-auth-library@9.11.0'
 
 interface Message {
   id: string

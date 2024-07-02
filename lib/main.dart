@@ -337,6 +337,7 @@ class _AppState extends ConsumerState<App> {
               ),
               textTheme: GoogleFonts.nunitoTextTheme(),
               primaryColor: const Color.fromARGB(255, 80, 12, 122),
+              canvasColor: Colors.white
             ),
             darkTheme: ThemeData().copyWith(
               bottomNavigationBarTheme: const BottomNavigationBarThemeData(
@@ -349,7 +350,7 @@ class _AppState extends ConsumerState<App> {
               brightness: Brightness.dark,
               colorScheme: ColorScheme.fromSeed(
                       onSecondary: const Color.fromARGB(255, 206, 206, 206),
-                      background: Colors.black,
+                      surface: Colors.black,
                       brightness: Brightness.dark,
                       seedColor: const Color.fromARGB(255, 109, 51, 146),
                       onPrimaryContainer:

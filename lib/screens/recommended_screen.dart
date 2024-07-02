@@ -35,7 +35,7 @@ class RecommendedScreen extends ConsumerWidget {
                     'Upcoming Events',
                     style: TextStyle(
                       color: Theme.of(context).primaryColor,
-                      fontWeight: FontWeight.w800,
+                      fontWeight: FontWeight.bold,
                       fontSize: 30,
                     ),
                   ),

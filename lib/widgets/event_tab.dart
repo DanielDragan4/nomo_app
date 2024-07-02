@@ -24,6 +24,7 @@ class _EventTabState extends ConsumerState<EventTab> {
     final formattedDate = "${date.month}/${date.day}/${date.year} at ${_getFormattedHour(date)}";
 
     return Card(
+      color: Theme.of(context).canvasColor,
       elevation: 4,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
@@ -85,15 +86,15 @@ class _EventTabState extends ConsumerState<EventTab> {
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.done) {
           return CircleAvatar(
-            radius: 24,
+            radius: MediaQuery.of(context).devicePixelRatio *7,
             backgroundColor: Colors.grey[200],
             backgroundImage: NetworkImage(widget.eventData.hostProfileUrl),
           );
         } else {
-          return const CircleAvatar(
-            radius: 24,
+          return CircleAvatar(
+            radius: MediaQuery.of(context).devicePixelRatio *7,
             backgroundColor: Colors.grey,
-            child: CircularProgressIndicator(),
+            child: const CircularProgressIndicator(),
           );
         }
       },

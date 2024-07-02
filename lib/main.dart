@@ -22,8 +22,6 @@ import 'package:overlay_support/overlay_support.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-bool isFcmInitialized = false;
-
 final routeObserver = RouteObserver<ModalRoute<void>>();
 
 void main() async {
@@ -276,38 +274,6 @@ class _AppState extends ConsumerState<App> {
     );
   }
 
-  // Future<void> _setFcmToken(String fcmToken, SupabaseClient client) async {
-  //   final userId = client.auth.currentUser?.id;
-  //   if (userId != null) {
-  //     await client.from('Profiles').upsert({
-  //       'profile_id': userId,
-  //       'fcm_token': fcmToken,
-  //     });
-  //   }
-  // }
-
-  // Future<void> _makeFcm(SupabaseClient client) async {
-  //   if (!isFcmInitialized) {
-  //     isFcmInitialized = true;
-  //     client.auth.onAuthStateChange.listen((event) async {
-  //       if (event.event == AuthChangeEvent.signedIn) {
-  //         await FirebaseMessaging.instance.requestPermission();
-  //         await FirebaseMessaging.instance.getAPNSToken();
-  //         final fcmToken = await FirebaseMessaging.instance.getToken();
-  //         if (fcmToken != null) {
-  //           await _setFcmToken(fcmToken, client);
-  //         }
-  //       }
-  //     });
-
-  //     FirebaseMessaging.instance.onTokenRefresh.listen(
-  //       (fcmToken) async {
-  //         await _setFcmToken(fcmToken, client);
-  //       },
-  //     );
-  //   }
-  // }
-
   @override
   Widget build(BuildContext context) {
     final supabase = ref.watch(supabaseClientProvider);
@@ -319,7 +285,6 @@ class _AppState extends ConsumerState<App> {
 
     Widget content = supabase.when(
       data: (client) {
-        //_makeFcm(client);
         return GestureDetector(
           onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
           child: MaterialApp(

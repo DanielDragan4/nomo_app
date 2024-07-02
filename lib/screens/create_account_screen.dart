@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:nomo/functions/make-fcm.dart';
 import 'package:nomo/screens/interests_screen.dart';
 import 'package:nomo/widgets/app_bar.dart';
 import 'dart:io';
@@ -116,6 +117,7 @@ class _CreateAccountScreenState extends ConsumerState<CreateAccountScreen> {
     }
     if (widget.isNew) {
       await supabase.from('Profiles').insert(newProfileRowMap);
+      makeFcm(supabase);
     } else {
       await supabase.from('Profiles').update(
         {

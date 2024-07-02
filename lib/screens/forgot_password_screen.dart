@@ -40,6 +40,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
               const SizedBox(height: 16),
               ElevatedButton(
                 onPressed: () async {
+                  FocusManager.instance.primaryFocus?.unfocus();
                   if (formKey.currentState!.validate()) {
                     showDialog(
                       context: context,
@@ -71,6 +72,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
               const SizedBox(height: 16),
               TextButton(
                 onPressed: () {
+                  FocusManager.instance.primaryFocus?.unfocus();
                   Navigator.push(
                     context,
                     MaterialPageRoute(

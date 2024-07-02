@@ -1,5 +1,6 @@
 import 'package:email_validator/email_validator.dart';
 import 'package:flutter/material.dart';
+import 'package:nomo/screens/NavBar.dart';
 import 'package:nomo/screens/login_screen.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
@@ -13,8 +14,10 @@ class ResetPasswordScreen extends StatefulWidget {
 class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
   final emailC = TextEditingController();
   final passwordC = TextEditingController();
+  final passwordConfirmC = TextEditingController();
   final resetTokenC = TextEditingController();
   bool _passwordVisible = true;
+  bool _confirmPassVisible = true;
   final formKey = GlobalKey<FormState>();
 
   @override
@@ -60,7 +63,7 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
                 obscureText: _passwordVisible,
                 decoration: InputDecoration(
                   border: const OutlineInputBorder(),
-                  hintText: 'Password',
+                  hintText: 'New Password',
                   suffixIcon: IconButton(
                     onPressed: () {
                       setState(() {
@@ -82,15 +85,42 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
                 },
               ),
               const SizedBox(height: 16),
+              TextFormField(
+                controller: passwordConfirmC,
+                obscureText: _confirmPassVisible,
+                decoration: InputDecoration(
+                  border: const OutlineInputBorder(),
+                  hintText: 'Confirm Password',
+                  suffixIcon: IconButton(
+                    onPressed: () {
+                      setState(() {
+                        _confirmPassVisible = !_confirmPassVisible;
+                      });
+                    },
+                    icon: Icon(
+                      _confirmPassVisible
+                          ? Icons.visibility
+                          : Icons.visibility_off,
+                    ),
+                  ),
+                ),
+                validator: (value) {
+                  if (value != passwordC.text) {
+                    return 'Passwords do not match!';
+                  }
+                  return null;
+                },
+              ),
+              const SizedBox(height: 16),
               ElevatedButton(
                 onPressed: () async {
                   if (formKey.currentState!.validate()) {
+                    FocusManager.instance.primaryFocus?.unfocus();
                     showDialog(
                       context: context,
                       builder: (context) =>
                           const Center(child: CircularProgressIndicator()),
                     );
-
                     try {
                       final recovery = await supabase.auth.verifyOTP(
                         email: emailC.text,
@@ -102,19 +132,32 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
                         await supabase.auth.updateUser(
                           UserAttributes(password: passwordC.text),
                         );
-
-                        Navigator.of(context, rootNavigator: true).pop();
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                            content: Text(
-                                'Password reset successful. Please log in.'),
-                          ),
-                        );
-                        Navigator.of(context).pushReplacement(
-                          MaterialPageRoute(
-                            builder: (context) => const LoginScreen(),
-                          ),
-                        );
+                        try {
+                          final signInResponse =
+                              await supabase.auth.signInWithPassword(
+                            email: emailC.text,
+                            password: passwordC.text,
+                          );
+                          Navigator.of(context, rootNavigator: true).pop();
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text(
+                                  'Password reset successful. You are now logged in.'),
+                            ),
+                          );
+                          // Redirect to the desired screen after login
+                          Navigator.of(context).pushReplacement(
+                            MaterialPageRoute(
+                              builder: (context) => const NavBar(),
+                            ),
+                          );
+                        } catch (error) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Text('Login failed: $error'),
+                            ),
+                          );
+                        }
                       } else {
                         Navigator.of(context, rootNavigator: true).pop();
                         ScaffoldMessenger.of(context).showSnackBar(

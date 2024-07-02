@@ -268,7 +268,7 @@ class _EventInfoState extends ConsumerState<EventInfo> {
         }
       },
       itemBuilder: (context) => <PopupMenuEntry<Options>>[
-        const PopupMenuItem(value: Options.itemThree, child: Text("Share Link")),
+        const PopupMenuItem(value: Options.itemOne, child: Text("Share Link")),
       ],
     );
   }

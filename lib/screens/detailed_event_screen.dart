@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:nomo/models/events_model.dart';
 import 'package:nomo/providers/events_provider.dart';
 import 'package:nomo/providers/supabase_provider.dart';
+import 'package:nomo/screens/profile_screen.dart';
 import 'package:nomo/widgets/comments_section_widget.dart';
 import 'package:nomo/widgets/event_info.dart';
 
@@ -102,30 +103,37 @@ class _DetailedEventScreenState extends ConsumerState<DetailedEventScreen> {
   Widget _buildEventHost() {
     return Row(
       children: [
-        CircleAvatar(
-          radius: 20,
-          backgroundImage: NetworkImage(event!.hostProfileUrl),
-        ),
-        const SizedBox(width: 8),
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              'Hosted by',
-              style: TextStyle(
-                color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
-                fontSize: 12,
+        GestureDetector(
+          onTap: () => Navigator.of(context).push(MaterialPageRoute(
+          builder: (context) => ProfileScreen(isUser: false, userId: widget.eventData?.host),
+        )),
+          child: Row (children: 
+          [
+            CircleAvatar(
+            radius: MediaQuery.of(context).devicePixelRatio *7,
+            backgroundImage: NetworkImage(event!.hostProfileUrl),
+          ),
+          const SizedBox(width: 8),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'Hosted by',
+                style: TextStyle(
+                  color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
+                  fontSize: 12,
+                ),
               ),
-            ),
-            Text(
-              event!.hostUsername,
-              style: TextStyle(
-                color: Theme.of(context).colorScheme.onSurface,
-                fontWeight: FontWeight.bold,
+              Text(
+                event!.hostUsername,
+                style: TextStyle(
+                  color: Theme.of(context).colorScheme.onSurface,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
-            ),
-          ],
-        ),
+            ],
+          ),]),
+        )
       ],
     );
   }

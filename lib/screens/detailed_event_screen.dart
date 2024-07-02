@@ -54,7 +54,8 @@ class _DetailedEventScreenState extends ConsumerState<DetailedEventScreen> {
         elevation: 0,
         title: Text(
           event!.title,
-          style: TextStyle(color: Theme.of(context).primaryColor),
+          style: TextStyle(color: Theme.of(context).primaryColor,
+          fontWeight: FontWeight.bold,),
         ),
       ),
       body: SingleChildScrollView(

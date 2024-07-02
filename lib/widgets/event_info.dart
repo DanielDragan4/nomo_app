@@ -58,11 +58,19 @@ class _EventInfoState extends ConsumerState<EventInfo> {
     final dateFormat = DateFormat('MMM d, yyyy');
     final timeFormat = DateFormat('h:mm a');
 
+    var displayedDates;
+
+    if(dateFormat.format(startDate) == dateFormat.format(endDate)) {
+      displayedDates = "${dateFormat.format(startDate)}";
+    } else {
+      displayedDates = "${dateFormat.format(startDate)} - ${dateFormat.format(endDate)}";
+    }
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'Date: ${dateFormat.format(startDate)}',
+          'Date: $displayedDates',
           style: TextStyle(
             fontSize: isSmallScreen ? 14 : 16,
             fontWeight: FontWeight.bold,
@@ -255,15 +263,12 @@ class _EventInfoState extends ConsumerState<EventInfo> {
     return PopupMenuButton<Options>(
       iconColor: Theme.of(context).colorScheme.onSecondary,
       onSelected: (Options item) {
-        if (item == Options.itemThree) {
+        if (item == Options.itemOne) {
           _shareEventLink();
         }
       },
       itemBuilder: (context) => <PopupMenuEntry<Options>>[
-        const PopupMenuItem(value: Options.itemOne, child: Text("Edit Event")),
-        const PopupMenuItem(value: Options.itemTwo, child: Text("Send Invites")),
         const PopupMenuItem(value: Options.itemThree, child: Text("Share Link")),
-        const PopupMenuItem(value: Options.itemFour, child: Text("View Details")),
       ],
     );
   }

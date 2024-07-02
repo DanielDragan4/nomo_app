@@ -3,9 +3,9 @@ import 'package:flutter/material.dart';
 class TimeBlock extends StatelessWidget {
   final String title;
   final double hourCount;
-  bool? isEvent;
+  final bool? isEvent;
 
-  TimeBlock({
+  const TimeBlock({
     Key? key,
     required this.title,
     required this.hourCount,
@@ -14,23 +14,33 @@ class TimeBlock extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final double blockHeight = hourCount * 50.0; // Adjust height based on hours
+    final double blockHeight = hourCount * 50.0;
 
     return Container(
       height: blockHeight,
+      margin: EdgeInsets.symmetric(vertical: 2),
       decoration: BoxDecoration(
         color: isEvent != null
-            ? Theme.of(context).primaryColor.withOpacity(0.6)
-            : const Color.fromARGB(245, 244, 67, 54), // Adjust color as needed
-        borderRadius: BorderRadius.circular(5.0), // Rounded corners
+            ? Theme.of(context).primaryColor.withOpacity(0.7)
+            : Colors.redAccent.withOpacity(0.7),
+        borderRadius: BorderRadius.circular(6),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.1),
+            blurRadius: 2,
+            offset: Offset(0, 1),
+          ),
+        ],
       ),
-      child: Center(
+      child: Padding(
+        padding: EdgeInsets.all(4),
         child: Text(
           title,
           textAlign: TextAlign.center,
-          style: const TextStyle(
-            color: Colors.white, // Adjust color as needed
-            fontSize: 16.0, // Adjust size as needed
+          style: TextStyle(
+            color: Colors.white,
+            fontSize: 14,
+            fontWeight: FontWeight.w500,
           ),
         ),
       ),

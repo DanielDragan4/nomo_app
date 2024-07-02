@@ -184,7 +184,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                                       MediaQuery.sizeOf(context).height / 100),
                               Text(
                                 profileName,
-                                style: const TextStyle(fontSize: 18),
+                                style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w600),
                               ),
                             ],
                           );
@@ -195,21 +195,6 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                       children: [
                         Row(
                           children: [
-                            const Column(
-                              children: [
-                                Text(
-                                  "Friends",
-                                  style: TextStyle(fontSize: 15),
-                                ),
-                                Text(
-                                  "xxxx",
-                                  style: TextStyle(fontSize: 15),
-                                ),
-                              ],
-                            ),
-                            SizedBox(
-                              width: MediaQuery.of(context).size.width / 20,
-                            ),
                             Column(
                               children: [
                                 const Text(

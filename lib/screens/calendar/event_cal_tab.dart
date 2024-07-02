@@ -15,32 +15,22 @@ class EventCalTab extends StatelessWidget {
 
     var formattedDate = "${sDate.month}/${sDate.day}/${sDate.year} to ${eDate.month}/${eDate.day}/${eDate.year}";
 
-    return Padding(
-      padding: const EdgeInsets.all(5.0),
-      child: GestureDetector(
-        onTap: () {
-          Navigator.of(context).push(MaterialPageRoute(builder: ((context) => DetailedEventScreen(eventData: eventData))));
-        },
-        child: Container(
-          decoration: BoxDecoration(
-            color: Theme.of(context).primaryColor.withOpacity(.4),
-            borderRadius: BorderRadius.circular(3),
-            border: Border.all(
-              color: const Color.fromARGB(255, 0, 0, 0),
-              width: 1,
-            ),
-          ),
-          child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(eventData.title,
-                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18, color: Theme.of(context).colorScheme.onSecondary),
-                  ),
-                  Text(formattedDate, style: TextStyle(color: Theme.of(context).colorScheme.onSecondary))
-                ]
-          )
-        ),
-      ),
-    );
+    return Card(
+  elevation: 2,
+  margin: EdgeInsets.symmetric(vertical: 4, horizontal: 8),
+  child: ListTile(
+    title: Text(
+      eventData.title,
+      style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+    ),
+    subtitle: Text(formattedDate),
+    trailing: Icon(Icons.chevron_right),
+    onTap: () {
+      Navigator.of(context).push(MaterialPageRoute(
+        builder: ((context) => DetailedEventScreen(eventData: eventData))
+      ));
+    },
+  ),
+);
   }
 }

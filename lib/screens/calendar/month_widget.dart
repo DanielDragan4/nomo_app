@@ -271,19 +271,20 @@ class Month extends ConsumerWidget {
 }
 
 class DayButton extends StatelessWidget {
-  const DayButton(
-      {super.key,
-      required this.isSelected,
-      required this.boarderWidth,
-      required this.cellColor,
-      required this.dayDisplayed,
-      required this.index,
-      required this.hasEvent,
-      required this.hasTimeSelected,
-      required this.currentDate,
-      required this.selectedMonth,
-      required this.availabilityByMonth,
-      required this.hasBlockedTime}); // added currentDate
+  const DayButton({
+    super.key,
+    required this.isSelected,
+    required this.boarderWidth,
+    required this.cellColor,
+    required this.dayDisplayed,
+    required this.index,
+    required this.hasEvent,
+    required this.hasTimeSelected,
+    required this.currentDate,
+    required this.selectedMonth,
+    required this.availabilityByMonth,
+    required this.hasBlockedTime
+  });
 
   final bool isSelected;
   final bool boarderWidth;
@@ -297,73 +298,67 @@ class DayButton extends StatelessWidget {
   final List<Availability> availabilityByMonth;
   final bool hasBlockedTime;
 
-
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [
-        GestureDetector(
-          onTap: () {
-            print("month avail: ${availabilityByMonth.isNotEmpty}");
-            if (currentDate.month == selectedMonth) {
-              Navigator.of(context).push(MaterialPageRoute(
-                  builder: ((context) => DayScreenPageView(
-                        initialDay: currentDate,
-                        blockedTime: availabilityByMonth,
-                      ))));
-            }
-          },
-          child: Stack(
-            children: [
-              Container(
-                height: MediaQuery.sizeOf(context).height * 0.0628,
-                alignment: Alignment.topRight,
-                decoration: BoxDecoration(
-                  border: boarderWidth
-                      ? Border.all(width: 1)
-                      : Border.all(
-                          color: const Color.fromARGB(0, 255, 255, 255)),
-                  color: cellColor,
-                ),
+    return GestureDetector(
+      onTap: () {
+        if (currentDate.month == selectedMonth) {
+          Navigator.of(context).push(MaterialPageRoute(
+            builder: ((context) => DayScreenPageView(
+              initialDay: currentDate,
+              blockedTime: availabilityByMonth,
+            ))
+          ));
+        }
+      },
+      child: Container(
+        decoration: BoxDecoration(
+          border: boarderWidth ? Border.all(color: Colors.grey[300]!) : null,
+          color: cellColor,
+          borderRadius: BorderRadius.circular(4),
+        ),
+        child: Stack(
+          children: [
+            Align(
+              alignment: Alignment.topRight,
+              child: Padding(
+                padding: EdgeInsets.all(4),
                 child: Text(
                   dayDisplayed,
-                  style: const TextStyle(fontSize: 20),
+                  style: TextStyle(fontSize: 16),
                 ),
               ),
-              if (hasTimeSelected && (currentDate.month == selectedMonth))
-                Positioned(
-                  left: 0,
-                  top: 0,
-                  child: CustomPaint(
-                    size: const Size(20, 20),
-                    painter: TrianglePainter(),
+            ),
+            if (hasTimeSelected || hasBlockedTime)
+              Positioned(
+                left: 0,
+                top: 0,
+                child: CustomPaint(
+                  size: Size(16, 16),
+                  painter: TrianglePainter(
+                    color: hasTimeSelected ? Colors.blue : Colors.red,
                   ),
                 ),
-              if (hasBlockedTime && (currentDate.month == selectedMonth))
-                Positioned(
-                  left: 0,
-                  top: 0,
-                  child: CustomPaint(
-                    size: const Size(20, 20),
-                    painter: TrianglePainter(),
-                  ),
-                ),
-            ],
-          ),
+              ),
+          ],
         ),
-      ],
+      ),
     );
   }
 }
 
 class TrianglePainter extends CustomPainter {
+  final Color color;
+
+  TrianglePainter({required this.color});
+
   @override
   void paint(Canvas canvas, Size size) {
-    final paint = Paint()..color = const Color.fromARGB(175, 255, 0, 0);
+    final paint = Paint()..color = color;
     final path = Path()
-      ..moveTo(1, 1)
-      ..lineTo(size.width, 1)
-      ..lineTo(1, size.height)
+      ..moveTo(0, 0)
+      ..lineTo(size.width, 0)
+      ..lineTo(0, size.height)
       ..close();
     canvas.drawPath(path, paint);
   }

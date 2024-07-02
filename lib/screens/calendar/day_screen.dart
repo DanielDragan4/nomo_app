@@ -144,11 +144,6 @@ class _DayScreenState extends ConsumerState<DayScreen> {
   }
 
   void _updateTimeRange(BuildContext context, String availID) {
-    print('should be updating now');
-    print('the start time is: $startTime');
-    print('the end time is: $endTime');
-    print('the title is: $blockTitle');
-    print('the availability ID is: $availID');
     if (startTime != null &&
         endTime != null &&
         blockTitle != null &&

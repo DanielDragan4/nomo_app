@@ -13,7 +13,8 @@ import 'package:share/share.dart';
 enum Options { itemOne, itemTwo, itemThree, itemFour }
 
 class EventInfo extends ConsumerStatefulWidget {
-  const EventInfo({Key? key, required this.eventsData, this.bookmarkSet}) : super(key: key);
+  const EventInfo({Key? key, required this.eventsData, this.bookmarkSet})
+      : super(key: key);
   final Event eventsData;
   final bool? bookmarkSet;
 
@@ -60,10 +61,11 @@ class _EventInfoState extends ConsumerState<EventInfo> {
 
     var displayedDates;
 
-    if(dateFormat.format(startDate) == dateFormat.format(endDate)) {
+    if (dateFormat.format(startDate) == dateFormat.format(endDate)) {
       displayedDates = "${dateFormat.format(startDate)}";
     } else {
-      displayedDates = "${dateFormat.format(startDate)} - ${dateFormat.format(endDate)}";
+      displayedDates =
+          "${dateFormat.format(startDate)} - ${dateFormat.format(endDate)}";
     }
 
     return Column(
@@ -92,14 +94,17 @@ class _EventInfoState extends ConsumerState<EventInfo> {
   Widget _buildAttendeeInfo(BuildContext context, bool isSmallScreen) {
     return Row(
       children: [
-        _buildInfoItem(context, '${widget.eventsData.attendees.length}', 'Attending', isSmallScreen),
+        _buildInfoItem(context, '${widget.eventsData.attendees.length}',
+            'Attending', isSmallScreen),
         const SizedBox(width: 16),
-        _buildInfoItem(context, '${widget.eventsData.friends.length}', 'Friends', isSmallScreen),
+        _buildInfoItem(context, '${widget.eventsData.friends.length}',
+            'Friends', isSmallScreen),
       ],
     );
   }
 
-  Widget _buildInfoItem(BuildContext context, String value, String label, bool isSmallScreen) {
+  Widget _buildInfoItem(
+      BuildContext context, String value, String label, bool isSmallScreen) {
     return Column(
       children: [
         Text(
@@ -143,16 +148,20 @@ class _EventInfoState extends ConsumerState<EventInfo> {
           final supabase = snapshot.data!.client;
           final currentUser = supabase.auth.currentUser!.id;
           final isHost = widget.eventsData.host == currentUser;
-          final isAttending = widget.eventsData.attendees.any((attendee) => attendee is Map && attendee['user_id'] == currentUser);
+          final isAttending = widget.eventsData.attendees.any((attendee) =>
+              attendee is Map && attendee['user_id'] == currentUser);
 
-          String buttonText = isHost ? 'Edit' : (isAttending ? 'Leave' : 'Join');
+          String buttonText =
+              isHost ? 'Edit' : (isAttending ? 'Leave' : 'Join');
 
           return ElevatedButton(
-            onPressed: () => _handleJoinLeaveAction(context, isHost, isAttending, currentUser),
+            onPressed: () => _handleJoinLeaveAction(
+                context, isHost, isAttending, currentUser),
             style: ElevatedButton.styleFrom(
               padding: EdgeInsets.symmetric(vertical: isSmallScreen ? 8 : 12),
             ),
-            child: Text(buttonText, style: TextStyle(fontSize: isSmallScreen ? 14 : 16)),
+            child: Text(buttonText,
+                style: TextStyle(fontSize: isSmallScreen ? 14 : 16)),
           );
         }
         return const SizedBox.shrink();
@@ -160,7 +169,8 @@ class _EventInfoState extends ConsumerState<EventInfo> {
     );
   }
 
-  void _handleJoinLeaveAction(BuildContext context, bool isHost, bool isAttending, String currentUser) {
+  void _handleJoinLeaveAction(
+      BuildContext context, bool isHost, bool isAttending, String currentUser) {
     if (isHost) {
       _showEditEventDialog(context);
     } else if (isAttending) {
@@ -188,10 +198,10 @@ class _EventInfoState extends ConsumerState<EventInfo> {
               Navigator.of(context)
                   .push(MaterialPageRoute(
                     builder: ((context) => NewEventScreen(
-                      isNewEvent: false,
-                      event: widget.eventsData,
-                      isEdit: true,
-                    )),
+                          isNewEvent: false,
+                          event: widget.eventsData,
+                          isEdit: true,
+                        )),
                   ))
                   .then((result) => Navigator.pop(context));
             },
@@ -230,9 +240,7 @@ class _EventInfoState extends ConsumerState<EventInfo> {
   }
 
   void _joinEvent(BuildContext context, String currentUser) {
-    ref
-        .read(profileProvider.notifier)
-        .createBlockedTime(
+    ref.read(profileProvider.notifier).createBlockedTime(
           currentUser,
           widget.eventsData.sdate,
           widget.eventsData.edate,

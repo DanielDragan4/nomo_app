@@ -44,9 +44,9 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     ref.read(savedSessionProvider.notifier).changeSessionDataList();
   }
 
-  String? enteredEmail;
+  TextEditingController emailC = TextEditingController();
   var isLogin = true;
-  String? enteredPass;
+  TextEditingController passC = TextEditingController();
   final isAuthenticating = false;
 
   @override
@@ -84,7 +84,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                             keyboardType: TextInputType.emailAddress,
                             autocorrect: false,
                             textCapitalization: TextCapitalization.none,
-                            controller: TextEditingController(),
+                            controller: emailC,
                             style: TextStyle(
                                 color:
                                     Theme.of(context).colorScheme.onSecondary),
@@ -96,9 +96,6 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                               }
                               return null;
                             },
-                            onChanged: (value) {
-                              enteredEmail = value;
-                            },
                           ),
                           TextFormField(
                             decoration:
@@ -107,15 +104,12 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                             style: TextStyle(
                                 color:
                                     Theme.of(context).colorScheme.onSecondary),
-                            controller: TextEditingController(),
+                            controller: passC,
                             validator: (value) {
                               if (value == null || value.trim().length < 8) {
                                 return 'Pass must be at least 8 characters long.';
                               }
                               return null;
-                            },
-                            onChanged: (value) {
-                              enteredPass = value;
                             },
                           ),
                           Align(
@@ -140,7 +134,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                           if (!isAuthenticating)
                             ElevatedButton(
                               onPressed: () {
-                                _submit(enteredEmail!, isLogin, enteredPass!);
+                                _submit(emailC.text, isLogin, passC.text);
                               },
                               style: ElevatedButton.styleFrom(
                                 backgroundColor: Theme.of(context)

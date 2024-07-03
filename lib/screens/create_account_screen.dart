@@ -117,7 +117,7 @@ class _CreateAccountScreenState extends ConsumerState<CreateAccountScreen> {
     }
     if (widget.isNew) {
       await supabase.from('Profiles').insert(newProfileRowMap);
-      makeFcm(supabase);
+      await makeFcm(supabase);
     } else {
       await supabase.from('Profiles').update(
         {

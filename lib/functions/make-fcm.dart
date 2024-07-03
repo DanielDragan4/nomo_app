@@ -7,9 +7,8 @@ Future<void> setFcmToken(String fcmToken, SupabaseClient client) async {
   final userId = client.auth.currentUser?.id;
   if (userId != null) {
     await client.from('Profiles').upsert({
-      'profile_id': userId,
       'fcm_token': fcmToken,
-    });
+    }).eq('profile_id', userId);
   }
 }
 

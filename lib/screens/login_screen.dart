@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:nomo/functions/make-fcm.dart';
 import 'package:nomo/providers/saved_session_provider.dart';
 import 'package:nomo/providers/supabase_provider.dart';
 import 'package:nomo/providers/user_signup_provider.dart';
@@ -43,9 +44,9 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     ref.read(savedSessionProvider.notifier).changeSessionDataList();
   }
 
-  String? enteredEmail;
+  TextEditingController emailC = TextEditingController();
   var isLogin = true;
-  String? enteredPass;
+  TextEditingController passC = TextEditingController();
   final isAuthenticating = false;
 
   @override
@@ -83,7 +84,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                             keyboardType: TextInputType.emailAddress,
                             autocorrect: false,
                             textCapitalization: TextCapitalization.none,
-                            controller: TextEditingController(),
+                            controller: emailC,
                             style: TextStyle(
                                 color:
                                     Theme.of(context).colorScheme.onSecondary),
@@ -95,9 +96,6 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                               }
                               return null;
                             },
-                            onChanged: (value) {
-                              enteredEmail = value;
-                            },
                           ),
                           TextFormField(
                             decoration:
@@ -106,15 +104,12 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                             style: TextStyle(
                                 color:
                                     Theme.of(context).colorScheme.onSecondary),
-                            controller: TextEditingController(),
+                            controller: passC,
                             validator: (value) {
                               if (value == null || value.trim().length < 8) {
                                 return 'Pass must be at least 8 characters long.';
                               }
                               return null;
-                            },
-                            onChanged: (value) {
-                              enteredPass = value;
                             },
                           ),
                           Align(
@@ -139,7 +134,8 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                           if (!isAuthenticating)
                             ElevatedButton(
                               onPressed: () {
-                                _submit(enteredEmail!, isLogin, enteredPass!);
+                                _submit(emailC.text, isLogin, passC.text);
+                                makeFcm(supabase);
                               },
                               style: ElevatedButton.styleFrom(
                                 backgroundColor: Theme.of(context)

@@ -141,7 +141,6 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                             ElevatedButton(
                               onPressed: () {
                                 _submit(enteredEmail!, isLogin, enteredPass!);
-                                makeFcm(supabase);
                               },
                               style: ElevatedButton.styleFrom(
                                 backgroundColor: Theme.of(context)

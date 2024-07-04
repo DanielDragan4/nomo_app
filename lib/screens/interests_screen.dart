@@ -99,18 +99,19 @@ class _InterestsScreenState extends ConsumerState<InterestsScreen> {
 
     return Scaffold(
       backgroundColor: Theme.of(context).colorScheme.background,
-      appBar: AppBar(centerTitle: true, title: _buildHeader(colorScheme)),
+      appBar: widget.searching == false
+          ? AppBar(centerTitle: true, title: _buildHeader(colorScheme))
+          : null,
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16.0),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              //_buildHeader(colorScheme),
               const SizedBox(height: 24),
               Expanded(child: _buildInterestGrid()),
-              const SizedBox(height: 16),
-              _buildBottomActions(colorScheme),
+              if (widget.searching == false) const SizedBox(height: 16),
+              if (widget.searching == false) _buildBottomActions(colorScheme),
             ],
           ),
         ),

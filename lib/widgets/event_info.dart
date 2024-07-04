@@ -198,7 +198,6 @@ class _EventInfoState extends ConsumerState<EventInfo> {
               Navigator.of(context)
                   .push(MaterialPageRoute(
                     builder: ((context) => NewEventScreen(
-                          isNewEvent: false,
                           event: widget.eventsData,
                           isEdit: true,
                         )),

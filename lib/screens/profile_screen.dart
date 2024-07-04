@@ -7,6 +7,7 @@ import 'package:nomo/providers/attending_events_provider.dart';
 import 'package:nomo/providers/profile_provider.dart';
 import 'package:nomo/providers/supabase_provider.dart';
 import 'package:nomo/screens/chat_screen.dart';
+import 'package:nomo/screens/new_event_screen.dart';
 import 'package:nomo/widgets/event_tab.dart';
 import 'package:nomo/screens/create_account_screen.dart';
 import 'package:nomo/widgets/profile_dropdown.dart';
@@ -293,12 +294,20 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                           ),
                       ],
                     ),
-                    //TODO: refresh page after updating account info
-                    if (widget.isUser)
-                      ProfileDropdown(
-                        updateProfileInfo: updateProfileInfo,
-                        profileInfo: profileInfo,
-                      ),
+                    Row(children: [
+                      IconButton(
+                          onPressed: () {
+                            Navigator.of(context).push(MaterialPageRoute(
+                                builder: (context) =>
+                                    NewEventScreen(event: null)));
+                          },
+                          icon: const Icon(Icons.add)),
+                      if (widget.isUser)
+                        ProfileDropdown(
+                          updateProfileInfo: updateProfileInfo,
+                          profileInfo: profileInfo,
+                        ),
+                    ]),
                   ],
                 ),
                 ToggleButtons(

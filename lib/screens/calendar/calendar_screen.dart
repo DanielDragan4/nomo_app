@@ -154,13 +154,8 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
         selectedDatesWithTime[selectedDate] = true;
       });
 
-      ref.watch(profileProvider.notifier).createBlockedTime(
-            profileId,
-            startDateTime.toString(),
-            endDateTime.toString(),
-            blockTitle!,
-            null
-          );
+      ref.watch(profileProvider.notifier).createBlockedTime(profileId,
+          startDateTime.toString(), endDateTime.toString(), blockTitle!, null);
 
       Navigator.of(context).pop();
     } else {
@@ -294,7 +289,6 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
                                         .push(MaterialPageRoute(
                                             builder: ((context) =>
                                                 const NewEventScreen(
-                                                    isNewEvent: true,
                                                     event: null))))
                                         .then(
                                             (result) => Navigator.pop(context)),

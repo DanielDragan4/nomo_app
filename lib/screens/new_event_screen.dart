@@ -19,9 +19,7 @@ import 'package:image_picker/image_picker.dart';
 const List<String> list = <String>['Public', 'Selective', 'Private'];
 
 class NewEventScreen extends ConsumerStatefulWidget {
-  const NewEventScreen(
-      {super.key, required this.isNewEvent, this.event, this.isEdit});
-  final bool isNewEvent;
+  const NewEventScreen({super.key, this.event, this.isEdit});
   final Event? event;
   final bool? isEdit;
 
@@ -48,10 +46,12 @@ class _NewEventScreenState extends ConsumerState<NewEventScreen> {
   final _locationController = TextEditingController();
   bool virtualEvent = false;
   Map<Interests, bool> categories = {};
+  late bool isNewEvent;
 
   @override
   void initState() {
-    if (!widget.isNewEvent) {
+    isNewEvent = widget.event == null;
+    if (!isNewEvent) {
       _title.text = widget.event!.title;
       _description.text = widget.event!.description;
       _locationController.text = widget.event!.location;
@@ -184,7 +184,7 @@ class _NewEventScreenState extends ConsumerState<NewEventScreen> {
         etime &&
         sdate &&
         edate &&
-        (_selectedImage != null || widget.isNewEvent == false) &&
+        (_selectedImage != null || isNewEvent == false) &&
         _selectedStartDate != null &&
         _selectedEndDate != null &&
         _selectedStartTime != null &&
@@ -267,7 +267,7 @@ class _NewEventScreenState extends ConsumerState<NewEventScreen> {
     if (virtualEvent) {
       point = null;
     } else {
-    point = await getCords(location);
+      point = await getCords(location);
     }
     final newEventRowMap = {
       'time_start': DateFormat('yyyy-MM-dd HH:mm:ss').format(start),
@@ -339,7 +339,6 @@ class _NewEventScreenState extends ConsumerState<NewEventScreen> {
           .then((response) => response['image_url'] as String);
       await supabase.storage.from('Images').remove([previousImage]);
       var imageId = await uploadImage(selectedImage);
-      
 
       newEventRowMap = {
         'time_start': DateFormat('yyyy-MM-dd HH:mm:ss').format(start),
@@ -349,7 +348,7 @@ class _NewEventScreenState extends ConsumerState<NewEventScreen> {
         'invitationType': inviteType,
         'image_id': imageId,
         'title': title,
-        'point' : point
+        'point': point
       };
     } else {
       newEventRowMap = {
@@ -359,7 +358,7 @@ class _NewEventScreenState extends ConsumerState<NewEventScreen> {
         'description': description,
         'invitationType': inviteType,
         'title': title,
-        'point' : point
+        'point': point
       };
     }
 
@@ -383,7 +382,7 @@ class _NewEventScreenState extends ConsumerState<NewEventScreen> {
               bottom: 5,
             ),
             alignment: Alignment.bottomCenter,
-            child: Text(widget.isNewEvent ? 'Create' : 'Update',
+            child: Text(isNewEvent ? 'Create' : 'Update',
                 style: TextStyle(
                   color: Theme.of(context).primaryColor,
                   fontWeight: FontWeight.w800,
@@ -440,7 +439,7 @@ class _NewEventScreenState extends ConsumerState<NewEventScreen> {
                         image: DecorationImage(
                             image: FileImage(_selectedImage!),
                             fit: BoxFit.fill))
-                    : (widget.isNewEvent)
+                    : (isNewEvent)
                         ? BoxDecoration(
                             border: Border.all(color: Colors.black87, width: 2),
                             color: Colors.grey.shade200,
@@ -460,7 +459,7 @@ class _NewEventScreenState extends ConsumerState<NewEventScreen> {
                               Icons.add,
                               size: MediaQuery.of(context).size.height / 15,
                             ),
-                            widget.isNewEvent
+                            isNewEvent
                                 ? const Text("Add An Image")
                                 : const Text('Add a Different Image?')
                           ],
@@ -679,7 +678,7 @@ class _NewEventScreenState extends ConsumerState<NewEventScreen> {
                 child: const Text('Categories')),
             InkWell(
               onTap: () {
-                if (_selectedImage == null && widget.isNewEvent) {
+                if (_selectedImage == null && isNewEvent) {
                   const snackbar =
                       SnackBar(content: Text('Select an image for your event'));
                   ScaffoldMessenger.of(context).hideCurrentSnackBar();
@@ -714,7 +713,7 @@ class _NewEventScreenState extends ConsumerState<NewEventScreen> {
                       fontWeight: FontWeight.w500),
                 ),
                 onPressed: enableButton
-                    ? widget.isNewEvent
+                    ? isNewEvent
                         ? () {
                             FocusManager.instance.primaryFocus?.unfocus();
                             createEvent(
@@ -762,8 +761,7 @@ class _NewEventScreenState extends ConsumerState<NewEventScreen> {
                             );
                           }
                     : null,
-                child:
-                    Text(widget.isNewEvent ? 'Create Event' : 'Update Event'),
+                child: Text(isNewEvent ? 'Create Event' : 'Update Event'),
               ),
             ),
             if (widget.isEdit == true)

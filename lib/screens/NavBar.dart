@@ -6,6 +6,7 @@ import 'package:nomo/screens/friends_screen.dart';
 import 'package:nomo/screens/new_event_screen.dart';
 import 'package:nomo/screens/profile_screen.dart';
 import 'package:nomo/screens/recommended_screen.dart';
+import 'package:nomo/screens/search_screen.dart';
 
 class NavBar extends ConsumerStatefulWidget {
   const NavBar({super.key});
@@ -38,11 +39,11 @@ class _NavBarState extends ConsumerState<NavBar> {
             label: "Events",
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.add_box_outlined,
+            icon: Icon(Icons.search_rounded,
                 color: navBarTheme.unselectedItemColor),
-            activeIcon:
-                Icon(Icons.add_box, color: navBarTheme.selectedItemColor),
-            label: 'New Event',
+            activeIcon: Icon(Icons.search_rounded,
+                color: navBarTheme.selectedItemColor),
+            label: 'Search',
           ),
           BottomNavigationBarItem(
               icon: Icon(Icons.calendar_month_outlined,
@@ -73,7 +74,7 @@ class _NavBarState extends ConsumerState<NavBar> {
         },
         children: [
           const RecommendedScreen(),
-          const NewEventScreen(isNewEvent: true, event: null),
+          const SearchScreen(),
           const CalendarScreen(),
           const FriendsScreen(isGroupChats: false),
           ProfileScreen(

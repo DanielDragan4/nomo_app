@@ -64,7 +64,7 @@ class DefaultFirebaseOptions {
     messagingSenderId: '360184712841',
     projectId: 'nomo-app-c3417',
     storageBucket: 'nomo-app-c3417.appspot.com',
-    iosBundleId: 'com.example.nomoApp',
+    iosBundleId: 'com.nomo.nomoApp',
   );
 
   static const FirebaseOptions macos = FirebaseOptions(
@@ -73,7 +73,7 @@ class DefaultFirebaseOptions {
     messagingSenderId: '360184712841',
     projectId: 'nomo-app-c3417',
     storageBucket: 'nomo-app-c3417.appspot.com',
-    iosBundleId: 'com.example.nomoApp',
+    iosBundleId: 'com.nomo.nomoApp',
   );
 
   static const FirebaseOptions windows = FirebaseOptions(
@@ -85,5 +85,4 @@ class DefaultFirebaseOptions {
     storageBucket: 'nomo-app-c3417.appspot.com',
     measurementId: 'G-VZMFRDZNBF',
   );
-
 }

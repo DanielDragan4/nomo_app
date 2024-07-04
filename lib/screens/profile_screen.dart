@@ -7,6 +7,7 @@ import 'package:nomo/providers/attending_events_provider.dart';
 import 'package:nomo/providers/profile_provider.dart';
 import 'package:nomo/providers/supabase_provider.dart';
 import 'package:nomo/screens/chat_screen.dart';
+import 'package:nomo/screens/new_event_screen.dart';
 import 'package:nomo/widgets/event_tab.dart';
 import 'package:nomo/screens/create_account_screen.dart';
 import 'package:nomo/widgets/profile_dropdown.dart';
@@ -184,7 +185,8 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                                       MediaQuery.sizeOf(context).height / 100),
                               Text(
                                 profileName,
-                                style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w600),
+                                style: const TextStyle(
+                                    fontSize: 20, fontWeight: FontWeight.w600),
                               ),
                             ],
                           );
@@ -229,41 +231,6 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                             ),
                           ],
                         ),
-                        //TODO: refresh page after updating account info
-                        if (widget.isUser)
-                          FutureBuilder<Profile>(
-                            key: _futureBuilderKey,
-                            future: profileInfo,
-                            builder: ((context, snapshot) {
-                              if (snapshot.hasData) {
-                                return ElevatedButton(
-                                  onPressed: () {
-                                    Navigator.of(context)
-                                        .push(MaterialPageRoute(
-                                      builder: ((context) =>
-                                          CreateAccountScreen(
-                                            isNew: false,
-                                            avatar: snapshot.data!.avatar,
-                                            profilename:
-                                                snapshot.data!.profile_name,
-                                            username: snapshot.data!.username,
-                                            onUpdateProfile: updateProfileInfo,
-                                          )),
-                                    ))
-                                        .then((_) {
-                                      updateProfileInfo();
-                                    });
-                                  },
-                                  child: const Text("Edit Profile"),
-                                );
-                              } else {
-                                return const ElevatedButton(
-                                  onPressed: null,
-                                  child: Text("Edit Profile"),
-                                );
-                              }
-                            }),
-                          ),
                         if (!widget.isUser)
                           Padding(
                             padding: const EdgeInsets.only(top: 8.0),
@@ -327,7 +294,20 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                           ),
                       ],
                     ),
-                    if (widget.isUser) const ProfileDropdown(),
+                    Row(children: [
+                      IconButton(
+                          onPressed: () {
+                            Navigator.of(context).push(MaterialPageRoute(
+                                builder: (context) =>
+                                    NewEventScreen(event: null)));
+                          },
+                          icon: const Icon(Icons.add)),
+                      if (widget.isUser)
+                        ProfileDropdown(
+                          updateProfileInfo: updateProfileInfo,
+                          profileInfo: profileInfo,
+                        ),
+                    ]),
                   ],
                 ),
                 ToggleButtons(

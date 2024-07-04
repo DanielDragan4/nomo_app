@@ -184,7 +184,8 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                                       MediaQuery.sizeOf(context).height / 100),
                               Text(
                                 profileName,
-                                style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w600),
+                                style: const TextStyle(
+                                    fontSize: 20, fontWeight: FontWeight.w600),
                               ),
                             ],
                           );
@@ -229,41 +230,6 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                             ),
                           ],
                         ),
-                        //TODO: refresh page after updating account info
-                        if (widget.isUser)
-                          FutureBuilder<Profile>(
-                            key: _futureBuilderKey,
-                            future: profileInfo,
-                            builder: ((context, snapshot) {
-                              if (snapshot.hasData) {
-                                return ElevatedButton(
-                                  onPressed: () {
-                                    Navigator.of(context)
-                                        .push(MaterialPageRoute(
-                                      builder: ((context) =>
-                                          CreateAccountScreen(
-                                            isNew: false,
-                                            avatar: snapshot.data!.avatar,
-                                            profilename:
-                                                snapshot.data!.profile_name,
-                                            username: snapshot.data!.username,
-                                            onUpdateProfile: updateProfileInfo,
-                                          )),
-                                    ))
-                                        .then((_) {
-                                      updateProfileInfo();
-                                    });
-                                  },
-                                  child: const Text("Edit Profile"),
-                                );
-                              } else {
-                                return const ElevatedButton(
-                                  onPressed: null,
-                                  child: Text("Edit Profile"),
-                                );
-                              }
-                            }),
-                          ),
                         if (!widget.isUser)
                           Padding(
                             padding: const EdgeInsets.only(top: 8.0),
@@ -327,7 +293,12 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                           ),
                       ],
                     ),
-                    if (widget.isUser) const ProfileDropdown(),
+                    //TODO: refresh page after updating account info
+                    if (widget.isUser)
+                      ProfileDropdown(
+                        updateProfileInfo: updateProfileInfo,
+                        profileInfo: profileInfo,
+                      ),
                   ],
                 ),
                 ToggleButtons(

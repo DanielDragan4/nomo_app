@@ -11,7 +11,6 @@ import 'dart:io';
 import 'package:intl/intl.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:nomo/providers/supabase_provider.dart';
-import 'package:nomo/screens/recommended_screen.dart';
 import 'package:nomo/widgets/address_search_widget.dart';
 import 'package:uuid/uuid.dart';
 import 'package:image_picker/image_picker.dart';
@@ -383,7 +382,7 @@ class _NewEventScreenState extends ConsumerState<NewEventScreen> {
               bottom: 5,
             ),
             alignment: Alignment.bottomCenter,
-            child: Text(widget.isNewEvent ? 'Create' : 'Update',
+            child: Text(widget.isNewEvent ? 'Create Event' : 'Update Event',
                 style: TextStyle(
                   color: Theme.of(context).primaryColor,
                   fontWeight: FontWeight.w800,
@@ -439,7 +438,7 @@ class _NewEventScreenState extends ConsumerState<NewEventScreen> {
                         color: Colors.grey.shade200,
                         image: DecorationImage(
                             image: FileImage(_selectedImage!),
-                            fit: BoxFit.fill))
+                            fit: BoxFit.cover))
                     : (widget.isNewEvent)
                         ? BoxDecoration(
                             border: Border.all(color: Colors.black87, width: 2),
@@ -475,7 +474,7 @@ class _NewEventScreenState extends ConsumerState<NewEventScreen> {
               child: Row(
                 children: [
                   Text(
-                    "Start",
+                    "Date",
                     style: TextStyle(
                         fontSize: 15,
                         color: Theme.of(context).colorScheme.onSecondary),
@@ -491,14 +490,12 @@ class _NewEventScreenState extends ConsumerState<NewEventScreen> {
                           color: Theme.of(context).colorScheme.onSecondary),
                     ),
                   ),
-                  const Text("-"),
+                  Text("to", style: TextStyle(color: Theme.of(context).colorScheme.onSecondary),),
                   TextButton(
-                    onPressed: sdate
-                        ? () => _selectTime(context, true)
-                        : null, // Select start time
+                    onPressed: () =>
+                        _selectDate(context, false), // Select end date
                     child: Text(
-                      _selectedStartTime?.format(context) ??
-                          "Select Start Time", // Format start time
+                      _formattedEDate ?? "Select End Date", // Format end date
                       style: TextStyle(
                           fontSize: 15,
                           color: Theme.of(context).colorScheme.onSecondary),
@@ -512,25 +509,22 @@ class _NewEventScreenState extends ConsumerState<NewEventScreen> {
               child: Row(
                 children: [
                   Text(
-                    "Time",
+                    "Times",
                     style: TextStyle(
                         fontSize: 15,
                         color: Theme.of(context).colorScheme.onSecondary),
                   ),
                   TextButton(
-                    onPressed: () =>
-                        _selectDate(context, false), // Select end date
+                    onPressed: sdate
+                        ? () => _selectTime(context, true)
+                        : null, // Select start time
                     child: Text(
-                      _formattedEDate ?? "Select End Date", // Format end date
+                      _selectedStartTime?.format(context) ??
+                          "Select Start Time", // Format start time
                       style: TextStyle(
                           fontSize: 15,
                           color: Theme.of(context).colorScheme.onSecondary),
                     ),
-                  ),
-                  Text(
-                    "-",
-                    style: TextStyle(
-                        color: Theme.of(context).colorScheme.onSecondary),
                   ),
                   TextButton(
                     onPressed: edate

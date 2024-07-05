@@ -19,6 +19,7 @@ import 'package:nomo/firebase_options.dart';
 import 'package:overlay_support/overlay_support.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 final routeObserver = RouteObserver<ModalRoute<void>>();
 

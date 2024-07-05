@@ -414,9 +414,9 @@ class _NewEventScreenState extends ConsumerState<NewEventScreen> {
                           ],
                         ));
               },
-              icon: const Icon(
+              icon: Icon(
                 Icons.delete_forever,
-                size: 40,
+                size: MediaQuery.of(context).size.aspectRatio * 85,
               ),
               color: const Color.fromARGB(212, 255, 80, 67),
             ),

@@ -237,57 +237,103 @@ class _FriendsScreenState extends ConsumerState<FriendsScreen> {
             mainAxisAlignment: MainAxisAlignment.end,
             children: (widget.isGroupChats)
                 ? ([
-                    IconButton(
-                        onPressed: () {
-                          showDialog(
-                              context: context,
-                              builder: (context) => AlertDialog(
-                                    backgroundColor:
-                                        Theme.of(context).canvasColor,
-                                    title: const Text('Create Group'),
-                                    actions: [
-                                      TextButton(
-                                        onPressed: () {
-                                          Navigator.of(context).push(
-                                            MaterialPageRoute(
-                                              builder: (context) =>
-                                                  const NewGroupChatScreen(),
+                    Padding(
+                      padding: const EdgeInsets.all(10.0),
+                      child: Column(
+                        children: [
+                          IconButton(
+                              onPressed: () {
+                                showDialog(
+                                    context: context,
+                                    builder: (context) => AlertDialog(
+                                          backgroundColor: Theme.of(context)
+                                              .colorScheme
+                                              .onPrimary,
+                                          title: Text(
+                                            'Create Group?',
+                                            style:
+                                                TextStyle(color: Colors.white),
+                                          ),
+                                          actions: [
+                                            TextButton(
+                                              onPressed: () {
+                                                Navigator.of(context)
+                                                    .pushReplacement(
+                                                      MaterialPageRoute(
+                                                        builder: (context) =>
+                                                            const NewGroupChatScreen(),
+                                                      ),
+                                                    )
+                                                    .then((result) =>
+                                                        Navigator.pop(context));
+                                              },
+                                              child: const Text('Continue'),
                                             ),
-                                          );
-                                        },
-                                        child: const Text('Groups'),
-                                      ),
-                                      TextButton(
-                                        onPressed: () {
-                                          Navigator.pop(context);
-                                        },
-                                        child: const Text('Cancel'),
-                                      )
-                                    ],
-                                  ));
-                        },
-                        icon: Icon(
-                          Icons.group_add,
-                          color: Theme.of(context).colorScheme.onSecondary,
-                          size: MediaQuery.of(context).size.aspectRatio * 85,
-                        )),
+                                            TextButton(
+                                              onPressed: () {
+                                                Navigator.pop(context);
+                                              },
+                                              child: const Text('Cancel'),
+                                            )
+                                          ],
+                                        ));
+                              },
+                              icon: Icon(
+                                Icons.group_add,
+                                color:
+                                    Theme.of(context).colorScheme.onSecondary,
+                                size: MediaQuery.of(context).size.aspectRatio *
+                                    110,
+                              )),
+                          Text(
+                            "Create Group",
+                            style: TextStyle(
+                                fontSize:
+                                    MediaQuery.of(context).size.aspectRatio *
+                                        35,
+                                color:
+                                    Theme.of(context).colorScheme.onSecondary),
+                          ),
+                        ],
+                      ),
+                    ),
                   ])
                 : ([
-                    IconButton(
-                        onPressed: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) =>
-                                  const FriendsScreen(isGroupChats: true),
-                            ),
-                          );
-                        },
-                        icon: Icon(
-                          Icons.groups,
-                          color: Theme.of(context).colorScheme.onSecondary,
-                          size: MediaQuery.of(context).size.aspectRatio * 85,
-                        ))
+                    Padding(
+                      padding: const EdgeInsets.all(10.0),
+                      child: IconButton(
+                          onPressed: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) =>
+                                    const FriendsScreen(isGroupChats: true),
+                              ),
+                            );
+                          },
+                          icon: Column(
+                            children: [
+                              Icon(
+                                Icons.groups,
+                                color:
+                                    Theme.of(context).colorScheme.onSecondary,
+                                size: MediaQuery.of(context).size.aspectRatio *
+                                    120,
+                              ),
+                              Text(
+                                "Groups",
+                                style: TextStyle(
+                                    fontSize: MediaQuery.of(context)
+                                            .size
+                                            .aspectRatio *
+                                        40,
+                                    color: Theme.of(context)
+                                        .colorScheme
+                                        .onSecondary),
+                              )
+                            ],
+                          )),
+                    )
                   ]),
           )
         ],

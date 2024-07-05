@@ -87,7 +87,8 @@ class SearchProvider extends StateNotifier<List<dynamic>> {
         attending: false,
         isHost: false,
         friends: eventData['friends_attending'],
-        numOfComments: eventData['comments_num'].length
+        numOfComments: eventData['comments_num'].length,
+        isVirtual: eventData['is_virtual']
       );
 
       // Set attending and isHost flags
@@ -148,7 +149,8 @@ class SearchProvider extends StateNotifier<List<dynamic>> {
         attending: false,
         isHost: false,
         friends: eventData['friends_attending'],
-        numOfComments: eventData['comments_num'].length
+        numOfComments: eventData['comments_num'].length,
+        isVirtual: eventData['is_virtual']
       );
 
       // Set attending and isHost flags

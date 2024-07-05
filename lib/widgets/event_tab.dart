@@ -210,7 +210,26 @@ Widget _buildHostOrAttendingIndicator() {
   }
 
   Widget _buildEventLocation(BuildContext context) {
-    return GestureDetector(
+    return (widget.eventData.isVirtual) ?
+    Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Icon(Icons.location_on,
+              size: 18, color: Theme.of(context).colorScheme.secondary),
+          const SizedBox(width: 8),
+          Expanded(
+            child: Text(
+              widget.eventData.location,
+              style: TextStyle(
+                color: Theme.of(context).colorScheme.secondary,
+                decoration: TextDecoration.underline,
+              ),
+            ),
+          ),
+        ],
+      )
+    :
+    GestureDetector(
       onTap: () => MapsLauncher.launchQuery(widget.eventData.location),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,

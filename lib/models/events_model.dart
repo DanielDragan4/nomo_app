@@ -19,7 +19,8 @@ class Event {
     required this.attending,
     required this.isHost,
     required this.friends,
-    required this.numOfComments
+    required this.numOfComments,
+    required this.isVirtual
   });
 
   final eventId;
@@ -41,4 +42,5 @@ class Event {
   late bool isHost;
   final friends;
   final int numOfComments;
+  var isVirtual;
 }

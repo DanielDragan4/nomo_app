@@ -294,20 +294,20 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                           ),
                       ],
                     ),
-                    Row(children: [
-                      IconButton(
-                          onPressed: () {
-                            Navigator.of(context).push(MaterialPageRoute(
-                                builder: (context) =>
-                                    NewEventScreen(event: null)));
-                          },
-                          icon: const Icon(Icons.add)),
-                      if (widget.isUser)
+                    if (widget.isUser)
+                      Row(children: [
+                        IconButton(
+                            onPressed: () {
+                              Navigator.of(context).push(MaterialPageRoute(
+                                  builder: (context) =>
+                                      NewEventScreen(event: null)));
+                            },
+                            icon: const Icon(Icons.add)),
                         ProfileDropdown(
                           updateProfileInfo: updateProfileInfo,
                           profileInfo: profileInfo,
                         ),
-                    ]),
+                      ]),
                   ],
                 ),
                 ToggleButtons(

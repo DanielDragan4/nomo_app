@@ -842,16 +842,42 @@ class _NewEventScreenState extends ConsumerState<NewEventScreen> {
                               _title.text,
                               _description.text,
                             );
-                            Navigator.of(context)
-                                .pushAndRemoveUntil(
-                                    MaterialPageRoute(
-                                        builder: ((context) => const NavBar())),
-                                    (route) => false)
-                                .then((result) => Navigator.pop(context));
-                            ScaffoldMessenger.of(context).hideCurrentSnackBar();
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(
-                                content: Text('Event Updated'),
+                            showDialog(
+                              context: context,
+                              builder: (context) => AlertDialog(
+                                title: Text(
+                                  'Are you sure you want to edit the event?',
+                                  style: TextStyle(
+                                      color:
+                                          Theme.of(context).primaryColorDark),
+                                ),
+                                actions: [
+                                  TextButton(
+                                    onPressed: () => Navigator.pop(context),
+                                    child: const Text('CANCEL'),
+                                  ),
+                                  TextButton(
+                                    onPressed: () {
+                                      Navigator.of(context)
+                                          .pushAndRemoveUntil(
+                                              MaterialPageRoute(
+                                                  builder: ((context) =>
+                                                      const NavBar())),
+                                              (route) => false)
+                                          .then((result) =>
+                                              Navigator.pop(context));
+                                      ScaffoldMessenger.of(context)
+                                          .hideCurrentSnackBar();
+                                      ScaffoldMessenger.of(context)
+                                          .showSnackBar(
+                                        const SnackBar(
+                                          content: Text('Event Updated'),
+                                        ),
+                                      );
+                                    },
+                                    child: const Text('YES'),
+                                  ),
+                                ],
                               ),
                             );
                           }

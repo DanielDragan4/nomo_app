@@ -86,11 +86,12 @@ class EventProvider extends StateNotifier<List?> {
         }
       }
 
-      if ((attending == false) &&
-          (deCodedEvent.host != supabaseClient.auth.currentUser!.id)) {
+      if ((deCodedEvent.host != supabaseClient.auth.currentUser!.id)) {
         deCodedEvent.isHost = false;
+        } else {
+          deCodedEvent.isHost = true;
+        }
         deCodedList.add(deCodedEvent);
-      }
     }
     state = deCodedList;
   }

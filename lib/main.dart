@@ -128,6 +128,7 @@ class _AppState extends ConsumerState<App> {
                 primaryColor: const Color.fromARGB(255, 80, 12, 122),
                 canvasColor: Colors.white),
             darkTheme: ThemeData().copyWith(
+              cardColor: Color.fromARGB(255, 27, 27, 27),
               bottomNavigationBarTheme: const BottomNavigationBarThemeData(
                 selectedItemColor: Color.fromARGB(255, 109, 51, 146),
                 unselectedItemColor: Color.fromARGB(255, 206, 206, 206),

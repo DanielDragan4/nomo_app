@@ -489,7 +489,11 @@ class _NewEventScreenState extends ConsumerState<NewEventScreen> {
                           color: Theme.of(context).colorScheme.onSecondary),
                     ),
                   ),
-                  Text("to", style: TextStyle(color: Theme.of(context).colorScheme.onSecondary),),
+                  Text(
+                    "to",
+                    style: TextStyle(
+                        color: Theme.of(context).colorScheme.onSecondary),
+                  ),
                   TextButton(
                     onPressed: () =>
                         _selectDate(context, false), // Select end date
@@ -550,6 +554,38 @@ class _NewEventScreenState extends ConsumerState<NewEventScreen> {
                         fontSize: 15,
                         color: Theme.of(context).colorScheme.onSecondary),
                   ),
+                  IconButton(
+                      onPressed: () {
+                        showAdaptiveDialog(
+                          context: context,
+                          builder: (context) =>  Dialog(
+                            child: Padding(
+                              padding: const EdgeInsets.all(10),
+                              child: SizedBox(
+                                height: MediaQuery.of(context).size.height *.21,
+                                child: const Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                        'The Invatation Type you choose effects who can see the event', 
+                                        style: TextStyle(fontSize: 20, fontWeight: FontWeight.w600),),
+                                    Text('Public Events: are visable to all users', 
+                                        style: TextStyle(fontSize: 17, fontWeight: FontWeight.w500),),
+                                    Text('Private Events: are only viable to your Friends', 
+                                        style: TextStyle(fontSize: 17, fontWeight: FontWeight.w500),),
+                                    Text('Selective Events: are only visable to those you have shared a link to', 
+                                        style: TextStyle(fontSize: 17, fontWeight: FontWeight.w500),),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ),
+                        );
+                      },
+                      icon: Icon(
+                        Icons.info,
+                        color: Theme.of(context).colorScheme.onSecondary,
+                      )),
                   const SizedBox(width: 10),
                   DropdownButtonHideUnderline(
                     child: DropdownButton<String>(

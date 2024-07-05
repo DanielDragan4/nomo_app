@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:nomo/functions/make-fcm.dart';
@@ -44,9 +45,10 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     ref.read(savedSessionProvider.notifier).changeSessionDataList();
   }
 
-  TextEditingController emailC = TextEditingController();
   var isLogin = true;
+  TextEditingController emailC = TextEditingController();
   TextEditingController passC = TextEditingController();
+  TextEditingController passConfirmC = TextEditingController();
   final isAuthenticating = false;
 
   @override
@@ -107,11 +109,28 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                             controller: passC,
                             validator: (value) {
                               if (value == null || value.trim().length < 8) {
-                                return 'Pass must be at least 8 characters long.';
+                                return 'Password must be at least 8 characters long.';
                               }
                               return null;
                             },
                           ),
+                          if (!isLogin)
+                            TextFormField(
+                              decoration: const InputDecoration(
+                                  labelText: "Confirm Password"),
+                              obscureText: true,
+                              style: TextStyle(
+                                  color: Theme.of(context)
+                                      .colorScheme
+                                      .onSecondary),
+                              controller: passConfirmC,
+                              validator: (value) {
+                                if (value != passC.text) {
+                                  return 'Passwords do not match!';
+                                }
+                                return null;
+                              },
+                            ),
                           Align(
                             alignment: Alignment.centerLeft,
                             child: TextButton(

@@ -98,8 +98,52 @@ class _EventInfoState extends ConsumerState<EventInfo> {
         _buildInfoItem(context, '${widget.eventsData.attendees.length}',
             'Attending', isSmallScreen),
         SizedBox(width: MediaQuery.of(context).size.width * .04),
-        _buildInfoItem(context, '${widget.eventsData.friends.length}',
-            'Friends', isSmallScreen),
+        GestureDetector(
+          onTap: () {
+            showBottomSheet(
+                context: context,
+                builder: (context) {
+                  return Container(
+                    height: MediaQuery.of(context).size.height * .6,
+                    padding: const EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      color: Color.fromARGB(255, 49, 49, 49),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(
+                              'Friends Attending',
+                              style: TextStyle(
+                                color: Theme.of(context).primaryColor,
+                                fontWeight: FontWeight.bold,
+                                fontSize: 30,
+                              ),
+                            ),
+                            IconButton(
+                              icon: const Icon(Icons.close),
+                              onPressed: () => Navigator.of(context).pop(),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 8),
+                        Flexible(
+                          child: CommentsSection(
+                              eventId: widget.eventsData.eventId),
+                        ),
+                      ],
+                    ),
+                  );
+                });
+          },
+          child: _buildInfoItem(context, '${widget.eventsData.friends.length}',
+              'Friends', isSmallScreen),
+        ),
         SizedBox(width: MediaQuery.of(context).size.width * .04),
         GestureDetector(
           onTap: () {

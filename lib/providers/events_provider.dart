@@ -73,7 +73,8 @@ class EventProvider extends StateNotifier<List?> {
         attending: false,
         isHost: false,
         friends: eventData['friends_attending'],
-        numOfComments: eventData['comments_num'].length
+        numOfComments: eventData['comments_num'].length,
+        isVirtual: eventData['is_virtual']
       );
 
       bool attending = false;
@@ -220,7 +221,8 @@ class EventProvider extends StateNotifier<List?> {
       attending: false,
       isHost: false,
       friends: codedEvent['friends_attending'],
-      numOfComments: codedEvent['comments_num'].length
+      numOfComments: codedEvent['comments_num'].length,
+      isVirtual: codedEvent['is_virtual']
     );
 
     for (var i = 0; i < deCodedEvent.attendees.length; i++) {

@@ -82,8 +82,17 @@ class AttendEventProvider extends StateNotifier<List<Event>> {
     state = deCodedList;
   }
 
+  Future<List> readEventsWithId(String userID) async {
+    final supabaseClient = (await supabase).client;
+    var events = await supabaseClient
+        .rpc('get_other_profile_events', params: {
+          'other_user_id' : userID
+        });
+    return events.toList();
+  }
+
   Future<void> deCodeDataWithId(String userId) async {
-    final codedList = await readEvents();
+    final codedList = await readEventsWithId(userId);
 
     List<Event> deCodedList = [];
     final supabaseClient = (await supabase).client;
@@ -97,8 +106,8 @@ class AttendEventProvider extends StateNotifier<List<Event>> {
           .getPublicUrl(eventData['event_path']);
 
       bool bookmarked = false;
-      for (var bookmark in eventData['Bookmarked']) {
-        if (bookmark['user_id'] == userId) {
+      for (var bookmark in eventData['bookmarked']) {
+        if (bookmark == userId) {
           bookmarked = true;
           break;
         }
@@ -115,7 +124,7 @@ class AttendEventProvider extends StateNotifier<List<Event>> {
           location: eventData['location'],
           title: eventData['title'],
           edate: eventData['time_end'],
-          attendees: eventData['Attendees'],
+          attendees: eventData['attendees'],
           hostProfileUrl: profileUrl,
           hostUsername: eventData['username'],
           profileName: eventData['profile_name'],
@@ -127,7 +136,7 @@ class AttendEventProvider extends StateNotifier<List<Event>> {
 
       bool attending = false;
       for (var i = 0; i < deCodedEvent.attendees.length; i++) {
-        if (deCodedEvent.attendees[i]['user_id'] == userId) {
+        if (deCodedEvent.attendees[i] == userId) {
           attending = true;
           deCodedEvent.attending = true;
           break;

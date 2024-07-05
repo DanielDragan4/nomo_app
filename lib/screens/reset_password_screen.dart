@@ -22,166 +22,195 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    
     return Scaffold(
+      backgroundColor: theme.canvasColor,
       appBar: AppBar(
-        title: const Text('Reset Password'),
+        title: Text('Reset Password', style: TextStyle(color: theme.primaryColor, fontSize: 30, fontWeight: FontWeight.w600),),
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Form(
-          key: formKey,
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              TextFormField(
-                controller: resetTokenC,
-                decoration: const InputDecoration(
-                  border: OutlineInputBorder(),
-                  hintText: 'Reset Token',
+      body: SingleChildScrollView(
+        child: Padding(
+          padding: const EdgeInsets.all(24.0),
+          child: Form(
+            key: formKey,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                const SizedBox(height: 32),
+                Text(
+                  'Enter your details to reset your password',
+                  style: TextStyle(color: theme.colorScheme.onSecondary, fontSize: 18),
+                  textAlign: TextAlign.center,
                 ),
-                validator: (value) {
-                  if (value!.isEmpty || value.length < 6) {
-                    return 'Invalid token!';
-                  }
-                  return null;
-                },
-              ),
-              const SizedBox(height: 16),
-              TextFormField(
-                controller: emailC,
-                decoration: const InputDecoration(
-                  border: OutlineInputBorder(),
-                  hintText: 'Email',
-                ),
-                autovalidateMode: AutovalidateMode.onUserInteraction,
-                validator: (value) =>
-                    !EmailValidator.validate(value!) ? 'Invalid Email!' : null,
-              ),
-              const SizedBox(height: 16),
-              TextFormField(
-                controller: passwordC,
-                obscureText: _passwordVisible,
-                decoration: InputDecoration(
-                  border: const OutlineInputBorder(),
-                  hintText: 'New Password',
-                  suffixIcon: IconButton(
-                    onPressed: () {
-                      setState(() {
-                        _passwordVisible = !_passwordVisible;
-                      });
-                    },
-                    icon: Icon(
-                      _passwordVisible
-                          ? Icons.visibility
-                          : Icons.visibility_off,
-                    ),
-                  ),
-                ),
-                validator: (value) {
-                  if (value!.isEmpty || value.length < 6) {
-                    return 'Password must be at least 6 characters!';
-                  }
-                  return null;
-                },
-              ),
-              const SizedBox(height: 16),
-              TextFormField(
-                controller: passwordConfirmC,
-                obscureText: _confirmPassVisible,
-                decoration: InputDecoration(
-                  border: const OutlineInputBorder(),
-                  hintText: 'Confirm Password',
-                  suffixIcon: IconButton(
-                    onPressed: () {
-                      setState(() {
-                        _confirmPassVisible = !_confirmPassVisible;
-                      });
-                    },
-                    icon: Icon(
-                      _confirmPassVisible
-                          ? Icons.visibility
-                          : Icons.visibility_off,
-                    ),
-                  ),
-                ),
-                validator: (value) {
-                  if (value != passwordC.text) {
-                    return 'Passwords do not match!';
-                  }
-                  return null;
-                },
-              ),
-              const SizedBox(height: 16),
-              ElevatedButton(
-                onPressed: () async {
-                  if (formKey.currentState!.validate()) {
-                    FocusManager.instance.primaryFocus?.unfocus();
-                    showDialog(
-                      context: context,
-                      builder: (context) =>
-                          const Center(child: CircularProgressIndicator()),
-                    );
-                    try {
-                      final recovery = await supabase.auth.verifyOTP(
-                        email: emailC.text,
-                        token: resetTokenC.text,
-                        type: OtpType.recovery,
-                      );
-
-                      if (recovery.user != null) {
-                        await supabase.auth.updateUser(
-                          UserAttributes(password: passwordC.text),
-                        );
-                        try {
-                          final signInResponse =
-                              await supabase.auth.signInWithPassword(
-                            email: emailC.text,
-                            password: passwordC.text,
-                          );
-                          Navigator.of(context, rootNavigator: true).pop();
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                              content: Text(
-                                  'Password reset successful. You are now logged in.'),
-                            ),
-                          );
-                          // Redirect to the desired screen after login
-                          Navigator.of(context).pushReplacement(
-                            MaterialPageRoute(
-                              builder: (context) => const NavBar(),
-                            ),
-                          );
-                        } catch (error) {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                              content: Text('Login failed: $error'),
-                            ),
-                          );
-                        }
-                      } else {
-                        Navigator.of(context, rootNavigator: true).pop();
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                            content: Text('Invalid token or email.'),
-                          ),
-                        );
-                      }
-                    } catch (e) {
-                      Navigator.of(context, rootNavigator: true).pop();
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
-                          content: Text('Error: ${e.toString()}'),
-                        ),
-                      );
+                const SizedBox(height: 32),
+                _buildTextField(
+                  controller: resetTokenC,
+                  hintText: 'Reset Code',
+                  icon: Icons.token,
+                  validator: (value) {
+                    if (value!.isEmpty || value.length < 6) {
+                      return 'Invalid token!';
                     }
-                  }
-                },
-                child: const Text('Reset Password'),
-              ),
-            ],
+                    return null;
+                  },
+                ),
+                const SizedBox(height: 16),
+                _buildTextField(
+                  controller: emailC,
+                  hintText: 'Email',
+                  icon: Icons.email,
+                  validator: (value) =>
+                      !EmailValidator.validate(value!) ? 'Invalid Email!' : null,
+                ),
+                const SizedBox(height: 16),
+                _buildTextField(
+                  controller: passwordC,
+                  hintText: 'New Password',
+                  icon: Icons.lock,
+                  obscureText: _passwordVisible,
+                  toggleVisibility: () {
+                    setState(() {
+                      _passwordVisible = !_passwordVisible;
+                    });
+                  },
+                  validator: (value) {
+                    if (value!.isEmpty || value.length < 6) {
+                      return 'Password must be at least 6 characters!';
+                    }
+                    return null;
+                  },
+                ),
+                const SizedBox(height: 16),
+                _buildTextField(
+                  controller: passwordConfirmC,
+                  hintText: 'Confirm Password',
+                  icon: Icons.lock_clock,
+                  obscureText: _confirmPassVisible,
+                  toggleVisibility: () {
+                    setState(() {
+                      _confirmPassVisible = !_confirmPassVisible;
+                    });
+                  },
+                  validator: (value) {
+                    if (value != passwordC.text) {
+                      return 'Passwords do not match!';
+                    }
+                    return null;
+                  },
+                ),
+                const SizedBox(height: 32),
+                ElevatedButton(
+                  onPressed: _resetPassword,
+                  style: ElevatedButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                  ),
+                  child: Text(
+                    'Reset Password',
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
       ),
     );
+  }
+
+  Widget _buildTextField({
+    required TextEditingController controller,
+    required String hintText,
+    required IconData icon,
+    bool obscureText = false,
+    VoidCallback? toggleVisibility,
+    String? Function(String?)? validator,
+  }) {
+    return TextFormField(
+      controller: controller,
+      obscureText: obscureText,
+      decoration: InputDecoration(
+        filled: true,
+        fillColor: Colors.grey[200],
+        hintText: hintText,
+        prefixIcon: Icon(icon, color: Theme.of(context).primaryColor),
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(8),
+          borderSide: BorderSide.none,
+        ),
+        suffixIcon: toggleVisibility != null
+            ? IconButton(
+                onPressed: toggleVisibility,
+                icon: Icon(
+                  obscureText ? Icons.visibility : Icons.visibility_off,
+                  color: Theme.of(context).primaryColor,
+                ),
+              )
+            : null,
+      ),
+      validator: validator,
+    );
+  }
+
+  void _resetPassword() async {
+    if (formKey.currentState!.validate()) {
+      FocusManager.instance.primaryFocus?.unfocus();
+      showDialog(
+        context: context,
+        builder: (context) => const Center(child: CircularProgressIndicator()),
+      );
+      try {
+        final recovery = await supabase.auth.verifyOTP(
+          email: emailC.text,
+          token: resetTokenC.text,
+          type: OtpType.recovery,
+        );
+
+        if (recovery.user != null) {
+          await supabase.auth.updateUser(
+            UserAttributes(password: passwordC.text),
+          );
+          try {
+            final signInResponse = await supabase.auth.signInWithPassword(
+              email: emailC.text,
+              password: passwordC.text,
+            );
+            Navigator.of(context, rootNavigator: true).pop();
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Text('Password reset successful. You are now logged in.'),
+              ),
+            );
+            Navigator.of(context).pushReplacement(
+              MaterialPageRoute(
+                builder: (context) => const NavBar(),
+              ),
+            );
+          } catch (error) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text('Login failed: $error'),
+              ),
+            );
+          }
+        } else {
+          Navigator.of(context, rootNavigator: true).pop();
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Invalid token or email.'),
+            ),
+          );
+        }
+      } catch (e) {
+        Navigator.of(context, rootNavigator: true).pop();
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Error: ${e.toString()}'),
+          ),
+        );
+      }
+    }
   }
 }

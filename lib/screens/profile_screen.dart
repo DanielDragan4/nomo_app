@@ -9,7 +9,6 @@ import 'package:nomo/providers/supabase_provider.dart';
 import 'package:nomo/screens/chat_screen.dart';
 import 'package:nomo/screens/new_event_screen.dart';
 import 'package:nomo/widgets/event_tab.dart';
-import 'package:nomo/screens/create_account_screen.dart';
 import 'package:nomo/widgets/profile_dropdown.dart';
 
 class ProfileScreen extends ConsumerStatefulWidget {

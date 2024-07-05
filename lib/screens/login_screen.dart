@@ -173,8 +173,6 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                                     await googleUser!.authentication;
                                 final accessToken = googleAuth.accessToken;
                                 final idToken = googleAuth.idToken;
-                                print(accessToken);
-                                print(idToken);
 
                                 if (accessToken == null) {
                                   throw 'No Access Token found.';

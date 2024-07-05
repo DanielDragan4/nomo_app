@@ -9,10 +9,23 @@
       "client_info": {
         "mobilesdk_app_id": "1:360184712841:android:766cdb4333a41438c3c058",
         "android_client_info": {
-          "package_name": "nomo.com.nomo_app"
+          "package_name": "com.example.nomo_app"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "360184712841-ujn3h4egi8cs7s6eibp73ngrpmm52lhf.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.nomo_app",
+            "certificate_hash": "aced7f5541361e33dc9038ff85229e55d021b298"
+          }
+        },
+        {
+          "client_id": "360184712841-clbo4mf1nmbkitr4of35spnmcrsqidgq.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
           "current_key": "AIzaSyCcUcn0I6laadIBXwFwCOaDyPlSe89mMZA"
@@ -20,7 +33,63 @@
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": []
+          "other_platform_oauth_client": [
+            {
+              "client_id": "360184712841-clbo4mf1nmbkitr4of35spnmcrsqidgq.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "360184712841-gv68jpo81mknvnmaio6gv98havjol4ui.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.nomoApp"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:360184712841:android:4386a0487e10a93bc3c058",
+        "android_client_info": {
+          "package_name": "nomo.com.nomo_app"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "360184712841-acdluua2iai928vut6bk8vdbrl7ntskc.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "nomo.com.nomo_app",
+            "certificate_hash": "aced7f5541361e33dc9038ff85229e55d021b298"
+          }
+        },
+        {
+          "client_id": "360184712841-clbo4mf1nmbkitr4of35spnmcrsqidgq.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCcUcn0I6laadIBXwFwCOaDyPlSe89mMZA"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "360184712841-clbo4mf1nmbkitr4of35spnmcrsqidgq.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "360184712841-gv68jpo81mknvnmaio6gv98havjol4ui.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.nomoApp"
+              }
+            }
+          ]
         }
       }
     }

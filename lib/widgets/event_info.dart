@@ -8,6 +8,7 @@ import 'package:nomo/providers/profile_provider.dart';
 import 'package:nomo/providers/supabase_provider.dart';
 import 'package:nomo/screens/new_event_screen.dart';
 import 'package:flutter_branch_sdk/flutter_branch_sdk.dart';
+import 'package:nomo/widgets/comments_section_widget.dart';
 import 'package:share/share.dart';
 
 enum Options { itemOne, itemTwo, itemThree, itemFour }
@@ -96,9 +97,56 @@ class _EventInfoState extends ConsumerState<EventInfo> {
       children: [
         _buildInfoItem(context, '${widget.eventsData.attendees.length}',
             'Attending', isSmallScreen),
-        const SizedBox(width: 16),
+        SizedBox(width: MediaQuery.of(context).size.width * .04),
         _buildInfoItem(context, '${widget.eventsData.friends.length}',
             'Friends', isSmallScreen),
+        SizedBox(width: MediaQuery.of(context).size.width * .04),
+        GestureDetector(
+          onTap: () {
+            showBottomSheet(
+                context: context,
+                builder: (context) {
+                  return Container(
+                    height: MediaQuery.of(context).size.height * .6,
+                    padding: const EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      color: Color.fromARGB(255, 49, 49, 49),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(
+                              'Comments',
+                              style: TextStyle(
+                                color: Theme.of(context).primaryColor,
+                                fontWeight: FontWeight.bold,
+                                fontSize: 30,
+                              ),
+                            ),
+                            IconButton(
+                              icon: const Icon(Icons.close),
+                              onPressed: () => Navigator.of(context).pop(),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 8),
+                        Flexible(
+                          child: CommentsSection(
+                              eventId: widget.eventsData.eventId),
+                        ),
+                      ],
+                    ),
+                  );
+                });
+          },
+          child: _buildInfoItem(context, '${widget.eventsData.numOfComments}',
+              'Comments', isSmallScreen),
+        ),
       ],
     );
   }
@@ -254,16 +302,30 @@ class _EventInfoState extends ConsumerState<EventInfo> {
   }
 
   Widget _buildBookmarkButton(BuildContext context) {
-    return IconButton(
-      onPressed: () => setState(() {
-        bookmarkBool ? deBookmarkEvent() : bookmarkEvent();
-        bookmarkBool = !bookmarkBool;
-      }),
-      icon: Icon(
-        bookmarkBool ? Icons.bookmark : Icons.bookmark_border_outlined,
-        color: Theme.of(context).colorScheme.onSecondary,
-      ),
-    );
+    return FutureBuilder(
+        future: ref.read(supabaseInstance),
+        builder: (context, snapshot) {
+          if (snapshot.hasData && snapshot.data != null) {
+            final supabase = snapshot.data!.client;
+            final currentUser = supabase.auth.currentUser!.id;
+            final isHost = widget.eventsData.host == currentUser;
+            return (isHost)
+                ? const SizedBox()
+                : IconButton(
+                    onPressed: () => setState(() {
+                      bookmarkBool ? deBookmarkEvent() : bookmarkEvent();
+                      bookmarkBool = !bookmarkBool;
+                    }),
+                    icon: Icon(
+                      bookmarkBool
+                          ? Icons.bookmark
+                          : Icons.bookmark_border_outlined,
+                      color: Theme.of(context).colorScheme.onSecondary,
+                    ),
+                  );
+          }
+          return const SizedBox();
+        });
   }
 
   Widget _buildMoreOptionsButton(BuildContext context) {

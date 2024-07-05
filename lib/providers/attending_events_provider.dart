@@ -57,7 +57,8 @@ class AttendEventProvider extends StateNotifier<List<Event>> {
           bookmarked: bookmarked,
           attending: false,
           isHost: false,
-          friends: eventData['friends_attending']
+          friends: eventData['friends_attending'],
+          numOfComments: eventData['comments_num'].length
           );
 
       bool attending = false;
@@ -131,7 +132,8 @@ class AttendEventProvider extends StateNotifier<List<Event>> {
           bookmarked: bookmarked,
           attending: false,
           isHost: false,
-          friends: eventData['friends_attending']
+          friends: eventData['friends_attending'],
+          numOfComments: eventData['comments_num'].length
           );
 
       bool attending = false;

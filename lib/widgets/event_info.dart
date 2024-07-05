@@ -229,34 +229,14 @@ class _EventInfoState extends ConsumerState<EventInfo> {
   }
 
   void _showEditEventDialog(BuildContext context) {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: Text(
-          'Are you sure you want to edit the event?',
-          style: TextStyle(color: Theme.of(context).primaryColorDark),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('CANCEL'),
-          ),
-          TextButton(
-            onPressed: () {
               Navigator.of(context)
                   .push(MaterialPageRoute(
                     builder: ((context) => NewEventScreen(
                           event: widget.eventsData,
                           isEdit: true,
                         )),
-                  ))
-                  .then((result) => Navigator.pop(context));
-            },
-            child: const Text('YES'),
-          ),
-        ],
-      ),
-    );
+                  ));
+            
   }
 
   void _showLeaveEventDialog(BuildContext context) {

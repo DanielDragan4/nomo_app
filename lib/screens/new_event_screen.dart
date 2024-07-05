@@ -558,23 +558,39 @@ class _NewEventScreenState extends ConsumerState<NewEventScreen> {
                       onPressed: () {
                         showAdaptiveDialog(
                           context: context,
-                          builder: (context) =>  Dialog(
+                          builder: (context) => Dialog(
                             child: Padding(
                               padding: const EdgeInsets.all(10),
                               child: SizedBox(
-                                height: MediaQuery.of(context).size.height *.21,
+                                height:
+                                    MediaQuery.of(context).size.height * .21,
                                 child: const Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     Text(
-                                        'The Invatation Type you choose effects who can see the event', 
-                                        style: TextStyle(fontSize: 20, fontWeight: FontWeight.w600),),
-                                    Text('Public Events: are visable to all users', 
-                                        style: TextStyle(fontSize: 17, fontWeight: FontWeight.w500),),
-                                    Text('Private Events: are only viable to your Friends', 
-                                        style: TextStyle(fontSize: 17, fontWeight: FontWeight.w500),),
-                                    Text('Selective Events: are only visable to those you have shared a link to', 
-                                        style: TextStyle(fontSize: 17, fontWeight: FontWeight.w500),),
+                                      'The Invatation Type you choose effects who can see the event',
+                                      style: TextStyle(
+                                          fontSize: 20,
+                                          fontWeight: FontWeight.w600),
+                                    ),
+                                    Text(
+                                      'Public Events: are visable to all users',
+                                      style: TextStyle(
+                                          fontSize: 17,
+                                          fontWeight: FontWeight.w500),
+                                    ),
+                                    Text(
+                                      'Private Events: are only viable to your Friends',
+                                      style: TextStyle(
+                                          fontSize: 17,
+                                          fontWeight: FontWeight.w500),
+                                    ),
+                                    Text(
+                                      'Selective Events: are only visable to those you have shared a link to',
+                                      style: TextStyle(
+                                          fontSize: 17,
+                                          fontWeight: FontWeight.w500),
+                                    ),
                                   ],
                                 ),
                               ),
@@ -777,16 +793,42 @@ class _NewEventScreenState extends ConsumerState<NewEventScreen> {
                               _title.text,
                               _description.text,
                             );
-                            Navigator.of(context)
-                                .pushAndRemoveUntil(
-                                    MaterialPageRoute(
-                                        builder: ((context) => const NavBar())),
-                                    (route) => false)
-                                .then((result) => Navigator.pop(context));
-                            ScaffoldMessenger.of(context).hideCurrentSnackBar();
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(
-                                content: Text('Event Updated'),
+                            showDialog(
+                              context: context,
+                              builder: (context) => AlertDialog(
+                                title: Text(
+                                  'Are you sure you want to edit the event?',
+                                  style: TextStyle(
+                                      color:
+                                          Theme.of(context).primaryColorDark),
+                                ),
+                                actions: [
+                                  TextButton(
+                                    onPressed: () => Navigator.pop(context),
+                                    child: const Text('CANCEL'),
+                                  ),
+                                  TextButton(
+                                    onPressed: () {
+                                      Navigator.of(context)
+                                          .pushAndRemoveUntil(
+                                              MaterialPageRoute(
+                                                  builder: ((context) =>
+                                                      const NavBar())),
+                                              (route) => false)
+                                          .then((result) =>
+                                              Navigator.pop(context));
+                                      ScaffoldMessenger.of(context)
+                                          .hideCurrentSnackBar();
+                                      ScaffoldMessenger.of(context)
+                                          .showSnackBar(
+                                        const SnackBar(
+                                          content: Text('Event Updated'),
+                                        ),
+                                      );
+                                    },
+                                    child: const Text('YES'),
+                                  ),
+                                ],
                               ),
                             );
                           }

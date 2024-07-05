@@ -24,7 +24,6 @@ class _EventTabState extends ConsumerState<EventTab> {
     final formattedDate = "${date.month}/${date.day}/${date.year} at ${_getFormattedHour(date)}";
 
     return Card(
-      color: Theme.of(context).canvasColor,
       elevation: 4,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),

@@ -99,8 +99,11 @@ class _InterestsScreenState extends ConsumerState<InterestsScreen> {
 
     return Scaffold(
       backgroundColor: Theme.of(context).colorScheme.background,
-      appBar: widget.searching == false
-          ? AppBar(centerTitle: true, title: _buildHeader(colorScheme))
+      appBar: widget.searching == null
+          ? AppBar(
+              centerTitle: true,
+              title: _buildHeader(colorScheme),
+            )
           : null,
       body: SafeArea(
         child: Padding(
@@ -108,10 +111,22 @@ class _InterestsScreenState extends ConsumerState<InterestsScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
+              if (widget.creatingEvent == null)
+                Center(
+                  child: Padding(
+                    padding: const EdgeInsets.only(top: 8.0),
+                    child: Text(
+                      "Select up to 5 of your interests",
+                      style: TextStyle(
+                          fontSize: 18,
+                          color: colorScheme.onBackground.withOpacity(0.7)),
+                    ),
+                  ),
+                ),
               const SizedBox(height: 24),
               Expanded(child: _buildInterestGrid()),
-              if (widget.searching == false) const SizedBox(height: 16),
-              if (widget.searching == false) _buildBottomActions(colorScheme),
+              //if (widget.searching == null) const SizedBox(height: 16),
+              if (widget.searching == null) _buildBottomActions(colorScheme),
             ],
           ),
         ),
@@ -132,16 +147,6 @@ class _InterestsScreenState extends ConsumerState<InterestsScreen> {
               fontSize: 32,
             ),
           ),
-          if (widget.creatingEvent != null)
-            Padding(
-              padding: const EdgeInsets.only(top: 8.0),
-              child: Text(
-                "Select up to 5 of your interests",
-                style: TextStyle(
-                    fontSize: 18,
-                    color: colorScheme.onBackground.withOpacity(0.7)),
-              ),
-            ),
         ],
       ),
     );
@@ -203,18 +208,21 @@ class _InterestsScreenState extends ConsumerState<InterestsScreen> {
   Widget _buildBottomActions(ColorScheme colorScheme) {
     return Column(
       children: [
-        ElevatedButton(
-          style: ElevatedButton.styleFrom(
-            backgroundColor: colorScheme.primary,
-            foregroundColor: colorScheme.onPrimary,
-            padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 32),
-            shape:
-                RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
-          ),
-          onPressed: _handleContinueButton,
-          child: Text(
-            _getContinueButtonText(),
-            style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
+        Padding(
+          padding: const EdgeInsets.symmetric(vertical: 15.0),
+          child: ElevatedButton(
+            style: ElevatedButton.styleFrom(
+              backgroundColor: colorScheme.primary,
+              foregroundColor: colorScheme.onPrimary,
+              padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 32),
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(30)),
+            ),
+            onPressed: _handleContinueButton,
+            child: Text(
+              _getContinueButtonText(),
+              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
+            ),
           ),
         ),
         if (!widget.isEditing && widget.creatingEvent == null)

@@ -6,6 +6,7 @@ import 'package:nomo/providers/events_provider.dart';
 import 'package:nomo/providers/profile_provider.dart';
 import 'package:nomo/screens/NavBar.dart';
 import 'package:nomo/providers/attending_events_provider.dart';
+import 'package:nomo/screens/detailed_event_screen.dart';
 import 'package:nomo/screens/interests_screen.dart';
 import 'dart:io';
 import 'package:intl/intl.dart';
@@ -46,6 +47,7 @@ class _NewEventScreenState extends ConsumerState<NewEventScreen> {
   bool virtualEvent = false;
   Map<Interests, bool> categories = {};
   late bool isNewEvent;
+  late Event eventData;
 
   @override
   void initState() {
@@ -296,6 +298,13 @@ class _NewEventScreenState extends ConsumerState<NewEventScreen> {
         .select('event_id')
         .single();
 
+    print(
+        '__________________________________________________Event ID: $responseId');
+
+    eventData = await ref
+        .read(eventsProvider.notifier)
+        .deCodeLinkEvent(responseId['event_id']);
+
     ref.read(profileProvider.notifier).createBlockedTime(
           supabase.auth.currentUser!.id,
           DateFormat('yyyy-MM-dd HH:mm:ss').format(start),
@@ -388,9 +397,6 @@ class _NewEventScreenState extends ConsumerState<NewEventScreen> {
                           ),
                           actions: [
                             TextButton(
-                                onPressed: () => Navigator.pop(context),
-                                child: const Text('CANCEL')),
-                            TextButton(
                                 onPressed: () async {
                                   ref
                                       .read(eventsProvider.notifier)
@@ -411,6 +417,9 @@ class _NewEventScreenState extends ConsumerState<NewEventScreen> {
                                   );
                                 },
                                 child: const Text('DELETE')),
+                            TextButton(
+                                onPressed: () => Navigator.pop(context),
+                                child: const Text('CANCEL')),
                           ],
                         ));
               },
@@ -809,7 +818,7 @@ class _NewEventScreenState extends ConsumerState<NewEventScreen> {
                 ),
                 onPressed: enableButton
                     ? isNewEvent
-                        ? () {
+                        ? () async {
                             FocusManager.instance.primaryFocus?.unfocus();
                             createEvent(
                               _selectedStartTime!,
@@ -823,7 +832,8 @@ class _NewEventScreenState extends ConsumerState<NewEventScreen> {
                               _description.text,
                             ).then((value) => Navigator.of(context)
                                 .pushReplacement(MaterialPageRoute(
-                                    builder: ((context) => const NavBar()))));
+                                    builder: ((context) => DetailedEventScreen(
+                                        eventData: eventData)))));
                             ScaffoldMessenger.of(context).showSnackBar(
                               const SnackBar(
                                 content: Text('Event Created'),

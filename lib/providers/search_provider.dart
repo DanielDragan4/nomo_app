@@ -69,27 +69,26 @@ class SearchProvider extends StateNotifier<List<dynamic>> {
           eventData['bookmarked'].contains(supabaseClient.auth.currentUser!.id);
 
       final Event deCodedEvent = Event(
-        description: eventData['description'],
-        sdate: eventData['time_start'],
-        eventId: eventData['event_id'],
-        eventType: eventData['invitationtype'],
-        host: eventData['host'],
-        imageId: eventData['image_id'],
-        imageUrl: eventUrl,
-        location: eventData['location'],
-        title: eventData['title'],
-        edate: eventData['time_end'],
-        attendees: eventData['attendees'],
-        hostProfileUrl: profilePictureUrl,
-        hostUsername: eventData['username'],
-        profileName: eventData['profile_name'],
-        bookmarked: bookmarked,
-        attending: false,
-        isHost: false,
-        friends: eventData['friends_attending'],
-        numOfComments: eventData['comments_num'].length,
-        isVirtual: eventData['is_virtual']
-      );
+          description: eventData['description'],
+          sdate: eventData['time_start'],
+          eventId: eventData['event_id'],
+          eventType: eventData['invitationtype'],
+          host: eventData['host'],
+          imageId: eventData['image_id'],
+          imageUrl: eventUrl,
+          location: eventData['location'],
+          title: eventData['title'],
+          edate: eventData['time_end'],
+          attendees: eventData['attendees'],
+          hostProfileUrl: profilePictureUrl,
+          hostUsername: eventData['username'],
+          profileName: eventData['profile_name'],
+          bookmarked: bookmarked,
+          attending: false,
+          isHost: false,
+          friends: eventData['friends_attending'] ?? [],
+          numOfComments: eventData['comments_num'].length,
+          isVirtual: eventData['is_virtual']);
 
       // Set attending and isHost flags
       deCodedEvent.attending =
@@ -131,27 +130,26 @@ class SearchProvider extends StateNotifier<List<dynamic>> {
           eventData['bookmarked'].contains(supabaseClient.auth.currentUser!.id);
 
       final Event deCodedEvent = Event(
-        description: eventData['description'],
-        sdate: eventData['time_start'],
-        eventId: eventData['event_id'],
-        eventType: eventData['invitationtype'],
-        host: eventData['host'],
-        imageId: eventData['image_id'],
-        imageUrl: eventUrl,
-        location: eventData['location'],
-        title: eventData['title'],
-        edate: eventData['time_end'],
-        attendees: eventData['attendees'],
-        hostProfileUrl: profilePictureUrl,
-        hostUsername: eventData['username'],
-        profileName: eventData['profile_name'],
-        bookmarked: bookmarked,
-        attending: false,
-        isHost: false,
-        friends: eventData['friends_attending'],
-        numOfComments: eventData['comments_num'].length,
-        isVirtual: eventData['is_virtual']
-      );
+          description: eventData['description'],
+          sdate: eventData['time_start'],
+          eventId: eventData['event_id'],
+          eventType: eventData['invitationtype'],
+          host: eventData['host'],
+          imageId: eventData['image_id'],
+          imageUrl: eventUrl,
+          location: eventData['location'],
+          title: eventData['title'],
+          edate: eventData['time_end'],
+          attendees: eventData['attendees'],
+          hostProfileUrl: profilePictureUrl,
+          hostUsername: eventData['username'],
+          profileName: eventData['profile_name'],
+          bookmarked: bookmarked,
+          attending: false,
+          isHost: false,
+          friends: eventData['friends_attending'] ?? [],
+          numOfComments: eventData['comments_num'].length,
+          isVirtual: eventData['is_virtual']);
 
       // Set attending and isHost flags
       deCodedEvent.attending =

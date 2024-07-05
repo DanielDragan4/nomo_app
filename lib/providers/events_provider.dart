@@ -5,6 +5,7 @@ import 'package:geolocator/geolocator.dart';
 import 'package:nomo/models/events_model.dart';
 import 'package:nomo/models/comments_model.dart';
 import 'package:nomo/providers/supabase_provider.dart';
+import 'package:nomo/screens/login_screen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
@@ -19,12 +20,13 @@ class EventProvider extends StateNotifier<List?> {
     final getLocation = await SharedPreferences.getInstance();
     final exsistingLocation = getLocation.getStringList('savedLocation');
     final setRadius = getLocation.getStringList('savedRadius');
-    final _currentPosition = Position.fromMap(json.decode(exsistingLocation![0]));
+    final _currentPosition =
+        Position.fromMap(json.decode(exsistingLocation![0]));
     final _preferredRadius = double.parse(setRadius!.first);
-    var events = await supabaseClient.rpc('get_recommended_events', params:{
-        'user_lon': _currentPosition.longitude,
-        'user_lat': _currentPosition.latitude,
-        'radius': _preferredRadius
+    var events = await supabaseClient.rpc('get_recommended_events', params: {
+      'user_lon': _currentPosition.longitude,
+      'user_lat': _currentPosition.latitude,
+      'radius': _preferredRadius
     });
     return events.toList();
   }
@@ -55,32 +57,30 @@ class EventProvider extends StateNotifier<List?> {
       }
 
       final Event deCodedEvent = Event(
-        description: eventData['description'],
-        sdate: eventData['time_start'],
-        eventId: eventData['event_id'],
-        eventType: eventData['invitationtype'],
-        host: eventData['host'],
-        imageId: eventData['image_id'],
-        imageUrl: eventUrl,
-        location: eventData['location'],
-        title: eventData['title'],
-        edate: eventData['time_end'],
-        attendees: eventData['attendees'],
-        hostProfileUrl: profilePictureUrl,
-        hostUsername: eventData['username'],
-        profileName: eventData['profile_name'],
-        bookmarked: bookmarked,
-        attending: false,
-        isHost: false,
-        friends: eventData['friends_attending'],
-        numOfComments: eventData['comments_num'].length,
-        isVirtual: eventData['is_virtual']
-      );
+          description: eventData['description'],
+          sdate: eventData['time_start'],
+          eventId: eventData['event_id'],
+          eventType: eventData['invitationtype'],
+          host: eventData['host'],
+          imageId: eventData['image_id'],
+          imageUrl: eventUrl,
+          location: eventData['location'],
+          title: eventData['title'],
+          edate: eventData['time_end'],
+          attendees: eventData['attendees'],
+          hostProfileUrl: profilePictureUrl,
+          hostUsername: eventData['username'],
+          profileName: eventData['profile_name'],
+          bookmarked: bookmarked,
+          attending: false,
+          isHost: false,
+          friends: eventData['friends_attending'],
+          numOfComments: eventData['comments_num'].length,
+          isVirtual: eventData['is_virtual']);
 
       bool attending = false;
       for (var i = 0; i < deCodedEvent.attendees.length; i++) {
-        if (deCodedEvent.attendees[i] ==
-            supabaseClient.auth.currentUser!.id) {
+        if (deCodedEvent.attendees[i] == supabaseClient.auth.currentUser!.id) {
           attending = true;
           deCodedEvent.attending = true;
           break;
@@ -89,10 +89,10 @@ class EventProvider extends StateNotifier<List?> {
 
       if ((deCodedEvent.host != supabaseClient.auth.currentUser!.id)) {
         deCodedEvent.isHost = false;
-        } else {
-          deCodedEvent.isHost = true;
-        }
-        deCodedList.add(deCodedEvent);
+      } else {
+        deCodedEvent.isHost = true;
+      }
+      deCodedList.add(deCodedEvent);
     }
     state = deCodedList;
   }
@@ -203,27 +203,26 @@ class EventProvider extends StateNotifier<List?> {
       }
     }
     Event deCodedEvent = Event(
-      description: codedEvent['description'],
-      sdate: codedEvent['time_start'],
-      eventId: codedEvent['event_id'],
-      eventType: codedEvent['invitationType'],
-      host: codedEvent['host'],
-      imageId: codedEvent['image_id'],
-      imageUrl: eventUrl,
-      location: codedEvent['location'],
-      title: codedEvent['title'],
-      edate: codedEvent['time_end'],
-      attendees: codedEvent['Attendees'],
-      hostProfileUrl: profilePictureUrl,
-      hostUsername: codedEvent['username'],
-      profileName: codedEvent['profile_name'],
-      bookmarked: bookmarked,
-      attending: false,
-      isHost: false,
-      friends: codedEvent['friends_attending'],
-      numOfComments: codedEvent['comments_num'].length,
-      isVirtual: codedEvent['is_virtual']
-    );
+        description: codedEvent['description'],
+        sdate: codedEvent['time_start'],
+        eventId: codedEvent['event_id'],
+        eventType: codedEvent['invitationType'],
+        host: codedEvent['host'],
+        imageId: codedEvent['image_id'],
+        imageUrl: eventUrl,
+        location: codedEvent['location'],
+        title: codedEvent['title'],
+        edate: codedEvent['time_end'],
+        attendees: codedEvent['Attendees'],
+        hostProfileUrl: profilePictureUrl,
+        hostUsername: codedEvent['username'],
+        profileName: codedEvent['profile_name'],
+        bookmarked: bookmarked,
+        attending: false,
+        isHost: false,
+        friends: codedEvent['friends_attending'],
+        numOfComments: codedEvent['comments_num'].length,
+        isVirtual: codedEvent['is_virtual']);
 
     for (var i = 0; i < deCodedEvent.attendees.length; i++) {
       if (deCodedEvent.attendees[i]['user_id'] ==

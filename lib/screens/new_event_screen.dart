@@ -99,30 +99,36 @@ class _NewEventScreenState extends ConsumerState<NewEventScreen> {
       lastDate: DateTime(2100),
     );
     if (picked != null) {
-      setState(() {
-        if (isStartDate) {
-          _selectedStartDate = picked;
-          _formattedSDate = DateFormat.yMd().format(_selectedStartDate!);
-          sdate = true;
-        } else {
-          _selectedEndDate = picked;
-          _formattedEDate = DateFormat.yMd().format(_selectedEndDate!);
-          edate = true;
-        }
-        _enableButton();
-      });
+      bool isValidDate = true;
 
-      if ((_selectedEndDate != null &&
-              isStartDate == true &&
-              (!_selectedEndDate!.isAfter(picked) &&
-                  !_selectedEndDate!.isAtSameMomentAs(picked))) ||
-          (_selectedStartDate != null &&
-              isStartDate == false &&
-              (_selectedStartDate!.isAfter(picked) &&
-                  !_selectedStartDate!.isAtSameMomentAs(picked)))) {
+      if (isStartDate && _selectedEndDate != null) {
+        isValidDate = picked.isBefore(_selectedEndDate!);
+      } else if (!isStartDate && _selectedStartDate != null) {
+        isValidDate = picked.isAfter(_selectedStartDate!);
+      }
+
+      if (isValidDate) {
         setState(() {
-          enableButton = false;
+          if (isStartDate) {
+            _selectedStartDate = picked;
+            _formattedSDate = DateFormat.yMd().format(_selectedStartDate!);
+            sdate = true;
+          } else {
+            _selectedEndDate = picked;
+            _formattedEDate = DateFormat.yMd().format(_selectedEndDate!);
+            edate = true;
+          }
+          _enableButton();
         });
+      } else {
+        ScaffoldMessenger.of(context).hideCurrentSnackBar();
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(isStartDate
+                ? 'Start date must be before end date.'
+                : 'End date must be after start date.'),
+          ),
+        );
       }
     }
   }
@@ -130,7 +136,7 @@ class _NewEventScreenState extends ConsumerState<NewEventScreen> {
   Future<void> _selectTime(BuildContext context, bool isStartTime) async {
     FocusManager.instance.primaryFocus?.unfocus();
     final TimeOfDay? picked = await showTimePicker(
-      initialEntryMode: TimePickerEntryMode.dial,
+      initialEntryMode: TimePickerEntryMode.input,
       context: context,
       initialTime: isStartTime
           ? _selectedStartTime ?? TimeOfDay.now()

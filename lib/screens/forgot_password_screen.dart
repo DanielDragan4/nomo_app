@@ -4,7 +4,8 @@ import 'package:nomo/screens/login_screen.dart';
 import 'reset_password_screen.dart';
 
 class ForgotPasswordScreen extends StatefulWidget {
-  const ForgotPasswordScreen({Key? key}) : super(key: key);
+  ForgotPasswordScreen({Key? key, this.email}) : super(key: key);
+  String? email;
 
   @override
   State<ForgotPasswordScreen> createState() => _ForgotPasswordScreenState();
@@ -15,13 +16,23 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
   final formKey = GlobalKey<FormState>();
 
   @override
+  void initState() {
+    if (widget.email != null) {
+      emailC.text = widget.email!;
+    }
+    super.initState();
+  }
+
+  @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
 
     return Scaffold(
       backgroundColor: theme.canvasColor,
       appBar: AppBar(
-        title: Text('Forgot Password', style: TextStyle(color: theme.primaryColor,fontSize: 30, fontWeight: FontWeight.w600),),
+        title: widget.email != null
+            ? Text('Forgot Password')
+            : Text('Reset Password'),
       ),
       body: SingleChildScrollView(
         child: Padding(

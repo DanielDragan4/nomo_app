@@ -1,3 +1,5 @@
+import 'dart:typed_data';
+
 import 'package:flutter/material.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:nomo/models/events_model.dart';
@@ -15,6 +17,8 @@ import 'package:nomo/providers/supabase_provider.dart';
 import 'package:nomo/widgets/address_search_widget.dart';
 import 'package:uuid/uuid.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:image/image.dart' as img;
+import 'package:path_provider/path_provider.dart';
 
 const List<String> list = <String>['Public', 'Selective', 'Private'];
 
@@ -211,18 +215,56 @@ class _NewEventScreenState extends ConsumerState<NewEventScreen> {
   dynamic uploadImage(File imageFile) async {
     final supabase = (await ref.read(supabaseInstance));
     final userId = supabase.client.auth.currentUser!.id.toString();
-
     var uuid = const Uuid();
     final currentImageName = uuid.v4();
 
-    final response = await supabase.client.storage
-        .from('Images')
-        .upload('$userId/images/$currentImageName', imageFile);
+    // Read the file
+    Uint8List imageBytes = await imageFile.readAsBytes();
 
-    var imgId = await supabase.client.from('Images').insert(
-        {'image_url': '$userId/images/$currentImageName'}).select('images_id');
+    // Decode the image
+    img.Image? originalImage = img.decodeImage(imageBytes);
 
-    return imgId[0]["images_id"];
+    if (originalImage != null) {
+      int width = originalImage.width;
+      int height = originalImage.height;
+
+      // Crop to square
+      int size = width < height ? width : height;
+      int x = (width - size) ~/ 2;
+      int y = (height - size) ~/ 2;
+      img.Image croppedImage =
+          img.copyCrop(originalImage, x: x, y: y, width: size, height: size);
+
+      // Resize if larger than 1440x1440
+      if (size > 1440) {
+        croppedImage = img.copyResize(croppedImage, width: 1440, height: 1440);
+      }
+
+      // Encode the image to PNG
+      List<int> processedImageBytes = img.encodePng(croppedImage);
+
+      // Create a temporary file with the processed image
+      Directory tempDir = await getTemporaryDirectory();
+      File tempFile = File('${tempDir.path}/processed_$currentImageName.png');
+      await tempFile.writeAsBytes(processedImageBytes);
+
+      // Upload the processed image
+      final response = await supabase.client.storage
+          .from('Images')
+          .upload('$userId/images/$currentImageName', tempFile);
+
+      // Delete the temporary file
+      await tempFile.delete();
+
+      var imgId = await supabase.client
+          .from('Images')
+          .insert({'image_url': '$userId/images/$currentImageName'}).select(
+              'images_id');
+      return imgId[0]["images_id"];
+    } else {
+      // Handle error: unable to decode image
+      throw Exception('Unable to decode image');
+    }
   }
 
   Future<void> _pickImageFromGallery() async {
@@ -492,42 +534,62 @@ class _NewEventScreenState extends ConsumerState<NewEventScreen> {
                   },
                 );
               },
-              child: Container(
-                height: MediaQuery.of(context).size.height / 3,
-                decoration: _selectedImage != null
-                    ? BoxDecoration(
-                        border: Border.all(color: Colors.black87, width: 2),
-                        color: Colors.grey.shade200,
-                        image: DecorationImage(
-                            image: FileImage(_selectedImage!),
-                            fit: BoxFit.cover))
-                    : (isNewEvent)
-                        ? BoxDecoration(
-                            border: Border.all(color: Colors.black87, width: 2),
-                            color: Colors.grey.shade200,
-                          )
-                        : BoxDecoration(
-                            border: Border.all(color: Colors.black87, width: 2),
-                            color: Colors.grey.shade200,
-                            image: DecorationImage(
-                                image: NetworkImage(widget.event?.imageUrl)),
-                          ),
-                child: _selectedImage == null
-                    ? Center(
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Icon(
-                              Icons.add,
-                              size: MediaQuery.of(context).size.height / 15,
-                            ),
-                            isNewEvent
-                                ? const Text("Add An Image")
-                                : const Text('Add a Different Image?')
-                          ],
-                        ),
-                      )
-                    : null,
+              child: Stack(
+                children: [
+                  AspectRatio(
+                    aspectRatio: 16 / 9,
+                    child: Container(
+                      height: MediaQuery.of(context).size.height / 3,
+                      decoration: _selectedImage != null
+                          ? BoxDecoration(
+                              border:
+                                  Border.all(color: Colors.black87, width: 2),
+                              color: Colors.grey.shade200,
+                              image: DecorationImage(
+                                  image: FileImage(_selectedImage!),
+                                  fit: BoxFit.cover))
+                          : (isNewEvent)
+                              ? BoxDecoration(
+                                  border: Border.all(
+                                      color: Colors.black87, width: 2),
+                                  color: Colors.grey.shade200,
+                                )
+                              : BoxDecoration(
+                                  border: Border.all(
+                                      color: Colors.black87, width: 2),
+                                  color: Colors.grey.shade200,
+                                  image: DecorationImage(
+                                      image:
+                                          NetworkImage(widget.event?.imageUrl),
+                                      fit: BoxFit.cover),
+                                ),
+                      child: _selectedImage == null && isNewEvent
+                          ? Center(
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Icon(
+                                    Icons.add,
+                                    size:
+                                        MediaQuery.of(context).size.height / 15,
+                                  ),
+                                  const Text("Add An Image")
+                                ],
+                              ),
+                            )
+                          : null,
+                    ),
+                  ),
+                  const Positioned(
+                    right: 8,
+                    bottom: 8,
+                    child: Icon(
+                      Icons.mode_edit_outlined,
+                      color: Colors.white,
+                      size: 30,
+                    ),
+                  ),
+                ],
               ),
             ),
             SizedBox(height: MediaQuery.of(context).size.height / 30),
@@ -862,7 +924,7 @@ class _NewEventScreenState extends ConsumerState<NewEventScreen> {
                               context: context,
                               builder: (context) => AlertDialog(
                                 title: Text(
-                                  'Are you sure you want to edit the event?',
+                                  'Are you sure you want to update this event?',
                                   style: TextStyle(
                                       color:
                                           Theme.of(context).primaryColorDark),

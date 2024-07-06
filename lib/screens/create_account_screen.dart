@@ -1,3 +1,5 @@
+import 'dart:typed_data';
+
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:nomo/functions/make-fcm.dart';
@@ -8,6 +10,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:nomo/providers/supabase_provider.dart';
 import 'package:postgrest/src/types.dart';
 import 'package:uuid/uuid.dart';
+import 'package:image/image.dart' as img;
 
 class CreateAccountScreen extends ConsumerStatefulWidget {
   CreateAccountScreen(
@@ -77,14 +80,42 @@ class _CreateAccountScreenState extends ConsumerState<CreateAccountScreen> {
     final currentImageName = uuid.v4();
 
     if (imageFile != null) {
-      final response = await supabase.client.storage
-          .from('Images')
-          .upload('$userId/avatar/$currentImageName', imageFile);
+      // Read the file
+      Uint8List imageBytes = await imageFile.readAsBytes();
 
-      imgId = await supabase.client
-          .from('Images')
-          .insert({'image_url': '$userId/avatar/$currentImageName'}).select(
-              'images_id');
+      // Decode the image
+      img.Image? originalImage = img.decodeImage(imageBytes);
+
+      if (originalImage != null) {
+        // Resize the image
+        img.Image resizedImage = img.copyResize(originalImage,
+            width: 150, height: 150, interpolation: img.Interpolation.linear);
+
+        // Encode the image to PNG
+        List<int> resizedImageBytes = img.encodePng(resizedImage);
+
+        // Create a temporary file with the resized image
+        File tempFile = await File(
+                '${Directory.systemTemp.path}/resized_$currentImageName.png')
+            .create();
+        await tempFile.writeAsBytes(resizedImageBytes);
+
+        // Upload the resized image
+        final response = await supabase.client.storage
+            .from('Images')
+            .upload('$userId/avatar/$currentImageName', tempFile);
+
+        // Delete the temporary file
+        await tempFile.delete();
+
+        imgId = await supabase.client
+            .from('Images')
+            .insert({'image_url': '$userId/avatar/$currentImageName'}).select(
+                'images_id');
+      } else {
+        // Handle error: unable to decode image
+        throw Exception('Unable to decode image');
+      }
     } else {
       imgId = await supabase.client.from('Images').insert(
           {'image_url': 'default/avatar/sadboi.png'}).select('images_id');
@@ -176,13 +207,15 @@ class _CreateAccountScreenState extends ConsumerState<CreateAccountScreen> {
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            const Padding(
-              padding: EdgeInsets.only(left: 12.0),
-              child: Text(
-                "Create Account",
-                style: TextStyle(fontSize: 20),
-              ),
-            ),
+            widget.isNew
+                ? const Padding(
+                    padding: EdgeInsets.only(left: 12.0),
+                    child: Text(
+                      "Create Account",
+                      style: TextStyle(fontSize: 20),
+                    ),
+                  )
+                : SizedBox(height: 20),
             Center(
               child: GestureDetector(
                 onTap: () {

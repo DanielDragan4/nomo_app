@@ -1,4 +1,5 @@
 Privacy Policy
+
 Introduction
   - Welcome to Nomo. This Privacy Policy explains how we collect, use, disclose, and safeguard your information when you use our mobile application.
 Information We Collect

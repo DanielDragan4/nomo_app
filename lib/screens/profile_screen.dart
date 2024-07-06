@@ -435,15 +435,30 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                                     child: Text("No Bookmarked Events"),
                                   );
                                 } else {
-                                  return ListView(
+                                  preloadImages(bookmarkedEvents, 4, context);
+
+                                  return ListView.builder(
                                     key: const PageStorageKey<String>(
                                         'bookmarked'),
-                                    children: [
-                                      for (Event event in bookmarkedEvents)
-                                        EventTab(
-                                            eventData: event,
-                                            bookmarkSet: true),
-                                    ],
+                                    itemCount: bookmarkedEvents.length,
+                                    itemBuilder: (context, index) {
+                                      final event = bookmarkedEvents[index];
+
+                                      // Preload next few images when nearing the end of the list
+                                      if (index ==
+                                          bookmarkedEvents.length - 2) {
+                                        preloadImages(
+                                            bookmarkedEvents.sublist(index + 1),
+                                            3,
+                                            context);
+                                      }
+
+                                      return EventTab(
+                                        eventData: event,
+                                        preloadedImage:
+                                            NetworkImage(event.imageUrl),
+                                      );
+                                    },
                                   );
                                 }
                               } else {

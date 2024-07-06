@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:nomo/functions/image-handling.dart';
 import 'package:nomo/models/events_model.dart';
 import 'package:nomo/models/friend_model.dart';
 import 'package:nomo/models/profile_model.dart';
@@ -373,26 +374,43 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                               ref.read(attendEventsProvider.notifier).stream,
                           builder: (context, snapshot) {
                             if (snapshot.data != null) {
-                              final attendingEvents = snapshot.data!
+                              final relevantEvents = snapshot.data!
                                   .where((event) =>
                                       event.attending || event.isHost)
                                   .toList();
-                              if (attendingEvents.isEmpty) {
+
+                              if (relevantEvents.isEmpty) {
                                 return const Center(
                                   child: Text("Not Attending Any Events"),
                                 );
                               } else {
-                                return ListView(
+                                // Preload first few images
+                                preloadImages(relevantEvents, 4, context);
+
+                                return ListView.builder(
                                   key: const PageStorageKey<String>('event'),
-                                  children: [
-                                    for (Event i in snapshot.data!)
-                                      if (i.attending || i.isHost)
-                                        EventTab(eventData: i),
-                                  ],
+                                  itemCount: relevantEvents.length,
+                                  itemBuilder: (context, index) {
+                                    final event = relevantEvents[index];
+
+                                    // Preload next few images when nearing the end of the list
+                                    if (index == relevantEvents.length - 2) {
+                                      preloadImages(
+                                          relevantEvents.sublist(index + 1),
+                                          3,
+                                          context);
+                                    }
+
+                                    return EventTab(
+                                      eventData: event,
+                                      preloadedImage:
+                                          NetworkImage(event.imageUrl),
+                                    );
+                                  },
                                 );
                               }
                             } else {
-                              return const Text("No Data Retreived");
+                              return const Text("No Data Retrieved");
                             }
                           },
                         ))

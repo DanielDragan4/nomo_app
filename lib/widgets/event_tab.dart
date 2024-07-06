@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:maps_launcher/maps_launcher.dart';
@@ -8,11 +9,16 @@ import 'package:nomo/screens/profile_screen.dart';
 import 'package:nomo/widgets/event_info.dart';
 
 class EventTab extends ConsumerStatefulWidget {
-  const EventTab({Key? key, required this.eventData, this.bookmarkSet})
+  EventTab(
+      {Key? key,
+      required this.eventData,
+      this.bookmarkSet,
+      this.preloadedImage})
       : super(key: key);
 
   final Event eventData;
   final bool? bookmarkSet;
+  final ImageProvider? preloadedImage;
 
   @override
   ConsumerState<EventTab> createState() => _EventTabState();
@@ -20,76 +26,80 @@ class EventTab extends ConsumerStatefulWidget {
 
 class _EventTabState extends ConsumerState<EventTab> {
   @override
-Widget build(BuildContext context) {
-  final DateTime date = DateTime.parse(widget.eventData.sdate);
-  final formattedDate = "${date.month}/${date.day}/${date.year} at ${_getFormattedHour(date)}";
+  Widget build(BuildContext context) {
+    final DateTime date = DateTime.parse(widget.eventData.sdate);
+    final formattedDate =
+        "${date.month}/${date.day}/${date.year} at ${_getFormattedHour(date)}";
 
-  final bool isHostOrAttending = widget.eventData.isHost || widget.eventData.attending;
+    final bool isHostOrAttending =
+        widget.eventData.isHost || widget.eventData.attending;
 
-  return Card(
-    elevation: 4,
-    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-    margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
-    color: isHostOrAttending 
-      ? Theme.of(context).colorScheme.primaryContainer  // Color for hosted/attended events
-      : Theme.of(context).cardColor,  // Default card color
-    child: Stack(
-      children: [
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                _buildHostInfo(context),
-                if (_hasEventEnded()) _buildEventEndedIndicator(),
-                if (isHostOrAttending) _buildHostOrAttendingIndicator(),
-              ],
-            ),
-            _buildEventImage(context),
-            Padding(
-              padding: const EdgeInsets.all(16),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+    return Card(
+      elevation: 4,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
+      color: isHostOrAttending
+          ? Theme.of(context)
+              .colorScheme
+              .primaryContainer // Color for hosted/attended events
+          : Theme.of(context).cardColor, // Default card color
+      child: Stack(
+        children: [
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
                 children: [
-                  _buildEventTitle(context),
-                  const SizedBox(height: 8),
-                  _buildEventDate(context, formattedDate),
-                  const SizedBox(height: 12),
-                  _buildEventLocation(context),
-                  const SizedBox(height: 16),
-                  EventInfo(
-                    eventsData: widget.eventData,
-                    bookmarkSet: widget.bookmarkSet,
-                  ),
-                  const SizedBox(height: 12),
-                  _buildEventDescription(context),
+                  _buildHostInfo(context),
+                  if (_hasEventEnded()) _buildEventEndedIndicator(),
+                  if (isHostOrAttending) _buildHostOrAttendingIndicator(),
                 ],
               ),
-            ),
-          ],
-        ),
-      ],
-    ),
-  );
-}
-
-Widget _buildHostOrAttendingIndicator() {
-  return Container(
-    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-    decoration: BoxDecoration(
-      color: widget.eventData.isHost ? Colors.green : Colors.blue,
-      borderRadius: BorderRadius.circular(12),
-    ),
-    child: Text(
-      widget.eventData.isHost ? 'Hosting' : 'Attending',
-      style: TextStyle(
-        color: Colors.white,
-        fontWeight: FontWeight.bold,
-        fontSize: 12,
+              _buildEventImage(context),
+              Padding(
+                padding: const EdgeInsets.all(16),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    _buildEventTitle(context),
+                    const SizedBox(height: 8),
+                    _buildEventDate(context, formattedDate),
+                    const SizedBox(height: 12),
+                    _buildEventLocation(context),
+                    const SizedBox(height: 16),
+                    EventInfo(
+                      eventsData: widget.eventData,
+                      bookmarkSet: widget.bookmarkSet,
+                    ),
+                    const SizedBox(height: 12),
+                    _buildEventDescription(context),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ],
       ),
-    ),
-  );
-}
+    );
+  }
+
+  Widget _buildHostOrAttendingIndicator() {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      decoration: BoxDecoration(
+        color: widget.eventData.isHost ? Colors.green : Colors.blue,
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Text(
+        widget.eventData.isHost ? 'Hosting' : 'Attending',
+        style: TextStyle(
+          color: Colors.white,
+          fontWeight: FontWeight.bold,
+          fontSize: 12,
+        ),
+      ),
+    );
+  }
 
   bool _hasEventEnded() {
     final DateTime endDate = DateTime.parse(widget.eventData.edate);
@@ -98,20 +108,20 @@ Widget _buildHostOrAttendingIndicator() {
 
   Widget _buildEventEndedIndicator() {
     return Container(
-        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-        decoration: BoxDecoration(
-          color: Colors.red,
-          borderRadius: BorderRadius.circular(12),
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      decoration: BoxDecoration(
+        color: Colors.red,
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Text(
+        'Passed',
+        style: TextStyle(
+          color: Colors.white,
+          fontWeight: FontWeight.bold,
+          fontSize: 12,
         ),
-        child: Text(
-          'Passed',
-          style: TextStyle(
-            color: Colors.white,
-            fontWeight: FontWeight.bold,
-            fontSize: 12,
-          ),
-        ),
-      );
+      ),
+    );
   }
 
   Widget _buildHostInfo(BuildContext context) {
@@ -168,19 +178,16 @@ Widget _buildHostOrAttendingIndicator() {
       )),
       child: AspectRatio(
         aspectRatio: 16 / 9,
-        child: FutureBuilder(
-          future: ref.read(supabaseInstance),
-          builder: (context, snapshot) {
-            if (snapshot.connectionState == ConnectionState.done) {
-              return Image.network(
-                widget.eventData.imageUrl,
+        child: widget.preloadedImage != null
+            ? Image(image: widget.preloadedImage!, fit: BoxFit.cover)
+            : CachedNetworkImage(
+                imageUrl: widget.eventData.imageUrl,
                 fit: BoxFit.cover,
-              );
-            } else {
-              return const Center(child: CircularProgressIndicator());
-            }
-          },
-        ),
+                placeholder: (context, url) => Center(
+                  child: CircularProgressIndicator(),
+                ),
+                errorWidget: (context, url, error) => Icon(Icons.error),
+              ),
       ),
     );
   }
@@ -210,45 +217,44 @@ Widget _buildHostOrAttendingIndicator() {
   }
 
   Widget _buildEventLocation(BuildContext context) {
-    return (widget.eventData.isVirtual) ?
-    Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Icon(Icons.location_on,
-              size: 18, color: Theme.of(context).colorScheme.secondary),
-          const SizedBox(width: 8),
-          Expanded(
-            child: Text(
-              widget.eventData.location,
-              style: TextStyle(
-                color: Theme.of(context).colorScheme.secondary,
-                decoration: TextDecoration.underline,
+    return (widget.eventData.isVirtual)
+        ? Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Icon(Icons.location_on,
+                  size: 18, color: Theme.of(context).colorScheme.secondary),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Text(
+                  widget.eventData.location,
+                  style: TextStyle(
+                    color: Theme.of(context).colorScheme.secondary,
+                    decoration: TextDecoration.underline,
+                  ),
+                ),
               ),
+            ],
+          )
+        : GestureDetector(
+            onTap: () => MapsLauncher.launchQuery(widget.eventData.location),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Icon(Icons.location_on,
+                    size: 18, color: Theme.of(context).colorScheme.secondary),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Text(
+                    widget.eventData.location,
+                    style: TextStyle(
+                      color: Theme.of(context).colorScheme.secondary,
+                      decoration: TextDecoration.underline,
+                    ),
+                  ),
+                ),
+              ],
             ),
-          ),
-        ],
-      )
-    :
-    GestureDetector(
-      onTap: () => MapsLauncher.launchQuery(widget.eventData.location),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Icon(Icons.location_on,
-              size: 18, color: Theme.of(context).colorScheme.secondary),
-          const SizedBox(width: 8),
-          Expanded(
-            child: Text(
-              widget.eventData.location,
-              style: TextStyle(
-                color: Theme.of(context).colorScheme.secondary,
-                decoration: TextDecoration.underline,
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
+          );
   }
 
   Widget _buildEventDescription(BuildContext context) {

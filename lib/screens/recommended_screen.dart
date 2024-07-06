@@ -4,6 +4,7 @@ import 'package:nomo/models/events_model.dart';
 import 'package:nomo/providers/events_provider.dart';
 import 'package:nomo/screens/search_screen.dart';
 import 'package:nomo/widgets/event_tab.dart';
+import 'package:nomo/functions/image-handling.dart';
 
 class RecommendedScreen extends ConsumerWidget {
   const RecommendedScreen({super.key});
@@ -61,14 +62,27 @@ class RecommendedScreen extends ConsumerWidget {
           child: StreamBuilder(
             stream: ref.read(eventsProvider.notifier).stream,
             builder: (context, snapshot) {
-              if (snapshot.data != null) {
-                return ListView(
+              if (snapshot.hasData) {
+                final events = snapshot.data!;
+                // Preload the first few images
+                preloadRecommendedImages(context, events, 0, 5);
+
+                return ListView.builder(
                   shrinkWrap: true,
                   physics: const BouncingScrollPhysics(),
                   key: const PageStorageKey<String>('page'),
-                  children: [
-                    for (Event i in snapshot.data!) EventTab(eventData: i)
-                  ],
+                  itemCount: events.length,
+                  itemBuilder: (context, index) {
+                    // Preload next few images when nearing the end of the list
+                    if (index % 5 == 0) {
+                      preloadRecommendedImages(context, events, index + 1, 5);
+                    }
+
+                    return EventTab(
+                      eventData: events[index],
+                      preloadedImage: NetworkImage(events[index].imageUrl),
+                    );
+                  },
                 );
               } else if (snapshot.hasError) {
                 return Text("Error: ${snapshot.error}");

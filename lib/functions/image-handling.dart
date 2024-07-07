@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:nomo/models/events_model.dart';
 
-void preloadImages(List<Event> events, int preloadCount, context) {
-  for (var i = 0; i < preloadCount && i < events.length; i++) {
+void preloadImages(List<Event> events, int startIndex, int preloadCount,
+    BuildContext context) {
+  for (var i = startIndex;
+      i < startIndex + preloadCount && i < events.length;
+      i++) {
     precacheImage(NetworkImage(events[i].imageUrl), context);
   }
 }

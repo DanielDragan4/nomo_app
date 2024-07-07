@@ -384,22 +384,14 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                                   child: Text("Not Attending Any Events"),
                                 );
                               } else {
-                                // Preload first few images
-                                preloadImages(relevantEvents, 4, context);
-
                                 return ListView.builder(
                                   key: const PageStorageKey<String>('event'),
                                   itemCount: relevantEvents.length,
                                   itemBuilder: (context, index) {
                                     final event = relevantEvents[index];
 
-                                    // Preload next few images when nearing the end of the list
-                                    if (index == relevantEvents.length - 2) {
-                                      preloadImages(
-                                          relevantEvents.sublist(index + 1),
-                                          3,
-                                          context);
-                                    }
+                                    preloadImages(
+                                        relevantEvents, 4, index, context);
 
                                     return EventTab(
                                       eventData: event,
@@ -435,8 +427,6 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                                     child: Text("No Bookmarked Events"),
                                   );
                                 } else {
-                                  preloadImages(bookmarkedEvents, 4, context);
-
                                   return ListView.builder(
                                     key: const PageStorageKey<String>(
                                         'bookmarked'),
@@ -444,14 +434,8 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                                     itemBuilder: (context, index) {
                                       final event = bookmarkedEvents[index];
 
-                                      // Preload next few images when nearing the end of the list
-                                      if (index ==
-                                          bookmarkedEvents.length - 2) {
-                                        preloadImages(
-                                            bookmarkedEvents.sublist(index + 1),
-                                            3,
-                                            context);
-                                      }
+                                      preloadImages(
+                                          bookmarkedEvents, 3, index, context);
 
                                       return EventTab(
                                         eventData: event,

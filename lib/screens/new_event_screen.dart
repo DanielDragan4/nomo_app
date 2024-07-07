@@ -315,23 +315,6 @@ class _NewEventScreenState extends ConsumerState<NewEventScreen> {
     return 'POINT(${locations.first.longitude} ${locations.first.latitude})';
   }
 
-  String extractImageId(String url) {
-    // Split the URL by '/'
-    List<String> parts = url.split('/');
-
-    // Find the index of 'images' in the parts
-    int imagesIndex = parts.indexOf('images');
-
-    // If 'images' is found and there's a part after it, return that part
-    if (imagesIndex != -1 && imagesIndex < parts.length - 1) {
-      return parts[imagesIndex + 1];
-    }
-
-    // If the image ID can't be found, return an empty string or throw an exception
-    return '';
-    // Alternatively: throw Exception('Image ID not found in URL');
-  }
-
   Future<void> createEvent(
       TimeOfDay selectedStart,
       TimeOfDay selectedEnd,
@@ -384,9 +367,6 @@ class _NewEventScreenState extends ConsumerState<NewEventScreen> {
         .select('event_id')
         .single();
 
-    print(
-        '__________________________________________________Event ID: $responseId');
-
     eventData = await ref
         .read(eventsProvider.notifier)
         .deCodeLinkEvent(responseId['event_id']);
@@ -425,12 +405,6 @@ class _NewEventScreenState extends ConsumerState<NewEventScreen> {
     point = await getCords(location);
 
     if (selectedImage != null) {
-      // final previousImage = await supabase
-      //     .from('Images')
-      //     .select('image_url')
-      //     .eq('images_id', image_id)
-      //     .single()
-      //     .then((response) => response['image_url'] as String);
       await supabase.storage.from('Images').remove([widget.event!.imageUrl]);
       var imageId = await uploadImage(selectedImage);
 

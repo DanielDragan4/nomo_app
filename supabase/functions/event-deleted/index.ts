@@ -11,7 +11,7 @@ import { createClient } from 'npm:@supabase/supabase-js@2'
 import { JWT } from 'npm:google-auth-library@9'
 
 interface Event {
-  eventId: string
+  event_id: string
   imageId: string
   imageUrl: string
   title: string
@@ -63,27 +63,28 @@ Deno.serve(async (req) => {
       return new Response('Internal Server Error', { status: 500 })
     }
 
-    const { data: friends, error } = await supabase
-      .from('Friends')
-      .select('friend')
-      .eq('current', payload.old_record.host)
+    const { data: attendees, error: attendeesError } = await supabase
+      .from('Attendees')
+      .select('user_id')
+      .eq('event_id', payload.old_record.event_id)
+      .neq('user_id', payload.old_record.host)
 
-    if (error) {
-      console.error('Error fetching friends:', error)
+    if (attendeesError) {
+      console.error('Error fetching attendees:', attendeesError)
       return new Response('Internal Server Error', { status: 500 })
     }
 
-    if (friends.length === 0) {
-      return new Response('No friends found', { status: 404 })
+    if (attendees.length === 0) {
+      return new Response('No attendees found', { status: 404 })
     }
 
-    const friendIds = friends.map(f => f.friend)
+    const attendeeIds = attendees.map(a => a.user_id)
 
-    // Fetch all FCM tokens of friends
+    // Fetch all FCM tokens of attendees
     const { data: profiles, error: profileError } = await supabase
       .from('Profiles')
       .select('fcm_token')
-      .in('profile_id', friendIds)
+      .in('profile_id', attendeeIds)
 
     if (profileError) {
       console.error('Error fetching FCM tokens:', profileError)
@@ -166,27 +167,28 @@ Deno.serve(async (req) => {
       return new Response('Internal Server Error', { status: 500 })
     }
 
-    const { data: friends, error } = await supabase
-      .from('Friends')
-      .select('friend')
-      .eq('current', payload.old_record.host)
+    const { data: attendees, error: attendeesError } = await supabase
+      .from('Attendees')
+      .select('user_id')
+      .eq('event_id', payload.old_record.event_id)
+      .neq('user_id', payload.old_record.host)
 
-    if (error) {
-      console.error('Error fetching friends:', error)
+    if (attendeesError) {
+      console.error('Error fetching attendees:', attendeesError)
       return new Response('Internal Server Error', { status: 500 })
     }
 
-    if (friends.length === 0) {
-      return new Response('No friends found', { status: 404 })
+    if (attendees.length === 0) {
+      return new Response('No attendees found', { status: 404 })
     }
 
-    const friendIds = friends.map(f => f.friend)
+    const attendeeIds = attendees.map(a => a.user_id)
 
-    // Fetch all FCM tokens of friends
+    // Fetch all FCM tokens of attendees
     const { data: profiles, error: profileError } = await supabase
       .from('Profiles')
       .select('fcm_token')
-      .in('profile_id', friendIds)
+      .in('profile_id', attendeeIds)
 
     if (profileError) {
       console.error('Error fetching FCM tokens:', profileError)

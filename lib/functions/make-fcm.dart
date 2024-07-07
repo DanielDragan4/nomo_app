@@ -4,11 +4,12 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 bool isFcmInitialized = false;
 
 Future<void> setFcmToken(String fcmToken, SupabaseClient client) async {
-  final userId = client.auth.currentUser?.id;
+  final userId = client.auth.currentUser?.id.toString();
   if (userId != null) {
-    await client.from('Profiles').upsert({
+    print('$userId');
+    await client.from('Profiles').update({
       'fcm_token': fcmToken,
-    }).eq('profile_id', userId);
+    }).eq('profile_id', client.auth.currentUser!.id);
   }
 }
 

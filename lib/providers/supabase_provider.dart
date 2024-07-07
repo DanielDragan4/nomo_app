@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:nomo/providers/profile_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -49,17 +50,22 @@ class AuthProvider extends StateNotifier<Session?> {
   }
 
   Future<bool> signInWithIdToken(idToken, accessToken) async {
-    final AuthResponse res = await (await supabase).client.auth.signInWithIdToken(
-    provider: OAuthProvider.google,
-    idToken: idToken,
-    accessToken: accessToken,
-    );
-    var user = await (await supabase).client.from('Profiles').select('profile_id').eq('profile_id', res.user!.id);
+    final AuthResponse res =
+        await (await supabase).client.auth.signInWithIdToken(
+              provider: OAuthProvider.google,
+              idToken: idToken,
+              accessToken: accessToken,
+            );
+    var user = await (await supabase)
+        .client
+        .from('Profiles')
+        .select('profile_id')
+        .eq('profile_id', res.user!.id);
 
-    state  = res.session;
+    state = res.session;
     saveData();
-    
-    if(user.isEmpty) {
+
+    if (user.isEmpty) {
       return true;
     }
     return false;
@@ -73,9 +79,18 @@ class AuthProvider extends StateNotifier<Session?> {
             ]));
   }
 
+  Future<void> removeFcm(String userId) async {
+    final supabaseClient = (await supabase).client;
+    await supabaseClient
+        .from('Profiles')
+        .update({'fcm_token': null}).eq('profile_id', userId);
+  }
+
   void signOut() async {
     try {
+      String userId = await (await supabase).client.auth.currentUser!.id;
       await (await supabase).client.auth.signOut();
+      await removeFcm(userId);
       state = null;
       final removeSession = await SharedPreferences.getInstance();
       removeSession.remove("savedSession");

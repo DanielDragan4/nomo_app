@@ -58,6 +58,7 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen> {
                 ref
                     .read(unreadNotificationsProvider.notifier)
                     .removeNotification(index);
+                ScaffoldMessenger.of(context).hideCurrentSnackBar();
                 ScaffoldMessenger.of(context).showSnackBar(
                   const SnackBar(content: Text('Notification dismissed')),
                 );

@@ -3,6 +3,7 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_branch_sdk/flutter_branch_sdk.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:nomo/functions/make-fcm.dart';
 import 'package:nomo/functions/notification-utils.dart';
 import 'package:nomo/providers/notification-provider.dart';
 import 'package:nomo/providers/saved_session_provider.dart';
@@ -158,6 +159,7 @@ class _AppState extends ConsumerState<App> {
                     (ref.watch(savedSessionProvider) != null &&
                         ref.watch(savedSessionProvider)!.isNotEmpty)) {
                   loadData();
+                  makeFcm(client);
                   return const NavBar();
                 } else {
                   loadData();

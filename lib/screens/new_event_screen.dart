@@ -225,19 +225,40 @@ class _NewEventScreenState extends ConsumerState<NewEventScreen> {
     img.Image? originalImage = img.decodeImage(imageBytes);
 
     if (originalImage != null) {
-      int width = originalImage.width;
-      int height = originalImage.height;
+      int originalWidth = originalImage.width;
+      int originalHeight = originalImage.height;
 
-      // Crop to square
-      int size = width < height ? width : height;
-      int x = (width - size) ~/ 2;
-      int y = (height - size) ~/ 2;
-      img.Image croppedImage =
-          img.copyCrop(originalImage, x: x, y: y, width: size, height: size);
+      // Calculate dimensions for 16:9 aspect ratio
+      int targetWidth, targetHeight;
+      if (originalWidth / originalHeight > 16 / 9) {
+        // Image is wider than 16:9
+        targetHeight = originalHeight;
+        targetWidth = (targetHeight * 16 / 9).round();
+      } else {
+        // Image is taller than 16:9
+        targetWidth = originalWidth;
+        targetHeight = (targetWidth * 9 / 16).round();
+      }
 
-      // Resize if larger than 1440x1440
-      if (size > 1440) {
-        croppedImage = img.copyResize(croppedImage, width: 1440, height: 1440);
+      // Crop to 16:9
+      int x = (originalWidth - targetWidth) ~/ 2;
+      int y = (originalHeight - targetHeight) ~/ 2;
+      img.Image croppedImage = img.copyCrop(
+        originalImage,
+        x: x,
+        y: y,
+        width: targetWidth,
+        height: targetHeight,
+      );
+
+      // Resize if width is greater than 1440 pixels
+      if (targetWidth > 1440) {
+        croppedImage = img.copyResize(
+          croppedImage,
+          width: 1440,
+          height: 810,
+          interpolation: img.Interpolation.linear,
+        );
       }
 
       // Encode the image to PNG
@@ -292,6 +313,23 @@ class _NewEventScreenState extends ConsumerState<NewEventScreen> {
   Future<String> getCords(location) async {
     List<Location> locations = await locationFromAddress(location);
     return 'POINT(${locations.first.longitude} ${locations.first.latitude})';
+  }
+
+  String extractImageId(String url) {
+    // Split the URL by '/'
+    List<String> parts = url.split('/');
+
+    // Find the index of 'images' in the parts
+    int imagesIndex = parts.indexOf('images');
+
+    // If 'images' is found and there's a part after it, return that part
+    if (imagesIndex != -1 && imagesIndex < parts.length - 1) {
+      return parts[imagesIndex + 1];
+    }
+
+    // If the image ID can't be found, return an empty string or throw an exception
+    return '';
+    // Alternatively: throw Exception('Image ID not found in URL');
   }
 
   Future<void> createEvent(
@@ -387,13 +425,13 @@ class _NewEventScreenState extends ConsumerState<NewEventScreen> {
     point = await getCords(location);
 
     if (selectedImage != null) {
-      final previousImage = await supabase
-          .from('Images')
-          .select('image_url')
-          .eq('images_id', widget.event?.imageId)
-          .single()
-          .then((response) => response['image_url'] as String);
-      await supabase.storage.from('Images').remove([previousImage]);
+      // final previousImage = await supabase
+      //     .from('Images')
+      //     .select('image_url')
+      //     .eq('images_id', image_id)
+      //     .single()
+      //     .then((response) => response['image_url'] as String);
+      await supabase.storage.from('Images').remove([widget.event!.imageUrl]);
       var imageId = await uploadImage(selectedImage);
 
       newEventRowMap = {
@@ -902,6 +940,7 @@ class _NewEventScreenState extends ConsumerState<NewEventScreen> {
                                 .pushReplacement(MaterialPageRoute(
                                     builder: ((context) => DetailedEventScreen(
                                         eventData: eventData)))));
+                            ScaffoldMessenger.of(context).hideCurrentSnackBar();
                             ScaffoldMessenger.of(context).showSnackBar(
                               const SnackBar(
                                 content: Text('Event Created'),
@@ -909,17 +948,7 @@ class _NewEventScreenState extends ConsumerState<NewEventScreen> {
                             );
                           }
                         : () {
-                            updateEvent(
-                              _selectedStartTime!,
-                              _selectedEndTime!,
-                              _selectedStartDate!,
-                              _selectedEndDate!,
-                              _selectedImage,
-                              dropDownValue,
-                              _locationController.text,
-                              _title.text,
-                              _description.text,
-                            );
+                            print(widget.event!.imageId);
                             showDialog(
                               context: context,
                               builder: (context) => AlertDialog(
@@ -935,7 +964,20 @@ class _NewEventScreenState extends ConsumerState<NewEventScreen> {
                                     child: const Text('CANCEL'),
                                   ),
                                   TextButton(
-                                    onPressed: () {
+                                    onPressed: () async {
+                                      FocusManager.instance.primaryFocus
+                                          ?.unfocus();
+                                      await updateEvent(
+                                        _selectedStartTime!,
+                                        _selectedEndTime!,
+                                        _selectedStartDate!,
+                                        _selectedEndDate!,
+                                        _selectedImage,
+                                        dropDownValue,
+                                        _locationController.text,
+                                        _title.text,
+                                        _description.text,
+                                      );
                                       Navigator.of(context)
                                           .pushAndRemoveUntil(
                                               MaterialPageRoute(

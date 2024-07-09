@@ -221,12 +221,12 @@ class _EventTabState extends ConsumerState<EventTab> {
         ? Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Icon(Icons.location_on,
+              Icon(Icons.computer,
                   size: 18, color: Theme.of(context).colorScheme.secondary),
               const SizedBox(width: 8),
               Expanded(
                 child: Text(
-                  widget.eventData.location,
+                  'Virtual',
                   style: TextStyle(
                     color: Theme.of(context).colorScheme.secondary,
                     decoration: TextDecoration.underline,

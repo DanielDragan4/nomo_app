@@ -30,7 +30,7 @@ class Event {
   final String sdate;
   final String edate;
   final host;
-  final String location;
+  final location;
   final String description;
   final String eventType;
   final List attendees;
@@ -42,5 +42,5 @@ class Event {
   late bool isHost;
   final friends;
   final int numOfComments;
-  var isVirtual;
+  final bool isVirtual;
 }

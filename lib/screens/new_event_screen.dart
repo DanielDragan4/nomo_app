@@ -75,6 +75,7 @@ class _NewEventScreenState extends ConsumerState<NewEventScreen> {
       _formattedSDate =
           DateFormat.yMd().format(DateTime.parse(widget.event!.sdate));
       enableButton = true;
+      virtualEvent = widget.event!.isVirtual;
 
       for (int i = 0; i < list.length; i++) {
         if (list[i] == widget.event!.eventType) {
@@ -322,7 +323,7 @@ class _NewEventScreenState extends ConsumerState<NewEventScreen> {
       DateTime selectedEndDate,
       File selectedImage,
       String inviteType,
-      String location,
+      var location,
       String title,
       String description) async {
     DateTime start = DateTime(selectedStartDate.year, selectedStartDate.month,
@@ -336,6 +337,7 @@ class _NewEventScreenState extends ConsumerState<NewEventScreen> {
     var point;
     if (virtualEvent) {
       point = null;
+      location = null;
     } else {
       point = await getCords(location);
     }
@@ -387,7 +389,7 @@ class _NewEventScreenState extends ConsumerState<NewEventScreen> {
       DateTime selectedEndDate,
       File? selectedImage,
       String inviteType,
-      String location,
+      var location,
       String title,
       String description) async {
     DateTime start = DateTime(selectedStartDate.year, selectedStartDate.month,
@@ -401,8 +403,10 @@ class _NewEventScreenState extends ConsumerState<NewEventScreen> {
 
     if (virtualEvent) {
       point = null;
+      location = null;
+    } else {
+      point = await getCords(location);
     }
-    point = await getCords(location);
 
     if (selectedImage != null) {
       await supabase.storage.from('Images').remove([widget.event!.imageUrl]);

@@ -221,34 +221,84 @@ class _CreateAccountScreenState extends ConsumerState<CreateAccountScreen> {
                 onTap: () {
                   showModalBottomSheet(
                     context: context,
+                    isScrollControlled: true,
+                    shape: const RoundedRectangleBorder(
+                      borderRadius:
+                          BorderRadius.vertical(top: Radius.circular(20)),
+                    ),
                     builder: (BuildContext context) {
-                      return SizedBox(
-                        height: MediaQuery.of(context).size.height / 6,
-                        width: double.infinity,
-                        child: Column(
-                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                            children: [
-                              TextButton(
-                                child: const Text("Select from Gallery"),
-                                onPressed: () {
-                                  _pickImageFromGallery();
-                                  Navigator.pop(context);
-                                },
-                              ),
-                              TextButton(
-                                child: const Text("Take a Picture"),
-                                onPressed: () {
-                                  _pickImageFromCamera();
-                                  Navigator.pop(context);
-                                },
-                              ),
-                              TextButton(
-                                child: const Text("Close"),
-                                onPressed: () {
-                                  Navigator.pop(context);
-                                },
-                              ),
-                            ]),
+                      // Get screen size
+                      final screenSize = MediaQuery.of(context).size;
+                      final double fontSize = screenSize.width *
+                          0.04; // 4% of screen width for font size
+
+                      return Container(
+                        width: double.infinity, // Ensures full width
+                        padding: EdgeInsets.only(
+                          bottom: MediaQuery.of(context).viewInsets.bottom,
+                        ),
+                        child: SingleChildScrollView(
+                          child: Padding(
+                            padding: EdgeInsets.symmetric(
+                              horizontal: screenSize.width * 0.05,
+                              vertical: screenSize.height * 0.03,
+                            ),
+                            child: Column(
+                              mainAxisSize: MainAxisSize.min,
+                              crossAxisAlignment: CrossAxisAlignment
+                                  .stretch, // Stretches buttons to full width
+                              children: [
+                                TextButton(
+                                  child: Row(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      Text(
+                                        "Select from Gallery",
+                                        style: TextStyle(fontSize: fontSize),
+                                      ),
+                                      SizedBox(width: screenSize.width * 0.01),
+                                      const Icon(Icons.photo_library_rounded)
+                                    ],
+                                  ),
+                                  onPressed: () {
+                                    _pickImageFromGallery();
+                                    Navigator.pop(context);
+                                  },
+                                ),
+                                const Divider(),
+                                SizedBox(height: screenSize.height * 0.01),
+                                TextButton(
+                                  child: Row(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      Text(
+                                        "Take a Picture",
+                                        style: TextStyle(fontSize: fontSize),
+                                      ),
+                                      SizedBox(width: screenSize.width * 0.01),
+                                      const Icon(Icons.camera_alt_rounded)
+                                    ],
+                                  ),
+                                  onPressed: () {
+                                    _pickImageFromCamera();
+                                    Navigator.pop(context);
+                                  },
+                                ),
+                                const Divider(),
+                                SizedBox(height: screenSize.height * 0.005),
+                                TextButton(
+                                  child: Text(
+                                    "Close",
+                                    style: TextStyle(fontSize: fontSize),
+                                  ),
+                                  onPressed: () {
+                                    Navigator.pop(context);
+                                  },
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
                       );
                     },
                   );

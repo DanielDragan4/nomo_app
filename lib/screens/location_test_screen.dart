@@ -26,7 +26,6 @@ class _LocationTestScreenState extends State<LocationTestScreen> {
     final getLocation = await SharedPreferences.getInstance();
     final exsistingLocation = getLocation.getStringList('savedLocation');
     final setRadius = getLocation.getStringList('savedRadius');
-    print(setRadius);
 
     if (exsistingLocation != null) {
       setState(() {

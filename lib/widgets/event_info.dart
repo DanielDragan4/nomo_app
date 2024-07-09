@@ -9,6 +9,7 @@ import 'package:nomo/providers/supabase_provider.dart';
 import 'package:nomo/screens/new_event_screen.dart';
 import 'package:flutter_branch_sdk/flutter_branch_sdk.dart';
 import 'package:nomo/widgets/comments_section_widget.dart';
+import 'package:nomo/widgets/event_attendees_widget.dart';
 import 'package:share/share.dart';
 
 enum Options { itemOne, itemTwo, itemThree, itemFour }
@@ -95,8 +96,52 @@ class _EventInfoState extends ConsumerState<EventInfo> {
   Widget _buildAttendeeInfo(BuildContext context, bool isSmallScreen) {
     return Row(
       children: [
-        _buildInfoItem(context, '${widget.eventsData.attendees.length}',
-            'Attending', isSmallScreen),
+        GestureDetector(
+          onTap: () {
+            showBottomSheet(
+                context: context,
+                builder: (context) {
+                  return Container(
+                    height: MediaQuery.of(context).size.height * .6,
+                    padding: const EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      color: Color.fromARGB(255, 49, 49, 49),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(
+                              'People Attending',
+                              style: TextStyle(
+                                color: Theme.of(context).primaryColor,
+                                fontWeight: FontWeight.bold,
+                                fontSize: 30,
+                              ),
+                            ),
+                            IconButton(
+                              icon: const Icon(Icons.close),
+                              onPressed: () => Navigator.of(context).pop(),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 8),
+                        Flexible(
+                          child: AttendeesSection(
+                              eventId: widget.eventsData.eventId, areFriends: false,),
+                        ),
+                      ],
+                    ),
+                  );
+                });
+          },
+          child: _buildInfoItem(context, '${widget.eventsData.attendees.length}',
+              'Attending', isSmallScreen),
+        ),
         SizedBox(width: MediaQuery.of(context).size.width * .04),
         GestureDetector(
           onTap: () {
@@ -133,8 +178,8 @@ class _EventInfoState extends ConsumerState<EventInfo> {
                         ),
                         const SizedBox(height: 8),
                         Flexible(
-                          child: CommentsSection(
-                              eventId: widget.eventsData.eventId),
+                          child: AttendeesSection(
+                              eventId: widget.eventsData.eventId, areFriends: true,),
                         ),
                       ],
                     ),

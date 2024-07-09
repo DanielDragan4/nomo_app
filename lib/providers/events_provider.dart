@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:nomo/models/events_model.dart';
 import 'package:nomo/models/comments_model.dart';
+import 'package:nomo/models/friend_model.dart';
 import 'package:nomo/providers/supabase_provider.dart';
 import 'package:nomo/screens/login_screen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -232,6 +233,62 @@ class EventProvider extends StateNotifier<List?> {
       }
     }
     return deCodedEvent;
+  }
+
+  Future<List> readEventAttendees(String eventId) async {
+    final supabaseClient = (await supabase).client;
+    var comments = await supabaseClient
+        .rpc('attendees_by_event',params: {'current_event_id' : eventId});
+    return comments.toList();
+  }
+
+  Future<List<Friend>> getEventAttendees(String eventId) async {
+    final codedList = await readEventAttendees(eventId);
+
+    List<Friend> deCodedList = [];
+    final supabaseClient = (await supabase).client;
+
+    for (var attendeeData in codedList) {
+      String profileUrl = supabaseClient.storage
+          .from('Images')
+          .getPublicUrl(attendeeData['profile_path']);
+
+      final Friend decodedAttendee = Friend(
+          friendProfileId: attendeeData['user_id'],
+          friendUsername: attendeeData['username'],
+          avatar: profileUrl);
+
+      deCodedList.add(decodedAttendee);
+    }
+    return deCodedList;
+  }
+
+  Future<List> readEventFriends(String eventId) async {
+    final supabaseClient = (await supabase).client;
+    var comments = await supabaseClient
+        .rpc('friends_by_event',params: {'event_id_t' : eventId});
+    return comments.toList();
+  }
+
+  Future<List<Friend>> getEventFriends(String eventId) async {
+    final codedList = await readEventFriends(eventId);
+
+    List<Friend> deCodedList = [];
+    final supabaseClient = (await supabase).client;
+
+    for (var attendeeData in codedList) {
+      String profileUrl = supabaseClient.storage
+          .from('Images')
+          .getPublicUrl(attendeeData['profile_path']);
+
+      final Friend decodedAttendee = Friend(
+          friendProfileId: attendeeData['user_id'],
+          friendUsername: attendeeData['username'],
+          avatar: profileUrl);
+
+      deCodedList.add(decodedAttendee);
+    }
+    return deCodedList;
   }
 }
 

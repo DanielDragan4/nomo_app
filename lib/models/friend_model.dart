@@ -3,11 +3,11 @@ class Friend {
       {required this.friendProfileId,
       required this.avatar,
       required this.friendUsername,
-      required this.friendProfileName,
+      this.friendProfileName,
       });
 
   final String friendProfileId;
   final avatar;
   final String friendUsername;
-  final String friendProfileName;
+  var friendProfileName;
 }

@@ -32,6 +32,7 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
   late List<bool> isSelected;
   late bool isFriend = true;
   bool _isLoading = true;
+  bool isHosting = false;
 
   @override
   void initState() {
@@ -425,6 +426,16 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
               ],
               body: Column(
                 children: [
+                  if (isSelected[0] && widget.isUser)
+                    CheckboxListTile(
+                      title: Text("Hosting Only"),
+                      value: isHosting,
+                      onChanged: (newValue) {
+                        setState(() {
+                          isHosting = newValue!;
+                        });
+                      },
+                    ),
                   const Divider(),
                   Expanded(
                     child: isSelected.first
@@ -435,11 +446,17 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
                                     .stream,
                                 builder: (context, snapshot) {
                                   if (snapshot.data != null) {
-                                    final relevantEvents = snapshot.data!
-                                        .where((event) =>
-                                            event.attending || event.isHost)
-                                        .toList();
-
+                                    final relevantEvents;
+                                    if (isHosting == false) {
+                                      relevantEvents = snapshot.data!
+                                          .where((event) =>
+                                              event.attending || event.isHost)
+                                          .toList();
+                                    } else {
+                                      relevantEvents = snapshot.data!
+                                          .where((event) => event.isHost)
+                                          .toList();
+                                    }
                                     if (relevantEvents.isEmpty) {
                                       return const Center(
                                         child: Text("Not Attending Any Events"),

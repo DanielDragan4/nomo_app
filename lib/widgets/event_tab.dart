@@ -136,7 +136,7 @@ class _EventTabState extends ConsumerState<EventTab> {
                   ProfileScreen(isUser: false, userId: widget.eventData.host),
             ),
           );
-          // Refresh data when returning from the other profile
+          //Refresh data when popping back to your profile
           if (mounted) {
             WidgetsBinding.instance.addPostFrameCallback((_) {
               context

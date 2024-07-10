@@ -128,10 +128,23 @@ class _EventTabState extends ConsumerState<EventTab> {
     return Padding(
       padding: const EdgeInsets.all(16),
       child: GestureDetector(
-        onTap: () => Navigator.of(context).push(MaterialPageRoute(
-          builder: (context) =>
-              ProfileScreen(isUser: false, userId: widget.eventData.host),
-        )),
+        onTap: () async {
+          await Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) =>
+                  ProfileScreen(isUser: false, userId: widget.eventData.host),
+            ),
+          );
+          // Refresh data when returning from the other profile
+          if (mounted) {
+            WidgetsBinding.instance.addPostFrameCallback((_) {
+              context
+                  .findAncestorStateOfType<ProfileScreenState>()
+                  ?.refreshData();
+            });
+          }
+        },
         child: Row(
           children: [
             _buildHostAvatar(context),

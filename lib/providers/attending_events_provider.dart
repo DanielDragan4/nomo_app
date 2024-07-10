@@ -178,6 +178,10 @@ class AttendEventProvider extends StateNotifier<List<Event>> {
         .eq('event_id', eventToLeave);
     deCodeData();
   }
+
+  void clearEvents() {
+    state = [];
+  }
 }
 
 final attendEventsProvider =

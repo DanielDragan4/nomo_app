@@ -848,6 +848,7 @@ class _NewEventScreenState extends ConsumerState<NewEventScreen> {
               padding: const EdgeInsets.symmetric(horizontal: 8.0),
               child: AddressSearchField(
                 controller: _locationController,
+                isEvent: false,
               ),
             ),
             Padding(

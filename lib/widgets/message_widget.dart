@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:jiffy/jiffy.dart';
 
 class MessageWidget extends ConsumerWidget {
   const MessageWidget(
@@ -18,31 +19,43 @@ class MessageWidget extends ConsumerWidget {
       width: MediaQuery.of(context).size.width *.85,
         child: Align(
       alignment: isMe ? Alignment.centerRight : Alignment.centerLeft,
-      child: Row(
-        mainAxisAlignment: isMe ? MainAxisAlignment.end : MainAxisAlignment.start,
+      child: Column(
         children: [
-          !isMe ?
-          CircleAvatar(
-            backgroundImage: NetworkImage(otherAvatar),
-          ) : 
-          SizedBox(),
-          SizedBox(width: MediaQuery.of(context).size.width *.05,),
-          Container(
-            constraints: BoxConstraints(
-              maxWidth: MediaQuery.of(context).size.width *.8
+          Row(
+            mainAxisAlignment: isMe ? MainAxisAlignment.end : MainAxisAlignment.start,
+            children: [
+              !isMe ?
+              CircleAvatar(
+                backgroundImage: NetworkImage(otherAvatar),
+              ) : 
+              SizedBox(
+                child: Text(
+            Jiffy.parseFromDateTime(DateTime.parse(message['created_at'])).fromNow(),
+            style: TextStyle(
+            color: Theme.of(context).colorScheme.onSecondary.withOpacity(0.6),
+            fontSize: MediaQuery.of(context).size.width * 0.03,
             ),
-            padding: const EdgeInsets.symmetric(vertical: 4.0, horizontal: 8.0),
-            margin: const EdgeInsets.symmetric(vertical: 4.0, horizontal: 8.0),
-            decoration: BoxDecoration(
-              color: isMe ? Theme.of(context).primaryColor : Colors.grey.shade300,  
-              borderRadius: BorderRadius.circular(10),
-            ),
-            child: Text(
-              message['message'],
-              style: TextStyle(
-                color: isMe ? Colors.white : Colors.black87,
+          ),
               ),
-            ),
+              SizedBox(width: MediaQuery.of(context).size.width *.05,),
+              Container(
+                constraints: BoxConstraints(
+                  maxWidth: MediaQuery.of(context).size.width *.8
+                ),
+                padding: const EdgeInsets.symmetric(vertical: 4.0, horizontal: 8.0),
+                margin: const EdgeInsets.symmetric(vertical: 4.0, horizontal: 8.0),
+                decoration: BoxDecoration(
+                  color: isMe ? Theme.of(context).primaryColor : Colors.grey.shade300,  
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: Text(
+                  message['message'],
+                  style: TextStyle(
+                    color: isMe ? Colors.white : Colors.black87,
+                  ),
+                ),
+              ),
+            ],
           ),
         ],
       ),

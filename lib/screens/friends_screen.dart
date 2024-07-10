@@ -188,6 +188,7 @@ class _FriendsScreenState extends ConsumerState<FriendsScreen> {
                                         friendData: i,
                                         isRequest: true,
                                         toggle: false,
+                                        isEventAttendee: false,
                                       ),
                                   ]);
                             } else {
@@ -218,6 +219,7 @@ class _FriendsScreenState extends ConsumerState<FriendsScreen> {
                                       friendData: i,
                                       isRequest: false,
                                       toggle: false,
+                                      isEventAttendee: false,
                                     )
                                 ],
                               );

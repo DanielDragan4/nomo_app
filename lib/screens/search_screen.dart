@@ -39,6 +39,7 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
                   isRequest: false,
                   isSearch: true,
                   toggle: false,
+                  isEventAttendee: true,
                 ))
             .toList();
       });

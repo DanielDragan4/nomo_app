@@ -4,7 +4,9 @@ import 'package:nomo/providers/nominatim_service.dart';
 class AddressSearchField extends StatefulWidget {
   final TextEditingController controller;
 
-  const AddressSearchField({super.key, required this.controller});
+  const AddressSearchField({super.key, required this.controller, required this.isEvent});
+
+  final bool isEvent;
 
   @override
   _AddressSearchFieldState createState() => _AddressSearchFieldState();
@@ -15,7 +17,8 @@ class _AddressSearchFieldState extends State<AddressSearchField> {
   List<Map<String, dynamic>> _searchResults = [];
 
   Future<void> _searchLocation(String query) async {
-    final results = await _nominatimService.search(query);
+    final country = await getSavedCountry();
+    final results = await _nominatimService.search(query, country: country);
     setState(() {
       _searchResults = results;
     });
@@ -30,7 +33,7 @@ class _AddressSearchFieldState extends State<AddressSearchField> {
           style: TextStyle(color: Theme.of(context).colorScheme.onSecondary),
           decoration: InputDecoration(
             border: const  OutlineInputBorder(),
-            labelText: "Enter The Event's Address",
+            labelText: (widget.isEvent) ?"Enter The Event's Address" : "Enter Your Location",
             labelStyle: TextStyle(color: Theme.of(context).colorScheme.onSecondary),
             contentPadding: const EdgeInsets.all(5),
           ),

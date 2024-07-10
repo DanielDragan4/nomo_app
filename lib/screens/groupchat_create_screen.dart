@@ -81,6 +81,7 @@ class _NewGroupChatScreenState extends ConsumerState<NewGroupChatScreen> {
                           groupMemberToggle: (bool removeAdd, String userId) =>
                               addToGroup(removeAdd, userId),
                           toggle: true,
+                          isEventAttendee: false,
                         )
                     ]
                   : [const Text('friends are loading')],

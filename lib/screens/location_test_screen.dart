@@ -195,31 +195,39 @@ class _LocationTestScreenState extends State<LocationTestScreen> {
                   onPressed: _getCurrentPosition,
                   child: const Text('Get Current Location'),
                 ),
-                const SizedBox(height: 10),
-                AddressSearchField(controller: manualLocation),
+                SizedBox(height: MediaQuery.of(context).size.height * .0175),
+                AddressSearchField(controller: manualLocation, isEvent: false,),
                 ElevatedButton(
                   onPressed: _setLocationManually,
                   child: const Text('Enter Manually'),
                 ),
-                SizedBox(height: MediaQuery.of(context).size.height * .2),
-                Text(
-                  'Select a Radius for your Events',
-                  style: TextStyle(
-                      fontSize: 20,
-                      color: Theme.of(context).colorScheme.onSecondary),
+                SizedBox(height: MediaQuery.of(context).size.height * .1),
+              Text(
+                '${_preferredRadius.round()}',
+                style: TextStyle(
+                  fontSize: 48, 
+                  fontWeight: FontWeight.bold,
+                  color: Theme.of(context).colorScheme.primary,
                 ),
-                Slider(
-                  value: _preferredRadius,
-                  min: 1,
-                  max: 100,
-                  divisions: 99,
-                  label: '${_preferredRadius.round()} miles',
-                  onChanged: (double value) {
-                    setState(() {
-                      _preferredRadius = value;
-                    });
-                  },
+              ),
+              Text(
+                'miles',
+                style: TextStyle(
+                  fontSize: 24,
+                  color: Theme.of(context).colorScheme.onSecondary,
                 ),
+              ),
+              Slider(
+                value: _preferredRadius,
+                min: 1,
+                max: 100,
+                divisions: 99,
+                onChanged: (double value) {
+                  setState(() {
+                    _preferredRadius = value;
+                  });
+                },
+              ),
                 (_currentAddress != null)
                     ? Text(
                         'Current Saved Address: ${_currentAddress ?? ""}',

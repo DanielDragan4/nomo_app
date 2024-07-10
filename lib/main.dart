@@ -5,6 +5,7 @@ import 'package:flutter_branch_sdk/flutter_branch_sdk.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:nomo/functions/make-fcm.dart';
 import 'package:nomo/functions/notification-utils.dart';
+import 'package:nomo/providers/location_on_reload_service.dart';
 import 'package:nomo/providers/notification-provider.dart';
 import 'package:nomo/providers/saved_session_provider.dart';
 import 'package:nomo/providers/supabase_provider.dart';
@@ -29,6 +30,8 @@ void main() async {
 
   // Request location permission
   var status = await Permission.location.request();
+
+  await getCurrentPosition();
 
   // Handle the response
   if (status.isGranted) {

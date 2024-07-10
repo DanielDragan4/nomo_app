@@ -408,6 +408,27 @@ class ProfileProvider extends StateNotifier<Profile?> {
         .from('Profiles')
         .update({'private': isPrivate}).eq('profile_id', userId);
   }
+
+  Future updateProfileLocally(
+    String newUsername,
+    String newProfileName,
+    String? newAvatarId,
+  ) async {
+    if (state != null) {
+      final supabaseClient = (await supabase).client;
+      String? newAvatarUrl;
+      if (newAvatarId != null) {
+        newAvatarUrl =
+            supabaseClient.storage.from('Images').getPublicUrl(newAvatarId);
+      }
+      state = state!.copyWith(
+        username: newUsername,
+        profile_name: newProfileName,
+        avatar: newAvatarUrl ?? state!.avatar,
+      );
+      print(state);
+    }
+  }
 }
 
 final profileProvider = StateNotifierProvider<ProfileProvider, Profile?>((ref) {

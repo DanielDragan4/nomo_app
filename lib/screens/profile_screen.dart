@@ -433,10 +433,8 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                                     itemCount: bookmarkedEvents.length,
                                     itemBuilder: (context, index) {
                                       final event = bookmarkedEvents[index];
-
                                       preloadImages(
                                           bookmarkedEvents, 3, index, context);
-
                                       return EventTab(
                                         eventData: event,
                                         preloadedImage:

@@ -1,18 +1,40 @@
 class Profile {
-  Profile(
-      {required this.profile_id,
-      required this.avatar,
-      required this.username,
-      required this.profile_name,
-      required this.interests,
-      required this.availability,
-      required this.private});
-
   final String profile_id;
-  final avatar;
+  final String? avatar;
   final String username;
-  final String profile_name;
-  List interests;
+  final String? profile_name;
+  final List interests;
   final List availability;
-  bool private;
+  final bool private;
+
+  Profile({
+    required this.profile_id,
+    this.avatar,
+    required this.username,
+    this.profile_name,
+    required this.interests,
+    required this.availability,
+    required this.private,
+  });
+
+  // Add this copyWith method
+  Profile copyWith({
+    String? profile_id,
+    String? avatar,
+    String? username,
+    String? profile_name,
+    List? interests,
+    List? availability,
+    bool? private,
+  }) {
+    return Profile(
+      profile_id: profile_id ?? this.profile_id,
+      avatar: avatar ?? this.avatar,
+      username: username ?? this.username,
+      profile_name: profile_name ?? this.profile_name,
+      interests: interests ?? this.interests,
+      availability: availability ?? this.availability,
+      private: private ?? this.private,
+    );
+  }
 }

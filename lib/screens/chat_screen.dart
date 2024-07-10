@@ -105,6 +105,23 @@ class _ChatScreenState extends ConsumerState<ChatScreen> with RouteAware {
     });
   }
 
+  void submitMessage() {
+    if (widget.groupInfo == null) {
+      if (_controller.text.trim().isNotEmpty) {
+        ref.read(chatsProvider.notifier).sendMessage(widget.currentUser,
+            widget.chatterUser!.friendProfileId, _controller.text);
+        _controller.clear();
+      }
+    } else {
+      if (_controller.text.trim().isNotEmpty) {
+        ref
+            .read(chatsProvider.notifier)
+            .sendGroupMessage(widget.groupInfo!['group_id'], _controller.text);
+        _controller.clear();
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -163,6 +180,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> with RouteAware {
               children: [
                 Expanded(
                   child: TextField(
+                    onSubmitted: (value) => submitMessage(),
                     controller: _controller,
                     style: TextStyle(
                       color: Theme.of(context).colorScheme.onSecondary,
@@ -185,26 +203,16 @@ class _ChatScreenState extends ConsumerState<ChatScreen> with RouteAware {
                     color: Theme.of(context).colorScheme.onSecondary,
                   ),
                   onPressed: () {
-                    if (widget.groupInfo == null) {
-                      if (_controller.text.trim().isNotEmpty) {
-                        ref.read(chatsProvider.notifier).sendMessage(
-                            widget.currentUser,
-                            widget.chatterUser!.friendProfileId,
-                            _controller.text);
-                        _controller.clear();
-                      }
-                    } else {
-                      if (_controller.text.trim().isNotEmpty) {
-                        ref.read(chatsProvider.notifier).sendGroupMessage(
-                            widget.groupInfo!['group_id'], _controller.text);
-                        _controller.clear();
-                      }
-                    }
+                    submitMessage();
+                    FocusManager.instance.primaryFocus?.unfocus();
                   },
                 ),
               ],
             ),
           ),
+          SizedBox(
+            height: MediaQuery.of(context).size.height * 0.04,
+          )
         ],
       ),
     );

@@ -257,6 +257,23 @@ class ProfileProvider extends StateNotifier<Profile?> {
     return friends.toList();
   }
 
+  Future<List> readOutgoingRequests() async {
+    final supabaseClient = (await supabase).client;
+    final currentUserId = supabaseClient.auth.currentUser!.id;
+
+    var incomingRequests = await supabaseClient
+        .from('new_friends_view')
+        .select()
+        .eq('reciever_id', currentUserId);
+
+    var outgoingRequests = await supabaseClient
+        .from('new_friends_view')
+        .select()
+        .eq('sender_id', currentUserId);
+
+    return [...incomingRequests, ...outgoingRequests];
+  }
+
   Future<List<Friend>> decodeRequests() async {
     final List userFriendsCoded = await readRequests();
     List<Friend> userFriends = [];

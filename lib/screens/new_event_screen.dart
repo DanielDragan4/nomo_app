@@ -1,5 +1,6 @@
 import 'dart:typed_data';
 
+import 'package:calendar_view/calendar_view.dart';
 import 'package:flutter/material.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:nomo/models/events_model.dart';
@@ -59,7 +60,12 @@ class _NewEventScreenState extends ConsumerState<NewEventScreen> {
     if (!isNewEvent) {
       _title.text = widget.event!.title;
       _description.text = widget.event!.description;
-      _locationController.text = widget.event!.location;
+      
+      if(widget.event!.isVirtual) {
+        _locationController.text = "Virtual";
+      } else {
+        _locationController.text = widget.event!.location;
+      }
       stime = true;
       etime = true;
       sdate = true;
@@ -106,10 +112,10 @@ class _NewEventScreenState extends ConsumerState<NewEventScreen> {
     if (picked != null) {
       bool isValidDate = true;
 
-      if (isStartDate && _selectedEndDate != null) {
-        isValidDate = picked.isBefore(_selectedEndDate!);
-      } else if (!isStartDate && _selectedStartDate != null) {
-        isValidDate = picked.isAfter(_selectedStartDate!);
+      if (isStartDate && _selectedEndDate != null && _selectedEndTime != null && _selectedStartTime != null) {
+        isValidDate = ((picked.isBefore(_selectedEndDate!)) || ((picked.isAtSameMomentAs(_selectedEndDate!)) && ((_selectedEndTime!.hour + (_selectedEndTime!.minute/60))) > (_selectedStartTime!.hour + (_selectedStartTime!.minute/60))));
+      } else if (!isStartDate && _selectedStartDate != null && _selectedEndTime != null && _selectedStartTime != null) {
+        isValidDate = (picked.isAfter(_selectedStartDate!) || ((picked.isAtSameMomentAs(_selectedStartDate!)) && ((_selectedEndTime!.hour + (_selectedEndTime!.minute/60))) > (_selectedStartTime!.hour + (_selectedStartTime!.minute/60))));
       }
 
       if (isValidDate) {

@@ -21,7 +21,7 @@ class Month extends ConsumerWidget {
   final int selectedMonth;
   final eventsByDate;
   final int firstDayOfWeek;
-  final int lastOfMonth;
+  int lastOfMonth;
   int cellIndex = 0;
   final int yearDisplayed;
   final Map<DateTime, bool> selectedDatesWithTime;
@@ -56,23 +56,24 @@ class Month extends ConsumerWidget {
     return "";
   }
 
-  bool findBoarderWidth(cellPosition) {
-    bool boarderWidth;
+  bool findBorderWidth(cellPosition) {
+    bool borderWidth;
 
     if ((cellIndex - firstDayOfWeek) < lastOfMonth &&
         (cellIndex - firstDayOfWeek) >= 0) {
-      boarderWidth = true;
+      borderWidth = true;
     } else {
-      boarderWidth = false;
+      borderWidth = false;
     }
 
-    return boarderWidth;
+    return borderWidth;
   }
 
   Color findCellColor(cellPosition, List events) {
     Color cellColor;
     var dayInGrid = cellIndex - firstDayOfWeek;
-    if ((dayInGrid) < lastOfMonth && (dayInGrid) >= 0) {
+
+    if (dayInGrid < lastOfMonth && dayInGrid >= 0) {
       cellColor = const Color.fromARGB(255, 221, 221, 221);
       for (var day in events) {
         if ((dayInGrid + 1) == DateTime.parse(day.sdate).day) {
@@ -103,12 +104,13 @@ class Month extends ConsumerWidget {
     return hasEvent;
   }
 
-  String daysOfMonth() {
+  String daysOfMonth(cellPosition) {
     String dayToDisplay;
 
-    if ((cellIndex - firstDayOfWeek) < lastOfMonth &&
-        (cellIndex - firstDayOfWeek) >= 0) {
-      dayToDisplay = "${(cellIndex - firstDayOfWeek) + 1} ";
+    var dayInGrid = cellIndex - firstDayOfWeek;
+
+    if (dayInGrid < lastOfMonth && dayInGrid >= 0) {
+      dayToDisplay = "${dayInGrid + 1} ";
     } else {
       dayToDisplay = '';
     }
@@ -126,6 +128,11 @@ class Month extends ConsumerWidget {
         .watch(profileProvider.notifier)
         .availavilityByMonth(yearDisplayed, selectedMonth);
 
+    int totalSlots = (firstDayOfWeek + lastOfMonth);
+    print('Total Slots for ${monthName(selectedMonth)}: $totalSlots');
+    int numberOfRows = (totalSlots / 7).ceil();
+    print('Number of Rows for ${monthName(selectedMonth)}: $numberOfRows');
+
     return Container(
       alignment: Alignment.center,
       child: Padding(
@@ -133,72 +140,6 @@ class Month extends ConsumerWidget {
           child: Column(
             children: [
               // Header and month name
-              Row(
-                children: [
-                  Container(
-                    height: MediaQuery.sizeOf(context).height * 0.0528,
-                    width: MediaQuery.sizeOf(context).width * .95,
-                    decoration: BoxDecoration(
-                      color: const Color.fromARGB(255, 135, 135, 135),
-                      border: Border.all(width: 1),
-                    ),
-                    child: const Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                      children: [
-                        Spacer(),
-                        Text(
-                          'S',
-                          style: TextStyle(
-                              fontSize: 24, fontWeight: FontWeight.bold),
-                        ),
-                        Spacer(),
-                        Spacer(),
-                        Text(
-                          'M',
-                          style: TextStyle(
-                              fontSize: 24, fontWeight: FontWeight.bold),
-                        ),
-                        Spacer(),
-                        Spacer(),
-                        Text(
-                          'T',
-                          style: TextStyle(
-                              fontSize: 24, fontWeight: FontWeight.bold),
-                        ),
-                        Spacer(),
-                        Spacer(),
-                        Text(
-                          'W',
-                          style: TextStyle(
-                              fontSize: 24, fontWeight: FontWeight.bold),
-                        ),
-                        Spacer(),
-                        Spacer(),
-                        Text(
-                          'T',
-                          style: TextStyle(
-                              fontSize: 24, fontWeight: FontWeight.bold),
-                        ),
-                        Spacer(),
-                        Spacer(),
-                        Text(
-                          'F',
-                          style: TextStyle(
-                              fontSize: 24, fontWeight: FontWeight.bold),
-                        ),
-                        Spacer(),
-                        Spacer(),
-                        Text(
-                          'S',
-                          style: TextStyle(
-                              fontSize: 24, fontWeight: FontWeight.bold),
-                        ),
-                        Spacer(),
-                      ],
-                    ),
-                  )
-                ],
-              ),
               Container(
                 alignment: Alignment.topLeft,
                 child: Text(
@@ -206,10 +147,95 @@ class Month extends ConsumerWidget {
                   style: TextStyle(
                     fontSize: 24,
                     fontWeight: FontWeight.bold,
-                    color: Theme.of(context).primaryColor,
+                    color: Theme.of(context).primaryColorLight,
                   ),
                 ),
               ),
+              Divider(),
+              Row(
+                children: [
+                  Container(
+                    height: MediaQuery.sizeOf(context).height * 0.0528,
+                    width: MediaQuery.sizeOf(context).width * .95,
+                    decoration: BoxDecoration(
+                        // color:
+                        //     Theme.of(context).primaryColorLight.withOpacity(0.35),
+                        // border: Border.all(width: 1),
+                        // borderRadius: BorderRadius.circular(20),
+                        ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children: [
+                        Spacer(),
+                        Text(
+                          'S',
+                          style: TextStyle(
+                              fontSize: 24,
+                              fontWeight: FontWeight.bold,
+                              color: Theme.of(context).primaryColorLight),
+                        ),
+                        Spacer(),
+                        Spacer(),
+                        Text(
+                          'M',
+                          style: TextStyle(
+                              fontSize: 24,
+                              fontWeight: FontWeight.bold,
+                              color: Theme.of(context).primaryColorLight),
+                        ),
+                        Spacer(),
+                        Spacer(),
+                        Text(
+                          'T',
+                          style: TextStyle(
+                              fontSize: 24,
+                              fontWeight: FontWeight.bold,
+                              color: Theme.of(context).primaryColorLight),
+                        ),
+                        Spacer(),
+                        Spacer(),
+                        Text(
+                          'W',
+                          style: TextStyle(
+                              fontSize: 24,
+                              fontWeight: FontWeight.bold,
+                              color: Theme.of(context).primaryColorLight),
+                        ),
+                        Spacer(),
+                        Spacer(),
+                        Text(
+                          'T',
+                          style: TextStyle(
+                              fontSize: 24,
+                              fontWeight: FontWeight.bold,
+                              color: Theme.of(context).primaryColorLight),
+                        ),
+                        Spacer(),
+                        Spacer(),
+                        Text(
+                          'F',
+                          style: TextStyle(
+                              fontSize: 24,
+                              fontWeight: FontWeight.bold,
+                              color: Theme.of(context).primaryColorLight),
+                        ),
+                        Spacer(),
+                        Spacer(),
+                        Text(
+                          'S',
+                          style: TextStyle(
+                              fontSize: 24,
+                              fontWeight: FontWeight.bold,
+                              color: Theme.of(context).primaryColorLight),
+                        ),
+                        Spacer(),
+                      ],
+                    ),
+                  )
+                ],
+              ),
+              Divider(),
+
               Expanded(
                 child: GridView.builder(
                   physics: const NeverScrollableScrollPhysics(),
@@ -229,9 +255,9 @@ class Month extends ConsumerWidget {
 
                     return DayButton(
                       isSelected: false,
-                      boarderWidth: findBoarderWidth(index),
+                      borderWidth: findBorderWidth(index),
                       cellColor: findCellColor(index, calEvents),
-                      dayDisplayed: daysOfMonth(),
+                      dayDisplayed: daysOfMonth(index),
                       index: index,
                       hasEvent: hasEvent(index, calEvents),
                       hasTimeSelected: hasTimeSelected,
@@ -271,23 +297,22 @@ class Month extends ConsumerWidget {
 }
 
 class DayButton extends StatelessWidget {
-  const DayButton({
-    super.key,
-    required this.isSelected,
-    required this.boarderWidth,
-    required this.cellColor,
-    required this.dayDisplayed,
-    required this.index,
-    required this.hasEvent,
-    required this.hasTimeSelected,
-    required this.currentDate,
-    required this.selectedMonth,
-    required this.availabilityByMonth,
-    required this.hasBlockedTime
-  });
+  const DayButton(
+      {super.key,
+      required this.isSelected,
+      required this.borderWidth,
+      required this.cellColor,
+      required this.dayDisplayed,
+      required this.index,
+      required this.hasEvent,
+      required this.hasTimeSelected,
+      required this.currentDate,
+      required this.selectedMonth,
+      required this.availabilityByMonth,
+      required this.hasBlockedTime});
 
   final bool isSelected;
-  final bool boarderWidth;
+  final bool borderWidth;
   final Color cellColor;
   final String dayDisplayed;
   final int index;
@@ -300,22 +325,52 @@ class DayButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Determine border widths
+    double leftBorderWidth = 1.0;
+    double topBorderWidth = 1.0;
+
+    // Check if current cell is at the leftmost edge of the grid
+    if (index % 7 == 0) {
+      leftBorderWidth = 0.0; // No left border for cells at the left edge
+    }
+
+    // Check if current cell is in the topmost row of the grid
+    if (index < 7) {
+      topBorderWidth = 0.0; // No top border for cells in the top row
+    }
+
+    // Check if the cell color is the exclusion color
+    if (cellColor == const Color.fromARGB(0, 255, 255, 255)) {
+      leftBorderWidth = 0.0;
+      topBorderWidth = 0.0;
+    }
+
     return GestureDetector(
       onTap: () {
         if (currentDate.month == selectedMonth) {
           Navigator.of(context).push(MaterialPageRoute(
-            builder: ((context) => DayScreenPageView(
-              initialDay: currentDate,
-              blockedTime: availabilityByMonth,
-            ))
-          ));
+              builder: ((context) => DayScreenPageView(
+                    initialDay: currentDate,
+                    blockedTime: availabilityByMonth,
+                  ))));
         }
       },
       child: Container(
         decoration: BoxDecoration(
-          border: boarderWidth ? Border.all(color: Colors.grey[300]!) : null,
+          border: borderWidth
+              ? Border(
+                  left: BorderSide(
+                    color: Color.fromARGB(255, 150, 150, 150)!,
+                    width: leftBorderWidth,
+                  ),
+                  top: BorderSide(
+                    color: Color.fromARGB(255, 121, 121, 121)!,
+                    width: topBorderWidth,
+                  ),
+                )
+              : null,
           color: cellColor,
-          borderRadius: BorderRadius.circular(4),
+          //borderRadius: borderRadius,
         ),
         child: Stack(
           children: [

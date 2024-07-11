@@ -130,6 +130,7 @@ class _AppState extends ConsumerState<App> {
                 ),
                 textTheme: GoogleFonts.nunitoTextTheme(),
                 primaryColor: const Color.fromARGB(255, 80, 12, 122),
+                primaryColorLight: Color.fromARGB(255, 202, 141, 237),
                 canvasColor: Colors.white),
             darkTheme: ThemeData().copyWith(
               cardColor: Color.fromARGB(255, 27, 27, 27),
@@ -139,6 +140,7 @@ class _AppState extends ConsumerState<App> {
                 backgroundColor: Colors.black,
               ),
               primaryColor: const Color.fromARGB(255, 109, 51, 146),
+              primaryColorLight: Color.fromARGB(255, 202, 141, 237),
               canvasColor: Colors.black,
               brightness: Brightness.dark,
               colorScheme: ColorScheme.fromSeed(

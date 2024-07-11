@@ -86,31 +86,20 @@ class _DayScreenState extends ConsumerState<DayScreen> {
       String id = availability.availId ?? '';
       String? event_id = availability.eventId;
 
-      print("start time is: $start");
-      print("end time is: $end");
-
-      if (event_id != null) {
-        continue;
-      }
-
-      //Mark the event day with a special indicator in blockedHours
       if (start.day == widget.day.day) {
         int startMinute = start.hour * 60 + start.minute;
         int endMinute = end.hour * 60 + end.minute;
 
-        // Only mark as blocked if it's not an event day (isEvent: false)
-        if (event_id == null) {
-          for (int i = startMinute; i < endMinute; i++) {
-            blockedHours[i] = {
-              'blocked': true,
-              'title': title,
-              'start': TimeOfDay(hour: start.hour, minute: start.minute),
-              'end': TimeOfDay(hour: end.hour, minute: end.minute),
-              'isEvent': false, // Mark as false to avoid affecting day screen
-              'event_id': event_id,
-              'id': id
-            };
-          }
+        for (int i = startMinute; i < endMinute; i++) {
+          blockedHours[i] = {
+            'blocked': true,
+            'title': title,
+            'start': TimeOfDay(hour: start.hour, minute: start.minute),
+            'end': TimeOfDay(hour: end.hour, minute: end.minute),
+            'isEvent': event_id != null,
+            'event_id': event_id,
+            'id': id
+          };
         }
       }
     }
@@ -529,15 +518,16 @@ class _DayScreenState extends ConsumerState<DayScreen> {
         int blockMinutes = blockEnd - blockStart;
         double blockHeight = (blockMinutes / 60) * 50.0;
         String availID = blockedHours[blockStart]['id'] ?? '';
+        bool isEvent = blockedHours[blockStart]['isEvent'] ?? false;
 
         timeBlocks.add(
           Positioned(
             top: blockStart / 60 * 50.0,
-            left: 80, // Adjust left position if needed
+            left: 80,
             right: 0,
             child: GestureDetector(
               onTap: () {
-                if (blockedHours[blockStart]['event_id'] == null) {
+                if (!isEvent) {
                   _showEditTimeBlock(context, availID, blockStart, blockEnd - 1,
                       blockedHours[blockStart]['title']);
                 } else {
@@ -551,6 +541,7 @@ class _DayScreenState extends ConsumerState<DayScreen> {
               child: TimeBlock(
                 title: blockedHours[blockStart]['title'],
                 hourCount: blockMinutes / 60,
+                isEvent: isEvent,
               ),
             ),
           ),

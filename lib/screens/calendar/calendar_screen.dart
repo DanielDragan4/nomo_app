@@ -228,45 +228,57 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
       ),
       body: Column(
         children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.end,
-            crossAxisAlignment: CrossAxisAlignment.end,
-            children: [
-              IconButton(
-                  onPressed: () {
-                    setState(() {
-                      monthDisplayed--;
-
-                      if (monthDisplayed < 1) {
-                        monthDisplayed = 12;
-                        yearDisplayed--;
-                      }
-                    });
-                  },
-                  icon: Icon(Icons.arrow_back_ios,
-                      color: Theme.of(context).colorScheme.onSecondary)),
-              IconButton(
-                  onPressed: () {
-                    setState(() {
-                      monthDisplayed++;
-                      if (monthDisplayed > 12) {
-                        monthDisplayed = 1;
-                        yearDisplayed++;
-                      }
-                    });
-                  },
-                  icon: Icon(Icons.arrow_forward_ios,
-                      color: Theme.of(context).colorScheme.onSecondary))
-            ],
+          SizedBox(
+            height: MediaQuery.of(context).size.height * 0.025,
           ),
           Expanded(
-            child: Month(
-              selectedMonth: monthDisplayed,
-              eventsByDate: const [],
-              firstDayOfWeek: firstDayOfWeek,
-              lastOfMonth: lastOfMonth,
-              yearDisplayed: yearDisplayed,
-              selectedDatesWithTime: selectedDatesWithTime,
+            child: Stack(
+              children: [
+                Month(
+                  selectedMonth: monthDisplayed,
+                  eventsByDate: const [],
+                  firstDayOfWeek: firstDayOfWeek,
+                  lastOfMonth: lastOfMonth,
+                  yearDisplayed: yearDisplayed,
+                  selectedDatesWithTime: selectedDatesWithTime,
+                ),
+                Positioned(
+                  top: 2,
+                  right: 2,
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: [
+                      IconButton(
+                          onPressed: () {
+                            setState(() {
+                              monthDisplayed--;
+
+                              if (monthDisplayed < 1) {
+                                monthDisplayed = 12;
+                                yearDisplayed--;
+                              }
+                            });
+                          },
+                          icon: Icon(Icons.arrow_back_ios,
+                              color:
+                                  Theme.of(context).colorScheme.onSecondary)),
+                      IconButton(
+                          onPressed: () {
+                            setState(() {
+                              monthDisplayed++;
+                              if (monthDisplayed > 12) {
+                                monthDisplayed = 1;
+                                yearDisplayed++;
+                              }
+                            });
+                          },
+                          icon: Icon(Icons.arrow_forward_ios,
+                              color: Theme.of(context).colorScheme.onSecondary))
+                    ],
+                  ),
+                ),
+              ],
             ),
           ),
           Row(

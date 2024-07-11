@@ -69,15 +69,25 @@ class Month extends ConsumerWidget {
     return borderWidth;
   }
 
-  Color findCellColor(cellPosition, List events) {
-    Color cellColor;
-    var dayInGrid = cellIndex - firstDayOfWeek;
+  Color findCellColor(int cellPosition, List<Event> events) {
+    Color cellColor = const Color.fromARGB(255, 226, 194, 231); // Default color
 
+    var dayInGrid = cellPosition - firstDayOfWeek;
+
+    // Check if the day falls within the current month grid
     if (dayInGrid < lastOfMonth && dayInGrid >= 0) {
-      cellColor = const Color.fromARGB(255, 221, 221, 221);
-      for (var day in events) {
-        if ((dayInGrid + 1) == DateTime.parse(day.sdate).day) {
+      // Iterate through all events to check if any event covers this day
+      for (var event in events) {
+        DateTime eventStart = DateTime.parse(event.sdate);
+        DateTime eventEnd = DateTime.parse(event.edate);
+
+        // Check if the current day is within the event's start and end dates
+        if (DateTime(yearDisplayed, selectedMonth, dayInGrid + 1)
+                .isAfter(eventStart.subtract(Duration(days: 1))) &&
+            DateTime(yearDisplayed, selectedMonth, dayInGrid + 1)
+                .isBefore(eventEnd)) {
           cellColor = const Color.fromARGB(136, 162, 24, 248);
+          break;
         }
       }
     } else {
@@ -87,21 +97,33 @@ class Month extends ConsumerWidget {
     return cellColor;
   }
 
-  List hasEvent(cellPosition, List events) {
-    List hasEvent;
-    var dayInGrid = cellIndex - firstDayOfWeek;
-    if ((dayInGrid) < lastOfMonth && (dayInGrid) >= 0) {
-      hasEvent = [false];
-      for (var day in events) {
-        if ((dayInGrid) == DateTime.parse(day.sdate).day) {
-          hasEvent = [true, day];
+  List<bool> hasEvent(int cellPosition, List<Event> events) {
+    List<bool> eventStatus = [
+      false,
+      false
+    ]; // Index 0: single day event, Index 1: multi-day event
+
+    // Calculate the day in grid
+    var dayInGrid = cellPosition - firstDayOfWeek;
+
+    if (dayInGrid < lastOfMonth && dayInGrid >= 0) {
+      for (var event in events) {
+        DateTime eventStart = DateTime.parse(event.sdate);
+        DateTime eventEnd = DateTime.parse(event.edate);
+
+        if (eventStart.day <= (dayInGrid + 1) &&
+            (dayInGrid + 1) <= eventEnd.day) {
+          if (eventStart.day == eventEnd.day ||
+              (dayInGrid + 1) == eventStart.day) {
+            eventStatus[0] = true; // Single day event
+          } else {
+            eventStatus[1] = true; // Multi-day event
+          }
         }
       }
-    } else {
-      hasEvent = [false];
     }
 
-    return hasEvent;
+    return eventStatus;
   }
 
   String daysOfMonth(cellPosition) {
@@ -126,12 +148,7 @@ class Month extends ConsumerWidget {
         .eventsAttendingByMonth(yearDisplayed, selectedMonth);
     List<Availability> availability = ref
         .watch(profileProvider.notifier)
-        .availavilityByMonth(yearDisplayed, selectedMonth);
-
-    int totalSlots = (firstDayOfWeek + lastOfMonth);
-    print('Total Slots for ${monthName(selectedMonth)}: $totalSlots');
-    int numberOfRows = (totalSlots / 7).ceil();
-    print('Number of Rows for ${monthName(selectedMonth)}: $numberOfRows');
+        .availabilityByMonth(yearDisplayed, selectedMonth);
 
     return Container(
       alignment: Alignment.center,
@@ -251,13 +268,33 @@ class Month extends ConsumerWidget {
                     bool hasBlockedTime = availability.any((avail) =>
                         avail.sTime.year == currentDate.year &&
                         avail.sTime.month == currentDate.month &&
-                        avail.sTime.day == currentDate.day);
+                        avail.sTime.day == currentDate.day &&
+                        avail.eventId == null);
+
+                    DateTime cellDate;
+                    bool isCurrentMonth = true;
+
+                    if (index < firstDayOfWeek) {
+                      // Previous month
+                      cellDate = DateTime(yearDisplayed, selectedMonth, 0)
+                          .subtract(Duration(days: firstDayOfWeek - index - 1));
+                      isCurrentMonth = false;
+                    } else if (index >= firstDayOfWeek + lastOfMonth) {
+                      // Next month
+                      cellDate = DateTime(yearDisplayed, selectedMonth + 1,
+                          index - firstDayOfWeek - lastOfMonth + 1);
+                      isCurrentMonth = false;
+                    } else {
+                      // Current month
+                      cellDate = DateTime(yearDisplayed, selectedMonth,
+                          index - firstDayOfWeek + 1);
+                    }
 
                     return DayButton(
                       isSelected: false,
                       borderWidth: findBorderWidth(index),
                       cellColor: findCellColor(index, calEvents),
-                      dayDisplayed: daysOfMonth(index),
+                      dayDisplayed: '${cellDate.day}',
                       index: index,
                       hasEvent: hasEvent(index, calEvents),
                       hasTimeSelected: hasTimeSelected,
@@ -265,6 +302,7 @@ class Month extends ConsumerWidget {
                       selectedMonth: selectedMonth, // pass the current date
                       availabilityByMonth: availability,
                       hasBlockedTime: hasBlockedTime,
+                      isCurrentMonth: isCurrentMonth,
                     );
                   },
                 ),
@@ -297,19 +335,21 @@ class Month extends ConsumerWidget {
 }
 
 class DayButton extends StatelessWidget {
-  const DayButton(
-      {super.key,
-      required this.isSelected,
-      required this.borderWidth,
-      required this.cellColor,
-      required this.dayDisplayed,
-      required this.index,
-      required this.hasEvent,
-      required this.hasTimeSelected,
-      required this.currentDate,
-      required this.selectedMonth,
-      required this.availabilityByMonth,
-      required this.hasBlockedTime});
+  const DayButton({
+    super.key,
+    required this.isSelected,
+    required this.borderWidth,
+    required this.cellColor,
+    required this.dayDisplayed,
+    required this.index,
+    required this.hasEvent,
+    required this.hasTimeSelected,
+    required this.currentDate,
+    required this.selectedMonth,
+    required this.availabilityByMonth,
+    required this.hasBlockedTime,
+    required this.isCurrentMonth,
+  });
 
   final bool isSelected;
   final bool borderWidth;
@@ -322,28 +362,13 @@ class DayButton extends StatelessWidget {
   final int selectedMonth;
   final List<Availability> availabilityByMonth;
   final bool hasBlockedTime;
+  final bool isCurrentMonth;
 
   @override
   Widget build(BuildContext context) {
     // Determine border widths
     double leftBorderWidth = 1.0;
     double topBorderWidth = 1.0;
-
-    // Check if current cell is at the leftmost edge of the grid
-    if (index % 7 == 0) {
-      leftBorderWidth = 0.0; // No left border for cells at the left edge
-    }
-
-    // Check if current cell is in the topmost row of the grid
-    if (index < 7) {
-      topBorderWidth = 0.0; // No top border for cells in the top row
-    }
-
-    // Check if the cell color is the exclusion color
-    if (cellColor == const Color.fromARGB(0, 255, 255, 255)) {
-      leftBorderWidth = 0.0;
-      topBorderWidth = 0.0;
-    }
 
     return GestureDetector(
       onTap: () {
@@ -357,19 +382,18 @@ class DayButton extends StatelessWidget {
       },
       child: Container(
         decoration: BoxDecoration(
-          border: borderWidth
-              ? Border(
-                  left: BorderSide(
-                    color: Color.fromARGB(255, 150, 150, 150)!,
-                    width: leftBorderWidth,
-                  ),
-                  top: BorderSide(
-                    color: Color.fromARGB(255, 121, 121, 121)!,
-                    width: topBorderWidth,
-                  ),
-                )
-              : null,
-          color: cellColor,
+          border: Border(
+            left: BorderSide(
+              color: Color.fromARGB(255, 0, 0, 0)!,
+              width: leftBorderWidth,
+            ),
+            top: BorderSide(
+              color: Color.fromARGB(255, 0, 0, 0)!,
+              width: topBorderWidth,
+            ),
+          ),
+          color:
+              isCurrentMonth ? cellColor : Color.fromARGB(120, 128, 128, 128),
           //borderRadius: borderRadius,
         ),
         child: Stack(
@@ -380,7 +404,12 @@ class DayButton extends StatelessWidget {
                 padding: EdgeInsets.all(4),
                 child: Text(
                   dayDisplayed,
-                  style: TextStyle(fontSize: 16),
+                  style: TextStyle(
+                    fontSize: 16,
+                    color: isCurrentMonth
+                        ? Colors.white
+                        : Color.fromARGB(170, 149, 149, 149),
+                  ),
                 ),
               ),
             ),

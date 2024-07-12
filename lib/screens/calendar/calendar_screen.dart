@@ -192,13 +192,12 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
     return '$hours:$minutes $period';
   }
 
-  Future<void> setProfileAvail() async{
+  Future<void> setProfileAvail() async {
     await ref.read(profileProvider.notifier).decodeData();
     ref.read(availabilityProvider.notifier).updateAvailability(ref
         .watch(profileProvider.notifier)
         .availabilityByMonth(yearDisplayed, monthDisplayed));
   }
-
 
   @override
   Widget build(BuildContext context) {
@@ -239,7 +238,7 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
       body: Column(
         children: [
           SizedBox(
-            height: MediaQuery.of(context).size.height * 0.025,
+            height: MediaQuery.of(context).size.height * 0.02,
           ),
           Expanded(
             child: Stack(

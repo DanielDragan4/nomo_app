@@ -68,7 +68,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                   right: 20,
                 ),
                 width: 200,
-                child: Image.asset('assets/images/sadboi.png'),
+                child: Image.asset('assets/images/logo.png'),
               ),
               Card(
                 margin: const EdgeInsets.all(20),

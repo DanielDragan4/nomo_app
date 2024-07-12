@@ -107,8 +107,9 @@ class _AppState extends ConsumerState<App> {
     final supabase = ref.watch(supabaseClientProvider);
     ref.read(appInitializationProvider);
 
-    void loadData() {
+    void loadData() async {
       ref.read(savedSessionProvider.notifier).changeSessionDataList();
+      await checkProfile();
     }
 
     Widget content = supabase.when(

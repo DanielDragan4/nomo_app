@@ -73,9 +73,14 @@ class _AppState extends ConsumerState<App> {
   StreamSubscription<Map>? streamSubscription;
   FirebaseMessaging firebaseMessaging = FirebaseMessaging.instance;
 
+  void checkSaved() async {
+    await checkProfile();
+  }
+
   @override
   void initState() {
     super.initState();
+    checkProfile();
     streamSubscription = FlutterBranchSdk.listSession().listen((data) {
       if (data.containsKey("+clicked_branch_link") &&
           data["+clicked_branch_link"] == true) {
@@ -104,12 +109,12 @@ class _AppState extends ConsumerState<App> {
 
   @override
   Widget build(BuildContext context) {
-    final supabase = ref.watch(supabaseClientProvider);
-    ref.read(appInitializationProvider);
-
-    void loadData() {
+    void loadData() async {
       ref.read(savedSessionProvider.notifier).changeSessionDataList();
     }
+
+    final supabase = ref.watch(supabaseClientProvider);
+    ref.read(appInitializationProvider);
 
     Widget content = supabase.when(
       data: (client) {

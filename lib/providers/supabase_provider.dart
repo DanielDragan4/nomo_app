@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:nomo/providers/profile_provider.dart';
+import 'package:nomo/screens/login_screen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -106,8 +107,30 @@ class AuthProvider extends StateNotifier<Session?> {
   }
 }
 
+Future<void> checkProfile() async {
+  final checkProf = await supabase
+      .from("Profiles")
+      .select('profile_id, username')
+      .eq('profile_id', supabase.auth.currentUser!.id);
+  final removeSession = await SharedPreferences.getInstance();
+  if (checkProf.isEmpty) {
+    removeSession.remove("savedSession");
+    await supabase
+        .from("auth.users")
+        .delete()
+        .eq('id', (supabase.auth.currentUser!.id));
+  } else if ((checkProf.first['profile_id'] == supabase.auth.currentUser!.id) &&
+      (checkProf.first['username'] == null)) {
+    await supabase
+        .from("Profiles")
+        .delete()
+        .eq('profile_id', (supabase.auth.currentUser!.id));
+  }
+}
+
 final currentUserProvider =
     StateNotifierProvider<AuthProvider, Session?>((ref) {
   final supabase = ref.watch(supabaseInstance);
+  checkProfile();
   return AuthProvider(supabase: supabase);
 });

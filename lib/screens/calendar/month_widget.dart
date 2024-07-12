@@ -142,15 +142,13 @@ class Month extends ConsumerWidget {
     return dayToDisplay;
   }
 
-  
-
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     ref.read(profileProvider.notifier).decodeData();
     List<Event> calEvents = ref
         .read(attendEventsProvider.notifier)
         .eventsAttendingByMonth(yearDisplayed, selectedMonth);
-        ref.read(availabilityProvider.notifier).updateAvailability(ref
+    ref.read(availabilityProvider.notifier).updateAvailability(ref
         .watch(profileProvider.notifier)
         .availabilityByMonth(yearDisplayed, selectedMonth));
 
@@ -255,93 +253,105 @@ class Month extends ConsumerWidget {
                   )
                 ],
               ),
-              Divider(),
+              const Divider(),
 
               StreamBuilder(
-                stream: ref.read(availabilityProvider.notifier).stream,
-                builder: (context, snapshot) {
-                  if(snapshot.data != null){
-                    return Expanded(
-                    child: GridView.builder(
-                      physics: const NeverScrollableScrollPhysics(),
-                      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                          crossAxisCount: 7),
-                      itemCount: 42,
-                      itemBuilder: (context, index) {
-                        DateTime currentDate = DateTime(yearDisplayed,
-                            selectedMonth, index - firstDayOfWeek + 1);
-                        bool hasTimeSelected =
-                            selectedDatesWithTime[currentDate] ?? false;
-                  
-                        bool hasBlockedTime = snapshot.data!.any((avail) =>
-                            avail.sTime.year == currentDate.year &&
-                            avail.sTime.month == currentDate.month &&
-                            avail.sTime.day == currentDate.day &&
-                            avail.eventId == null);
-                  
-                        DateTime cellDate;
-                        bool isCurrentMonth = true;
-                  
-                        if (index < firstDayOfWeek) {
-                          // Previous month
-                          cellDate = DateTime(yearDisplayed, selectedMonth, 0)
-                              .subtract(Duration(days: firstDayOfWeek - index - 1));
-                          isCurrentMonth = false;
-                        } else if (index >= firstDayOfWeek + lastOfMonth) {
-                          // Next month
-                          cellDate = DateTime(yearDisplayed, selectedMonth + 1,
-                              index - firstDayOfWeek - lastOfMonth + 1);
-                          isCurrentMonth = false;
-                        } else {
-                          // Current month
-                          cellDate = DateTime(yearDisplayed, selectedMonth,
-                              index - firstDayOfWeek + 1);
-                        }
-                  
-                        return DayButton(
-                          isSelected: false,
-                          borderWidth: findBorderWidth(index),
-                          cellColor: findCellColor(index, calEvents),
-                          dayDisplayed: '${cellDate.day}',
-                          index: index,
-                          hasEvent: hasEvent(index, calEvents),
-                          hasTimeSelected: hasTimeSelected,
-                          currentDate: currentDate,
-                          selectedMonth: selectedMonth, // pass the current date
-                          availabilityByMonth: snapshot.data!,
-                          hasBlockedTime: hasBlockedTime,
-                          isCurrentMonth: isCurrentMonth,
-                          year: yearDisplayed,
-                        );
-                      },
-                    ),
-                  );}
-                  else {
-                    return CircularProgressIndicator();
-                  }
-                }
-              ),
-              Container(
-                alignment: Alignment.topLeft,
-                child: Text(
-                  "Attending Events",
-                  style: TextStyle(
-                    fontSize: 24,
-                    fontWeight: FontWeight.bold,
-                    color: Theme.of(context).primaryColor,
-                  ),
-                ),
-              ),
-              const Divider(),
+                  stream: ref.read(availabilityProvider.notifier).stream,
+                  builder: (context, snapshot) {
+                    if (snapshot.data != null) {
+                      return Expanded(
+                        child: GridView.builder(
+                          physics: const NeverScrollableScrollPhysics(),
+                          gridDelegate:
+                              const SliverGridDelegateWithFixedCrossAxisCount(
+                                  crossAxisCount: 7),
+                          itemCount: 42,
+                          itemBuilder: (context, index) {
+                            DateTime currentDate = DateTime(yearDisplayed,
+                                selectedMonth, index - firstDayOfWeek + 1);
+                            bool hasTimeSelected =
+                                selectedDatesWithTime[currentDate] ?? false;
+
+                            bool hasBlockedTime = snapshot.data!.any((avail) =>
+                                avail.sTime.year == currentDate.year &&
+                                avail.sTime.month == currentDate.month &&
+                                avail.sTime.day == currentDate.day &&
+                                avail.eventId == null);
+
+                            DateTime cellDate;
+                            bool isCurrentMonth = true;
+
+                            if (index < firstDayOfWeek) {
+                              // Previous month
+                              cellDate =
+                                  DateTime(yearDisplayed, selectedMonth, 0)
+                                      .subtract(Duration(
+                                          days: firstDayOfWeek - index - 1));
+                              isCurrentMonth = false;
+                            } else if (index >= firstDayOfWeek + lastOfMonth) {
+                              // Next month
+                              cellDate = DateTime(
+                                  yearDisplayed,
+                                  selectedMonth + 1,
+                                  index - firstDayOfWeek - lastOfMonth + 1);
+                              isCurrentMonth = false;
+                            } else {
+                              // Current month
+                              cellDate = DateTime(yearDisplayed, selectedMonth,
+                                  index - firstDayOfWeek + 1);
+                            }
+
+                            return DayButton(
+                              isSelected: false,
+                              borderWidth: findBorderWidth(index),
+                              cellColor: findCellColor(index, calEvents),
+                              dayDisplayed: '${cellDate.day}',
+                              index: index,
+                              hasEvent: hasEvent(index, calEvents),
+                              hasTimeSelected: hasTimeSelected,
+                              currentDate: currentDate,
+                              selectedMonth:
+                                  selectedMonth, // pass the current date
+                              availabilityByMonth: snapshot.data!,
+                              hasBlockedTime: hasBlockedTime,
+                              isCurrentMonth: isCurrentMonth,
+                              year: yearDisplayed,
+                            );
+                          },
+                        ),
+                      );
+                    } else {
+                      return CircularProgressIndicator();
+                    }
+                  }),
               SizedBox(
-                height: MediaQuery.sizeOf(context).height * 0.14,
-                child: ListView(
-                  key: const PageStorageKey<String>('cal'),
+                height: MediaQuery.of(context).size.height * .16,
+                child: Column(
                   children: [
-                    for (Event i in calEvents) EventCalTab(eventData: i)
+                    Container(
+                      alignment: Alignment.topLeft,
+                      child: Text(
+                        "Attending Events",
+                        style: TextStyle(
+                          fontSize: 24,
+                          fontWeight: FontWeight.bold,
+                          color: Theme.of(context).primaryColor,
+                        ),
+                      ),
+                    ),
+                    const Divider(),
+                    SizedBox(
+                      height: MediaQuery.sizeOf(context).height * 0.1,
+                      child: ListView(
+                        key: const PageStorageKey<String>('cal'),
+                        children: [
+                          for (Event i in calEvents) EventCalTab(eventData: i)
+                        ],
+                      ),
+                    ),
                   ],
                 ),
-              ),
+              )
             ],
           )),
     );
@@ -349,22 +359,21 @@ class Month extends ConsumerWidget {
 }
 
 class DayButton extends ConsumerWidget {
-  const DayButton({
-    super.key,
-    required this.isSelected,
-    required this.borderWidth,
-    required this.cellColor,
-    required this.dayDisplayed,
-    required this.index,
-    required this.hasEvent,
-    required this.hasTimeSelected,
-    required this.currentDate,
-    required this.selectedMonth,
-    required this.availabilityByMonth,
-    required this.hasBlockedTime,
-    required this.isCurrentMonth,
-    required this.year
-  });
+  const DayButton(
+      {super.key,
+      required this.isSelected,
+      required this.borderWidth,
+      required this.cellColor,
+      required this.dayDisplayed,
+      required this.index,
+      required this.hasEvent,
+      required this.hasTimeSelected,
+      required this.currentDate,
+      required this.selectedMonth,
+      required this.availabilityByMonth,
+      required this.hasBlockedTime,
+      required this.isCurrentMonth,
+      required this.year});
 
   final bool isSelected;
   final bool borderWidth;
@@ -389,15 +398,20 @@ class DayButton extends ConsumerWidget {
     return GestureDetector(
       onTap: () {
         if (currentDate.month == selectedMonth) {
-          Navigator.of(context).push(MaterialPageRoute(
-              builder: ((context) => DayScreenPageView(
-                    initialDay: currentDate,
-                    blockedTime: availabilityByMonth,
-                  )))).whenComplete(() async{
-                      await ref.read(profileProvider.notifier).decodeData();
-                     ref.read(availabilityProvider.notifier).updateAvailability(ref.read(profileProvider.notifier).availabilityByMonth(year, selectedMonth));
-                    },
-                  );
+          Navigator.of(context)
+              .push(MaterialPageRoute(
+                  builder: ((context) => DayScreenPageView(
+                        initialDay: currentDate,
+                        blockedTime: availabilityByMonth,
+                      ))))
+              .whenComplete(
+            () async {
+              await ref.read(profileProvider.notifier).decodeData();
+              ref.read(availabilityProvider.notifier).updateAvailability(ref
+                  .read(profileProvider.notifier)
+                  .availabilityByMonth(year, selectedMonth));
+            },
+          );
         }
       },
       child: Container(

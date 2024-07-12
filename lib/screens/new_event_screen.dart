@@ -60,8 +60,8 @@ class _NewEventScreenState extends ConsumerState<NewEventScreen> {
     if (!isNewEvent) {
       _title.text = widget.event!.title;
       _description.text = widget.event!.description;
-      
-      if(widget.event!.isVirtual) {
+
+      if (widget.event!.isVirtual) {
         _locationController.text = "Virtual";
       } else {
         _locationController.text = widget.event!.location;
@@ -112,10 +112,24 @@ class _NewEventScreenState extends ConsumerState<NewEventScreen> {
     if (picked != null) {
       bool isValidDate = true;
 
-      if (isStartDate && _selectedEndDate != null && _selectedEndTime != null && _selectedStartTime != null) {
-        isValidDate = ((picked.isBefore(_selectedEndDate!)) || ((picked.isAtSameMomentAs(_selectedEndDate!)) && ((_selectedEndTime!.hour + (_selectedEndTime!.minute/60))) > (_selectedStartTime!.hour + (_selectedStartTime!.minute/60))));
-      } else if (!isStartDate && _selectedStartDate != null && _selectedEndTime != null && _selectedStartTime != null) {
-        isValidDate = (picked.isAfter(_selectedStartDate!) || ((picked.isAtSameMomentAs(_selectedStartDate!)) && ((_selectedEndTime!.hour + (_selectedEndTime!.minute/60))) > (_selectedStartTime!.hour + (_selectedStartTime!.minute/60))));
+      if (isStartDate &&
+          _selectedEndDate != null &&
+          _selectedEndTime != null &&
+          _selectedStartTime != null) {
+        isValidDate = ((picked.isBefore(_selectedEndDate!)) ||
+            ((picked.isAtSameMomentAs(_selectedEndDate!)) &&
+                ((_selectedEndTime!.hour + (_selectedEndTime!.minute / 60))) >
+                    (_selectedStartTime!.hour +
+                        (_selectedStartTime!.minute / 60))));
+      } else if (!isStartDate &&
+          _selectedStartDate != null &&
+          _selectedEndTime != null &&
+          _selectedStartTime != null) {
+        isValidDate = (picked.isAfter(_selectedStartDate!) ||
+            ((picked.isAtSameMomentAs(_selectedStartDate!)) &&
+                ((_selectedEndTime!.hour + (_selectedEndTime!.minute / 60))) >
+                    (_selectedStartTime!.hour +
+                        (_selectedStartTime!.minute / 60))));
       }
 
       if (isValidDate) {
@@ -686,7 +700,7 @@ class _NewEventScreenState extends ConsumerState<NewEventScreen> {
                     ),
                   ),
                   Text(
-                    "to",
+                    "-",
                     style: TextStyle(
                         color: Theme.of(context).colorScheme.onSecondary),
                   ),
@@ -724,6 +738,11 @@ class _NewEventScreenState extends ConsumerState<NewEventScreen> {
                           fontSize: 15,
                           color: Theme.of(context).colorScheme.onSecondary),
                     ),
+                  ),
+                  Text(
+                    "-",
+                    style: TextStyle(
+                        color: Theme.of(context).colorScheme.onSecondary),
                   ),
                   TextButton(
                     onPressed: edate

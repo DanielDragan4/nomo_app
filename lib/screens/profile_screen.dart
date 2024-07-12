@@ -33,6 +33,7 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
   late bool isFriend = true;
   bool _isLoading = true;
   bool isHosting = false;
+  bool friendPending = false;
 
   @override
   void initState() {
@@ -43,6 +44,7 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
       isFriend = false;
     } else {
       ref.read(attendEventsProvider.notifier).deCodeDataWithId(widget.userId!);
+      checkPendingRequest();
     }
     isSelected = [true, false];
   }
@@ -120,6 +122,21 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
 
   Future<void> addFriend() async {
     await ref.read(profileProvider.notifier).addFriend(widget.userId, false);
+    await checkPendingRequest();
+  }
+
+  Future<void> checkPendingRequest() async {
+    final requests =
+        await ref.read(profileProvider.notifier).readOutgoingRequests();
+    final currentUserId =
+        (await ref.read(supabaseInstance)).client.auth.currentUser!.id;
+    setState(() {
+      friendPending = requests.any((request) =>
+          (request['sender_id'] == currentUserId &&
+              request['reciever_id'] == widget.userId) ||
+          (request['reciever_id'] == currentUserId &&
+              request['sender_id'] == widget.userId));
+    });
   }
 
   Future<void> removeFriend() async {
@@ -294,16 +311,19 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
                                               child: const Text("Remove"),
                                             )
                                           : ElevatedButton(
-                                              onPressed: () {
-                                                setState(() {
-                                                  addFriend();
-                                                  isFriend = !isFriend;
-                                                });
-                                              },
-                                              child: private == false
-                                                  ? const Text("Friend")
-                                                  : const Text(
-                                                      "Request Friend"),
+                                              onPressed: friendPending
+                                                  ? null
+                                                  : () {
+                                                      setState(() {
+                                                        addFriend();
+                                                      });
+                                                    },
+                                              child: friendPending
+                                                  ? const Text("Pending")
+                                                  : (private == false
+                                                      ? const Text("Friend")
+                                                      : const Text(
+                                                          "Request Friend")),
                                             ),
                                       SizedBox(
                                           width: MediaQuery.of(context)

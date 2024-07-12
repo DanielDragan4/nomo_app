@@ -65,6 +65,20 @@ class _DayScreenState extends ConsumerState<DayScreen> {
   }
 
   void _initializeBlockedHours() {
+    // Reset all blocked hours
+    blockedHours = List.generate(
+      24 * 60,
+      (index) => {
+        'blocked': false,
+        'title': '',
+        'start': null,
+        'end': null,
+        'isEvent': false,
+        'event_id': null,
+        'id': ''
+      },
+    );
+
     for (var availability in currentBlockedTime) {
       DateTime start = availability.sTime;
       DateTime end = availability.eTime;
@@ -72,19 +86,21 @@ class _DayScreenState extends ConsumerState<DayScreen> {
       String id = availability.availId ?? '';
       String? event_id = availability.eventId;
 
-      int startMinutes = start.hour * 60 + start.minute;
-      int endMinutes = end.hour * 60 + end.minute;
+      if (start.day == widget.day.day) {
+        int startMinute = start.hour * 60 + start.minute;
+        int endMinute = end.hour * 60 + end.minute;
 
-      for (int i = startMinutes; i <= endMinutes; i++) {
-        blockedHours[i] = {
-          'blocked': true,
-          'title': title,
-          'start': TimeOfDay(hour: start.hour, minute: start.minute),
-          'end': TimeOfDay(hour: end.hour, minute: end.minute),
-          if (availability.eventId != null) 'isEvent': true,
-          'event_id': event_id,
-          'id': id
-        };
+        for (int i = startMinute; i < endMinute; i++) {
+          blockedHours[i] = {
+            'blocked': true,
+            'title': title,
+            'start': TimeOfDay(hour: start.hour, minute: start.minute),
+            'end': TimeOfDay(hour: end.hour, minute: end.minute),
+            'isEvent': event_id != null,
+            'event_id': event_id,
+            'id': id
+          };
+        }
       }
     }
   }
@@ -138,7 +154,8 @@ class _DayScreenState extends ConsumerState<DayScreen> {
     } else {
       // Show a message if the title is empty
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please enter a title for the time block')),
+        const SnackBar(
+            content: Text('Please enter a title for the time block')),
       );
     }
   }
@@ -180,7 +197,8 @@ class _DayScreenState extends ConsumerState<DayScreen> {
     } else {
       // Show a message if the title is empty
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please enter a title for the time block')),
+        const SnackBar(
+            content: Text('Please enter a title for the time block')),
       );
     }
   }
@@ -264,6 +282,8 @@ class _DayScreenState extends ConsumerState<DayScreen> {
                   onPressed: () {
                     _confirmTimeRange(
                         context); // this is where the block is created
+                    startTime = null;
+                    endTime = null;
                   },
                   child: const Text('Confirm'),
                 ),
@@ -423,6 +443,8 @@ class _DayScreenState extends ConsumerState<DayScreen> {
                             .read(profileProvider.notifier)
                             .deleteBlockedTime(availID, null);
                         Navigator.of(context).pop();
+                        // startTime = null;
+                        // endTime = null;
                       },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.red,
@@ -447,6 +469,7 @@ class _DayScreenState extends ConsumerState<DayScreen> {
     List<Widget> hourLabels = [];
     List<Widget> timeBlocks = [];
 
+    // Render hour labels
     for (int i = 0; i < 24; i++) {
       final startingHour = i % 12 == 0 ? 12 : i % 12;
       final timeLabel =
@@ -479,6 +502,7 @@ class _DayScreenState extends ConsumerState<DayScreen> {
       ));
     }
 
+    // Render time blocks
     for (int minute = 0; minute < 24 * 60; minute++) {
       if (blockedHours[minute]['blocked']) {
         int blockStart = minute;
@@ -494,6 +518,7 @@ class _DayScreenState extends ConsumerState<DayScreen> {
         int blockMinutes = blockEnd - blockStart;
         double blockHeight = (blockMinutes / 60) * 50.0;
         String availID = blockedHours[blockStart]['id'] ?? '';
+        bool isEvent = blockedHours[blockStart]['isEvent'] ?? false;
 
         timeBlocks.add(
           Positioned(
@@ -502,16 +527,21 @@ class _DayScreenState extends ConsumerState<DayScreen> {
             right: 0,
             child: GestureDetector(
               onTap: () {
-                if(blockedHours[blockStart]['event_id'] == null){
-                _showEditTimeBlock(context, availID, blockStart, blockEnd - 1,
-                    blockedHours[blockStart]['title']);
+                if (!isEvent) {
+                  _showEditTimeBlock(context, availID, blockStart, blockEnd - 1,
+                      blockedHours[blockStart]['title']);
                 } else {
-                Navigator.of(context).push(MaterialPageRoute(builder: (context) => DetailedEventScreen(linkEventId: blockedHours[blockStart]['event_id'],),));
+                  Navigator.of(context).push(MaterialPageRoute(
+                    builder: (context) => DetailedEventScreen(
+                      linkEventId: blockedHours[blockStart]['event_id'],
+                    ),
+                  ));
                 }
               },
               child: TimeBlock(
                 title: blockedHours[blockStart]['title'],
                 hourCount: blockMinutes / 60,
+                isEvent: isEvent,
               ),
             ),
           ),

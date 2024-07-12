@@ -21,7 +21,7 @@ class Month extends ConsumerWidget {
   final int selectedMonth;
   final eventsByDate;
   final int firstDayOfWeek;
-  final int lastOfMonth;
+  int lastOfMonth;
   int cellIndex = 0;
   final int yearDisplayed;
   final Map<DateTime, bool> selectedDatesWithTime;
@@ -56,27 +56,38 @@ class Month extends ConsumerWidget {
     return "";
   }
 
-  bool findBoarderWidth(cellPosition) {
-    bool boarderWidth;
+  bool findBorderWidth(cellPosition) {
+    bool borderWidth;
 
     if ((cellIndex - firstDayOfWeek) < lastOfMonth &&
         (cellIndex - firstDayOfWeek) >= 0) {
-      boarderWidth = true;
+      borderWidth = true;
     } else {
-      boarderWidth = false;
+      borderWidth = false;
     }
 
-    return boarderWidth;
+    return borderWidth;
   }
 
-  Color findCellColor(cellPosition, List events) {
-    Color cellColor;
-    var dayInGrid = cellIndex - firstDayOfWeek;
-    if ((dayInGrid) < lastOfMonth && (dayInGrid) >= 0) {
-      cellColor = const Color.fromARGB(255, 221, 221, 221);
-      for (var day in events) {
-        if ((dayInGrid + 1) == DateTime.parse(day.sdate).day) {
+  Color findCellColor(int cellPosition, List<Event> events) {
+    Color cellColor = const Color.fromARGB(255, 226, 194, 231); // Default color
+
+    var dayInGrid = cellPosition - firstDayOfWeek;
+
+    // Check if the day falls within the current month grid
+    if (dayInGrid < lastOfMonth && dayInGrid >= 0) {
+      // Iterate through all events to check if any event covers this day
+      for (var event in events) {
+        DateTime eventStart = DateTime.parse(event.sdate);
+        DateTime eventEnd = DateTime.parse(event.edate);
+
+        // Check if the current day is within the event's start and end dates
+        if (DateTime(yearDisplayed, selectedMonth, dayInGrid + 1)
+                .isAfter(eventStart.subtract(Duration(days: 1))) &&
+            DateTime(yearDisplayed, selectedMonth, dayInGrid + 1)
+                .isBefore(eventEnd)) {
           cellColor = const Color.fromARGB(136, 162, 24, 248);
+          break;
         }
       }
     } else {
@@ -86,29 +97,42 @@ class Month extends ConsumerWidget {
     return cellColor;
   }
 
-  List hasEvent(cellPosition, List events) {
-    List hasEvent;
-    var dayInGrid = cellIndex - firstDayOfWeek;
-    if ((dayInGrid) < lastOfMonth && (dayInGrid) >= 0) {
-      hasEvent = [false];
-      for (var day in events) {
-        if ((dayInGrid) == DateTime.parse(day.sdate).day) {
-          hasEvent = [true, day];
+  List<bool> hasEvent(int cellPosition, List<Event> events) {
+    List<bool> eventStatus = [
+      false,
+      false
+    ]; // Index 0: single day event, Index 1: multi-day event
+
+    // Calculate the day in grid
+    var dayInGrid = cellPosition - firstDayOfWeek;
+
+    if (dayInGrid < lastOfMonth && dayInGrid >= 0) {
+      for (var event in events) {
+        DateTime eventStart = DateTime.parse(event.sdate);
+        DateTime eventEnd = DateTime.parse(event.edate);
+
+        if (eventStart.day <= (dayInGrid + 1) &&
+            (dayInGrid + 1) <= eventEnd.day) {
+          if (eventStart.day == eventEnd.day ||
+              (dayInGrid + 1) == eventStart.day) {
+            eventStatus[0] = true; // Single day event
+          } else {
+            eventStatus[1] = true; // Multi-day event
+          }
         }
       }
-    } else {
-      hasEvent = [false];
     }
 
-    return hasEvent;
+    return eventStatus;
   }
 
-  String daysOfMonth() {
+  String daysOfMonth(cellPosition) {
     String dayToDisplay;
 
-    if ((cellIndex - firstDayOfWeek) < lastOfMonth &&
-        (cellIndex - firstDayOfWeek) >= 0) {
-      dayToDisplay = "${(cellIndex - firstDayOfWeek) + 1} ";
+    var dayInGrid = cellIndex - firstDayOfWeek;
+
+    if (dayInGrid < lastOfMonth && dayInGrid >= 0) {
+      dayToDisplay = "${dayInGrid + 1} ";
     } else {
       dayToDisplay = '';
     }
@@ -124,7 +148,7 @@ class Month extends ConsumerWidget {
         .eventsAttendingByMonth(yearDisplayed, selectedMonth);
     List<Availability> availability = ref
         .watch(profileProvider.notifier)
-        .availavilityByMonth(yearDisplayed, selectedMonth);
+        .availabilityByMonth(yearDisplayed, selectedMonth);
 
     return Container(
       alignment: Alignment.center,
@@ -133,72 +157,6 @@ class Month extends ConsumerWidget {
           child: Column(
             children: [
               // Header and month name
-              Row(
-                children: [
-                  Container(
-                    height: MediaQuery.sizeOf(context).height * 0.0528,
-                    width: MediaQuery.sizeOf(context).width * .95,
-                    decoration: BoxDecoration(
-                      color: const Color.fromARGB(255, 135, 135, 135),
-                      border: Border.all(width: 1),
-                    ),
-                    child: const Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                      children: [
-                        Spacer(),
-                        Text(
-                          'S',
-                          style: TextStyle(
-                              fontSize: 24, fontWeight: FontWeight.bold),
-                        ),
-                        Spacer(),
-                        Spacer(),
-                        Text(
-                          'M',
-                          style: TextStyle(
-                              fontSize: 24, fontWeight: FontWeight.bold),
-                        ),
-                        Spacer(),
-                        Spacer(),
-                        Text(
-                          'T',
-                          style: TextStyle(
-                              fontSize: 24, fontWeight: FontWeight.bold),
-                        ),
-                        Spacer(),
-                        Spacer(),
-                        Text(
-                          'W',
-                          style: TextStyle(
-                              fontSize: 24, fontWeight: FontWeight.bold),
-                        ),
-                        Spacer(),
-                        Spacer(),
-                        Text(
-                          'T',
-                          style: TextStyle(
-                              fontSize: 24, fontWeight: FontWeight.bold),
-                        ),
-                        Spacer(),
-                        Spacer(),
-                        Text(
-                          'F',
-                          style: TextStyle(
-                              fontSize: 24, fontWeight: FontWeight.bold),
-                        ),
-                        Spacer(),
-                        Spacer(),
-                        Text(
-                          'S',
-                          style: TextStyle(
-                              fontSize: 24, fontWeight: FontWeight.bold),
-                        ),
-                        Spacer(),
-                      ],
-                    ),
-                  )
-                ],
-              ),
               Container(
                 alignment: Alignment.topLeft,
                 child: Text(
@@ -206,10 +164,95 @@ class Month extends ConsumerWidget {
                   style: TextStyle(
                     fontSize: 24,
                     fontWeight: FontWeight.bold,
-                    color: Theme.of(context).primaryColor,
+                    color: Theme.of(context).primaryColorLight,
                   ),
                 ),
               ),
+              Divider(),
+              Row(
+                children: [
+                  Container(
+                    height: MediaQuery.sizeOf(context).height * 0.0528,
+                    width: MediaQuery.sizeOf(context).width * .95,
+                    decoration: BoxDecoration(
+                        // color:
+                        //     Theme.of(context).primaryColorLight.withOpacity(0.35),
+                        // border: Border.all(width: 1),
+                        // borderRadius: BorderRadius.circular(20),
+                        ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children: [
+                        Spacer(),
+                        Text(
+                          'S',
+                          style: TextStyle(
+                              fontSize: 24,
+                              fontWeight: FontWeight.bold,
+                              color: Theme.of(context).primaryColorLight),
+                        ),
+                        Spacer(),
+                        Spacer(),
+                        Text(
+                          'M',
+                          style: TextStyle(
+                              fontSize: 24,
+                              fontWeight: FontWeight.bold,
+                              color: Theme.of(context).primaryColorLight),
+                        ),
+                        Spacer(),
+                        Spacer(),
+                        Text(
+                          'T',
+                          style: TextStyle(
+                              fontSize: 24,
+                              fontWeight: FontWeight.bold,
+                              color: Theme.of(context).primaryColorLight),
+                        ),
+                        Spacer(),
+                        Spacer(),
+                        Text(
+                          'W',
+                          style: TextStyle(
+                              fontSize: 24,
+                              fontWeight: FontWeight.bold,
+                              color: Theme.of(context).primaryColorLight),
+                        ),
+                        Spacer(),
+                        Spacer(),
+                        Text(
+                          'T',
+                          style: TextStyle(
+                              fontSize: 24,
+                              fontWeight: FontWeight.bold,
+                              color: Theme.of(context).primaryColorLight),
+                        ),
+                        Spacer(),
+                        Spacer(),
+                        Text(
+                          'F',
+                          style: TextStyle(
+                              fontSize: 24,
+                              fontWeight: FontWeight.bold,
+                              color: Theme.of(context).primaryColorLight),
+                        ),
+                        Spacer(),
+                        Spacer(),
+                        Text(
+                          'S',
+                          style: TextStyle(
+                              fontSize: 24,
+                              fontWeight: FontWeight.bold,
+                              color: Theme.of(context).primaryColorLight),
+                        ),
+                        Spacer(),
+                      ],
+                    ),
+                  )
+                ],
+              ),
+              Divider(),
+
               Expanded(
                 child: GridView.builder(
                   physics: const NeverScrollableScrollPhysics(),
@@ -225,13 +268,33 @@ class Month extends ConsumerWidget {
                     bool hasBlockedTime = availability.any((avail) =>
                         avail.sTime.year == currentDate.year &&
                         avail.sTime.month == currentDate.month &&
-                        avail.sTime.day == currentDate.day);
+                        avail.sTime.day == currentDate.day &&
+                        avail.eventId == null);
+
+                    DateTime cellDate;
+                    bool isCurrentMonth = true;
+
+                    if (index < firstDayOfWeek) {
+                      // Previous month
+                      cellDate = DateTime(yearDisplayed, selectedMonth, 0)
+                          .subtract(Duration(days: firstDayOfWeek - index - 1));
+                      isCurrentMonth = false;
+                    } else if (index >= firstDayOfWeek + lastOfMonth) {
+                      // Next month
+                      cellDate = DateTime(yearDisplayed, selectedMonth + 1,
+                          index - firstDayOfWeek - lastOfMonth + 1);
+                      isCurrentMonth = false;
+                    } else {
+                      // Current month
+                      cellDate = DateTime(yearDisplayed, selectedMonth,
+                          index - firstDayOfWeek + 1);
+                    }
 
                     return DayButton(
                       isSelected: false,
-                      boarderWidth: findBoarderWidth(index),
+                      borderWidth: findBorderWidth(index),
                       cellColor: findCellColor(index, calEvents),
-                      dayDisplayed: daysOfMonth(),
+                      dayDisplayed: '${cellDate.day}',
                       index: index,
                       hasEvent: hasEvent(index, calEvents),
                       hasTimeSelected: hasTimeSelected,
@@ -239,6 +302,7 @@ class Month extends ConsumerWidget {
                       selectedMonth: selectedMonth, // pass the current date
                       availabilityByMonth: availability,
                       hasBlockedTime: hasBlockedTime,
+                      isCurrentMonth: isCurrentMonth,
                     );
                   },
                 ),
@@ -274,7 +338,7 @@ class DayButton extends StatelessWidget {
   const DayButton({
     super.key,
     required this.isSelected,
-    required this.boarderWidth,
+    required this.borderWidth,
     required this.cellColor,
     required this.dayDisplayed,
     required this.index,
@@ -283,11 +347,12 @@ class DayButton extends StatelessWidget {
     required this.currentDate,
     required this.selectedMonth,
     required this.availabilityByMonth,
-    required this.hasBlockedTime
+    required this.hasBlockedTime,
+    required this.isCurrentMonth,
   });
 
   final bool isSelected;
-  final bool boarderWidth;
+  final bool borderWidth;
   final Color cellColor;
   final String dayDisplayed;
   final int index;
@@ -297,25 +362,39 @@ class DayButton extends StatelessWidget {
   final int selectedMonth;
   final List<Availability> availabilityByMonth;
   final bool hasBlockedTime;
+  final bool isCurrentMonth;
 
   @override
   Widget build(BuildContext context) {
+    // Determine border widths
+    double leftBorderWidth = 1.0;
+    double topBorderWidth = 1.0;
+
     return GestureDetector(
       onTap: () {
         if (currentDate.month == selectedMonth) {
           Navigator.of(context).push(MaterialPageRoute(
-            builder: ((context) => DayScreenPageView(
-              initialDay: currentDate,
-              blockedTime: availabilityByMonth,
-            ))
-          ));
+              builder: ((context) => DayScreenPageView(
+                    initialDay: currentDate,
+                    blockedTime: availabilityByMonth,
+                  ))));
         }
       },
       child: Container(
         decoration: BoxDecoration(
-          border: boarderWidth ? Border.all(color: Colors.grey[300]!) : null,
-          color: cellColor,
-          borderRadius: BorderRadius.circular(4),
+          border: Border(
+            left: BorderSide(
+              color: Color.fromARGB(255, 0, 0, 0)!,
+              width: leftBorderWidth,
+            ),
+            top: BorderSide(
+              color: Color.fromARGB(255, 0, 0, 0)!,
+              width: topBorderWidth,
+            ),
+          ),
+          color:
+              isCurrentMonth ? cellColor : Color.fromARGB(120, 128, 128, 128),
+          //borderRadius: borderRadius,
         ),
         child: Stack(
           children: [
@@ -325,7 +404,12 @@ class DayButton extends StatelessWidget {
                 padding: EdgeInsets.all(4),
                 child: Text(
                   dayDisplayed,
-                  style: TextStyle(fontSize: 16),
+                  style: TextStyle(
+                    fontSize: 16,
+                    color: isCurrentMonth
+                        ? Colors.white
+                        : Color.fromARGB(170, 149, 149, 149),
+                  ),
                 ),
               ),
             ),

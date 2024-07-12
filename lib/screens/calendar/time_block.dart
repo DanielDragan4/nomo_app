@@ -3,13 +3,13 @@ import 'package:flutter/material.dart';
 class TimeBlock extends StatelessWidget {
   final String title;
   final double hourCount;
-  final bool? isEvent;
+  final bool isEvent;
 
   const TimeBlock({
     Key? key,
     required this.title,
     required this.hourCount,
-    this.isEvent,
+    required this.isEvent,
   }) : super(key: key);
 
   @override
@@ -20,7 +20,7 @@ class TimeBlock extends StatelessWidget {
       height: blockHeight,
       margin: EdgeInsets.symmetric(vertical: 2),
       decoration: BoxDecoration(
-        color: isEvent != null
+        color: isEvent == true
             ? Theme.of(context).primaryColor.withOpacity(0.7)
             : Colors.redAccent.withOpacity(0.7),
         borderRadius: BorderRadius.circular(6),
@@ -34,13 +34,15 @@ class TimeBlock extends StatelessWidget {
       ),
       child: Padding(
         padding: EdgeInsets.all(4),
-        child: Text(
-          title,
-          textAlign: TextAlign.center,
-          style: TextStyle(
-            color: Colors.white,
-            fontSize: 14,
-            fontWeight: FontWeight.w500,
+        child: Center(
+          child: Text(
+            title,
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              color: Colors.white,
+              fontSize: 20,
+              fontWeight: FontWeight.w500,
+            ),
           ),
         ),
       ),

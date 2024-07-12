@@ -41,26 +41,75 @@ class ProfileProvider extends StateNotifier<Profile?> {
     String profileUrl = supabaseClient.storage
         .from('Images')
         .getPublicUrl(userProfile['profile_path']);
+
     for (var avail in userProfile['Availability']) {
-      Availability decodedTime = Availability(
-        availId: avail['availability_id'],
-        userId: avail['user_id'],
-        sTime: DateTime.parse(avail['start_time']),
-        eTime: DateTime.parse(avail['end_time']),
-        blockTitle: avail['block_title'],
-        eventId: avail['event_id'],
-      );
-      availability.add(decodedTime);
-    }
-    profile = (Profile(
+      DateTime startDate = DateTime.parse(avail['start_time']);
+      DateTime endDate = DateTime.parse(avail['end_time']);
+
+      // Calculate the start and end dates
+      DateTime startDateTime =
+          DateTime(startDate.year, startDate.month, startDate.day);
+      DateTime endDateTime = DateTime(endDate.year, endDate.month, endDate.day);
+
+      if (startDate.day == endDate.day) {
+        // If the entire block is in a single day, use original start and end times
+        Availability decodedTime = Availability(
+          availId: avail['availability_id'],
+          userId: avail['user_id'],
+          sTime: startDate,
+          eTime: endDate,
+          blockTitle: avail['block_title'],
+          eventId: avail['event_id'],
+        );
+        availability.add(decodedTime);
+      } else {
+        // Iterate through each day within the range
+        for (var dt = startDateTime;
+            dt.isBefore(endDateTime) || dt.isAtSameMomentAs(endDateTime);
+            dt = dt.add(Duration(days: 1))) {
+          DateTime blockStart;
+          DateTime blockEnd;
+
+          // Determine the block start and end times for each day
+          if (dt.isAtSameMomentAs(startDateTime)) {
+            blockStart = startDate;
+            blockEnd = DateTime(startDate.year, startDate.month, startDate.day,
+                23, 59, 59, 999);
+          } else if (dt.isAtSameMomentAs(endDateTime)) {
+            blockStart =
+                DateTime(endDate.year, endDate.month, endDate.day, 0, 0, 0, 0);
+            blockEnd = endDate;
+          } else {
+            blockStart = DateTime(dt.year, dt.month, dt.day, 0, 0, 0, 0);
+            blockEnd = DateTime(dt.year, dt.month, dt.day, 23, 59, 59, 999);
+          }
+
+          // Create the Availability object for the block of time
+          Availability decodedTime = Availability(
+            availId: avail['availability_id'],
+            userId: avail['user_id'],
+            sTime: blockStart,
+            eTime: blockEnd,
+            blockTitle: avail['block_title'],
+            eventId: avail['event_id'],
+          );
+
+          availability.add(decodedTime);
+        }
+      }
+
+      profile = Profile(
         profile_id: userProfile['profile_id'],
         avatar: profileUrl,
         username: userProfile['username'],
         profile_name: userProfile['profile_name'],
         interests: userProfile['Interests'],
         availability: availability,
-        private: userProfile['private']));
-    state = profile;
+        private: userProfile['private'],
+      );
+
+      state = profile;
+    }
   }
 
   Future<Map> readProfileById(String userId) async {
@@ -208,6 +257,23 @@ class ProfileProvider extends StateNotifier<Profile?> {
     return friends.toList();
   }
 
+  Future<List> readOutgoingRequests() async {
+    final supabaseClient = (await supabase).client;
+    final currentUserId = supabaseClient.auth.currentUser!.id;
+
+    var incomingRequests = await supabaseClient
+        .from('new_friends_view')
+        .select()
+        .eq('reciever_id', currentUserId);
+
+    var outgoingRequests = await supabaseClient
+        .from('new_friends_view')
+        .select()
+        .eq('sender_id', currentUserId);
+
+    return [...incomingRequests, ...outgoingRequests];
+  }
+
   Future<List<Friend>> decodeRequests() async {
     final List userFriendsCoded = await readRequests();
     List<Friend> userFriends = [];
@@ -341,18 +407,33 @@ class ProfileProvider extends StateNotifier<Profile?> {
     }
   }
 
-  List<Availability> availavilityByMonth(int year, int month) {
+  List<Availability> availabilityByMonth(int year, int month) {
     List<Availability> availByMonth = [];
     final List allAttend = state!.availability;
+
+    // Print the original availability data
+    for (var item in allAttend) {
+      print('Original Start Time: ${item.sTime}');
+      print('Original End Time: ${item.eTime}');
+    }
 
     for (int i = 0; i < allAttend.length; i++) {
       int eventYear = allAttend[i].sTime.year;
       int eventMonth = allAttend[i].sTime.month;
 
-      if ((eventYear == year) && (eventMonth == month)) {
+      if (eventYear == year && eventMonth == month) {
         availByMonth.add(allAttend[i]);
       }
     }
+
+    // Print filtered availability data by month
+    for (Availability availability in availByMonth) {
+      DateTime startDate = availability.sTime;
+      DateTime endDate = availability.eTime;
+      print('Filtered Start Time: ${startDate.toString()}');
+      print('Filtered End Time: ${endDate.toString()}');
+    }
+
     return availByMonth;
   }
 

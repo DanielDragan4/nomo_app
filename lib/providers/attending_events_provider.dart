@@ -157,14 +157,22 @@ class AttendEventProvider extends StateNotifier<List<Event>> {
     List<Event> eventsPerMonth = [];
     final List<Event> allAttend = state;
 
-    for (int i = 0; i < allAttend.length; i++) {
-      int eventYear = DateTime.parse(allAttend[i].sdate).year;
-      int eventMonth = DateTime.parse(allAttend[i].sdate).month;
+    for (var event in allAttend) {
+      DateTime startDate = DateTime.parse(event.sdate);
+      DateTime endDate = DateTime.parse(event.edate);
 
-      if ((eventYear == year) && (eventMonth == month)) {
-        eventsPerMonth.add(allAttend[i]);
+      // Iterate over each day between startDate and endDate
+      for (DateTime day = startDate;
+          day.isBefore(endDate.add(Duration(days: 1)));
+          day = day.add(Duration(days: 1))) {
+        // Check if the day falls within the specified month and year
+        if (day.year == year && day.month == month) {
+          eventsPerMonth.add(event);
+          break; // Break once we've added the event for this day
+        }
       }
     }
+
     return eventsPerMonth;
   }
 

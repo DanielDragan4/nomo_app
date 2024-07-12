@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:nomo/models/availability_model.dart';
 import 'package:nomo/models/events_model.dart';
 import 'package:nomo/providers/attending_events_provider.dart';
+import 'package:nomo/providers/availability_provider.dart';
 import 'package:nomo/providers/profile_provider.dart';
 import 'package:nomo/screens/calendar/event_cal_tab.dart';
 import 'package:nomo/screens/calendar/day_screen.dart';
@@ -141,14 +142,17 @@ class Month extends ConsumerWidget {
     return dayToDisplay;
   }
 
+  
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    ref.read(profileProvider.notifier).decodeData();
     List<Event> calEvents = ref
         .read(attendEventsProvider.notifier)
         .eventsAttendingByMonth(yearDisplayed, selectedMonth);
-    List<Availability> availability = ref
+        ref.read(availabilityProvider.notifier).updateAvailability(ref
         .watch(profileProvider.notifier)
-        .availabilityByMonth(yearDisplayed, selectedMonth);
+        .availabilityByMonth(yearDisplayed, selectedMonth));
 
     return Container(
       alignment: Alignment.center,
@@ -253,59 +257,69 @@ class Month extends ConsumerWidget {
               ),
               Divider(),
 
-              Expanded(
-                child: GridView.builder(
-                  physics: const NeverScrollableScrollPhysics(),
-                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                      crossAxisCount: 7),
-                  itemCount: 42,
-                  itemBuilder: (context, index) {
-                    DateTime currentDate = DateTime(yearDisplayed,
-                        selectedMonth, index - firstDayOfWeek + 1);
-                    bool hasTimeSelected =
-                        selectedDatesWithTime[currentDate] ?? false;
-
-                    bool hasBlockedTime = availability.any((avail) =>
-                        avail.sTime.year == currentDate.year &&
-                        avail.sTime.month == currentDate.month &&
-                        avail.sTime.day == currentDate.day &&
-                        avail.eventId == null);
-
-                    DateTime cellDate;
-                    bool isCurrentMonth = true;
-
-                    if (index < firstDayOfWeek) {
-                      // Previous month
-                      cellDate = DateTime(yearDisplayed, selectedMonth, 0)
-                          .subtract(Duration(days: firstDayOfWeek - index - 1));
-                      isCurrentMonth = false;
-                    } else if (index >= firstDayOfWeek + lastOfMonth) {
-                      // Next month
-                      cellDate = DateTime(yearDisplayed, selectedMonth + 1,
-                          index - firstDayOfWeek - lastOfMonth + 1);
-                      isCurrentMonth = false;
-                    } else {
-                      // Current month
-                      cellDate = DateTime(yearDisplayed, selectedMonth,
-                          index - firstDayOfWeek + 1);
-                    }
-
-                    return DayButton(
-                      isSelected: false,
-                      borderWidth: findBorderWidth(index),
-                      cellColor: findCellColor(index, calEvents),
-                      dayDisplayed: '${cellDate.day}',
-                      index: index,
-                      hasEvent: hasEvent(index, calEvents),
-                      hasTimeSelected: hasTimeSelected,
-                      currentDate: currentDate,
-                      selectedMonth: selectedMonth, // pass the current date
-                      availabilityByMonth: availability,
-                      hasBlockedTime: hasBlockedTime,
-                      isCurrentMonth: isCurrentMonth,
-                    );
-                  },
-                ),
+              StreamBuilder(
+                stream: ref.read(availabilityProvider.notifier).stream,
+                builder: (context, snapshot) {
+                  if(snapshot.data != null){
+                    return Expanded(
+                    child: GridView.builder(
+                      physics: const NeverScrollableScrollPhysics(),
+                      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                          crossAxisCount: 7),
+                      itemCount: 42,
+                      itemBuilder: (context, index) {
+                        DateTime currentDate = DateTime(yearDisplayed,
+                            selectedMonth, index - firstDayOfWeek + 1);
+                        bool hasTimeSelected =
+                            selectedDatesWithTime[currentDate] ?? false;
+                  
+                        bool hasBlockedTime = snapshot.data!.any((avail) =>
+                            avail.sTime.year == currentDate.year &&
+                            avail.sTime.month == currentDate.month &&
+                            avail.sTime.day == currentDate.day &&
+                            avail.eventId == null);
+                  
+                        DateTime cellDate;
+                        bool isCurrentMonth = true;
+                  
+                        if (index < firstDayOfWeek) {
+                          // Previous month
+                          cellDate = DateTime(yearDisplayed, selectedMonth, 0)
+                              .subtract(Duration(days: firstDayOfWeek - index - 1));
+                          isCurrentMonth = false;
+                        } else if (index >= firstDayOfWeek + lastOfMonth) {
+                          // Next month
+                          cellDate = DateTime(yearDisplayed, selectedMonth + 1,
+                              index - firstDayOfWeek - lastOfMonth + 1);
+                          isCurrentMonth = false;
+                        } else {
+                          // Current month
+                          cellDate = DateTime(yearDisplayed, selectedMonth,
+                              index - firstDayOfWeek + 1);
+                        }
+                  
+                        return DayButton(
+                          isSelected: false,
+                          borderWidth: findBorderWidth(index),
+                          cellColor: findCellColor(index, calEvents),
+                          dayDisplayed: '${cellDate.day}',
+                          index: index,
+                          hasEvent: hasEvent(index, calEvents),
+                          hasTimeSelected: hasTimeSelected,
+                          currentDate: currentDate,
+                          selectedMonth: selectedMonth, // pass the current date
+                          availabilityByMonth: snapshot.data!,
+                          hasBlockedTime: hasBlockedTime,
+                          isCurrentMonth: isCurrentMonth,
+                          year: yearDisplayed,
+                        );
+                      },
+                    ),
+                  );}
+                  else {
+                    return CircularProgressIndicator();
+                  }
+                }
               ),
               Container(
                 alignment: Alignment.topLeft,
@@ -334,7 +348,7 @@ class Month extends ConsumerWidget {
   }
 }
 
-class DayButton extends StatelessWidget {
+class DayButton extends ConsumerWidget {
   const DayButton({
     super.key,
     required this.isSelected,
@@ -349,6 +363,7 @@ class DayButton extends StatelessWidget {
     required this.availabilityByMonth,
     required this.hasBlockedTime,
     required this.isCurrentMonth,
+    required this.year
   });
 
   final bool isSelected;
@@ -363,9 +378,10 @@ class DayButton extends StatelessWidget {
   final List<Availability> availabilityByMonth;
   final bool hasBlockedTime;
   final bool isCurrentMonth;
+  final int year;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     // Determine border widths
     double leftBorderWidth = 1.0;
     double topBorderWidth = 1.0;
@@ -377,7 +393,11 @@ class DayButton extends StatelessWidget {
               builder: ((context) => DayScreenPageView(
                     initialDay: currentDate,
                     blockedTime: availabilityByMonth,
-                  ))));
+                  )))).whenComplete(() async{
+                      await ref.read(profileProvider.notifier).decodeData();
+                     ref.read(availabilityProvider.notifier).updateAvailability(ref.read(profileProvider.notifier).availabilityByMonth(year, selectedMonth));
+                    },
+                  );
         }
       },
       child: Container(

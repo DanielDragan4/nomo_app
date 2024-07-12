@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:nomo/providers/attending_events_provider.dart';
+import 'package:nomo/providers/availability_provider.dart';
 import 'package:nomo/providers/profile_provider.dart';
 import 'package:nomo/screens/calendar/month_widget.dart';
 import 'package:nomo/screens/new_event_screen.dart';
@@ -191,8 +192,17 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
     return '$hours:$minutes $period';
   }
 
+  Future<void> setProfileAvail() async{
+    await ref.read(profileProvider.notifier).decodeData();
+    ref.read(availabilityProvider.notifier).updateAvailability(ref
+        .watch(profileProvider.notifier)
+        .availabilityByMonth(yearDisplayed, monthDisplayed));
+  }
+
+
   @override
   Widget build(BuildContext context) {
+    setProfileAvail();
     ref.read(attendEventsProvider.notifier).deCodeData();
     final int firstDayOfWeek =
         DateTime(yearDisplayed, monthDisplayed, 1).weekday;

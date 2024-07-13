@@ -8,6 +8,7 @@ import 'package:nomo/providers/attending_events_provider.dart';
 import 'package:nomo/providers/profile_provider.dart';
 import 'package:nomo/providers/supabase_provider.dart';
 import 'package:nomo/screens/chat_screen.dart';
+import 'package:nomo/screens/create_account_screen.dart';
 import 'package:nomo/screens/new_event_screen.dart';
 import 'package:nomo/widgets/event_tab.dart';
 import 'package:nomo/widgets/profile_dropdown.dart';
@@ -178,76 +179,99 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                         children: [
-                          FutureBuilder(
-                            key: _futureBuilderKey,
-                            future: profileInfo,
-                            builder: (context, snapshot) {
-                              if (snapshot.hasError) {
-                                return Column(
-                                  children: [
-                                    CircleAvatar(
-                                      radius:
-                                          MediaQuery.sizeOf(context).width / 12,
-                                      child: const Text("No Image"),
-                                    ),
-                                    const Text(
-                                      "No Username",
-                                      style: TextStyle(fontSize: 13),
-                                    ),
-                                  ],
-                                );
-                              } else if (snapshot.connectionState !=
-                                  ConnectionState.done) {
-                                return const CircularProgressIndicator();
-                              } else if (!snapshot.hasData ||
-                                  snapshot.data!.avatar == null) {
-                                return Column(
-                                  children: [
-                                    CircleAvatar(
-                                      radius:
-                                          MediaQuery.sizeOf(context).width / 12,
-                                      child: const Text("No Image"),
-                                    ),
-                                    const Text(
-                                      "No Username",
-                                      style: TextStyle(fontSize: 13),
-                                    ),
-                                  ],
-                                );
-                              } else {
-                                var profile = snapshot.data!;
-                                var avatar = profile.avatar;
-                                var profileName =
-                                    profile.profile_name ?? 'No Name';
-                                return Column(
-                                  children: [
-                                    CircleAvatar(
-                                      key: ValueKey<String>(avatar ?? ''),
-                                      radius:
-                                          MediaQuery.sizeOf(context).width / 12,
-                                      backgroundColor: Colors.white,
-                                      backgroundImage:
-                                          avatar != null && avatar.isNotEmpty
-                                              ? NetworkImage(avatar)
-                                              : null,
-                                      child: avatar == null || avatar.isEmpty
-                                          ? const Text("No Image")
-                                          : null,
-                                    ),
-                                    SizedBox(
-                                        height:
-                                            MediaQuery.sizeOf(context).height /
-                                                100),
-                                    Text(
-                                      profileName,
-                                      style: const TextStyle(
-                                          fontSize: 20,
-                                          fontWeight: FontWeight.w600),
-                                    ),
-                                  ],
-                                );
-                              }
+                          GestureDetector(
+                            onTap: () {
+                              profileInfo?.then((profile) {
+                                Navigator.of(context)
+                                    .push(MaterialPageRoute(
+                                        builder: ((context) =>
+                                            CreateAccountScreen(
+                                              isNew: false,
+                                              avatar: profile.avatar,
+                                              profilename: profile.profile_name,
+                                              username: profile.username,
+                                              onUpdateProfile:
+                                                  updateProfileInfo,
+                                            ))))
+                                    .then((_) {
+                                  updateProfileInfo();
+                                });
+                              });
                             },
+                            child: FutureBuilder(
+                              key: _futureBuilderKey,
+                              future: profileInfo,
+                              builder: (context, snapshot) {
+                                if (snapshot.hasError) {
+                                  return Column(
+                                    children: [
+                                      CircleAvatar(
+                                        radius:
+                                            MediaQuery.sizeOf(context).width /
+                                                12,
+                                        child: const Text("No Image"),
+                                      ),
+                                      const Text(
+                                        "No Username",
+                                        style: TextStyle(fontSize: 13),
+                                      ),
+                                    ],
+                                  );
+                                } else if (snapshot.connectionState !=
+                                    ConnectionState.done) {
+                                  return const CircularProgressIndicator();
+                                } else if (!snapshot.hasData ||
+                                    snapshot.data!.avatar == null) {
+                                  return Column(
+                                    children: [
+                                      CircleAvatar(
+                                        radius:
+                                            MediaQuery.sizeOf(context).width /
+                                                12,
+                                        child: const Text("No Image"),
+                                      ),
+                                      const Text(
+                                        "No Username",
+                                        style: TextStyle(fontSize: 13),
+                                      ),
+                                    ],
+                                  );
+                                } else {
+                                  var profile = snapshot.data!;
+                                  var avatar = profile.avatar;
+                                  var profileName =
+                                      profile.profile_name ?? 'No Name';
+                                  return Column(
+                                    children: [
+                                      CircleAvatar(
+                                        key: ValueKey<String>(avatar ?? ''),
+                                        radius:
+                                            MediaQuery.sizeOf(context).width /
+                                                12,
+                                        backgroundColor: Colors.white,
+                                        backgroundImage:
+                                            avatar != null && avatar.isNotEmpty
+                                                ? NetworkImage(avatar)
+                                                : null,
+                                        child: avatar == null || avatar.isEmpty
+                                            ? const Text("No Image")
+                                            : null,
+                                      ),
+                                      SizedBox(
+                                          height: MediaQuery.sizeOf(context)
+                                                  .height /
+                                              100),
+                                      Text(
+                                        profileName,
+                                        style: const TextStyle(
+                                            fontSize: 20,
+                                            fontWeight: FontWeight.w600),
+                                      ),
+                                    ],
+                                  );
+                                }
+                              },
+                            ),
                           ),
                           Column(
                             children: [

@@ -9,8 +9,15 @@ import 'package:nomo/providers/profile_provider.dart';
 import 'package:overlay_support/overlay_support.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-void handleMessage(
-    RemoteMessage message, BuildContext context, WidgetRef ref) async {
+// Handles incoming Firebase Cloud Messaging (FCM) messages, processes various types
+// of notifications based on message data, and triggers notifications
+// accordingly by calling showSimpleNotification(). Additionally, triggers UI updates
+// to Notification Bell Icon (Friends Screen) and Notification Screen through providers.
+//
+// Parameters:
+// - `message`: The incoming FCM message containing notification details and data.
+
+void handleMessage(RemoteMessage message, BuildContext context, WidgetRef ref) async {
   print("Received message: ${message.notification?.title}");
   print("Message data: ${message.data}");
 
@@ -18,24 +25,17 @@ void handleMessage(
 
   bool eventDeletedSwitch = prefs.getBool('eventDeleted') ?? true;
   bool joinedEventSwitch = prefs.getBool('joinedEvent') ?? true;
-  bool joinedEventFriendsOnlySwitch =
-      prefs.getBool('joinedEventFriendsOnly') ?? false;
+  bool joinedEventFriendsOnlySwitch = prefs.getBool('joinedEventFriendsOnly') ?? false;
   bool newEventSwitch = prefs.getBool('newEvent') ?? true;
-  // bool newEventFriendsOnlySwitch =
-  //     prefs.getBool('newEventFriendsOnly') ?? false;
   bool messageSwitch = prefs.getBool('message') ?? true;
   bool messageFriendsOnlySwitch = prefs.getBool('messageFriendsOnly') ?? false;
 
   String? type = message.data['type'];
 
-  // if (eventTitle != null &&
-  //     hostUsername != null &&
-  //     eventDescription != null) {
   if (type == 'DELETE' && eventDeletedSwitch) {
     print('DELETE notification handling');
     String eventTitle = message.data['eventTitle'];
     String hostUsername = message.data['hostUsername'];
-    //String eventDescription = message.data['eventDescription'];
     ref.read(unreadNotificationsProvider.notifier).addNotification(
           "$hostUsername has deleted '$eventTitle'",
         );
@@ -46,6 +46,7 @@ void handleMessage(
       message.notification?.title ?? 'Notification',
     );
   }
+
   if (type == 'UPDATE' && eventDeletedSwitch) {
     print('UPDATE notification handling');
     String eventTitle = message.data['eventTitle'];
@@ -67,11 +68,9 @@ void handleMessage(
     String attendeeId = message.data['attendeeId'];
     String eventTitle = message.data['eventTitle'];
     if (joinedEventFriendsOnlySwitch) {
-      bool isFriend =
-          await ref.read(profileProvider.notifier).isFriend(attendeeId);
+      bool isFriend = await ref.read(profileProvider.notifier).isFriend(attendeeId);
       if (isFriend) {
-        ref.read(unreadNotificationsProvider.notifier).addNotification(
-            "$attendeeName has joined your event, '$eventTitle'");
+        ref.read(unreadNotificationsProvider.notifier).addNotification("$attendeeName has joined your event, '$eventTitle'");
         ref.read(notificationBellProvider.notifier).setBellState(true);
         showSimpleNotification(
           context,
@@ -80,8 +79,7 @@ void handleMessage(
         );
       }
     } else {
-      ref.read(unreadNotificationsProvider.notifier).addNotification(
-          "$attendeeName has joined your event, '$eventTitle'");
+      ref.read(unreadNotificationsProvider.notifier).addNotification("$attendeeName has joined your event, '$eventTitle'");
       ref.read(notificationBellProvider.notifier).setBellState(true);
       showSimpleNotification(
         context,
@@ -108,9 +106,7 @@ void handleMessage(
   if (type == 'REQUEST') {
     print('REQUEST notification handling');
     String senderName = message.data['senderName'];
-    ref
-        .read(unreadNotificationsProvider.notifier)
-        .addNotification("$senderName has sent you a Friend Request");
+    ref.read(unreadNotificationsProvider.notifier).addNotification("$senderName has sent you a Friend Request");
     ref.read(notificationBellProvider.notifier).setBellState(true);
     showSimpleNotification(
       context,
@@ -129,8 +125,7 @@ void handleMessage(
 
     if ((activeChatId != chatId || activeChatId == null) && messageSwitch) {
       if (messageFriendsOnlySwitch) {
-        bool isFriend =
-            await ref.read(profileProvider.notifier).isFriend(senderId);
+        bool isFriend = await ref.read(profileProvider.notifier).isFriend(senderId);
         if (isFriend) {
           showSimpleNotification(
             context,
@@ -151,8 +146,14 @@ void handleMessage(
   }
 }
 
-void showSimpleNotification(BuildContext context, String message, String sender,
-    {Color background = const Color.fromARGB(255, 109, 51, 146)}) {
+// Displays simple notification popup at the top of the user's screen when app is open
+//
+// Parameters:
+// - 'message': Details about the notification, such as specific event title or profile-name of the user who triggered it
+// - 'messageTitle': Bold text shown at the top of the message typically showing the type of notification
+// - 'background': Color of the notification, set to dark purple by default (can be overwritten)
+
+void showSimpleNotification(BuildContext context, String message, String messageTitle, {Color background = const Color.fromARGB(255, 109, 51, 146)}) {
   showOverlayNotification(
     (context) {
       return Card(
@@ -162,7 +163,7 @@ void showSimpleNotification(BuildContext context, String message, String sender,
           child: ListTile(
             leading: Icon(Icons.message, color: Colors.white),
             title: Text(
-              sender,
+              messageTitle,
               style: TextStyle(color: Colors.white),
             ),
             subtitle: Text(

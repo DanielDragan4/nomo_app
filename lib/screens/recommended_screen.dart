@@ -29,8 +29,7 @@ class RecommendedScreen extends ConsumerWidget {
             flexibleSpace: FlexibleSpaceBar(
               titlePadding: const EdgeInsets.all(0),
               background: Padding(
-                padding: const EdgeInsets.only(
-                    top: 35), // Add padding above the title
+                padding: const EdgeInsets.only(top: 35), // Add padding above the title
                 child: Center(
                   child: Text(
                     'Upcoming Events',
@@ -47,8 +46,7 @@ class RecommendedScreen extends ConsumerWidget {
             actions: [
               IconButton(
                 onPressed: () {
-                  Navigator.of(context).push(MaterialPageRoute(
-                      builder: ((context) => const SearchScreen())));
+                  Navigator.of(context).push(MaterialPageRoute(builder: ((context) => const SearchScreen())));
                 },
                 icon: const Icon(Icons.search),
                 iconSize: MediaQuery.of(context).devicePixelRatio * 12,
@@ -65,7 +63,7 @@ class RecommendedScreen extends ConsumerWidget {
               if (snapshot.hasData) {
                 final events = snapshot.data!;
                 // Preload the first few images
-                preloadRecommendedImages(context, events, 0, 5);
+                preloadImages(context, events, 0, 5);
 
                 return ListView.builder(
                   shrinkWrap: true,
@@ -75,7 +73,7 @@ class RecommendedScreen extends ConsumerWidget {
                   itemBuilder: (context, index) {
                     // Preload next few images when nearing the end of the list
                     if (index % 5 == 0) {
-                      preloadRecommendedImages(context, events, index + 1, 5);
+                      preloadImages(context, events, index + 1, 5);
                     }
 
                     return EventTab(

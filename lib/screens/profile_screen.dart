@@ -102,8 +102,7 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
               availability: [],
               private: false);
     } else {
-      profileState =
-          await ref.read(profileProvider.notifier).fetchProfileById(userId);
+      profileState = await ref.read(profileProvider.notifier).fetchProfileById(userId);
       isFriend = await ref.read(profileProvider.notifier).isFriend(userId);
       private = profileState.private;
     }
@@ -123,24 +122,21 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
   }
 
   Future<void> checkPendingRequest() async {
-    final requests =
-        await ref.read(profileProvider.notifier).readOutgoingRequests();
-    final currentUserId =
-        (await ref.read(supabaseInstance)).client.auth.currentUser!.id;
+    final requests = await ref.read(profileProvider.notifier).readOutgoingRequests();
+    final currentUserId = (await ref.read(supabaseInstance)).client.auth.currentUser!.id;
     setState(() {
-      friendPending = requests.any((request) =>
-          (request['sender_id'] == currentUserId &&
-              request['reciever_id'] == widget.userId) ||
-          (request['reciever_id'] == currentUserId &&
-              request['sender_id'] == widget.userId));
+      friendPending =
+          requests.any((request) => (request['sender_id'] == currentUserId && request['reciever_id'] == widget.userId)
+              //     ||
+              // (request['reciever_id'] == currentUserId &&
+              //     request['sender_id'] == widget.userId)
+              );
     });
   }
 
   Future<void> removeFriend() async {
     final supabase = (await ref.read(supabaseInstance)).client;
-    await ref
-        .read(profileProvider.notifier)
-        .removeFriend(supabase.auth.currentUser!.id, widget.userId);
+    await ref.read(profileProvider.notifier).removeFriend(supabase.auth.currentUser!.id, widget.userId);
   }
 
   @override
@@ -184,14 +180,12 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
                               profileInfo?.then((profile) {
                                 Navigator.of(context)
                                     .push(MaterialPageRoute(
-                                        builder: ((context) =>
-                                            CreateAccountScreen(
+                                        builder: ((context) => CreateAccountScreen(
                                               isNew: false,
                                               avatar: profile.avatar,
                                               profilename: profile.profile_name,
                                               username: profile.username,
-                                              onUpdateProfile:
-                                                  updateProfileInfo,
+                                              onUpdateProfile: updateProfileInfo,
                                             ))))
                                     .then((_) {
                                   updateProfileInfo();
@@ -206,9 +200,7 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
                                   return Column(
                                     children: [
                                       CircleAvatar(
-                                        radius:
-                                            MediaQuery.sizeOf(context).width /
-                                                12,
+                                        radius: MediaQuery.sizeOf(context).width / 12,
                                         child: const Text("No Image"),
                                       ),
                                       const Text(
@@ -217,17 +209,13 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
                                       ),
                                     ],
                                   );
-                                } else if (snapshot.connectionState !=
-                                    ConnectionState.done) {
+                                } else if (snapshot.connectionState != ConnectionState.done) {
                                   return const CircularProgressIndicator();
-                                } else if (!snapshot.hasData ||
-                                    snapshot.data!.avatar == null) {
+                                } else if (!snapshot.hasData || snapshot.data!.avatar == null) {
                                   return Column(
                                     children: [
                                       CircleAvatar(
-                                        radius:
-                                            MediaQuery.sizeOf(context).width /
-                                                12,
+                                        radius: MediaQuery.sizeOf(context).width / 12,
                                         child: const Text("No Image"),
                                       ),
                                       const Text(
@@ -239,33 +227,21 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
                                 } else {
                                   var profile = snapshot.data!;
                                   var avatar = profile.avatar;
-                                  var profileName =
-                                      profile.profile_name ?? 'No Name';
+                                  var profileName = profile.profile_name ?? 'No Name';
                                   return Column(
                                     children: [
                                       CircleAvatar(
                                         key: ValueKey<String>(avatar ?? ''),
-                                        radius:
-                                            MediaQuery.sizeOf(context).width /
-                                                12,
+                                        radius: MediaQuery.sizeOf(context).width / 12,
                                         backgroundColor: Colors.white,
                                         backgroundImage:
-                                            avatar != null && avatar.isNotEmpty
-                                                ? NetworkImage(avatar)
-                                                : null,
-                                        child: avatar == null || avatar.isEmpty
-                                            ? const Text("No Image")
-                                            : null,
+                                            avatar != null && avatar.isNotEmpty ? NetworkImage(avatar) : null,
+                                        child: avatar == null || avatar.isEmpty ? const Text("No Image") : null,
                                       ),
-                                      SizedBox(
-                                          height: MediaQuery.sizeOf(context)
-                                                  .height /
-                                              100),
+                                      SizedBox(height: MediaQuery.sizeOf(context).height / 100),
                                       Text(
                                         profileName,
-                                        style: const TextStyle(
-                                            fontSize: 20,
-                                            fontWeight: FontWeight.w600),
+                                        style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w600),
                                       ),
                                     ],
                                   );
@@ -284,23 +260,16 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
                                         style: TextStyle(fontSize: 15),
                                       ),
                                       StreamBuilder(
-                                        stream: ref
-                                            .read(attendEventsProvider.notifier)
-                                            .stream,
+                                        stream: ref.read(attendEventsProvider.notifier).stream,
                                         builder: (context, snapshot) {
                                           if (snapshot.data != null) {
-                                            final attendingEvents = snapshot
-                                                .data!
-                                                .where((event) =>
-                                                    event.attending ||
-                                                    event.isHost)
+                                            final attendingEvents = snapshot.data!
+                                                .where((event) => event.attending || event.isHost)
                                                 .toList();
-                                            var attendingEventCount =
-                                                attendingEvents.length;
+                                            var attendingEventCount = attendingEvents.length;
                                             return Text(
                                               attendingEventCount.toString(),
-                                              style:
-                                                  const TextStyle(fontSize: 15),
+                                              style: const TextStyle(fontSize: 15),
                                             );
                                           } else {
                                             return const Text(
@@ -342,44 +311,27 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
                                                   ? const Text("Pending")
                                                   : (private == false
                                                       ? const Text("Friend")
-                                                      : const Text(
-                                                          "Request Friend")),
+                                                      : const Text("Request Friend")),
                                             ),
-                                      SizedBox(
-                                          width: MediaQuery.of(context)
-                                                  .size
-                                                  .width /
-                                              20),
+                                      SizedBox(width: MediaQuery.of(context).size.width / 20),
                                       Container(
                                         decoration: BoxDecoration(
-                                            borderRadius:
-                                                BorderRadius.circular(100),
-                                            color:
-                                                Theme.of(context).primaryColor),
+                                            borderRadius: BorderRadius.circular(100),
+                                            color: Theme.of(context).primaryColor),
                                         child: IconButton(
                                           onPressed: () async {
                                             Friend friend = Friend(
-                                                avatar:
-                                                    (await profileInfo)?.avatar,
+                                                avatar: (await profileInfo)?.avatar,
                                                 friendProfileId: widget.userId!,
-                                                friendProfileName:
-                                                    (await profileInfo)!
-                                                        .profile_name,
-                                                friendUsername:
-                                                    (await profileInfo)!
-                                                        .username);
+                                                friendProfileName: (await profileInfo)!.profile_name,
+                                                friendUsername: (await profileInfo)!.username);
                                             Navigator.push(
                                                 context,
                                                 MaterialPageRoute(
-                                                    builder: (context) =>
-                                                        ChatScreen(
+                                                    builder: (context) => ChatScreen(
                                                           chatterUser: friend,
-                                                          currentUser: ref
-                                                              .read(
-                                                                  profileProvider
-                                                                      .notifier)
-                                                              .state!
-                                                              .profile_id,
+                                                          currentUser:
+                                                              ref.read(profileProvider.notifier).state!.profile_id,
                                                         )));
                                           },
                                           icon: const Icon(Icons.message),
@@ -394,10 +346,8 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
                             Row(children: [
                               IconButton(
                                   onPressed: () {
-                                    Navigator.of(context).push(
-                                        MaterialPageRoute(
-                                            builder: (context) =>
-                                                NewEventScreen(event: null)));
+                                    Navigator.of(context)
+                                        .push(MaterialPageRoute(builder: (context) => NewEventScreen(event: null)));
                                   },
                                   icon: const Icon(Icons.add)),
                               ProfileDropdown(
@@ -432,30 +382,22 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
                               child: widget.isUser
                                   ? const Text(
                                       'Your Events',
-                                      style: TextStyle(
-                                          fontSize: 14,
-                                          fontWeight: FontWeight.w700),
+                                      style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700),
                                     )
                                   : const Text(
                                       "Attending Events",
-                                      style: TextStyle(
-                                          fontSize: 14,
-                                          fontWeight: FontWeight.w700),
+                                      style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700),
                                     )),
                           Padding(
                               padding: const EdgeInsets.fromLTRB(3, 3, 3, 3),
                               child: widget.isUser
                                   ? const Text(
                                       'Bookmarked',
-                                      style: TextStyle(
-                                          fontSize: 14,
-                                          fontWeight: FontWeight.w700),
+                                      style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700),
                                     )
                                   : const Text(
                                       "Hosting Events",
-                                      style: TextStyle(
-                                          fontSize: 14,
-                                          fontWeight: FontWeight.w700),
+                                      style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700),
                                     )),
                         ],
                       ),
@@ -481,23 +423,15 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
                     child: isSelected.first
                         ? (private == false || isFriend || widget.isUser)
                             ? (StreamBuilder(
-                                stream: ref
-                                    .read(attendEventsProvider.notifier)
-                                    .stream,
+                                stream: ref.read(attendEventsProvider.notifier).stream,
                                 builder: (context, snapshot) {
-                                  print(
-                                      "StreamBuilder data on 1st button: ${snapshot.data}");
                                   if (snapshot.data != null) {
                                     final relevantEvents;
                                     if (isHosting == false) {
-                                      relevantEvents = snapshot.data!
-                                          .where((event) =>
-                                              event.attending || event.isHost)
-                                          .toList();
+                                      relevantEvents =
+                                          snapshot.data!.where((event) => event.attending || event.isHost).toList();
                                     } else {
-                                      relevantEvents = snapshot.data!
-                                          .where((event) => event.isHost)
-                                          .toList();
+                                      relevantEvents = snapshot.data!.where((event) => event.isHost).toList();
                                     }
                                     if (relevantEvents.isEmpty) {
                                       return const Center(
@@ -505,19 +439,16 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
                                       );
                                     } else {
                                       return ListView.builder(
-                                        key: const PageStorageKey<String>(
-                                            'event'),
+                                        key: const PageStorageKey<String>('event'),
                                         itemCount: relevantEvents.length,
                                         itemBuilder: (context, index) {
                                           final event = relevantEvents[index];
 
-                                          preloadImages(relevantEvents, 4,
-                                              index, context);
+                                          preloadImages(context, relevantEvents, index, 4);
 
                                           return EventTab(
                                             eventData: event,
-                                            preloadedImage:
-                                                NetworkImage(event.imageUrl),
+                                            preloadedImage: NetworkImage(event.imageUrl),
                                           );
                                         },
                                       );
@@ -530,66 +461,47 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
                             : Center(
                                 child: Text(
                                 'This profile is private',
-                                style: TextStyle(
-                                    color: Theme.of(context)
-                                        .colorScheme
-                                        .onSecondary),
+                                style: TextStyle(color: Theme.of(context).colorScheme.onSecondary),
                               ))
                         : (private == false || isFriend || widget.isUser)
                             ? StreamBuilder(
-                                stream: ref
-                                    .read(attendEventsProvider.notifier)
-                                    .stream,
+                                stream: ref.read(attendEventsProvider.notifier).stream,
                                 builder: (context, snapshot) {
-                                  print(
-                                      "StreamBuilder data on 2nd button: ${snapshot.data}");
                                   if (snapshot.data != null) {
                                     if (widget.isUser) {
-                                      final bookmarkedEvents = snapshot.data!
-                                          .where((event) => event.bookmarked)
-                                          .toList();
+                                      final bookmarkedEvents =
+                                          snapshot.data!.where((event) => event.bookmarked).toList();
                                       if (bookmarkedEvents.isEmpty) {
                                         return const Center(
                                           child: Text("No Bookmarked Events"),
                                         );
                                       } else {
                                         return ListView.builder(
-                                          key: const PageStorageKey<String>(
-                                              'bookmarked'),
+                                          key: const PageStorageKey<String>('bookmarked'),
                                           itemCount: bookmarkedEvents.length,
                                           itemBuilder: (context, index) {
-                                            final event =
-                                                bookmarkedEvents[index];
-                                            preloadImages(bookmarkedEvents, 3,
-                                                index, context);
+                                            final event = bookmarkedEvents[index];
+                                            preloadImages(context, bookmarkedEvents, index, 4);
                                             return EventTab(
                                               eventData: event,
-                                              preloadedImage:
-                                                  NetworkImage(event.imageUrl),
+                                              preloadedImage: NetworkImage(event.imageUrl),
                                             );
                                           },
                                         );
                                       }
                                     } else {
                                       //only useful when viewing a profile though means other than an event header
-                                      final hostingEvents = snapshot.data!
-                                          .where((event) => event.isHost)
-                                          .toList();
+                                      final hostingEvents = snapshot.data!.where((event) => event.isHost).toList();
                                       if (hostingEvents.isEmpty) {
                                         return const Center(
-                                          child: Text(
-                                              "This User Is Not Hosting Any Events at the Moment"),
+                                          child: Text("This User Is Not Hosting Any Events at the Moment"),
                                         );
                                       } else {
                                         return ListView(
-                                          key: const PageStorageKey<String>(
-                                              'test'),
+                                          key: const PageStorageKey<String>('test'),
                                           children: [
                                             for (Event i in snapshot.data!)
-                                              if (i.isHost)
-                                                EventTab(
-                                                    eventData: i,
-                                                    bookmarkSet: true),
+                                              if (i.isHost) EventTab(eventData: i, bookmarkSet: true),
                                           ],
                                         );
                                       }
@@ -601,10 +513,7 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
                             : Center(
                                 child: Text(
                                 'This profile is private',
-                                style: TextStyle(
-                                    color: Theme.of(context)
-                                        .colorScheme
-                                        .onSecondary),
+                                style: TextStyle(color: Theme.of(context).colorScheme.onSecondary),
                               )),
                   ),
                 ],

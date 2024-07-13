@@ -57,6 +57,7 @@ class EventProvider extends StateNotifier<List?> {
         }
       }
 
+
       final Event deCodedEvent = Event(
           description: eventData['description'],
           sdate: eventData['time_start'],
@@ -73,18 +74,17 @@ class EventProvider extends StateNotifier<List?> {
           hostUsername: eventData['username'],
           profileName: eventData['profile_name'],
           bookmarked: bookmarked,
-          attending: false,
           isHost: false,
           friends: eventData['friends_attending'],
           numOfComments: eventData['comments_num'].length,
-          isVirtual: eventData['is_virtual']);
+          isVirtual: eventData['is_virtual'], attending: null);
 
-      bool attending = false;
       for (var i = 0; i < deCodedEvent.attendees.length; i++) {
         if (deCodedEvent.attendees[i] == supabaseClient.auth.currentUser!.id) {
-          attending = true;
           deCodedEvent.attending = true;
           break;
+        } else {
+          deCodedEvent.attending = false;
         }
       }
 

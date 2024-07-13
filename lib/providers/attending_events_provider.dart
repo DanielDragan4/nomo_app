@@ -105,7 +105,7 @@ class AttendEventProvider extends StateNotifier<List<Event>> {
           .getPublicUrl(eventData['event_path']);
 
       bool bookmarked = false;
-      for (var bookmark in eventData['bookmarked']) {
+      for (var bookmark in eventData['Bookmarked']) {
         if (bookmark == userId) {
           bookmarked = true;
           break;
@@ -123,7 +123,7 @@ class AttendEventProvider extends StateNotifier<List<Event>> {
           location: eventData['location'],
           title: eventData['title'],
           edate: eventData['time_end'],
-          attendees: eventData['attendees'],
+          attendees: eventData['Attendees'],
           hostProfileUrl: profileUrl,
           hostUsername: eventData['username'],
           profileName: eventData['profile_name'],

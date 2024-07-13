@@ -125,18 +125,19 @@ class _AppState extends ConsumerState<App> {
             navigatorObservers: [routeObserver],
             themeMode: ref.read(themeModeProvider),
             theme: ThemeData().copyWith(
-                colorScheme: ColorScheme.fromSeed(
-                    onSecondary: Colors.black,
-                    seedColor: const Color.fromARGB(255, 80, 12, 122),
-                    onPrimaryContainer: const Color.fromARGB(255, 80, 12, 122)),
-                bottomNavigationBarTheme: const BottomNavigationBarThemeData(
-                  selectedItemColor: Color.fromARGB(255, 80, 12, 122),
-                  unselectedItemColor: Color.fromARGB(255, 158, 158, 158),
-                ),
-                textTheme: GoogleFonts.nunitoTextTheme(),
-                primaryColor: const Color.fromARGB(255, 80, 12, 122),
-                primaryColorLight: Color.fromARGB(255, 202, 141, 237),
-                canvasColor: Colors.white),
+              colorScheme: ColorScheme.fromSeed(
+                  onSecondary: Colors.black,
+                  seedColor: const Color.fromARGB(255, 80, 12, 122),
+                  onPrimaryContainer: const Color.fromARGB(255, 80, 12, 122)),
+              bottomNavigationBarTheme: const BottomNavigationBarThemeData(
+                selectedItemColor: Color.fromARGB(255, 80, 12, 122),
+                unselectedItemColor: Color.fromARGB(255, 158, 158, 158),
+              ),
+              textTheme: GoogleFonts.nunitoTextTheme(),
+              primaryColor: const Color.fromARGB(255, 80, 12, 122),
+              primaryColorLight: Color.fromARGB(255, 202, 141, 237),
+              canvasColor: Colors.white,
+            ),
             darkTheme: ThemeData().copyWith(
               cardColor: Color.fromARGB(255, 27, 27, 27),
               bottomNavigationBarTheme: const BottomNavigationBarThemeData(

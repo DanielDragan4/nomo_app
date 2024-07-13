@@ -166,6 +166,24 @@ class _NewEventScreenState extends ConsumerState<NewEventScreen> {
       initialTime: isStartTime
           ? _selectedStartTime ?? TimeOfDay.now()
           : _selectedEndTime ?? TimeOfDay.now(),
+      builder: (BuildContext context, Widget? child) {
+        return MediaQuery(
+          data: MediaQuery.of(context).copyWith(alwaysUse24HourFormat: false),
+          child: Theme(
+            data: Theme.of(context).copyWith(
+              timePickerTheme: const TimePickerThemeData(
+                inputDecorationTheme:
+                    InputDecorationTheme(fillColor: Colors.transparent),
+                hourMinuteTextStyle:
+                    TextStyle(fontSize: 32, fontWeight: FontWeight.bold),
+                dayPeriodTextStyle:
+                    TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
+              ),
+            ),
+            child: child!,
+          ),
+        );
+      },
     );
     if (picked != null) {
       setState(() {

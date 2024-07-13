@@ -82,11 +82,9 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
 
   Future<void> _fetchEvents() async {
     if (widget.isUser) {
-      await ref.read(attendEventsProvider.notifier).deCodeData();
+      ref.read(attendEventsProvider.notifier).deCodeData();
     } else {
-      await ref
-          .read(attendEventsProvider.notifier)
-          .deCodeDataWithId(widget.userId!);
+      ref.read(attendEventsProvider.notifier).deCodeDataWithId(widget.userId!);
     }
   }
 
@@ -149,7 +147,7 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
   @override
   Widget build(BuildContext contex) {
     if (widget.isUser) {
-      ref.watch(attendEventsProvider.notifier).deCodeData();
+      ref.read(attendEventsProvider.notifier).deCodeData();
       ref.read(profileProvider.notifier).decodeData();
     }
     var imageUrl;
@@ -465,6 +463,8 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
                                     .read(attendEventsProvider.notifier)
                                     .stream,
                                 builder: (context, snapshot) {
+                                  print(
+                                      "StreamBuilder data on 1st button: ${snapshot.data}");
                                   if (snapshot.data != null) {
                                     final relevantEvents;
                                     if (isHosting == false) {
@@ -519,6 +519,8 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
                                     .read(attendEventsProvider.notifier)
                                     .stream,
                                 builder: (context, snapshot) {
+                                  print(
+                                      "StreamBuilder data on 2nd button: ${snapshot.data}");
                                   if (snapshot.data != null) {
                                     if (widget.isUser) {
                                       final bookmarkedEvents = snapshot.data!

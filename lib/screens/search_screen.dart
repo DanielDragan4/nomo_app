@@ -146,9 +146,17 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
             child: Padding(
               padding: const EdgeInsets.fromLTRB(10, 10, 10, 10),
               child: TextField(
+                readOnly: _isSelected[2] == true,
+                autofocus: true,
                 controller: _searchController,
-                decoration: const InputDecoration(
-                  hintText: 'What are you looking for?',
+                decoration: InputDecoration(
+                  hintText: _isSelected[2] == true
+                      ? 'Please select interests below.'
+                      : 'What are you looking for?',
+                  hintStyle: TextStyle(
+                      color: Theme.of(context)
+                          .primaryColorLight
+                          .withOpacity(0.75)),
                   prefixIcon: Icon(Icons.search),
                 ),
                 style:
@@ -169,12 +177,17 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
             selectedColor: Colors.grey,
             borderRadius: BorderRadius.circular(15),
             onPressed: (int index) {
+              FocusManager.instance.primaryFocus?.unfocus();
               resetScreen();
               setState(() {
                 for (int i = 0; i < _isSelected.length; i++) {
                   _isSelected[i] = i == index;
                 }
               });
+              if (_isSelected[2] == true) {
+                FocusManager.instance.primaryFocus?.unfocus();
+                _searchController.text = '';
+              }
             },
             isSelected: _isSelected,
             children: const [

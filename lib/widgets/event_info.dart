@@ -285,8 +285,7 @@ class _EventInfoState extends ConsumerState<EventInfo> {
           final supabase = snapshot.data!.client;
           final currentUser = supabase.auth.currentUser!.id;
           final isHost = widget.eventsData.host == currentUser;
-          final isAttending = widget.eventsData.attendees.any((attendee) =>
-              attendee is Map && attendee['user_id'] == currentUser);
+          final isAttending = widget.eventsData.attending;
 
           String buttonText =
               isHost ? 'Edit' : (isAttending ? 'Leave' : 'Join');

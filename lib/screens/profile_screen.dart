@@ -64,10 +64,8 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
     setState(() {
       _isLoading = true;
     });
-    await Future.wait([
-      _fetchProfileInfo(),
-      _fetchEvents(),
-    ]);
+    await _fetchProfileInfo();
+    await _fetchEvents();
     setState(() {
       _isLoading = false;
     });

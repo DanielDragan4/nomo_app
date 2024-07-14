@@ -70,16 +70,12 @@ class _NewEventScreenState extends ConsumerState<NewEventScreen> {
       etime = true;
       sdate = true;
       edate = true;
-      _selectedStartTime =
-          TimeOfDay.fromDateTime(DateTime.parse(widget.event!.sdate));
-      _selectedEndTime =
-          TimeOfDay.fromDateTime(DateTime.parse(widget.event!.edate));
+      _selectedStartTime = TimeOfDay.fromDateTime(DateTime.parse(widget.event!.sdate));
+      _selectedEndTime = TimeOfDay.fromDateTime(DateTime.parse(widget.event!.edate));
       _selectedStartDate = DateTime.parse(widget.event!.sdate);
       _selectedEndDate = DateTime.parse(widget.event!.edate);
-      _formattedEDate =
-          DateFormat.yMd().format(DateTime.parse(widget.event!.edate));
-      _formattedSDate =
-          DateFormat.yMd().format(DateTime.parse(widget.event!.sdate));
+      _formattedEDate = DateFormat.yMd().format(DateTime.parse(widget.event!.edate));
+      _formattedSDate = DateFormat.yMd().format(DateTime.parse(widget.event!.sdate));
       enableButton = true;
       virtualEvent = widget.event!.isVirtual;
 
@@ -105,31 +101,23 @@ class _NewEventScreenState extends ConsumerState<NewEventScreen> {
     FocusManager.instance.primaryFocus?.unfocus();
     final DateTime? picked = await showDatePicker(
       context: context,
-      initialDate: DateTime.now(),
-      firstDate: DateTime.now(),
+      initialDate: isStartDate ? DateTime.now() : _selectedStartDate ?? DateTime.now(),
+      firstDate: isStartDate ? DateTime.now() : _selectedStartDate ?? DateTime.now(),
       lastDate: DateTime(2100),
     );
     if (picked != null) {
       bool isValidDate = true;
 
-      if (isStartDate &&
-          _selectedEndDate != null &&
-          _selectedEndTime != null &&
-          _selectedStartTime != null) {
+      if (isStartDate && _selectedEndDate != null && _selectedEndTime != null && _selectedStartTime != null) {
         isValidDate = ((picked.isBefore(_selectedEndDate!)) ||
             ((picked.isAtSameMomentAs(_selectedEndDate!)) &&
                 ((_selectedEndTime!.hour + (_selectedEndTime!.minute / 60))) >
-                    (_selectedStartTime!.hour +
-                        (_selectedStartTime!.minute / 60))));
-      } else if (!isStartDate &&
-          _selectedStartDate != null &&
-          _selectedEndTime != null &&
-          _selectedStartTime != null) {
+                    (_selectedStartTime!.hour + (_selectedStartTime!.minute / 60))));
+      } else if (!isStartDate && _selectedStartDate != null && _selectedEndTime != null && _selectedStartTime != null) {
         isValidDate = (picked.isAfter(_selectedStartDate!) ||
             ((picked.isAtSameMomentAs(_selectedStartDate!)) &&
                 ((_selectedEndTime!.hour + (_selectedEndTime!.minute / 60))) >
-                    (_selectedStartTime!.hour +
-                        (_selectedStartTime!.minute / 60))));
+                    (_selectedStartTime!.hour + (_selectedStartTime!.minute / 60))));
       }
 
       if (isValidDate) {
@@ -149,9 +137,7 @@ class _NewEventScreenState extends ConsumerState<NewEventScreen> {
         ScaffoldMessenger.of(context).hideCurrentSnackBar();
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(isStartDate
-                ? 'Start date must be before end date.'
-                : 'End date must be after start date.'),
+            content: Text(isStartDate ? 'Start date must be before end date.' : 'End date must be after start date.'),
           ),
         );
       }
@@ -163,21 +149,16 @@ class _NewEventScreenState extends ConsumerState<NewEventScreen> {
     final TimeOfDay? picked = await showTimePicker(
       initialEntryMode: TimePickerEntryMode.input,
       context: context,
-      initialTime: isStartTime
-          ? _selectedStartTime ?? TimeOfDay.now()
-          : _selectedEndTime ?? TimeOfDay.now(),
+      initialTime: isStartTime ? _selectedStartTime ?? TimeOfDay.now() : _selectedEndTime ?? TimeOfDay.now(),
       builder: (BuildContext context, Widget? child) {
         return MediaQuery(
           data: MediaQuery.of(context).copyWith(alwaysUse24HourFormat: false),
           child: Theme(
             data: Theme.of(context).copyWith(
               timePickerTheme: const TimePickerThemeData(
-                inputDecorationTheme:
-                    InputDecorationTheme(fillColor: Colors.transparent),
-                hourMinuteTextStyle:
-                    TextStyle(fontSize: 32, fontWeight: FontWeight.bold),
-                dayPeriodTextStyle:
-                    TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
+                inputDecorationTheme: InputDecorationTheme(fillColor: Colors.transparent),
+                hourMinuteTextStyle: TextStyle(fontSize: 32, fontWeight: FontWeight.bold),
+                dayPeriodTextStyle: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
               ),
             ),
             child: child!,
@@ -197,9 +178,7 @@ class _NewEventScreenState extends ConsumerState<NewEventScreen> {
         _enableButton();
       });
 
-      if (isStartTime &&
-          _selectedEndTime != null &&
-          _selectedStartDate!.isAtSameMomentAs(_selectedEndDate!)) {
+      if (isStartTime && _selectedEndTime != null && _selectedStartDate!.isAtSameMomentAs(_selectedEndDate!)) {
         if (!checkTime(picked, _selectedEndTime!)) {
           setState(() {
             enableButton = false;
@@ -309,17 +288,15 @@ class _NewEventScreenState extends ConsumerState<NewEventScreen> {
       await tempFile.writeAsBytes(processedImageBytes);
 
       // Upload the processed image
-      final response = await supabase.client.storage
-          .from('Images')
-          .upload('$userId/images/$currentImageName', tempFile);
+      final response =
+          await supabase.client.storage.from('Images').upload('$userId/images/$currentImageName', tempFile);
 
       // Delete the temporary file
       await tempFile.delete();
 
       var imgId = await supabase.client
           .from('Images')
-          .insert({'image_url': '$userId/images/$currentImageName'}).select(
-              'images_id');
+          .insert({'image_url': '$userId/images/$currentImageName'}).select('images_id');
       return imgId[0]["images_id"];
     } else {
       // Handle error: unable to decode image
@@ -328,8 +305,7 @@ class _NewEventScreenState extends ConsumerState<NewEventScreen> {
   }
 
   Future<void> _pickImageFromGallery() async {
-    final XFile? pickedFile =
-        await ImagePicker().pickImage(source: ImageSource.gallery);
+    final XFile? pickedFile = await ImagePicker().pickImage(source: ImageSource.gallery);
     if (pickedFile == null) return;
 
     setState(() {
@@ -339,8 +315,7 @@ class _NewEventScreenState extends ConsumerState<NewEventScreen> {
   }
 
   Future<void> _pickImageFromCamera() async {
-    final XFile? pickedFile =
-        await ImagePicker().pickImage(source: ImageSource.camera);
+    final XFile? pickedFile = await ImagePicker().pickImage(source: ImageSource.camera);
     if (pickedFile == null) return;
 
     setState(() {
@@ -364,10 +339,10 @@ class _NewEventScreenState extends ConsumerState<NewEventScreen> {
       var location,
       String title,
       String description) async {
-    DateTime start = DateTime(selectedStartDate.year, selectedStartDate.month,
-        selectedStartDate.day, selectedStart.hour, selectedStart.minute);
-    DateTime end = DateTime(selectedEndDate.year, selectedEndDate.month,
-        selectedEndDate.day, selectedEnd.hour, selectedEnd.minute);
+    DateTime start = DateTime(selectedStartDate.year, selectedStartDate.month, selectedStartDate.day,
+        selectedStart.hour, selectedStart.minute);
+    DateTime end = DateTime(
+        selectedEndDate.year, selectedEndDate.month, selectedEndDate.day, selectedEnd.hour, selectedEnd.minute);
 
     var imageId = await uploadImage(selectedImage);
     final supabase = (await ref.read(supabaseInstance)).client;
@@ -394,22 +369,15 @@ class _NewEventScreenState extends ConsumerState<NewEventScreen> {
     if (categories.isNotEmpty) {
       final List<String> interestStrings = categories.entries
           .where((entry) => entry.value)
-          .map((entry) =>
-              ref.read(profileProvider.notifier).enumToString(entry.key))
+          .map((entry) => ref.read(profileProvider.notifier).enumToString(entry.key))
           .toList();
 
       newEventRowMap['event_interests'] = interestStrings;
     }
 
-    final responseId = await supabase
-        .from('Event')
-        .insert(newEventRowMap)
-        .select('event_id')
-        .single();
+    final responseId = await supabase.from('Event').insert(newEventRowMap).select('event_id').single();
 
-    eventData = await ref
-        .read(eventsProvider.notifier)
-        .deCodeLinkEvent(responseId['event_id']);
+    eventData = await ref.read(eventsProvider.notifier).deCodeLinkEvent(responseId['event_id']);
 
     ref.read(profileProvider.notifier).createBlockedTime(
           supabase.auth.currentUser!.id,
@@ -430,10 +398,10 @@ class _NewEventScreenState extends ConsumerState<NewEventScreen> {
       var location,
       String title,
       String description) async {
-    DateTime start = DateTime(selectedStartDate.year, selectedStartDate.month,
-        selectedStartDate.day, selectedStart.hour, selectedStart.minute);
-    DateTime end = DateTime(selectedEndDate.year, selectedEndDate.month,
-        selectedEndDate.day, selectedEnd.hour, selectedEnd.minute);
+    DateTime start = DateTime(selectedStartDate.year, selectedStartDate.month, selectedStartDate.day,
+        selectedStart.hour, selectedStart.minute);
+    DateTime end = DateTime(
+        selectedEndDate.year, selectedEndDate.month, selectedEndDate.day, selectedEnd.hour, selectedEnd.minute);
 
     final Map newEventRowMap;
     final supabase = (await ref.watch(supabaseInstance)).client;
@@ -472,10 +440,7 @@ class _NewEventScreenState extends ConsumerState<NewEventScreen> {
       };
     }
 
-    await supabase
-        .from('Event')
-        .update(newEventRowMap)
-        .eq('event_id', widget.event?.eventId);
+    await supabase.from('Event').update(newEventRowMap).eq('event_id', widget.event?.eventId);
     ref.read(attendEventsProvider.notifier).deCodeData();
   }
 
@@ -494,24 +459,17 @@ class _NewEventScreenState extends ConsumerState<NewEventScreen> {
                     builder: (context) => AlertDialog(
                           title: Text(
                             'Are you sure you want to delete this event?',
-                            style: TextStyle(
-                                color: Theme.of(context).primaryColorDark),
+                            style: TextStyle(color: Theme.of(context).primaryColorDark),
                           ),
                           actions: [
                             TextButton(
                                 onPressed: () async {
-                                  ref
-                                      .read(eventsProvider.notifier)
-                                      .deleteEvent(widget.event!);
+                                  ref.read(eventsProvider.notifier).deleteEvent(widget.event!);
                                   Navigator.of(context)
                                       .pushAndRemoveUntil(
-                                          MaterialPageRoute(
-                                              builder: ((context) =>
-                                                  const NavBar())),
-                                          (route) => false)
+                                          MaterialPageRoute(builder: ((context) => const NavBar())), (route) => false)
                                       .then((result) => Navigator.pop(context));
-                                  ScaffoldMessenger.of(context)
-                                      .hideCurrentSnackBar();
+                                  ScaffoldMessenger.of(context).hideCurrentSnackBar();
                                   ScaffoldMessenger.of(context).showSnackBar(
                                     const SnackBar(
                                       content: Text("Event Deleted"),
@@ -519,9 +477,7 @@ class _NewEventScreenState extends ConsumerState<NewEventScreen> {
                                   );
                                 },
                                 child: const Text('DELETE')),
-                            TextButton(
-                                onPressed: () => Navigator.pop(context),
-                                child: const Text('CANCEL')),
+                            TextButton(onPressed: () => Navigator.pop(context), child: const Text('CANCEL')),
                           ],
                         ));
               },
@@ -558,14 +514,12 @@ class _NewEventScreenState extends ConsumerState<NewEventScreen> {
                   context: context,
                   isScrollControlled: true,
                   shape: const RoundedRectangleBorder(
-                    borderRadius:
-                        BorderRadius.vertical(top: Radius.circular(20)),
+                    borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
                   ),
                   builder: (BuildContext context) {
                     // Get screen size
                     final screenSize = MediaQuery.of(context).size;
-                    final double fontSize = screenSize.width *
-                        0.04; // 4% of screen width for font size
+                    final double fontSize = screenSize.width * 0.04; // 4% of screen width for font size
 
                     return Container(
                       width: double.infinity, // Ensures full width
@@ -580,8 +534,7 @@ class _NewEventScreenState extends ConsumerState<NewEventScreen> {
                           ),
                           child: Column(
                             mainAxisSize: MainAxisSize.min,
-                            crossAxisAlignment: CrossAxisAlignment
-                                .stretch, // Stretches buttons to full width
+                            crossAxisAlignment: CrossAxisAlignment.stretch, // Stretches buttons to full width
                             children: [
                               TextButton(
                                 child: Row(
@@ -646,26 +599,19 @@ class _NewEventScreenState extends ConsumerState<NewEventScreen> {
                       height: MediaQuery.of(context).size.height / 3,
                       decoration: _selectedImage != null
                           ? BoxDecoration(
-                              border:
-                                  Border.all(color: Colors.black87, width: 2),
+                              border: Border.all(color: Colors.black87, width: 2),
                               color: Colors.grey.shade200,
-                              image: DecorationImage(
-                                  image: FileImage(_selectedImage!),
-                                  fit: BoxFit.cover))
+                              image: DecorationImage(image: FileImage(_selectedImage!), fit: BoxFit.cover))
                           : (isNewEvent)
                               ? BoxDecoration(
-                                  border: Border.all(
-                                      color: Colors.black87, width: 2),
+                                  border: Border.all(color: Colors.black87, width: 2),
                                   color: Colors.grey.shade200,
                                 )
                               : BoxDecoration(
-                                  border: Border.all(
-                                      color: Colors.black87, width: 2),
+                                  border: Border.all(color: Colors.black87, width: 2),
                                   color: Colors.grey.shade200,
-                                  image: DecorationImage(
-                                      image:
-                                          NetworkImage(widget.event?.imageUrl),
-                                      fit: BoxFit.cover),
+                                  image:
+                                      DecorationImage(image: NetworkImage(widget.event?.imageUrl), fit: BoxFit.cover),
                                 ),
                       child: _selectedImage == null && isNewEvent
                           ? Center(
@@ -674,8 +620,7 @@ class _NewEventScreenState extends ConsumerState<NewEventScreen> {
                                 children: [
                                   Icon(
                                     Icons.add,
-                                    size:
-                                        MediaQuery.of(context).size.height / 15,
+                                    size: MediaQuery.of(context).size.height / 15,
                                   ),
                                   const Text("Add An Image")
                                 ],
@@ -703,33 +648,24 @@ class _NewEventScreenState extends ConsumerState<NewEventScreen> {
                 children: [
                   Text(
                     "Date",
-                    style: TextStyle(
-                        fontSize: 15,
-                        color: Theme.of(context).colorScheme.onSecondary),
+                    style: TextStyle(fontSize: 15, color: Theme.of(context).colorScheme.onSecondary),
                   ),
                   TextButton(
-                    onPressed: () =>
-                        _selectDate(context, true), // Select start date
+                    onPressed: () => _selectDate(context, true), // Select start date
                     child: Text(
                       _formattedSDate ?? "Start", // Format start date
-                      style: TextStyle(
-                          fontSize: 15,
-                          color: Theme.of(context).colorScheme.onSecondary),
+                      style: TextStyle(fontSize: 15, color: Theme.of(context).colorScheme.onSecondary),
                     ),
                   ),
                   Text(
                     "-",
-                    style: TextStyle(
-                        color: Theme.of(context).colorScheme.onSecondary),
+                    style: TextStyle(color: Theme.of(context).colorScheme.onSecondary),
                   ),
                   TextButton(
-                    onPressed: () =>
-                        _selectDate(context, false), // Select end date
+                    onPressed: () => _selectDate(context, false), // Select end date
                     child: Text(
                       _formattedEDate ?? "End", // Format end date
-                      style: TextStyle(
-                          fontSize: 15,
-                          color: Theme.of(context).colorScheme.onSecondary),
+                      style: TextStyle(fontSize: 15, color: Theme.of(context).colorScheme.onSecondary),
                     ),
                   ),
                 ],
@@ -741,37 +677,24 @@ class _NewEventScreenState extends ConsumerState<NewEventScreen> {
                 children: [
                   Text(
                     "Times",
-                    style: TextStyle(
-                        fontSize: 15,
-                        color: Theme.of(context).colorScheme.onSecondary),
+                    style: TextStyle(fontSize: 15, color: Theme.of(context).colorScheme.onSecondary),
                   ),
                   TextButton(
-                    onPressed: sdate
-                        ? () => _selectTime(context, true)
-                        : null, // Select start time
+                    onPressed: sdate ? () => _selectTime(context, true) : null, // Select start time
                     child: Text(
-                      _selectedStartTime?.format(context) ??
-                          "Start", // Format start time
-                      style: TextStyle(
-                          fontSize: 15,
-                          color: Theme.of(context).colorScheme.onSecondary),
+                      _selectedStartTime?.format(context) ?? "Start", // Format start time
+                      style: TextStyle(fontSize: 15, color: Theme.of(context).colorScheme.onSecondary),
                     ),
                   ),
                   Text(
                     "-",
-                    style: TextStyle(
-                        color: Theme.of(context).colorScheme.onSecondary),
+                    style: TextStyle(color: Theme.of(context).colorScheme.onSecondary),
                   ),
                   TextButton(
-                    onPressed: edate
-                        ? () => _selectTime(context, false)
-                        : null, // Select end time
+                    onPressed: edate ? () => _selectTime(context, false) : null, // Select end time
                     child: Text(
-                      _selectedEndTime?.format(context) ??
-                          "End", // Format end time
-                      style: TextStyle(
-                          fontSize: 15,
-                          color: Theme.of(context).colorScheme.onSecondary),
+                      _selectedEndTime?.format(context) ?? "End", // Format end time
+                      style: TextStyle(fontSize: 15, color: Theme.of(context).colorScheme.onSecondary),
                     ),
                   ),
                 ],
@@ -783,9 +706,7 @@ class _NewEventScreenState extends ConsumerState<NewEventScreen> {
                 children: [
                   Text(
                     "Invitation Type: ",
-                    style: TextStyle(
-                        fontSize: 15,
-                        color: Theme.of(context).colorScheme.onSecondary),
+                    style: TextStyle(fontSize: 15, color: Theme.of(context).colorScheme.onSecondary),
                   ),
                   IconButton(
                       onPressed: () {
@@ -795,34 +716,25 @@ class _NewEventScreenState extends ConsumerState<NewEventScreen> {
                             child: Padding(
                               padding: const EdgeInsets.all(10),
                               child: SizedBox(
-                                height:
-                                    MediaQuery.of(context).size.height * .21,
+                                height: MediaQuery.of(context).size.height * .21,
                                 child: const Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     Text(
                                       'The Invatation Type you choose effects who can see the event',
-                                      style: TextStyle(
-                                          fontSize: 20,
-                                          fontWeight: FontWeight.w600),
+                                      style: TextStyle(fontSize: 20, fontWeight: FontWeight.w600),
                                     ),
                                     Text(
                                       'Public Events: are visable to all users',
-                                      style: TextStyle(
-                                          fontSize: 17,
-                                          fontWeight: FontWeight.w500),
+                                      style: TextStyle(fontSize: 17, fontWeight: FontWeight.w500),
                                     ),
                                     Text(
                                       'Private Events: are only viable to your Friends',
-                                      style: TextStyle(
-                                          fontSize: 17,
-                                          fontWeight: FontWeight.w500),
+                                      style: TextStyle(fontSize: 17, fontWeight: FontWeight.w500),
                                     ),
                                     Text(
                                       'Selective Events: are only visable to those you have shared a link to',
-                                      style: TextStyle(
-                                          fontSize: 17,
-                                          fontWeight: FontWeight.w500),
+                                      style: TextStyle(fontSize: 17, fontWeight: FontWeight.w500),
                                     ),
                                   ],
                                 ),
@@ -842,9 +754,7 @@ class _NewEventScreenState extends ConsumerState<NewEventScreen> {
                       elevation: 16,
                       icon: const SizedBox.shrink(),
                       style: TextStyle(
-                          color: Theme.of(context).colorScheme.primary,
-                          fontSize: 15,
-                          fontWeight: FontWeight.w500),
+                          color: Theme.of(context).colorScheme.primary, fontSize: 15, fontWeight: FontWeight.w500),
                       onChanged: (String? value) {
                         setState(() {
                           dropDownValue = value!;
@@ -860,9 +770,7 @@ class _NewEventScreenState extends ConsumerState<NewEventScreen> {
                   ),
                   Text(
                     "Virtual",
-                    style: TextStyle(
-                        fontSize: 15,
-                        color: Theme.of(context).colorScheme.onSecondary),
+                    style: TextStyle(fontSize: 15, color: Theme.of(context).colorScheme.onSecondary),
                   ),
                   IconButton(
                       onPressed: () {
@@ -901,8 +809,7 @@ class _NewEventScreenState extends ConsumerState<NewEventScreen> {
                 decoration: InputDecoration(
                   border: const OutlineInputBorder(),
                   labelText: "Enter Your Event Title",
-                  labelStyle: TextStyle(
-                      color: Theme.of(context).colorScheme.onSecondary),
+                  labelStyle: TextStyle(color: Theme.of(context).colorScheme.onSecondary),
                   contentPadding: const EdgeInsets.all(5),
                 ),
                 keyboardType: TextInputType.multiline,
@@ -911,8 +818,7 @@ class _NewEventScreenState extends ConsumerState<NewEventScreen> {
                 textAlign: TextAlign.start,
                 textCapitalization: TextCapitalization.sentences,
                 maxLength: 200,
-                style:
-                    TextStyle(color: Theme.of(context).colorScheme.onSecondary),
+                style: TextStyle(color: Theme.of(context).colorScheme.onSecondary),
               ),
             ),
             Padding(
@@ -922,8 +828,7 @@ class _NewEventScreenState extends ConsumerState<NewEventScreen> {
                 decoration: InputDecoration(
                   border: const OutlineInputBorder(),
                   labelText: "Enter Your Event Description",
-                  labelStyle: TextStyle(
-                      color: Theme.of(context).colorScheme.onSecondary),
+                  labelStyle: TextStyle(color: Theme.of(context).colorScheme.onSecondary),
                   contentPadding: const EdgeInsets.all(5),
                 ),
                 keyboardType: TextInputType.multiline,
@@ -932,8 +837,7 @@ class _NewEventScreenState extends ConsumerState<NewEventScreen> {
                 textAlign: TextAlign.start,
                 textCapitalization: TextCapitalization.sentences,
                 maxLength: 200,
-                style:
-                    TextStyle(color: Theme.of(context).colorScheme.onSecondary),
+                style: TextStyle(color: Theme.of(context).colorScheme.onSecondary),
               ),
             ),
             ElevatedButton(
@@ -960,28 +864,23 @@ class _NewEventScreenState extends ConsumerState<NewEventScreen> {
             InkWell(
               onTap: () {
                 if (_selectedImage == null && isNewEvent) {
-                  const snackbar =
-                      SnackBar(content: Text('Select an image for your event'));
+                  const snackbar = SnackBar(content: Text('Select an image for your event'));
                   ScaffoldMessenger.of(context).hideCurrentSnackBar();
                   ScaffoldMessenger.of(context).showSnackBar(snackbar);
                 } else if (sdate == false) {
-                  const snackbar = SnackBar(
-                      content: Text('Select a start date for your event'));
+                  const snackbar = SnackBar(content: Text('Select a start date for your event'));
                   ScaffoldMessenger.of(context).hideCurrentSnackBar();
                   ScaffoldMessenger.of(context).showSnackBar(snackbar);
                 } else if (edate == false) {
-                  const snackbar = SnackBar(
-                      content: Text('Select an end date for your event'));
+                  const snackbar = SnackBar(content: Text('Select an end date for your event'));
                   ScaffoldMessenger.of(context).hideCurrentSnackBar();
                   ScaffoldMessenger.of(context).showSnackBar(snackbar);
                 } else if (stime == false) {
-                  const snackbar = SnackBar(
-                      content: Text('Select a start time for your event'));
+                  const snackbar = SnackBar(content: Text('Select a start time for your event'));
                   ScaffoldMessenger.of(context).hideCurrentSnackBar();
                   ScaffoldMessenger.of(context).showSnackBar(snackbar);
                 } else if (etime == false) {
-                  const snackbar = SnackBar(
-                      content: Text('Select a end time for your event'));
+                  const snackbar = SnackBar(content: Text('Select a end time for your event'));
                   ScaffoldMessenger.of(context).hideCurrentSnackBar();
                   ScaffoldMessenger.of(context).showSnackBar(snackbar);
                 }
@@ -989,9 +888,7 @@ class _NewEventScreenState extends ConsumerState<NewEventScreen> {
               child: ElevatedButton(
                 style: ElevatedButton.styleFrom(
                   textStyle: TextStyle(
-                      color: Theme.of(context).colorScheme.primary,
-                      fontSize: 15,
-                      fontWeight: FontWeight.w500),
+                      color: Theme.of(context).colorScheme.primary, fontSize: 15, fontWeight: FontWeight.w500),
                 ),
                 onPressed: enableButton
                     ? isNewEvent
@@ -1007,10 +904,8 @@ class _NewEventScreenState extends ConsumerState<NewEventScreen> {
                               _locationController.text,
                               _title.text,
                               _description.text,
-                            ).then((value) => Navigator.of(context)
-                                .pushReplacement(MaterialPageRoute(
-                                    builder: ((context) => DetailedEventScreen(
-                                        eventData: eventData)))));
+                            ).then((value) => Navigator.of(context).pushReplacement(
+                                MaterialPageRoute(builder: ((context) => DetailedEventScreen(eventData: eventData)))));
                             ScaffoldMessenger.of(context).hideCurrentSnackBar();
                             ScaffoldMessenger.of(context).showSnackBar(
                               const SnackBar(
@@ -1025,9 +920,7 @@ class _NewEventScreenState extends ConsumerState<NewEventScreen> {
                               builder: (context) => AlertDialog(
                                 title: Text(
                                   'Are you sure you want to update this event?',
-                                  style: TextStyle(
-                                      color:
-                                          Theme.of(context).primaryColorDark),
+                                  style: TextStyle(color: Theme.of(context).primaryColorDark),
                                 ),
                                 actions: [
                                   TextButton(
@@ -1036,8 +929,7 @@ class _NewEventScreenState extends ConsumerState<NewEventScreen> {
                                   ),
                                   TextButton(
                                     onPressed: () async {
-                                      FocusManager.instance.primaryFocus
-                                          ?.unfocus();
+                                      FocusManager.instance.primaryFocus?.unfocus();
                                       await updateEvent(
                                         _selectedStartTime!,
                                         _selectedEndTime!,
@@ -1050,17 +942,11 @@ class _NewEventScreenState extends ConsumerState<NewEventScreen> {
                                         _description.text,
                                       );
                                       Navigator.of(context)
-                                          .pushAndRemoveUntil(
-                                              MaterialPageRoute(
-                                                  builder: ((context) =>
-                                                      const NavBar())),
+                                          .pushAndRemoveUntil(MaterialPageRoute(builder: ((context) => const NavBar())),
                                               (route) => false)
-                                          .then((result) =>
-                                              Navigator.pop(context));
-                                      ScaffoldMessenger.of(context)
-                                          .hideCurrentSnackBar();
-                                      ScaffoldMessenger.of(context)
-                                          .showSnackBar(
+                                          .then((result) => Navigator.pop(context));
+                                      ScaffoldMessenger.of(context).hideCurrentSnackBar();
+                                      ScaffoldMessenger.of(context).showSnackBar(
                                         const SnackBar(
                                           content: Text('Event Updated'),
                                         ),

@@ -17,6 +17,15 @@ class EventProvider extends StateNotifier<List?> {
   List<Event> attendingEvents = [];
 
   Future<List> readEvents() async {
+    /*
+      Read events Gets the users selected/current location along with their radius which is saved on device.
+      The Location and radius is then passed into a supabase function which returns specificlly filtered events
+      for the current user
+
+      Params: None
+      
+      Returns: List of User Reccomended Events
+    */
     final supabaseClient = (await supabase).client;
     final getLocation = await SharedPreferences.getInstance();
     final exsistingLocation = getLocation.getStringList('savedLocation');

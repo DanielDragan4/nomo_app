@@ -142,13 +142,12 @@ class AttendEventProvider extends StateNotifier<List<Event>> {
           break;
         }
       }
-      print(deCodedEvent.title);
       if ((attending) || (deCodedEvent.host == userId || (bookmarked))) {
         if (deCodedEvent.host == userId) {
           deCodedEvent.isHost = true;
         }
-        deCodedList.add(deCodedEvent);
       }
+      deCodedList.add(deCodedEvent);
     }
     state = deCodedList;
   }

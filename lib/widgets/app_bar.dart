@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+//(Currently) useless garbage
 class MainAppBar extends StatelessWidget implements PreferredSizeWidget {
   MainAppBar({
     super.key,
@@ -25,8 +26,7 @@ class MainAppBar extends StatelessWidget implements PreferredSizeWidget {
         ),
         bottom: child != null
             ? PreferredSize(
-                preferredSize:
-                    Size.fromHeight(getHeightOfWidget(context, child)),
+                preferredSize: Size.fromHeight(getHeightOfWidget(context, child)),
                 child: child,
               )
             : null,

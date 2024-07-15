@@ -6,6 +6,8 @@
 // import 'package:location/location.dart';
 // import 'package:http/http.dart' as http;
 
+//(Currently) Useless garbage
+
 // class LocationInput extends StatefulWidget {
 //   const LocationInput({super.key, required this.onSelectedLocation});
 

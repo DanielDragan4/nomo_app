@@ -14,12 +14,7 @@ import 'package:image/image.dart' as img;
 
 class CreateAccountScreen extends ConsumerStatefulWidget {
   CreateAccountScreen(
-      {super.key,
-      required this.isNew,
-      this.avatar,
-      this.profilename,
-      this.username,
-      this.onUpdateProfile});
+      {super.key, required this.isNew, this.avatar, this.profilename, this.username, this.onUpdateProfile});
 
   bool isNew;
   final String? avatar;
@@ -52,8 +47,7 @@ class _CreateAccountScreenState extends ConsumerState<CreateAccountScreen> {
   }
 
   Future<void> _pickImageFromGallery() async {
-    final XFile? pickedFile =
-        await ImagePicker().pickImage(source: ImageSource.gallery);
+    final XFile? pickedFile = await ImagePicker().pickImage(source: ImageSource.gallery);
     if (pickedFile == null) return;
 
     setState(() {
@@ -62,8 +56,7 @@ class _CreateAccountScreenState extends ConsumerState<CreateAccountScreen> {
   }
 
   Future<void> _pickImageFromCamera() async {
-    final XFile? pickedFile =
-        await ImagePicker().pickImage(source: ImageSource.camera);
+    final XFile? pickedFile = await ImagePicker().pickImage(source: ImageSource.camera);
     if (pickedFile == null) return;
 
     setState(() {
@@ -88,37 +81,33 @@ class _CreateAccountScreenState extends ConsumerState<CreateAccountScreen> {
 
       if (originalImage != null) {
         // Resize the image
-        img.Image resizedImage = img.copyResize(originalImage,
-            width: 150, height: 150, interpolation: img.Interpolation.linear);
+        img.Image resizedImage =
+            img.copyResize(originalImage, width: 150, height: 150, interpolation: img.Interpolation.linear);
 
         // Encode the image to PNG
         List<int> resizedImageBytes = img.encodePng(resizedImage);
 
         // Create a temporary file with the resized image
-        File tempFile = await File(
-                '${Directory.systemTemp.path}/resized_$currentImageName.png')
-            .create();
+        File tempFile = await File('${Directory.systemTemp.path}/resized_$currentImageName.png').create();
         await tempFile.writeAsBytes(resizedImageBytes);
 
         // Upload the resized image
-        final response = await supabase.client.storage
-            .from('Images')
-            .upload('$userId/avatar/$currentImageName', tempFile);
+        final response =
+            await supabase.client.storage.from('Images').upload('$userId/avatar/$currentImageName', tempFile);
 
         // Delete the temporary file
         await tempFile.delete();
 
         imgId = await supabase.client
             .from('Images')
-            .insert({'image_url': '$userId/avatar/$currentImageName'}).select(
-                'images_id');
+            .insert({'image_url': '$userId/avatar/$currentImageName'}).select('images_id');
       } else {
         // Handle error: unable to decode image
         throw Exception('Unable to decode image');
       }
     } else {
-      imgId = await supabase.client.from('Images').insert(
-          {'image_url': 'default/avatar/sadboi.png'}).select('images_id');
+      imgId =
+          await supabase.client.from('Images').insert({'image_url': 'default/avatar/sadboi.png'}).select('images_id');
     }
     return imgId[0]["images_id"];
   }
@@ -128,8 +117,7 @@ class _CreateAccountScreenState extends ConsumerState<CreateAccountScreen> {
     var avatarId = await uploadAvatar(selectedImage);
 
     if (user.replaceAll(' ', '') == '') {
-      user =
-          'User-${supabase.auth.currentUser!.id.replaceAll('-', '').substring(0, 10)}';
+      user = 'User-${supabase.auth.currentUser!.id.replaceAll('-', '').substring(0, 10)}';
       if (_profileName.text.replaceAll(' ', '') == '') {
         _profileName.text = user;
       }
@@ -151,11 +139,7 @@ class _CreateAccountScreenState extends ConsumerState<CreateAccountScreen> {
       await makeFcm(supabase);
     } else {
       await supabase.from('Profiles').update(
-        {
-          'avatar_id': avatarId,
-          'username': user,
-          'profile_name': _profileName.text
-        },
+        {'avatar_id': avatarId, 'username': user, 'profile_name': _profileName.text},
       ).eq('profile_id', newProfileRowMap['profile_id']);
     }
   }
@@ -179,19 +163,11 @@ class _CreateAccountScreenState extends ConsumerState<CreateAccountScreen> {
     }
 
     if (user.replaceAll(' ', '') == '') {
-      user =
-          'User-${supabase.auth.currentUser!.id.replaceAll('-', '').substring(0, 10)}';
+      user = 'User-${supabase.auth.currentUser!.id.replaceAll('-', '').substring(0, 10)}';
     }
-    final updateProfileRowMap = {
-      'avatar_id': avatarId,
-      'username': user,
-      'profile_name': _profileName.text
-    };
+    final updateProfileRowMap = {'avatar_id': avatarId, 'username': user, 'profile_name': _profileName.text};
 
-    await supabase
-        .from('Profiles')
-        .update(updateProfileRowMap)
-        .eq('profile_id', supabase.auth.currentUser!.id);
+    await supabase.from('Profiles').update(updateProfileRowMap).eq('profile_id', supabase.auth.currentUser!.id);
 
     //widget.onUpdateProfile!.call();
     //Navigator.of(context).pop;
@@ -201,7 +177,25 @@ class _CreateAccountScreenState extends ConsumerState<CreateAccountScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Theme.of(context).colorScheme.surface,
-      appBar: MainAppBar(),
+      appBar: AppBar(
+        backgroundColor: Theme.of(context).colorScheme.surface,
+        flexibleSpace: PreferredSize(
+          preferredSize: const Size.fromHeight(kToolbarHeight),
+          child: Container(
+            padding: const EdgeInsets.only(
+              top: 20,
+              bottom: 5,
+            ),
+            alignment: Alignment.bottomCenter,
+            child: Text(widget.isNew ? 'Create Profile' : 'Update Profile',
+                style: TextStyle(
+                  color: Theme.of(context).primaryColor,
+                  fontWeight: FontWeight.w800,
+                  fontSize: 25,
+                )),
+          ),
+        ),
+      ),
       body: SingleChildScrollView(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -223,14 +217,12 @@ class _CreateAccountScreenState extends ConsumerState<CreateAccountScreen> {
                     context: context,
                     isScrollControlled: true,
                     shape: const RoundedRectangleBorder(
-                      borderRadius:
-                          BorderRadius.vertical(top: Radius.circular(20)),
+                      borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
                     ),
                     builder: (BuildContext context) {
                       // Get screen size
                       final screenSize = MediaQuery.of(context).size;
-                      final double fontSize = screenSize.width *
-                          0.04; // 4% of screen width for font size
+                      final double fontSize = screenSize.width * 0.04; // 4% of screen width for font size
 
                       return Container(
                         width: double.infinity, // Ensures full width
@@ -245,8 +237,7 @@ class _CreateAccountScreenState extends ConsumerState<CreateAccountScreen> {
                             ),
                             child: Column(
                               mainAxisSize: MainAxisSize.min,
-                              crossAxisAlignment: CrossAxisAlignment
-                                  .stretch, // Stretches buttons to full width
+                              crossAxisAlignment: CrossAxisAlignment.stretch, // Stretches buttons to full width
                               children: [
                                 TextButton(
                                   child: Row(
@@ -310,21 +301,15 @@ class _CreateAccountScreenState extends ConsumerState<CreateAccountScreen> {
                     radius: radius - 2,
                     backgroundImage: _selectedImage != null
                         ? FileImage(_selectedImage!)
-                        : (avatar != null
-                            ? NetworkImage(avatar!) as ImageProvider
-                            : null),
+                        : (avatar != null ? NetworkImage(avatar!) as ImageProvider : null),
                     child: _selectedImage == null && avatar == null
                         ? Container(
                             decoration: BoxDecoration(
-                                gradient: const LinearGradient(
-                                    colors: [
-                                      Color.fromARGB(255, 63, 53, 78),
-                                      Color.fromARGB(255, 112, 9, 167),
-                                    ],
-                                    begin: Alignment.topLeft,
-                                    end: Alignment.bottomRight),
-                                borderRadius:
-                                    BorderRadius.circular(radius - 2)),
+                                gradient: const LinearGradient(colors: [
+                                  Color.fromARGB(255, 63, 53, 78),
+                                  Color.fromARGB(255, 112, 9, 167),
+                                ], begin: Alignment.topLeft, end: Alignment.bottomRight),
+                                borderRadius: BorderRadius.circular(radius - 2)),
                           )
                         : null,
                   ),
@@ -337,8 +322,7 @@ class _CreateAccountScreenState extends ConsumerState<CreateAccountScreen> {
               child: TextField(
                 maxLength: 15,
                 controller: _profileName,
-                style:
-                    TextStyle(color: Theme.of(context).colorScheme.onSecondary),
+                style: TextStyle(color: Theme.of(context).colorScheme.onSecondary),
                 decoration: const InputDecoration(
                   border: OutlineInputBorder(),
                   labelText: "Name",
@@ -350,8 +334,7 @@ class _CreateAccountScreenState extends ConsumerState<CreateAccountScreen> {
               padding: const EdgeInsets.all(7.0),
               child: TextField(
                 maxLength: 15,
-                style:
-                    TextStyle(color: Theme.of(context).colorScheme.onSecondary),
+                style: TextStyle(color: Theme.of(context).colorScheme.onSecondary),
                 controller: _userName,
                 decoration: const InputDecoration(
                   border: OutlineInputBorder(),
@@ -364,8 +347,7 @@ class _CreateAccountScreenState extends ConsumerState<CreateAccountScreen> {
               padding: const EdgeInsets.all(7.0),
               child: TextField(
                 maxLength: 11,
-                style:
-                    TextStyle(color: Theme.of(context).colorScheme.onSecondary),
+                style: TextStyle(color: Theme.of(context).colorScheme.onSecondary),
                 controller: _phoneNum,
                 decoration: const InputDecoration(
                   border: OutlineInputBorder(),
@@ -378,15 +360,12 @@ class _CreateAccountScreenState extends ConsumerState<CreateAccountScreen> {
             Padding(
               padding: const EdgeInsets.symmetric(vertical: 30),
               child: ElevatedButton(
-                child: widget.isNew
-                    ? const Text("Create Account")
-                    : const Text("Update"),
+                child: widget.isNew ? const Text("Create Account") : const Text("Update"),
                 onPressed: () async {
                   if (widget.isNew) {
                     await _createProfile(_userName.text, _selectedImage);
-                    Navigator.of(context).pushReplacement(MaterialPageRoute(
-                        builder: (context) =>
-                            InterestsScreen(isEditing: false)));
+                    Navigator.of(context)
+                        .pushReplacement(MaterialPageRoute(builder: (context) => InterestsScreen(isEditing: false)));
                   } else {
                     await _updateProfile();
                     widget.onUpdateProfile!.call();
@@ -403,16 +382,11 @@ class _CreateAccountScreenState extends ConsumerState<CreateAccountScreen> {
                         onPressed: () async {
                           await _createProfile(_userName.text, null);
                           Navigator.of(context).pushReplacement(
-                              MaterialPageRoute(
-                                  builder: (context) =>
-                                      InterestsScreen(isEditing: false)));
+                              MaterialPageRoute(builder: (context) => InterestsScreen(isEditing: false)));
                         },
                         child: const Row(
                           mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Text("Skip"),
-                            Icon(Icons.arrow_forward_rounded)
-                          ],
+                          children: [Text("Skip"), Icon(Icons.arrow_forward_rounded)],
                         ),
                       ),
                     ]

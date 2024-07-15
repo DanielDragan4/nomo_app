@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+//Used to display Notifications and their details in the Notification Screen (Not Popup)
 class NotificationItem extends StatelessWidget {
   final String title;
   final String? details;

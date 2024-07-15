@@ -10,6 +10,7 @@ import 'package:nomo/screens/settings/setting_screen.dart';
 
 enum options { itemOne, itemTwo, itemThree, itemFour, itemFive }
 
+//Dropdown and all item operations in Profile Screen (Three dots)
 class ProfileDropdown extends ConsumerStatefulWidget {
   void Function() updateProfileInfo;
   final Future<Profile>? profileInfo;
@@ -44,6 +45,7 @@ class _ProfileDropdownState extends ConsumerState<ProfileDropdown> {
               PopupMenuItem(
                 value: options.itemOne,
                 child: const Text("Edit Profile"),
+                //Navigates to Create Account Screen, then calls for Profile Screen update once popped
                 onTap: () {
                   widget.profileInfo?.then((profile) {
                     Navigator.of(context)
@@ -94,7 +96,7 @@ class _ProfileDropdownState extends ConsumerState<ProfileDropdown> {
                       context,
                       MaterialPageRoute(
                           builder: ((context) => SettingScreen(
-                                isCorp: true,
+                                isCorp: false,
                               ))));
                 },
               ),
@@ -103,9 +105,7 @@ class _ProfileDropdownState extends ConsumerState<ProfileDropdown> {
                 child: const Text("Sign Out"),
                 onTap: () {
                   ref.watch(currentUserProvider.notifier).signOut();
-                  ref
-                      .read(savedSessionProvider.notifier)
-                      .changeSessionDataList();
+                  ref.read(savedSessionProvider.notifier).changeSessionDataList();
                 },
               ),
             ],

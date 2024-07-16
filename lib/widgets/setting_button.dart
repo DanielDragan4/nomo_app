@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+//Default button styling for Settings Screen list
 class SettingButton extends StatefulWidget {
   const SettingButton({
     super.key,

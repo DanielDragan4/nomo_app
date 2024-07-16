@@ -25,6 +25,14 @@ class AuthProvider extends StateNotifier<Session?> {
   var session;
 
   void submit(String email, bool isLogin, String pass, bool isValid) async {
+    /*
+      submits a users credentials based on wether it is login or creating an account. THis 
+      then creates a new session and saves it onto the phone.
+
+      Params: String email, bool isLogin, String pass, bool isValid
+      
+      Returns: List<Map>
+    */
     if (!isValid) {
       return;
     }
@@ -51,6 +59,14 @@ class AuthProvider extends StateNotifier<Session?> {
   }
 
   Future<bool> signInWithIdToken(idToken, accessToken) async {
+    /*
+      signs in with a provided idToken and accessToken with the session then being
+      saved onto the phone.
+
+      Params: idToken: string, accessToken: string
+      
+      Returns: bool
+    */
     final AuthResponse res =
         await (await supabase).client.auth.signInWithIdToken(
               provider: OAuthProvider.google,
@@ -73,6 +89,13 @@ class AuthProvider extends StateNotifier<Session?> {
   }
 
   void saveData() {
+    /*
+      saves the sessions user and the access token onto the phones data.
+
+      Params: none
+      
+      Returns: none
+    */
     SharedPreferences.getInstance()
         .then((value) => value.setStringList("savedSession", [
               state!.accessToken,
@@ -81,6 +104,13 @@ class AuthProvider extends StateNotifier<Session?> {
   }
 
   Future<void> removeFcm(String userId) async {
+    /*
+      removes the fcm token based on the user id's when the user signs out
+
+      Params: userId: uuid
+      
+      Returns: none
+    */
     final supabaseClient = (await supabase).client;
     await supabaseClient
         .from('Profiles')
@@ -88,6 +118,13 @@ class AuthProvider extends StateNotifier<Session?> {
   }
 
   void signOut() async {
+    /*
+      signs the user out by ending the session and removing the session data off of the phone
+
+      Params: none
+      
+      Returns: none
+    */
     try {
       String userId = await (await supabase).client.auth.currentUser!.id;
       await (await supabase).client.auth.signOut();
@@ -108,6 +145,13 @@ class AuthProvider extends StateNotifier<Session?> {
 }
 
 Future<void> checkProfile() async {
+  /*
+      Checks to see if the profile was fully set up before allowing for entry onto the app
+
+      Params: none
+      
+      Returns: none
+    */
   final checkProf = await supabase
       .from("Profiles")
       .select('profile_id, username')

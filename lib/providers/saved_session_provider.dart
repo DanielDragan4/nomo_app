@@ -7,6 +7,13 @@ class SessionProvider extends StateNotifier<List<String>?> {
 
 
   void changeSessionDataList() async{
+    /*
+      sets the state of the provider to the savedSession based on the phone
+
+      Params: none
+      
+      Returns: none
+    */
     final savedUserSessionData = await SharedPreferences.getInstance();
     state = savedUserSessionData.getStringList("savedSession");
   }

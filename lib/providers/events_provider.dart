@@ -1,12 +1,10 @@
 import 'dart:convert';
-
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:nomo/models/events_model.dart';
 import 'package:nomo/models/comments_model.dart';
 import 'package:nomo/models/friend_model.dart';
 import 'package:nomo/providers/supabase_provider.dart';
-import 'package:nomo/screens/login_screen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
@@ -42,8 +40,20 @@ class EventProvider extends StateNotifier<List?> {
   }
 
   Future<void> deCodeData() async {
+     /*
+      Receives a list of events from readEvents in the form of a List<Map>. This list is then decoded
+      and each object in the list is converted to an Event Data type. During this process the Events image
+      url is received from the database for the event and the host of the event. The event is also checked
+      to see if it is bookmarked and wether the current user is attending the event. Along with this the 
+      Current user is checked to see if their the host of the event. This List of Events is then stored in 
+      the providers state.
+
+      Params: None
+      
+      Returns: None, Provider state is set
+    */
+    
     final codedList = await readEvents();
-    print(codedList.length);
 
     List<Event> deCodedList = [];
     final supabaseClient = (await supabase).client;
@@ -108,6 +118,14 @@ class EventProvider extends StateNotifier<List?> {
   }
 
   Future<void> joinEvent(currentUser, eventToJoin) async {
+    /*
+      Takes is the current user and the event id in order to have the user join the event by
+      creating a new record in Atendees table. Forces a reload of state
+
+      Params: Current User: uuid, eventToJoin: uuid
+      
+      Returns: none
+    */
     final supabaseClient = (await supabase).client;
     final newAttendeeMap = {'event_id': eventToJoin, 'user_id': currentUser};
     await supabaseClient.from('Attendees').insert(newAttendeeMap);
@@ -115,11 +133,26 @@ class EventProvider extends StateNotifier<List?> {
   }
 
   Future<void> deleteEvent(Event event) async {
+    /*
+      Takes in an event id to delete the table from events
+
+      Params: event: uuid
+      
+      Returns: none
+    */
     final supabaseClient = (await supabase).client;
     await supabaseClient.from('Event').delete().eq('event_id', event.eventId);
   }
 
   Future<void> bookmark(eventToMark, currentUser) async {
+    /*
+      Takes an event id and current user and adds the event to the bookmarked table.
+      reloads provider state after.
+
+      Params: eventToMark: uuid, currentUser: uuid
+      
+      Returns: none
+    */
     final supabaseClient = (await supabase).client;
     final newABookMarkMap = {'user_id': currentUser, 'event_id': eventToMark};
     await supabaseClient.from('Bookmarked').insert(newABookMarkMap);
@@ -127,6 +160,14 @@ class EventProvider extends StateNotifier<List?> {
   }
 
   Future<void> unBookmark(eventToMark, currentUser) async {
+    /*
+      Takes an event id and current user and removes the event to the bookmarked table.
+      reloads provider state after.
+
+      Params: eventToMark: uuid, currentUser: uuid
+      
+      Returns: none
+    */
     final supabaseClient = (await supabase).client;
     await supabaseClient
         .from('Bookmarked')
@@ -137,6 +178,14 @@ class EventProvider extends StateNotifier<List?> {
   }
 
   Future<List> readComments(String eventId) async {
+    /*
+      Takes in an event Id for the associated comments with the event. Selects comments of the Event
+      and returns it as a list
+
+      Params: eventId: uuid
+      
+      Returns: List of Comments
+    */
     final supabaseClient = (await supabase).client;
     var comments = await supabaseClient
         .from('event_comments')
@@ -146,6 +195,14 @@ class EventProvider extends StateNotifier<List?> {
   }
 
   Future<List<Comment>> getComments(String eventId) async {
+    /*
+      Gets a list of Comments from read comments, decodes the data into a Comment data with a image URL for
+      the commenters avatar from supabase. Generates a list of Comments and returns the list
+
+      Params: eventId: uuid
+      
+      Returns: List of Comments
+    */
     final codedList = await readComments(eventId);
 
     List<Comment> deCodedList = [];
@@ -171,19 +228,34 @@ class EventProvider extends StateNotifier<List?> {
   }
 
   Future<List<Comment>> postComment(
-      currentUser, eventIid, String comment, replyId) async {
+      currentUser, eventid, String comment, replyId) async {
+        /*
+      takes in the new comments data to then insert this new comment into the comments tabe.
+      gets the new Comments list and returns it
+
+      Params: currentUser: uuid, eventId: uuid, comment: String, replyId: uuid
+      
+      Returns: List of Comments
+    */
     final supabaseClient = (await supabase).client;
     final newCommentMap = {
       'reply_id': replyId,
       'user_id': currentUser,
       'comment_text': comment,
-      'event_id': eventIid
+      'event_id': eventid
     };
     await supabaseClient.from('Comments').insert(newCommentMap);
-    return await getComments(eventIid);
+    return await getComments(eventid);
   }
 
   Future<Map> readLinkEvent(eventId) async {
+    /*
+      takes in an eventId and gets the event data from supabase with the matching Id
+
+      Params: eventId: uuid
+      
+      Returns: Event Map
+    */
     final supabaseClient = (await supabase).client;
     var events = await supabaseClient
         .from('recommended_events')
@@ -194,6 +266,14 @@ class EventProvider extends StateNotifier<List?> {
   }
 
   Future<Event> deCodeLinkEvent(eventId) async {
+    /*
+      takes in an eventId to then gett event data as codedEvent. The Data is decoded and put into the Event 
+      Data type. which is then returned
+
+      Params: eventId: uuid
+      
+      Returns: Event
+    */
     final codedEvent = await readLinkEvent(eventId);
     final supabaseClient = (await supabase).client;
 
@@ -245,13 +325,29 @@ class EventProvider extends StateNotifier<List?> {
   }
 
   Future<List> readEventAttendees(String eventId) async {
+    /*
+      takes in an eventId to then get the data of the events attendees from the supabase
+      function 'attendees_by_event'
+
+      Params: eventId: uuid
+      
+      Returns: List of data
+    */
     final supabaseClient = (await supabase).client;
-    var comments = await supabaseClient
+    var attendees = await supabaseClient
         .rpc('attendees_by_event',params: {'current_event_id' : eventId});
-    return comments.toList();
+    return attendees.toList();
   }
 
   Future<List<Friend>> getEventAttendees(String eventId) async {
+    /*
+      takes in an eventId to then get the attendess data which is then decoded as Friends
+      and returns the list of Friends
+
+      Params: eventId: uuid
+      
+      Returns: List of Friends
+    */
     final codedList = await readEventAttendees(eventId);
 
     List<Friend> deCodedList = [];
@@ -273,6 +369,15 @@ class EventProvider extends StateNotifier<List?> {
   }
 
   Future<List> readEventFriends(String eventId) async {
+    /*
+      takes in an eventId to then get the data of the events friends of the user from the supabase
+      function 'friends_by_event'
+
+      Params: eventId: uuid
+      
+      Returns: List of data
+    */
+    
     final supabaseClient = (await supabase).client;
     var comments = await supabaseClient
         .rpc('friends_by_event',params: {'event_id_t' : eventId});
@@ -280,6 +385,14 @@ class EventProvider extends StateNotifier<List?> {
   }
 
   Future<List<Friend>> getEventFriends(String eventId) async {
+    /*
+      takes in an eventId to then get the attendess data which is then decoded as Friends
+      and returns the list of Friends
+
+      Params: eventId: uuid
+      
+      Returns: List of Friends
+    */
     final codedList = await readEventFriends(eventId);
 
     List<Friend> deCodedList = [];

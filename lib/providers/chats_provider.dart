@@ -9,6 +9,14 @@ class ChatsProvider extends StateNotifier<List?> {
   var chatID;
 
   Future<String> readChatId(String user1Id, String user2Id) async {
+    /*
+      gets the current and other users id to get the chat id. If the chat does not exsist, it 
+      is created
+
+      Params: user1Id: uuid, user2Id: uuid
+      
+      Returns: chatId
+    */
     final supabaseClient = (await supabase).client;
     List chat = await supabaseClient
         .from('Chats')
@@ -39,6 +47,13 @@ class ChatsProvider extends StateNotifier<List?> {
   }
 
   Future<void> createNewChat(String user1Id, String user2Id) async {
+    /*
+      takes in 2 user ids to then create a new chat in supabase
+
+      Params: user1Id: uuid, user2Id: uuid
+      
+      Returns: none
+    */
     final supabaseClient = (await supabase).client;
     var newChat = {
       'user1_id': user1Id,
@@ -49,6 +64,13 @@ class ChatsProvider extends StateNotifier<List?> {
 
   Future<void> sendMessage(
       String user1Id, String user2Id, String message) async {
+    /*
+     sends a new message to associated chat
+
+      Params: user1Id: uuid, user2Id: uuid, message: String
+      
+      Returns: none
+    */
     final supabaseClient = (await supabase).client;
     chatID = await readChatId(user1Id, user2Id);
     var newMessage = {
@@ -61,6 +83,13 @@ class ChatsProvider extends StateNotifier<List?> {
   }
 
   Future<List> getGroupChatIds() async {
+    /*
+      gets all of the groupchats that the current user is in and returns this list
+
+      Params: none
+      
+      Returns: List of chat Id's
+    */
     final supabaseClient = (await supabase).client;
     List groupChatIds = [];
     final List codedGroup = await supabaseClient
@@ -74,6 +103,13 @@ class ChatsProvider extends StateNotifier<List?> {
   }
 
   Future<List<String>> getGroupMemberIds(groupId) async {
+    /*
+      gets the list of group members based on the groupId entered
+
+      Params: groupId: uuid
+      
+      Returns: List of Group MemberIds
+    */
     final supabaseClient = (await supabase).client;
     List<String> groupMemberIds = [];
     final List codedGroup = await supabaseClient
@@ -87,6 +123,14 @@ class ChatsProvider extends StateNotifier<List?> {
   }
 
   Future<List<Map>> getMemberIdAndAvatar(groupId) async {
+    /*
+      Gets all group member information for each of the members(avatar, username, etc.) maps it, and returns 
+      it as a map
+
+      Params: groupId: uuid
+      
+      Returns: List<Map>
+    */
     final supabaseClient = (await supabase).client;
     List<Map> groupMemberIds = [];
     final List codedGroup = await supabaseClient
@@ -104,6 +148,13 @@ class ChatsProvider extends StateNotifier<List?> {
   }
 
   Future<List> getGroupChatInfo() async {
+    /*
+      Gets all Group Chat information(id, title) and returns it as a list
+
+      Params: none
+      
+      Returns: List
+    */
     final supabaseClient = (await supabase).client;
     final chatIds = await getGroupChatIds();
     List groupInfo = [];
@@ -121,6 +172,13 @@ class ChatsProvider extends StateNotifier<List?> {
   }
 
   Future<void> sendGroupMessage(String groupID, String message) async {
+    /*
+      sends a message and creates a record in supabase beased on the entered group id
+
+      Params: groupId: uuid, message: String
+      
+      Returns: None
+    */
     final supabaseClient = (await supabase).client;
     var newMessage = {
       'sender_id': supabaseClient.auth.currentUser!.id,
@@ -132,6 +190,13 @@ class ChatsProvider extends StateNotifier<List?> {
   }
 
   Future<void> createNewGroup(String title, List users) async {
+    /*
+      Creates a new groupchat based on the tile and list of users provided
+
+      Params: title: String, users: List<uuid>
+      
+      Returns: none
+    */
     final supabaseClient = (await supabase).client;
     users.add(supabaseClient.auth.currentUser!.id);
     var newChat = {

@@ -10,6 +10,14 @@ class AttendEventProvider extends StateNotifier<List<Event>> {
   List<Event> attendingEvents = [];
 
   Future<List> readEvents() async {
+    /*
+      gets All of the current users Attending, Hosted, and Bookmarked Events data
+      and returns it as a list
+
+      Params: none
+      
+      Returns: List of supabase friend data
+    */
     final supabaseClient = (await supabase).client;
     var events = await supabaseClient
         .from('recommended_events')
@@ -18,6 +26,15 @@ class AttendEventProvider extends StateNotifier<List<Event>> {
   }
 
   Future<void> deCodeData() async {
+    /*
+      takes in a list of friend data and converts it to a list of Friends with
+      attached images for the hosts avatar and event image and sets the state
+      of the provider to the list
+
+      Params: none
+      
+      Returns: sets state of attending events
+    */
     final codedList = await readEvents();
 
     List<Event> deCodedList = [];
@@ -70,7 +87,6 @@ class AttendEventProvider extends StateNotifier<List<Event>> {
           break;
         }
       }
-      print(deCodedEvent.title);
       if ((attending) ||
           ((deCodedEvent.host == supabaseClient.auth.currentUser!.id) ||
               (bookmarked))) {
@@ -84,6 +100,14 @@ class AttendEventProvider extends StateNotifier<List<Event>> {
   }
 
   Future<List> readEventsWithId(String userID) async {
+    /*
+      Runs the 'get_other_profile_events' in supabase to get the selected users profiles events
+      based on the userId. Converts this data to Friends and returns the List
+
+      Params: userID: uuid
+      
+      Returns: List of Friends data
+    */
     final supabaseClient = (await supabase).client;
     var events = await supabaseClient
         .rpc('get_other_profile_events', params: {'other_user_id': userID});
@@ -91,6 +115,13 @@ class AttendEventProvider extends StateNotifier<List<Event>> {
   }
 
   Future<void> deCodeDataWithId(String userId) async {
+    /*
+      Converts read events data to Friends and returns the List as the state
+
+      Params: userID: uuid
+      
+      Returns: List of Friends
+    */
     final codedList = await readEventsWithId(userId);
 
     List<Event> deCodedList = [];
@@ -153,6 +184,13 @@ class AttendEventProvider extends StateNotifier<List<Event>> {
   }
 
   List<Event> eventsAttendingByMonth(int year, int month) {
+    /*
+      Based on the year and month entered a List of events that are occuring in the month and year entered
+
+      Params: int year, int month
+      
+      Returns: List of Friends
+    */
     List<Event> eventsPerMonth = [];
     final List<Event> allAttend = state;
 
@@ -176,6 +214,13 @@ class AttendEventProvider extends StateNotifier<List<Event>> {
   }
 
   Future<void> leaveEvent(eventToLeave, currentUser) async {
+    /*
+      Deletes the attending record for the event and user entered. 
+
+      Params: eventToLeave: uuid, currentUser: uuid
+      
+      Returns: none
+    */
     final supabaseClient = (await supabase).client;
 
     await supabaseClient

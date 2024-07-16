@@ -5,6 +5,13 @@ class ActiveChatIdNotifier extends StateNotifier<String?> {
   ActiveChatIdNotifier() : super(null);
 
   void setActiveChatId(String? chatId) {
+    /*
+      takes in an optional current chatID and sets state
+
+      Params: chatId: uuid
+      
+      Returns: none
+    */
     state = chatId;
   }
 }

@@ -230,7 +230,7 @@ class ProfileProvider extends StateNotifier<Profile?> {
     return str.replaceAllMapped(RegExp(r"((?<!^)([A-Z][a-z]|(?<=[a-z])[A-Z]))"), (match) => ' ${match.group(1)}');
   }
 
-  // Returns list of friends data cor current user to be decoded
+  // Returns list of friends data for current user to be decoded
 
   Future<List> readFriends() async {
     final supabaseClient = (await supabase).client;
@@ -321,7 +321,6 @@ class ProfileProvider extends StateNotifier<Profile?> {
     final newFriendMapFriend = {'current': friendId, 'friend': currentUserId};
     final response =
         await supabaseClient.from('New_Friend').select('*').or('reciever_id.eq.$friendId,sender_id.eq.$friendId');
-    print(response);
 
     if (response.isEmpty && !accepting) {
       final newFriendRequest = {'reciever_id': friendId, 'sender_id': currentUserId};

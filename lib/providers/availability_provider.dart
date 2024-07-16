@@ -7,6 +7,13 @@ class AvailabilityProvider extends StateNotifier<List<Availability>?> {
 
 
   void updateAvailability(List<Availability> newList) async{
+    /*
+      takes in a new list of availability data to then set state of this provider
+
+      Params: newList: List<Availability>
+      
+      Returns: none
+    */
     state = newList;
   }
 }

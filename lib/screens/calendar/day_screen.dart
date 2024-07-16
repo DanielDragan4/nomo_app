@@ -18,6 +18,19 @@ class DayScreen extends ConsumerStatefulWidget {
 class _DayScreenState extends ConsumerState<DayScreen> {
   late List<Availability> currentBlockedTime;
 
+  TimeOfDay? startTime; // s time
+  TimeOfDay? endTime; // e time
+  String? blockTitle;
+
+  @override
+  void initState() {
+    super.initState();
+    availabilityByDay();
+    _initializeBlockedHours();
+  }
+
+  // Called whenever the widget configuration changes.
+  // Makes sure to update displayed time blocks approproately
   @override
   void didUpdateWidget(DayScreen oldWidget) {
     super.didUpdateWidget(oldWidget);
@@ -27,6 +40,7 @@ class _DayScreenState extends ConsumerState<DayScreen> {
     }
   }
 
+  // Filters blocked times for the specific day
   void availabilityByDay() {
     List<Availability> availabilityByDay = [];
 
@@ -42,41 +56,17 @@ class _DayScreenState extends ConsumerState<DayScreen> {
 
   List<Map<String, dynamic>> blockedHours = List.generate(
     24 * 60,
-    (index) => {
-      'blocked': false,
-      'title': '',
-      'start': null,
-      'end': null,
-      'isEvent': false,
-      'event_id': null,
-      'id': ''
-    },
+    (index) =>
+        {'blocked': false, 'title': '', 'start': null, 'end': null, 'isEvent': false, 'event_id': null, 'id': ''},
   );
 
-  TimeOfDay? startTime; // s time
-  TimeOfDay? endTime; // e time
-  String? blockTitle;
-
-  @override
-  void initState() {
-    super.initState();
-    availabilityByDay();
-    _initializeBlockedHours();
-  }
-
+  // Initializes blocked times for the current day
   void _initializeBlockedHours() {
     // Reset all blocked hours
     blockedHours = List.generate(
       24 * 60,
-      (index) => {
-        'blocked': false,
-        'title': '',
-        'start': null,
-        'end': null,
-        'isEvent': false,
-        'event_id': null,
-        'id': ''
-      },
+      (index) =>
+          {'blocked': false, 'title': '', 'start': null, 'end': null, 'isEvent': false, 'event_id': null, 'id': ''},
     );
 
     for (var availability in currentBlockedTime) {
@@ -105,6 +95,10 @@ class _DayScreenState extends ConsumerState<DayScreen> {
     }
   }
 
+  // Opens a time picker for user to select or edit a start/end time for their time block
+  //
+  // Parameters:
+  // - 'isStartTime': whether the current selection is being made for the start or end time of a block
   Future<void> _selectTime(BuildContext context, bool isStartTime) async {
     final pickedTime = await showTimePicker(
       context: context,
@@ -123,15 +117,13 @@ class _DayScreenState extends ConsumerState<DayScreen> {
     }
   }
 
+  // Confirms and saves data to database for currently selected time block
   void _confirmTimeRange(BuildContext context) {
-    if (startTime != null &&
-        endTime != null &&
-        blockTitle != null &&
-        blockTitle!.isNotEmpty) {
-      DateTime supabaseSTime = DateTime(widget.day.year, widget.day.month,
-          widget.day.day, startTime!.hour, startTime!.minute);
-      DateTime supabaseETime = DateTime(widget.day.year, widget.day.month,
-          widget.day.day, endTime!.hour, endTime!.minute);
+    if (startTime != null && endTime != null && blockTitle != null && blockTitle!.isNotEmpty) {
+      DateTime supabaseSTime =
+          DateTime(widget.day.year, widget.day.month, widget.day.day, startTime!.hour, startTime!.minute);
+      DateTime supabaseETime =
+          DateTime(widget.day.year, widget.day.month, widget.day.day, endTime!.hour, endTime!.minute);
       String profileId = ref.read(profileProvider.notifier).state!.profile_id;
 
       setState(() {
@@ -139,36 +131,32 @@ class _DayScreenState extends ConsumerState<DayScreen> {
         int endMinutes = endTime!.hour * 60 + endTime!.minute;
 
         for (int i = startMinutes; i <= endMinutes; i++) {
-          blockedHours[i] = {
-            'blocked': true,
-            'title': blockTitle,
-            'start': startTime,
-            'end': endTime
-          };
+          blockedHours[i] = {'blocked': true, 'title': blockTitle, 'start': startTime, 'end': endTime};
         }
       });
-      ref.read(profileProvider.notifier).createBlockedTime(profileId,
-          supabaseSTime.toString(), supabaseETime.toString(), blockTitle, null);
+      ref
+          .read(profileProvider.notifier)
+          .createBlockedTime(profileId, supabaseSTime.toString(), supabaseETime.toString(), blockTitle, null);
 
       Navigator.of(context).pop();
     } else {
       // Show a message if the title is empty
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-            content: Text('Please enter a title for the time block')),
+        const SnackBar(content: Text('Please enter a title for the time block')),
       );
     }
   }
 
+  // Updates an existing time block with new values
+  //
+  // Parameters:
+  // - 'availID': availability_id of the time block being edited
   void _updateTimeRange(BuildContext context, String availID) {
-    if (startTime != null &&
-        endTime != null &&
-        blockTitle != null &&
-        blockTitle!.isNotEmpty) {
-      DateTime supabaseSTime = DateTime(widget.day.year, widget.day.month,
-          widget.day.day, startTime!.hour, startTime!.minute);
-      DateTime supabaseETime = DateTime(widget.day.year, widget.day.month,
-          widget.day.day, endTime!.hour, endTime!.minute);
+    if (startTime != null && endTime != null && blockTitle != null && blockTitle!.isNotEmpty) {
+      DateTime supabaseSTime =
+          DateTime(widget.day.year, widget.day.month, widget.day.day, startTime!.hour, startTime!.minute);
+      DateTime supabaseETime =
+          DateTime(widget.day.year, widget.day.month, widget.day.day, endTime!.hour, endTime!.minute);
       String profileId = ref.read(profileProvider.notifier).state!.profile_id;
 
       setState(() {
@@ -177,32 +165,26 @@ class _DayScreenState extends ConsumerState<DayScreen> {
         int endMinutes = endTime!.hour * 60 + endTime!.minute;
 
         for (int i = startMinutes; i <= endMinutes; i++) {
-          blockedHours[i] = {
-            'blocked': true,
-            'title': blockTitle,
-            'start': startTime,
-            'end': endTime,
-            'id': availID
-          };
+          blockedHours[i] = {'blocked': true, 'title': blockTitle, 'start': startTime, 'end': endTime, 'id': availID};
         }
       });
-      ref.read(profileProvider.notifier).updateBlockedTime(
-          profileId,
-          supabaseSTime.toString(),
-          supabaseETime.toString(),
-          blockTitle,
-          availID);
+      ref
+          .read(profileProvider.notifier)
+          .updateBlockedTime(profileId, supabaseSTime.toString(), supabaseETime.toString(), blockTitle, availID);
 
       Navigator.of(context).pop();
     } else {
       // Show a message if the title is empty
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-            content: Text('Please enter a title for the time block')),
+        const SnackBar(content: Text('Please enter a title for the time block')),
       );
     }
   }
 
+  // Formats TimeOfDay value into a more readable String. Returns in the format HH:MM AM/PM
+  //
+  // Parameters:
+  // - 'time': TimeOfDay value to be converted into readable format
   String formatTimeOfDay(TimeOfDay time) {
     final hours = time.hourOfPeriod == 0 ? 12 : time.hourOfPeriod;
     final minutes = time.minute.toString().padLeft(2, '0');
@@ -210,6 +192,7 @@ class _DayScreenState extends ConsumerState<DayScreen> {
     return '$hours:$minutes $period';
   }
 
+  // Displays a bottom sheet for the creation of a new time block
   void _showTimeRangePicker(BuildContext context) {
     showModalBottomSheet(
       context: context,
@@ -242,9 +225,7 @@ class _DayScreenState extends ConsumerState<DayScreen> {
                         _selectTime(context, true);
                       },
                       child: Text(
-                        startTime == null
-                            ? 'Start Time'
-                            : formatTimeOfDay(startTime!),
+                        startTime == null ? 'Start Time' : formatTimeOfDay(startTime!),
                         style: const TextStyle(color: Colors.white),
                       ),
                     ),
@@ -256,9 +237,7 @@ class _DayScreenState extends ConsumerState<DayScreen> {
                         _selectTime(context, false);
                       },
                       child: Text(
-                        endTime == null
-                            ? 'End Time'
-                            : formatTimeOfDay(endTime!),
+                        endTime == null ? 'End Time' : formatTimeOfDay(endTime!),
                         style: const TextStyle(color: Colors.white),
                       ),
                     ),
@@ -280,8 +259,7 @@ class _DayScreenState extends ConsumerState<DayScreen> {
                 ),
                 ElevatedButton(
                   onPressed: () {
-                    _confirmTimeRange(
-                        context); // this is where the block is created
+                    _confirmTimeRange(context); // this is where the block is created
                     startTime = null;
                     endTime = null;
                   },
@@ -295,8 +273,8 @@ class _DayScreenState extends ConsumerState<DayScreen> {
     );
   }
 
-  void _showEditTimeBlock(BuildContext context, String availID, int blockStart,
-      int blockEnd, String title) {
+  // Displays a bottom sheet to edit an existing time block
+  void _showEditTimeBlock(BuildContext context, String availID, int blockStart, int blockEnd, String title) {
     // Initialize editStartTime and editEndTime with the existing values
     startTime = TimeOfDay(hour: blockStart ~/ 60, minute: blockStart % 60);
     endTime = TimeOfDay(hour: blockEnd ~/ 60, minute: blockEnd % 60);
@@ -332,14 +310,11 @@ class _DayScreenState extends ConsumerState<DayScreen> {
                       ),
                       onPressed: () async {
                         final pickedTime = await showTimePicker(
-                            context: context,
-                            initialTime: startTime!,
-                            initialEntryMode: TimePickerEntryMode.input);
+                            context: context, initialTime: startTime!, initialEntryMode: TimePickerEntryMode.input);
 
                         if (pickedTime != null) {
                           setState(() {
-                            startTime =
-                                pickedTime; // Update startTime if a new time is picked
+                            startTime = pickedTime; // Update startTime if a new time is picked
                           });
                         }
                       },
@@ -354,14 +329,11 @@ class _DayScreenState extends ConsumerState<DayScreen> {
                       ),
                       onPressed: () async {
                         final pickedTime = await showTimePicker(
-                            context: context,
-                            initialTime: endTime!,
-                            initialEntryMode: TimePickerEntryMode.input);
+                            context: context, initialTime: endTime!, initialEntryMode: TimePickerEntryMode.input);
 
                         if (pickedTime != null) {
                           setState(() {
-                            endTime =
-                                pickedTime; // Update endTime if a new time is picked
+                            endTime = pickedTime; // Update endTime if a new time is picked
                           });
                         }
                       },
@@ -393,25 +365,16 @@ class _DayScreenState extends ConsumerState<DayScreen> {
                     ElevatedButton(
                       onPressed: () {
                         setState(() {
-                          int newStartMinutes =
-                              startTime!.hour * 60 + startTime!.minute;
-                          int newEndMinutes =
-                              endTime!.hour * 60 + endTime!.minute;
+                          int newStartMinutes = startTime!.hour * 60 + startTime!.minute;
+                          int newEndMinutes = endTime!.hour * 60 + endTime!.minute;
 
                           // Clear the previous block
                           for (int i = blockStart; i <= blockEnd; i++) {
-                            blockedHours[i] = {
-                              'blocked': false,
-                              'title': '',
-                              'start': null,
-                              'end': null
-                            };
+                            blockedHours[i] = {'blocked': false, 'title': '', 'start': null, 'end': null};
                           }
 
                           // Set the new block
-                          for (int i = newStartMinutes;
-                              i <= newEndMinutes;
-                              i++) {
+                          for (int i = newStartMinutes; i <= newEndMinutes; i++) {
                             blockedHours[i] = {
                               'blocked': true,
                               'title': titleController.text,
@@ -431,17 +394,10 @@ class _DayScreenState extends ConsumerState<DayScreen> {
                       onPressed: () {
                         setState(() {
                           for (int i = blockStart; i <= blockEnd; i++) {
-                            blockedHours[i] = {
-                              'blocked': false,
-                              'title': '',
-                              'start': null,
-                              'end': null
-                            };
+                            blockedHours[i] = {'blocked': false, 'title': '', 'start': null, 'end': null};
                           }
                         });
-                        ref
-                            .read(profileProvider.notifier)
-                            .deleteBlockedTime(availID, null);
+                        ref.read(profileProvider.notifier).deleteBlockedTime(availID, null);
                         Navigator.of(context).pop();
                         // startTime = null;
                         // endTime = null;
@@ -472,8 +428,7 @@ class _DayScreenState extends ConsumerState<DayScreen> {
     // Render hour labels
     for (int i = 0; i < 24; i++) {
       final startingHour = i % 12 == 0 ? 12 : i % 12;
-      final timeLabel =
-          '${startingHour == 0 ? 12 : startingHour}:00 ${i < 12 ? 'AM' : 'PM'}';
+      final timeLabel = '${startingHour == 0 ? 12 : startingHour}:00 ${i < 12 ? 'AM' : 'PM'}';
 
       hourLabels.add(SizedBox(
         height: 50.0,
@@ -482,8 +437,7 @@ class _DayScreenState extends ConsumerState<DayScreen> {
             Container(
               decoration: BoxDecoration(
                   color: Theme.of(context).colorScheme.onSecondary,
-                  border:
-                      const Border(bottom: BorderSide(), right: BorderSide())),
+                  border: const Border(bottom: BorderSide(), right: BorderSide())),
               width: 80,
               alignment: Alignment.centerLeft,
               padding: const EdgeInsets.symmetric(horizontal: 8.0),
@@ -510,8 +464,7 @@ class _DayScreenState extends ConsumerState<DayScreen> {
 
         while (blockEnd < 24 * 60 &&
             blockedHours[blockEnd]['blocked'] &&
-            blockedHours[blockEnd]['title'] ==
-                blockedHours[blockStart]['title']) {
+            blockedHours[blockEnd]['title'] == blockedHours[blockStart]['title']) {
           blockEnd++;
         }
 
@@ -528,8 +481,7 @@ class _DayScreenState extends ConsumerState<DayScreen> {
             child: GestureDetector(
               onTap: () {
                 if (!isEvent) {
-                  _showEditTimeBlock(context, availID, blockStart, blockEnd - 1,
-                      blockedHours[blockStart]['title']);
+                  _showEditTimeBlock(context, availID, blockStart, blockEnd - 1, blockedHours[blockStart]['title']);
                 } else {
                   Navigator.of(context).push(MaterialPageRoute(
                     builder: (context) => DetailedEventScreen(

@@ -9,25 +9,29 @@ class SearchProvider extends StateNotifier<List<dynamic>> {
 
   Future<Supabase> supabase;
 
+  // Calls SQL 'Function to search profiles' in Supabase
+  //
+  // Parameters:
+  // - 'query': what the user is trying to search for
   Future<List> searchProfiles(String query) async {
     final supabaseClient = (await supabase).client;
 
-    final profilesRpc =
-        await supabaseClient.rpc('search_profiles', params: {'query': query});
+    final profilesRpc = await supabaseClient.rpc('search_profiles', params: {'query': query});
 
     final profiles = profilesRpc as List;
 
     return profiles;
   }
 
+  // Returns decoded (useable) data for the list of queried user profiles,
+  // passed in through the use of searchProfiles
   Future<List<Friend>> decodeProfileSearch(String query) async {
     final List userSearchCoded = await searchProfiles(query);
     List<Friend> userSearches = [];
     final supabaseClient = (await supabase).client;
 
     for (var s in userSearchCoded) {
-      String profileUrl =
-          supabaseClient.storage.from('Images').getPublicUrl(s['profile_path']);
+      String profileUrl = supabaseClient.storage.from('Images').getPublicUrl(s['profile_path']);
 
       final Friend user = Friend(
           friendProfileId: s['profile_id'],
@@ -40,17 +44,22 @@ class SearchProvider extends StateNotifier<List<dynamic>> {
     return userSearches;
   }
 
+  // Calls SQL 'Function to search events' in Supabase
+  //
+  // Parameters:
+  // - 'query': what the user is trying to search for
   Future<List> searchEvents(String query) async {
     final supabaseClient = (await supabase).client;
 
-    final eventsRpc =
-        await supabaseClient.rpc('search_events', params: {'query': query});
+    final eventsRpc = await supabaseClient.rpc('search_events', params: {'query': query});
 
     final events = eventsRpc as List;
 
     return events;
   }
 
+  // Returns decoded (useable) data for the list of queried events,
+  // passed in through the use of searchEvents
   Future<List<Event>> decodeEventSearch(String query) async {
     final codedList = await searchEvents(query);
 
@@ -59,14 +68,9 @@ class SearchProvider extends StateNotifier<List<dynamic>> {
 
     for (var eventData in codedList) {
       print('Event Data: $eventData');
-      String profilePictureUrl = supabaseClient.storage
-          .from('Images')
-          .getPublicUrl(eventData['profile_path']);
-      String eventUrl = supabaseClient.storage
-          .from('Images')
-          .getPublicUrl(eventData['event_path']);
-      bool bookmarked =
-          eventData['bookmarked'].contains(supabaseClient.auth.currentUser!.id);
+      String profilePictureUrl = supabaseClient.storage.from('Images').getPublicUrl(eventData['profile_path']);
+      String eventUrl = supabaseClient.storage.from('Images').getPublicUrl(eventData['event_path']);
+      bool bookmarked = eventData['bookmarked'].contains(supabaseClient.auth.currentUser!.id);
 
       final Event deCodedEvent = Event(
           description: eventData['description'],
@@ -91,27 +95,30 @@ class SearchProvider extends StateNotifier<List<dynamic>> {
           isVirtual: eventData['is_virtual']);
 
       // Set attending and isHost flags
-      deCodedEvent.attending =
-          deCodedEvent.attendees.contains(supabaseClient.auth.currentUser!.id);
-      deCodedEvent.isHost =
-          deCodedEvent.host == supabaseClient.auth.currentUser!.id;
+      deCodedEvent.attending = deCodedEvent.attendees.contains(supabaseClient.auth.currentUser!.id);
+      deCodedEvent.isHost = deCodedEvent.host == supabaseClient.auth.currentUser!.id;
 
       deCodedList.add(deCodedEvent);
     }
     return deCodedList;
   }
 
+  // Calls SQL 'Function to search event_interests' in Supabase
+  //
+  // Parameters:
+  // - 'query': what the user is trying to search for
   Future<List> searchInterests(String query) async {
     final supabaseClient = (await supabase).client;
 
-    final eventsRpc =
-        await supabaseClient.rpc('search_interests', params: {'query': query});
+    final eventsRpc = await supabaseClient.rpc('search_interests', params: {'query': query});
 
     final events = eventsRpc as List;
 
     return events;
   }
 
+  // Returns decoded (useable) data for the list of events based on queried interests,
+  // passed in through the use of searchInterests
   Future<List<Event>> decodeInterestSearch(String query) async {
     final codedList = await searchInterests(query);
 
@@ -120,14 +127,9 @@ class SearchProvider extends StateNotifier<List<dynamic>> {
 
     for (var eventData in codedList) {
       print('Event Data: $eventData');
-      String profilePictureUrl = supabaseClient.storage
-          .from('Images')
-          .getPublicUrl(eventData['profile_path']);
-      String eventUrl = supabaseClient.storage
-          .from('Images')
-          .getPublicUrl(eventData['event_path']);
-      bool bookmarked =
-          eventData['bookmarked'].contains(supabaseClient.auth.currentUser!.id);
+      String profilePictureUrl = supabaseClient.storage.from('Images').getPublicUrl(eventData['profile_path']);
+      String eventUrl = supabaseClient.storage.from('Images').getPublicUrl(eventData['event_path']);
+      bool bookmarked = eventData['bookmarked'].contains(supabaseClient.auth.currentUser!.id);
 
       final Event deCodedEvent = Event(
           description: eventData['description'],
@@ -152,10 +154,8 @@ class SearchProvider extends StateNotifier<List<dynamic>> {
           isVirtual: eventData['is_virtual']);
 
       // Set attending and isHost flags
-      deCodedEvent.attending =
-          deCodedEvent.attendees.contains(supabaseClient.auth.currentUser!.id);
-      deCodedEvent.isHost =
-          deCodedEvent.host == supabaseClient.auth.currentUser!.id;
+      deCodedEvent.attending = deCodedEvent.attendees.contains(supabaseClient.auth.currentUser!.id);
+      deCodedEvent.isHost = deCodedEvent.host == supabaseClient.auth.currentUser!.id;
 
       deCodedList.add(deCodedEvent);
     }
@@ -163,8 +163,7 @@ class SearchProvider extends StateNotifier<List<dynamic>> {
   }
 }
 
-final searchProvider =
-    StateNotifierProvider<SearchProvider, List<dynamic>>((ref) {
+final searchProvider = StateNotifierProvider<SearchProvider, List<dynamic>>((ref) {
   final supabase = ref.read(supabaseInstance);
   return SearchProvider(supabase: supabase);
 });

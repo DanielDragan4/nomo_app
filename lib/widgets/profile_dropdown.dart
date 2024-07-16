@@ -10,7 +10,11 @@ import 'package:nomo/screens/settings/setting_screen.dart';
 
 enum options { itemOne, itemTwo, itemThree, itemFour, itemFive }
 
-//Dropdown and all item operations in Profile Screen (Three dots)
+// Dropdown and all item operations in Profile Screen (Three dots)
+//
+// Parameters:
+// - 'updateProfileInfo': callback function to update user's profile info in Profile Screen after edit
+// - 'profileInfo': current user's profile infrmation retrieved by fetchProfileById in profile provider
 class ProfileDropdown extends ConsumerStatefulWidget {
   void Function() updateProfileInfo;
   final Future<Profile>? profileInfo;

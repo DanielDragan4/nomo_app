@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:io';
 
-//(Currently) useless garbage
+// (Currently) useless garbage
 class ImageInput extends StatefulWidget {
   const ImageInput({super.key, required this.onPickImage, this.previousImage});
 

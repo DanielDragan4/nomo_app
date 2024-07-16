@@ -1,6 +1,11 @@
 import 'package:flutter/material.dart';
 
-//Default button styling for Settings Screen list
+// Default button styling for Settings Screen list
+//
+// Parameters:
+// - 'title': title of setting button
+// - 'onPressed': updates switch value, or redirects to new screen
+// - 'isSwitch': is setting tile has a toggle switch (onPressed switches on/off)
 class SettingButton extends StatefulWidget {
   const SettingButton({
     super.key,

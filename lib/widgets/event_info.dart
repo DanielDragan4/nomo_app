@@ -15,8 +15,7 @@ import 'package:share/share.dart';
 enum Options { itemOne, itemTwo, itemThree, itemFour }
 
 class EventInfo extends ConsumerStatefulWidget {
-  const EventInfo({Key? key, required this.eventsData, this.bookmarkSet})
-      : super(key: key);
+  const EventInfo({Key? key, required this.eventsData, this.bookmarkSet}) : super(key: key);
   final Event eventsData;
   final bool? bookmarkSet;
 
@@ -66,8 +65,7 @@ class _EventInfoState extends ConsumerState<EventInfo> {
     if (dateFormat.format(startDate) == dateFormat.format(endDate)) {
       displayedDates = "${dateFormat.format(startDate)}";
     } else {
-      displayedDates =
-          "${dateFormat.format(startDate)} - ${dateFormat.format(endDate)}";
+      displayedDates = "${dateFormat.format(startDate)} - ${dateFormat.format(endDate)}";
     }
 
     return Column(
@@ -132,15 +130,16 @@ class _EventInfoState extends ConsumerState<EventInfo> {
                         const SizedBox(height: 8),
                         Flexible(
                           child: AttendeesSection(
-                              eventId: widget.eventsData.eventId, areFriends: false,),
+                            eventId: widget.eventsData.eventId,
+                            areFriends: false,
+                          ),
                         ),
                       ],
                     ),
                   );
                 });
           },
-          child: _buildInfoItem(context, '${widget.eventsData.attendees.length}',
-              'Attending', isSmallScreen),
+          child: _buildInfoItem(context, '${widget.eventsData.attendees.length}', 'Attending', isSmallScreen),
         ),
         SizedBox(width: MediaQuery.of(context).size.width * .04),
         GestureDetector(
@@ -179,15 +178,16 @@ class _EventInfoState extends ConsumerState<EventInfo> {
                         const SizedBox(height: 8),
                         Flexible(
                           child: AttendeesSection(
-                              eventId: widget.eventsData.eventId, areFriends: true,),
+                            eventId: widget.eventsData.eventId,
+                            areFriends: true,
+                          ),
                         ),
                       ],
                     ),
                   );
                 });
           },
-          child: _buildInfoItem(context, '${widget.eventsData.friends.length}',
-              'Friends', isSmallScreen),
+          child: _buildInfoItem(context, '${widget.eventsData.friends.length}', 'Friends', isSmallScreen),
         ),
         SizedBox(width: MediaQuery.of(context).size.width * .04),
         GestureDetector(
@@ -225,23 +225,20 @@ class _EventInfoState extends ConsumerState<EventInfo> {
                         ),
                         const SizedBox(height: 8),
                         Flexible(
-                          child: CommentsSection(
-                              eventId: widget.eventsData.eventId),
+                          child: CommentsSection(eventId: widget.eventsData.eventId),
                         ),
                       ],
                     ),
                   );
                 });
           },
-          child: _buildInfoItem(context, '${widget.eventsData.numOfComments}',
-              'Comments', isSmallScreen),
+          child: _buildInfoItem(context, '${widget.eventsData.numOfComments}', 'Comments', isSmallScreen),
         ),
       ],
     );
   }
 
-  Widget _buildInfoItem(
-      BuildContext context, String value, String label, bool isSmallScreen) {
+  Widget _buildInfoItem(BuildContext context, String value, String label, bool isSmallScreen) {
     return Column(
       children: [
         Text(
@@ -287,17 +284,14 @@ class _EventInfoState extends ConsumerState<EventInfo> {
           final isHost = widget.eventsData.host == currentUser;
           final isAttending = widget.eventsData.attending;
 
-          String buttonText =
-              isHost ? 'Edit' : (isAttending ? 'Leave' : 'Join');
+          String buttonText = isHost ? 'Edit' : (isAttending ? 'Leave' : 'Join');
 
           return ElevatedButton(
-            onPressed: () => _handleJoinLeaveAction(
-                context, isHost, isAttending, currentUser),
+            onPressed: () => _handleJoinLeaveAction(context, isHost, isAttending, currentUser),
             style: ElevatedButton.styleFrom(
               padding: EdgeInsets.symmetric(vertical: isSmallScreen ? 8 : 12),
             ),
-            child: Text(buttonText,
-                style: TextStyle(fontSize: isSmallScreen ? 14 : 16)),
+            child: Text(buttonText, style: TextStyle(fontSize: isSmallScreen ? 14 : 16)),
           );
         }
         return const SizedBox.shrink();
@@ -305,8 +299,7 @@ class _EventInfoState extends ConsumerState<EventInfo> {
     );
   }
 
-  void _handleJoinLeaveAction(
-      BuildContext context, bool isHost, bool isAttending, String currentUser) {
+  void _handleJoinLeaveAction(BuildContext context, bool isHost, bool isAttending, String currentUser) {
     if (isHost) {
       _showEditEventDialog(context);
     } else if (isAttending) {
@@ -317,14 +310,12 @@ class _EventInfoState extends ConsumerState<EventInfo> {
   }
 
   void _showEditEventDialog(BuildContext context) {
-              Navigator.of(context)
-                  .push(MaterialPageRoute(
-                    builder: ((context) => NewEventScreen(
-                          event: widget.eventsData,
-                          isEdit: true,
-                        )),
-                  ));
-            
+    Navigator.of(context).push(MaterialPageRoute(
+      builder: ((context) => NewEventScreen(
+            event: widget.eventsData,
+            isEdit: true,
+          )),
+    ));
   }
 
   void _showLeaveEventDialog(BuildContext context) {
@@ -341,9 +332,7 @@ class _EventInfoState extends ConsumerState<EventInfo> {
             onPressed: () {
               setState(() {
                 attendeeLeaveEvent();
-                ref
-                    .read(profileProvider.notifier)
-                    .deleteBlockedTime(null, widget.eventsData.eventId);
+                ref.read(profileProvider.notifier).deleteBlockedTime(null, widget.eventsData.eventId);
               });
               Navigator.pop(context);
             },
@@ -385,9 +374,7 @@ class _EventInfoState extends ConsumerState<EventInfo> {
                       bookmarkBool = !bookmarkBool;
                     }),
                     icon: Icon(
-                      bookmarkBool
-                          ? Icons.bookmark
-                          : Icons.bookmark_border_outlined,
+                      bookmarkBool ? Icons.bookmark : Icons.bookmark_border_outlined,
                       color: Theme.of(context).colorScheme.onSecondary,
                     ),
                   );
@@ -412,30 +399,22 @@ class _EventInfoState extends ConsumerState<EventInfo> {
 
   Future<void> attendeeJoinEvent() async {
     final supabase = (await ref.read(supabaseInstance)).client;
-    await ref
-        .read(eventsProvider.notifier)
-        .joinEvent(supabase.auth.currentUser!.id, widget.eventsData.eventId);
+    await ref.read(eventsProvider.notifier).joinEvent(supabase.auth.currentUser!.id, widget.eventsData.eventId);
   }
 
   Future<void> attendeeLeaveEvent() async {
     final supabase = (await ref.read(supabaseInstance)).client;
-    await ref
-        .read(attendEventsProvider.notifier)
-        .leaveEvent(widget.eventsData.eventId, supabase.auth.currentUser!.id);
+    await ref.read(attendEventsProvider.notifier).leaveEvent(widget.eventsData.eventId, supabase.auth.currentUser!.id);
   }
 
   Future<void> bookmarkEvent() async {
     final supabase = (await ref.read(supabaseInstance)).client;
-    await ref
-        .read(eventsProvider.notifier)
-        .bookmark(widget.eventsData.eventId, supabase.auth.currentUser!.id);
+    await ref.read(eventsProvider.notifier).bookmark(widget.eventsData.eventId, supabase.auth.currentUser!.id);
   }
 
   Future<void> deBookmarkEvent() async {
     final supabase = (await ref.read(supabaseInstance)).client;
-    await ref
-        .read(eventsProvider.notifier)
-        .unBookmark(widget.eventsData.eventId, supabase.auth.currentUser!.id);
+    await ref.read(eventsProvider.notifier).unBookmark(widget.eventsData.eventId, supabase.auth.currentUser!.id);
   }
 
   Future<void> _shareEventLink() async {
@@ -460,8 +439,7 @@ class _EventInfoState extends ConsumerState<EventInfo> {
         keywords: [],
         publiclyIndex: true,
         locallyIndex: true,
-        contentMetadata: BranchContentMetaData()
-          ..addCustomMetadata("event_id", widget.eventsData.eventId),
+        contentMetadata: BranchContentMetaData()..addCustomMetadata("event_id", widget.eventsData.eventId),
       );
 
       BranchLinkProperties lp = BranchLinkProperties(
@@ -472,11 +450,9 @@ class _EventInfoState extends ConsumerState<EventInfo> {
       )
         ..addControlParam('\$fallback_url', 'https://example.com')
         ..addControlParam('\$ios_url', 'https://apps.apple.com/app/id123456789')
-        ..addControlParam('\$android_url',
-            'https://play.google.com/store/apps/details?id=com.nomo.nomoapp');
+        ..addControlParam('\$android_url', 'https://play.google.com/store/apps/details?id=com.nomo.nomoapp');
 
-      BranchResponse response =
-          await FlutterBranchSdk.getShortUrl(buo: buo, linkProperties: lp);
+      BranchResponse response = await FlutterBranchSdk.getShortUrl(buo: buo, linkProperties: lp);
       if (response.success) {
         return response.result;
       } else {

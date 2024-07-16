@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
 
-//Used to display Notifications and their details in the Notification Screen (Not Popup)
+// Used to display Notifications and their details in the Notification Screen (Not Popup)
+//
+// Parameters:
+// - 'title': title of notification item
+// - 'details'(optional): details of the notification item
 class NotificationItem extends StatelessWidget {
   final String title;
   final String? details;

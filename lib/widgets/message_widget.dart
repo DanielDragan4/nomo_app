@@ -2,9 +2,19 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:jiffy/jiffy.dart';
 
-//Widget used to display all message information in DMs (including sender avatar and message contents)
+// Widget used to display all message information in DMs (including sender avatar and message contents)
+//
+// Parameters:
+// - 'message': contents of the message/DM
+// - 'currentUser': ID of the current user
+// - 'otherAvatar': avatar of recipient (not current user)
 class MessageWidget extends ConsumerWidget {
-  const MessageWidget({super.key, required this.message, required this.currentUser, required this.otherAvatar});
+  const MessageWidget({
+    super.key,
+    required this.message,
+    required this.currentUser,
+    required this.otherAvatar,
+  });
 
   final message;
   final currentUser;

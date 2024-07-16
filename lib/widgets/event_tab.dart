@@ -8,13 +8,16 @@ import 'package:nomo/screens/detailed_event_screen.dart';
 import 'package:nomo/screens/profile_screen.dart';
 import 'package:nomo/widgets/event_info.dart';
 
+// Widget used to display all event information in recommended and profile screen
+// Calls EventInfo to build all details below the location
+//
+// Parameters:
+// - 'eventData': all relevant data pertaining to specific event
+// - 'bookmarkSet(optional)': if current user has this event bookmarked or not
+// - 'preloadedImage'(optional): image for specified event. only passed in if already loaded
+
 class EventTab extends ConsumerStatefulWidget {
-  EventTab(
-      {Key? key,
-      required this.eventData,
-      this.bookmarkSet,
-      this.preloadedImage})
-      : super(key: key);
+  EventTab({Key? key, required this.eventData, this.bookmarkSet, this.preloadedImage}) : super(key: key);
 
   final Event eventData;
   final bool? bookmarkSet;
@@ -28,20 +31,16 @@ class _EventTabState extends ConsumerState<EventTab> {
   @override
   Widget build(BuildContext context) {
     final DateTime date = DateTime.parse(widget.eventData.sdate);
-    final formattedDate =
-        "${date.month}/${date.day}/${date.year} at ${_getFormattedHour(date)}";
+    final formattedDate = "${date.month}/${date.day}/${date.year} at ${_getFormattedHour(date)}";
 
-    final bool isHostOrAttending =
-        widget.eventData.isHost || widget.eventData.attending;
+    final bool isHostOrAttending = widget.eventData.isHost || widget.eventData.attending;
 
     return Card(
       elevation: 4,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
       color: isHostOrAttending
-          ? Theme.of(context)
-              .colorScheme
-              .primaryContainer // Color for hosted/attended events
+          ? Theme.of(context).colorScheme.primaryContainer // Color for hosted/attended events
           : Theme.of(context).cardColor, // Default card color
       child: Stack(
         children: [
@@ -132,16 +131,13 @@ class _EventTabState extends ConsumerState<EventTab> {
           await Navigator.push(
             context,
             MaterialPageRoute(
-              builder: (context) =>
-                  ProfileScreen(isUser: false, userId: widget.eventData.host),
+              builder: (context) => ProfileScreen(isUser: false, userId: widget.eventData.host),
             ),
           );
           //Refresh data when popping back to your profile
           if (mounted) {
             WidgetsBinding.instance.addPostFrameCallback((_) {
-              context
-                  .findAncestorStateOfType<ProfileScreenState>()
-                  ?.refreshData();
+              context.findAncestorStateOfType<ProfileScreenState>()?.refreshData();
             });
           }
         },
@@ -218,8 +214,7 @@ class _EventTabState extends ConsumerState<EventTab> {
   Widget _buildEventDate(BuildContext context, String formattedDate) {
     return Row(
       children: [
-        Icon(Icons.calendar_today,
-            size: 18, color: Theme.of(context).colorScheme.secondary),
+        Icon(Icons.calendar_today, size: 18, color: Theme.of(context).colorScheme.secondary),
         const SizedBox(width: 8),
         Text(
           formattedDate,
@@ -234,8 +229,7 @@ class _EventTabState extends ConsumerState<EventTab> {
         ? Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Icon(Icons.computer,
-                  size: 18, color: Theme.of(context).colorScheme.secondary),
+              Icon(Icons.computer, size: 18, color: Theme.of(context).colorScheme.secondary),
               const SizedBox(width: 8),
               Expanded(
                 child: Text(
@@ -253,8 +247,7 @@ class _EventTabState extends ConsumerState<EventTab> {
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Icon(Icons.location_on,
-                    size: 18, color: Theme.of(context).colorScheme.secondary),
+                Icon(Icons.location_on, size: 18, color: Theme.of(context).colorScheme.secondary),
                 const SizedBox(width: 8),
                 Expanded(
                   child: Text(

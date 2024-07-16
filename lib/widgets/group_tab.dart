@@ -6,7 +6,10 @@ import 'package:nomo/screens/availability_screen.dart';
 import 'package:nomo/screens/chat_screen.dart';
 
 class GroupTab extends ConsumerStatefulWidget {
-  const GroupTab({super.key, required this.groupData});
+  const GroupTab({
+    super.key,
+    required this.groupData,
+  });
 
   final Map groupData;
 
@@ -15,9 +18,8 @@ class GroupTab extends ConsumerStatefulWidget {
 }
 
 class _FriendTabState extends ConsumerState<GroupTab> {
-
   List<String> users = [];
-  void getUsersIds() async{
+  void getUsersIds() async {
     users = await ref.read(chatsProvider.notifier).getGroupMemberIds(widget.groupData['group_id']);
   }
 
@@ -26,6 +28,7 @@ class _FriendTabState extends ConsumerState<GroupTab> {
     getUsersIds();
     super.initState();
   }
+
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
@@ -40,8 +43,7 @@ class _FriendTabState extends ConsumerState<GroupTab> {
       child: Container(
         height: 60,
         padding: const EdgeInsets.symmetric(vertical: 5),
-        child:
-            Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
+        child: Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
           Row(
             children: [
               CircleAvatar(
@@ -51,8 +53,7 @@ class _FriendTabState extends ConsumerState<GroupTab> {
               const SizedBox(width: 10),
               Text(
                 widget.groupData['title'],
-                style:
-                    TextStyle(color: Theme.of(context).colorScheme.onSecondary),
+                style: TextStyle(color: Theme.of(context).colorScheme.onSecondary),
               ),
             ],
           ),
@@ -63,8 +64,7 @@ class _FriendTabState extends ConsumerState<GroupTab> {
                 onPressed: () {
                   Navigator.of(context).push(MaterialPageRoute(
                     builder: (context) => ChatScreen(
-                      currentUser:
-                          ref.read(profileProvider.notifier).state!.profile_id,
+                      currentUser: ref.read(profileProvider.notifier).state!.profile_id,
                       groupInfo: widget.groupData,
                     ),
                   ));
@@ -75,10 +75,9 @@ class _FriendTabState extends ConsumerState<GroupTab> {
                 ),
               ),
               IconButton(
-                onPressed: () async{
-                  Navigator.of(context).push(MaterialPageRoute(
-                    builder: (context) => AvailableTimesScreen(users: users)
-                  ));
+                onPressed: () async {
+                  Navigator.of(context)
+                      .push(MaterialPageRoute(builder: (context) => AvailableTimesScreen(users: users)));
                 },
                 icon: Icon(
                   Icons.calendar_month_outlined,

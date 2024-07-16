@@ -4,9 +4,13 @@ import 'package:nomo/models/friend_model.dart';
 import 'package:nomo/providers/events_provider.dart';
 import 'package:nomo/widgets/friend_tab.dart';
 
+// Bottom sheet used to display event attendee profiles
+//
+// Parameters:
+// - 'eventId': ID of event for which to retreive list of attendees
+// - 'areFriends': if only list of friends attending should be shown
 class AttendeesSection extends ConsumerStatefulWidget {
-  const AttendeesSection(
-      {super.key, required this.eventId, required this.areFriends});
+  const AttendeesSection({super.key, required this.eventId, required this.areFriends});
 
   final eventId;
   final bool areFriends;
@@ -26,16 +30,12 @@ class _AttendeesSectionState extends ConsumerState<AttendeesSection> {
 
   Future<void> receiveComments() async {
     if (widget.areFriends) {
-      var readEventAttendees = await ref
-          .read(eventsProvider.notifier)
-          .getEventFriends(widget.eventId);
+      var readEventAttendees = await ref.read(eventsProvider.notifier).getEventFriends(widget.eventId);
       setState(() {
         attendeesList = readEventAttendees;
       });
     } else {
-      var readEventAttendees = await ref
-          .read(eventsProvider.notifier)
-          .getEventAttendees(widget.eventId);
+      var readEventAttendees = await ref.read(eventsProvider.notifier).getEventAttendees(widget.eventId);
       setState(() {
         attendeesList = readEventAttendees;
       });
@@ -62,26 +62,19 @@ class _AttendeesSectionState extends ConsumerState<AttendeesSection> {
               )
             : Center(
                 child: Padding(
-                  padding:
-                      EdgeInsets.all(MediaQuery.of(context).size.height * 0.02),
+                  padding: EdgeInsets.all(MediaQuery.of(context).size.height * 0.02),
                   child: widget.areFriends
                       ? Text(
                           "No Friends Attending This Event",
                           style: TextStyle(
-                            color: Theme.of(context)
-                                .colorScheme
-                                .onSecondary
-                                .withOpacity(0.6),
+                            color: Theme.of(context).colorScheme.onSecondary.withOpacity(0.6),
                             fontSize: MediaQuery.of(context).size.width * 0.04,
                           ),
                         )
                       : Text(
                           "No Attendees In This Event",
                           style: TextStyle(
-                            color: Theme.of(context)
-                                .colorScheme
-                                .onSecondary
-                                .withOpacity(0.6),
+                            color: Theme.of(context).colorScheme.onSecondary.withOpacity(0.6),
                             fontSize: MediaQuery.of(context).size.width * 0.04,
                           ),
                         ),

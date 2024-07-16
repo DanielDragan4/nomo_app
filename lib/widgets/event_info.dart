@@ -14,6 +14,13 @@ import 'package:share/share.dart';
 
 enum Options { itemOne, itemTwo, itemThree, itemFour }
 
+// Widget used to build all event details below the location. I
+// Includes attendace, comments, details, and all buttons.
+//
+// Parameters:
+// - 'eventData': all relevant data pertaining to specific event passed in by EventTab
+// - 'bookmarkSet(optional)': if current user has this event bookmarked or not passed in by EventTab
+
 class EventInfo extends ConsumerStatefulWidget {
   const EventInfo({Key? key, required this.eventsData, this.bookmarkSet}) : super(key: key);
   final Event eventsData;

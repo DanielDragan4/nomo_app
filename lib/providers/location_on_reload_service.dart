@@ -8,6 +8,14 @@ import 'package:shared_preferences/shared_preferences.dart';
   bool hasPermission = false;
 
     Future<bool> _handleLocationPermission() async {
+    /*
+      checks to see whether the users location permissions are enabled, if not
+      checks to see if they arent permenantly disabled.
+
+      Params: none
+      
+      Returns: bool
+    */
     bool serviceEnabled;
     LocationPermission permission;
 

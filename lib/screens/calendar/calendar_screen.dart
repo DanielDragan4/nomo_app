@@ -129,6 +129,11 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
   }
 
   void _confirmTimeRange(BuildContext context, DateTime? selectedDate) {
+    /*
+      Checks to see date is selected to create the time block
+      
+      Returns: none
+    */
     if (startTime != null &&
         endTime != null &&
         blockTitle != null &&
@@ -168,10 +173,15 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
   }
 
   Future<void> _selectTime(BuildContext context, bool isStartTime) async {
+    /*
+      Checks to see if start time has been set, and sets it to the selected time if it hasnt been, if not
+      then sets it to end time
+
+      Returns: none
+    */
     final pickedTime = await showTimePicker(
       context: context,
       initialTime: TimeOfDay.now(),
-      //initialEntryMode: TimePickerEntryMode.input
     );
 
     if (pickedTime != null) {
@@ -186,6 +196,7 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
   }
 
   String formatTimeOfDay(TimeOfDay time) {
+    
     final hours = time.hourOfPeriod == 0 ? 12 : time.hourOfPeriod;
     final minutes = time.minute.toString().padLeft(2, '0');
     final period = time.period == DayPeriod.am ? 'AM' : 'PM';
@@ -193,6 +204,13 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
   }
 
   Future<void> setProfileAvail() async {
+    /*
+      Sets the state of the availability provider to the new value when a new time block is created
+
+      Params: none
+      
+      Returns: none
+    */
     await ref.read(profileProvider.notifier).decodeData();
     ref.read(availabilityProvider.notifier).updateAvailability(ref
         .watch(profileProvider.notifier)

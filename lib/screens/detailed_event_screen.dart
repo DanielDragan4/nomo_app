@@ -25,6 +25,14 @@ class _DetailedEventScreenState extends ConsumerState<DetailedEventScreen> {
   Event? event;
 
   Future<void> _initializeEventData() async {
+    /*
+     gets all event data from an active link based on the eventID from the share link, this then sets
+     the event for the Event Screen
+
+      Params: none
+      
+      Returns: none
+    */
     if (widget.linkEventId != null) {
       event = await ref.read(eventsProvider.notifier).deCodeLinkEvent(widget.linkEventId!);
     } else {

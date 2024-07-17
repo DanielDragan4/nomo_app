@@ -28,6 +28,13 @@ class Month extends ConsumerWidget {
   final Map<DateTime, bool> selectedDatesWithTime;
 
   String monthName(int month) {
+    /*
+      returns a String for the month depending on DateTime month entered
+
+      Params: month: int
+      
+      Returns: String
+    */
     switch (month) {
       case 1:
         return "January";
@@ -58,6 +65,14 @@ class Month extends ConsumerWidget {
   }
 
   bool findBorderWidth(cellPosition) {
+    /*
+      returns true depending on the position of the day in the month. is true depending on if the day in the grid 
+      matches the day of week at start and end otherwise false
+
+      Params: cellPosition: int
+      
+      Returns: bool
+    */
     bool borderWidth;
 
     if ((cellIndex - firstDayOfWeek) < lastOfMonth &&
@@ -71,6 +86,14 @@ class Month extends ConsumerWidget {
   }
 
   Color findCellColor(int cellPosition, List<Event> events) {
+    /*
+      returns Different collor for DayButton depending on cell position. If in month or has event
+      has color, if not set to grey
+
+      Params: cellPosition: int, events: List<Event> 
+      
+      Returns: bool
+    */
     Color cellColor = const Color.fromARGB(255, 226, 194, 231); // Default color
 
     var dayInGrid = cellPosition - firstDayOfWeek;
@@ -99,6 +122,14 @@ class Month extends ConsumerWidget {
   }
 
   List<bool> hasEvent(int cellPosition, List<Event> events) {
+    /*
+      Checks the date compared to the day of the daybutton. if equal the day button contains an event and
+      returns true.
+
+      Params: cellPosition: int, List<Event> events
+      
+      Returns: bool
+    */
     List<bool> eventStatus = [
       false,
       false

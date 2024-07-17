@@ -22,12 +22,18 @@ class _AvailableTimesScreenState extends ConsumerState<AvailableTimesScreen> {
   String? formattedEnd;
 
   void _submitForm() async {
+    /*
+      gets all values to get valuse for mutual availability from the profile provider. Sets the values for _freeTimes
+
+      Params: none
+      
+      Returns: none
+    */
     if ((startPicked != null) && (endPicked != null) && (int.parse(durationController.text) != null)) {
       final freeTimes = await ref.read(profileProvider.notifier).mutualAvailability(widget.users, startPicked!, endPicked!, (int.parse(durationController.text)));
       setState(() {
         _freeTimes = freeTimes;
       });
-      print(_freeTimes);
     }
   }
 

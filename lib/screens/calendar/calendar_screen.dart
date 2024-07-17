@@ -16,6 +16,7 @@ class CalendarScreen extends ConsumerStatefulWidget {
 }
 
 class _CalendarScreenState extends ConsumerState<CalendarScreen> {
+  final PageController _pageController = PageController(initialPage: DateTime.now().month - 1);
   final DateTime currentDate = DateTime.now();
   int monthDisplayed = DateTime.now().month;
   int yearDisplayed = DateTime.now().year;
@@ -78,9 +79,7 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
                         _selectTime(context, true);
                       },
                       child: Text(
-                        startTime == null
-                            ? 'Start Time'
-                            : formatTimeOfDay(startTime!),
+                        startTime == null ? 'Start Time' : formatTimeOfDay(startTime!),
                         style: const TextStyle(color: Colors.white),
                       ),
                     ),
@@ -92,9 +91,7 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
                         _selectTime(context, false);
                       },
                       child: Text(
-                        endTime == null
-                            ? 'End Time'
-                            : formatTimeOfDay(endTime!),
+                        endTime == null ? 'End Time' : formatTimeOfDay(endTime!),
                         style: const TextStyle(color: Colors.white),
                       ),
                     ),
@@ -134,11 +131,7 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
       
       Returns: none
     */
-    if (startTime != null &&
-        endTime != null &&
-        blockTitle != null &&
-        blockTitle!.isNotEmpty &&
-        selectedDate != null) {
+    if (startTime != null && endTime != null && blockTitle != null && blockTitle!.isNotEmpty && selectedDate != null) {
       final profileId = ref.read(profileProvider)!.profile_id;
 
       final startDateTime = DateTime(
@@ -160,14 +153,14 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
         selectedDatesWithTime[selectedDate] = true;
       });
 
-      ref.watch(profileProvider.notifier).createBlockedTime(profileId,
-          startDateTime.toString(), endDateTime.toString(), blockTitle!, null);
+      ref
+          .watch(profileProvider.notifier)
+          .createBlockedTime(profileId, startDateTime.toString(), endDateTime.toString(), blockTitle!, null);
 
       Navigator.of(context).pop();
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-            content: Text('Please enter all the details for the time block')),
+        const SnackBar(content: Text('Please enter all the details for the time block')),
       );
     }
   }
@@ -196,7 +189,6 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
   }
 
   String formatTimeOfDay(TimeOfDay time) {
-    
     final hours = time.hourOfPeriod == 0 ? 12 : time.hourOfPeriod;
     final minutes = time.minute.toString().padLeft(2, '0');
     final period = time.period == DayPeriod.am ? 'AM' : 'PM';
@@ -212,17 +204,16 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
       Returns: none
     */
     await ref.read(profileProvider.notifier).decodeData();
-    ref.read(availabilityProvider.notifier).updateAvailability(ref
-        .watch(profileProvider.notifier)
-        .availabilityByMonth(yearDisplayed, monthDisplayed));
+    ref
+        .read(availabilityProvider.notifier)
+        .updateAvailability(ref.watch(profileProvider.notifier).availabilityByMonth(yearDisplayed, monthDisplayed));
   }
 
   @override
   Widget build(BuildContext context) {
     setProfileAvail();
     ref.read(attendEventsProvider.notifier).deCodeData();
-    final int firstDayOfWeek =
-        DateTime(yearDisplayed, monthDisplayed, 1).weekday;
+    final int firstDayOfWeek = DateTime(yearDisplayed, monthDisplayed, 1).weekday;
     final int lastOfMonth = DateTime(yearDisplayed, monthDisplayed + 1, 0).day;
 
     return Scaffold(
@@ -259,53 +250,29 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
             height: MediaQuery.of(context).size.height * 0.02,
           ),
           Expanded(
-            child: Stack(
-              children: [
-                Month(
-                  selectedMonth: monthDisplayed,
+            child: PageView.builder(
+              controller: _pageController,
+              onPageChanged: (int index) {
+                setState(() {
+                  monthDisplayed = (index % 12) + 1;
+                  yearDisplayed = DateTime.now().year + (index ~/ 12);
+                });
+              },
+              itemBuilder: (context, index) {
+                final currentMonth = (index % 12) + 1;
+                final currentYear = DateTime.now().year + (index ~/ 12);
+                final firstDayOfWeek = DateTime(currentYear, currentMonth, 1).weekday;
+                final lastOfMonth = DateTime(currentYear, currentMonth + 1, 0).day;
+
+                return Month(
+                  selectedMonth: currentMonth,
                   eventsByDate: const [],
                   firstDayOfWeek: firstDayOfWeek,
                   lastOfMonth: lastOfMonth,
-                  yearDisplayed: yearDisplayed,
+                  yearDisplayed: currentYear,
                   selectedDatesWithTime: selectedDatesWithTime,
-                ),
-                Positioned(
-                  top: 2,
-                  right: 2,
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    crossAxisAlignment: CrossAxisAlignment.end,
-                    children: [
-                      IconButton(
-                          onPressed: () {
-                            setState(() {
-                              monthDisplayed--;
-
-                              if (monthDisplayed < 1) {
-                                monthDisplayed = 12;
-                                yearDisplayed--;
-                              }
-                            });
-                          },
-                          icon: Icon(Icons.arrow_back_ios,
-                              color:
-                                  Theme.of(context).colorScheme.onSecondary)),
-                      IconButton(
-                          onPressed: () {
-                            setState(() {
-                              monthDisplayed++;
-                              if (monthDisplayed > 12) {
-                                monthDisplayed = 1;
-                                yearDisplayed++;
-                              }
-                            });
-                          },
-                          icon: Icon(Icons.arrow_forward_ios,
-                              color: Theme.of(context).colorScheme.onSecondary))
-                    ],
-                  ),
-                ),
-              ],
+                );
+              },
             ),
           ),
           Row(
@@ -319,23 +286,18 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
                               backgroundColor: Theme.of(context).canvasColor,
                               title: Text(
                                 'What would you like to do?',
-                                style: TextStyle(
-                                    color: Theme.of(context).primaryColor),
+                                style: TextStyle(color: Theme.of(context).primaryColor),
                               ),
                               actions: [
                                 TextButton(
                                     onPressed: () => Navigator.of(context)
                                         .push(MaterialPageRoute(
-                                            builder: ((context) =>
-                                                const NewEventScreen(
-                                                    event: null))))
-                                        .then(
-                                            (result) => Navigator.pop(context)),
+                                            builder: ((context) => const NewEventScreen(event: null))))
+                                        .then((result) => Navigator.pop(context)),
                                     child: const Text('CREATE EVENT')),
                                 TextButton(
                                     onPressed: () async {
-                                      selectedDate =
-                                          await _showDatePickerDialog(context);
+                                      selectedDate = await _showDatePickerDialog(context);
                                       if (selectedDate != null) {
                                         _showTimeRangePicker(context);
                                       }
@@ -344,9 +306,7 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
                               ],
                             ));
                   },
-                  icon: Icon(Icons.add_box_rounded,
-                      size: 45,
-                      color: Theme.of(context).colorScheme.onSecondary)),
+                  icon: Icon(Icons.add_box_rounded, size: 45, color: Theme.of(context).colorScheme.onSecondary)),
             ],
           )
         ],

@@ -51,7 +51,7 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
     isSelected = [true, false];
   }
 
-// Called from Event Tab
+// Called from Event Tab to refresh data when leaving anothe profile view
   void refreshData() async {
     setState(() {
       _fetchData();
@@ -63,6 +63,7 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
     }
   }
 
+// Loads profile info and event info
   Future<void> _fetchData() async {
     setState(() {
       _isLoading = true;
@@ -74,6 +75,7 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
     });
   }
 
+// Gets all relevant profile information for profile being viewed
   Future<void> _fetchProfileInfo() async {
     final newProfileInfo = await fetchInfo(widget.userId);
     setState(() {
@@ -81,6 +83,7 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
     });
   }
 
+// Gets all relevant event/attendance information for profile being viewed
   Future<void> _fetchEvents() async {
     if (widget.isUser) {
       ref.read(attendEventsProvider.notifier).deCodeData();
@@ -89,6 +92,7 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
     }
   }
 
+// Returns relevant profile information to _fetchProfileInfo, or sets default values to avoid error
   Future<Profile> fetchInfo(String? userId) async {
     await Future.delayed(const Duration(microseconds: 1));
     Profile profileState;
@@ -111,6 +115,7 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
     return profileState;
   }
 
+// Updates profile information after editing profile. Called from Create Account Screen when popping
   void updateProfileInfo() {
     setState(() {
       _fetchData();
@@ -123,6 +128,7 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
     await checkPendingRequest();
   }
 
+// Checks if a friend request is pending with the viewed account
   Future<void> checkPendingRequest() async {
     final requests = await ref.read(profileProvider.notifier).readOutgoingRequests();
     final currentUserId = (await ref.read(supabaseInstance)).client.auth.currentUser!.id;

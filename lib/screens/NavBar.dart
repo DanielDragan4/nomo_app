@@ -17,7 +17,9 @@ class NavBar extends ConsumerStatefulWidget {
 
 class _NavBarState extends ConsumerState<NavBar> {
   int _index = 0;
-  final _pageViewController = PageController(initialPage: 0);
+  final _pageViewController = PageController(
+    initialPage: 0,
+  );
 
   @override
   Widget build(BuildContext context) {
@@ -32,41 +34,32 @@ class _NavBarState extends ConsumerState<NavBar> {
         },
         items: [
           BottomNavigationBarItem(
-            icon: Icon(Icons.event_available_outlined,
-                color: navBarTheme.unselectedItemColor),
-            activeIcon: Icon(Icons.event_available,
-                color: navBarTheme.selectedItemColor),
+            icon: Icon(Icons.event_available_outlined, color: navBarTheme.unselectedItemColor),
+            activeIcon: Icon(Icons.event_available, color: navBarTheme.selectedItemColor),
             label: "Events",
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.search_rounded,
-                color: navBarTheme.unselectedItemColor),
-            activeIcon: Icon(Icons.search_rounded,
-                color: navBarTheme.selectedItemColor),
+            icon: Icon(Icons.search_rounded, color: navBarTheme.unselectedItemColor),
+            activeIcon: Icon(Icons.search_rounded, color: navBarTheme.selectedItemColor),
             label: 'Search',
           ),
           BottomNavigationBarItem(
-              icon: Icon(Icons.calendar_month_outlined,
-                  color: navBarTheme.unselectedItemColor),
-              activeIcon: Icon(Icons.calendar_month,
-                  color: navBarTheme.selectedItemColor),
+              icon: Icon(Icons.calendar_month_outlined, color: navBarTheme.unselectedItemColor),
+              activeIcon: Icon(Icons.calendar_month, color: navBarTheme.selectedItemColor),
               label: "Calendar"),
           BottomNavigationBarItem(
-              icon: Icon(Icons.people_alt_outlined,
-                  color: navBarTheme.unselectedItemColor),
-              activeIcon:
-                  Icon(Icons.people, color: navBarTheme.selectedItemColor),
+              icon: Icon(Icons.people_alt_outlined, color: navBarTheme.unselectedItemColor),
+              activeIcon: Icon(Icons.people, color: navBarTheme.selectedItemColor),
               label: "Friends"),
           BottomNavigationBarItem(
-              icon: Icon(Icons.person_2_outlined,
-                  color: navBarTheme.unselectedItemColor),
-              activeIcon:
-                  Icon(Icons.person_2, color: navBarTheme.selectedItemColor),
+              icon: Icon(Icons.person_2_outlined, color: navBarTheme.unselectedItemColor),
+              activeIcon: Icon(Icons.person_2, color: navBarTheme.selectedItemColor),
               label: "Profile"),
         ],
       ),
       body: PageView(
         controller: _pageViewController,
+        physics: NeverScrollableScrollPhysics(),
         onPageChanged: (index) {
           setState(() {
             _index = index;

@@ -1,7 +1,7 @@
 import 'package:email_validator/email_validator.dart';
 import 'package:flutter/material.dart';
 import 'package:nomo/screens/NavBar.dart';
-import 'package:nomo/screens/login_screen.dart';
+import 'package:nomo/screens/password_handling/login_screen.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 class ResetPasswordScreen extends StatefulWidget {
@@ -23,11 +23,14 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    
+
     return Scaffold(
       backgroundColor: theme.canvasColor,
       appBar: AppBar(
-        title: Text('Reset Password', style: TextStyle(color: theme.primaryColor, fontSize: 30, fontWeight: FontWeight.w600),),
+        title: Text(
+          'Reset Password',
+          style: TextStyle(color: theme.primaryColor, fontSize: 30, fontWeight: FontWeight.w600),
+        ),
       ),
       body: SingleChildScrollView(
         child: Padding(
@@ -60,8 +63,7 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
                   controller: emailC,
                   hintText: 'Email',
                   icon: Icons.email,
-                  validator: (value) =>
-                      !EmailValidator.validate(value!) ? 'Invalid Email!' : null,
+                  validator: (value) => !EmailValidator.validate(value!) ? 'Invalid Email!' : null,
                 ),
                 const SizedBox(height: 16),
                 _buildTextField(
@@ -120,6 +122,14 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
     );
   }
 
+// Builds all of the text fields used in this screen with various details.
+// Handles toggling text visibility and validation each individual field
+//
+// Parameters:
+// - 'icon': tapped to toggle text visibility
+// - 'obscureText'(optional): set to false by default (text visible)
+// - 'toggleVisibility'(optional): function to handle toggling text visibility (typically sets obscureText = !obscureText)
+// - 'validator'(optional): checks validity of text extered for a specific field (character count, matching with another field, etc.)
   Widget _buildTextField({
     required TextEditingController controller,
     required String hintText,
@@ -154,6 +164,7 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
     );
   }
 
+// Handles password reset logic. If entered token is valid and passwords match, sets new password and automatically logs user in
   void _resetPassword() async {
     if (formKey.currentState!.validate()) {
       FocusManager.instance.primaryFocus?.unfocus();

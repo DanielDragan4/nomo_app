@@ -1,6 +1,6 @@
 import 'dart:async';
 import 'package:nomo/providers/profile_provider.dart';
-import 'package:nomo/screens/login_screen.dart';
+import 'package:nomo/screens/password_handling/login_screen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -38,11 +38,10 @@ class AuthProvider extends StateNotifier<Session?> {
     }
     try {
       if (isLogin) {
-        final AuthResponse res =
-            await (await supabase).client.auth.signInWithPassword(
-                  email: email,
-                  password: pass,
-                );
+        final AuthResponse res = await (await supabase).client.auth.signInWithPassword(
+              email: email,
+              password: pass,
+            );
         state = res.session;
         saveData();
       } else {
@@ -67,17 +66,12 @@ class AuthProvider extends StateNotifier<Session?> {
       
       Returns: bool
     */
-    final AuthResponse res =
-        await (await supabase).client.auth.signInWithIdToken(
-              provider: OAuthProvider.google,
-              idToken: idToken,
-              accessToken: accessToken,
-            );
-    var user = await (await supabase)
-        .client
-        .from('Profiles')
-        .select('profile_id')
-        .eq('profile_id', res.user!.id);
+    final AuthResponse res = await (await supabase).client.auth.signInWithIdToken(
+          provider: OAuthProvider.google,
+          idToken: idToken,
+          accessToken: accessToken,
+        );
+    var user = await (await supabase).client.from('Profiles').select('profile_id').eq('profile_id', res.user!.id);
 
     state = res.session;
     saveData();
@@ -96,11 +90,10 @@ class AuthProvider extends StateNotifier<Session?> {
       
       Returns: none
     */
-    SharedPreferences.getInstance()
-        .then((value) => value.setStringList("savedSession", [
-              state!.accessToken,
-              state!.user.id,
-            ]));
+    SharedPreferences.getInstance().then((value) => value.setStringList("savedSession", [
+          state!.accessToken,
+          state!.user.id,
+        ]));
   }
 
   Future<void> removeFcm(String userId) async {
@@ -112,9 +105,7 @@ class AuthProvider extends StateNotifier<Session?> {
       Returns: none
     */
     final supabaseClient = (await supabase).client;
-    await supabaseClient
-        .from('Profiles')
-        .update({'fcm_token': null}).eq('profile_id', userId);
+    await supabaseClient.from('Profiles').update({'fcm_token': null}).eq('profile_id', userId);
   }
 
   void signOut() async {
@@ -152,28 +143,19 @@ Future<void> checkProfile() async {
       
       Returns: none
     */
-  final checkProf = await supabase
-      .from("Profiles")
-      .select('profile_id, username')
-      .eq('profile_id', supabase.auth.currentUser!.id);
+  final checkProf =
+      await supabase.from("Profiles").select('profile_id, username').eq('profile_id', supabase.auth.currentUser!.id);
   final removeSession = await SharedPreferences.getInstance();
   if (checkProf.isEmpty) {
     removeSession.remove("savedSession");
-    await supabase
-        .from("auth.users")
-        .delete()
-        .eq('id', (supabase.auth.currentUser!.id));
+    await supabase.from("auth.users").delete().eq('id', (supabase.auth.currentUser!.id));
   } else if ((checkProf.first['profile_id'] == supabase.auth.currentUser!.id) &&
       (checkProf.first['username'] == null)) {
-    await supabase
-        .from("Profiles")
-        .delete()
-        .eq('profile_id', (supabase.auth.currentUser!.id));
+    await supabase.from("Profiles").delete().eq('profile_id', (supabase.auth.currentUser!.id));
   }
 }
 
-final currentUserProvider =
-    StateNotifierProvider<AuthProvider, Session?>((ref) {
+final currentUserProvider = StateNotifierProvider<AuthProvider, Session?>((ref) {
   final supabase = ref.watch(supabaseInstance);
   checkProfile();
   return AuthProvider(supabase: supabase);

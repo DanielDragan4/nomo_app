@@ -5,7 +5,7 @@ import 'package:location/location.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:nomo/providers/profile_provider.dart';
-import 'package:nomo/screens/login_screen.dart';
+import 'package:nomo/screens/password_handling/login_screen.dart';
 import 'package:nomo/screens/settings/setting_template.dart';
 import 'package:nomo/widgets/setting_button.dart';
 import 'package:nomo/providers/saved_session_provider.dart';
@@ -58,14 +58,12 @@ class _SettingScreenState extends ConsumerState<SettingScreen> {
         case 'location':
           locationSwitch = !locationSwitch;
           prefs.setBool('location', locationSwitch);
-          handlePermissionToggle(
-              perm_handler.Permission.location, locationSwitch);
+          handlePermissionToggle(perm_handler.Permission.location, locationSwitch);
           break;
         case 'contact':
           contactSwitch = !contactSwitch;
           prefs.setBool('contact', contactSwitch);
-          handlePermissionToggle(
-              perm_handler.Permission.contacts, contactSwitch);
+          handlePermissionToggle(perm_handler.Permission.contacts, contactSwitch);
           break;
         case 'notif':
           notifSwitch = !notifSwitch;
@@ -125,8 +123,7 @@ class _SettingScreenState extends ConsumerState<SettingScreen> {
     });
   }
 
-  Future<void> handlePermissionToggle(
-      perm_handler.Permission permission, bool enabled) async {
+  Future<void> handlePermissionToggle(perm_handler.Permission permission, bool enabled) async {
     final status = await permission.status;
     if (enabled && !status.isGranted) {
       final result = await permission.request();
@@ -153,8 +150,7 @@ class _SettingScreenState extends ConsumerState<SettingScreen> {
   }
 
   void handleNotificationSwitch() async {
-    final perm_handler.PermissionStatus status =
-        await perm_handler.Permission.notification.status;
+    final perm_handler.PermissionStatus status = await perm_handler.Permission.notification.status;
     print('Notification permission status: $status');
 
     if (notifSwitch) {
@@ -162,8 +158,7 @@ class _SettingScreenState extends ConsumerState<SettingScreen> {
         FirebaseMessaging.instance.subscribeToTopic('notifications');
         print('Subscribed to notifications');
       } else {
-        final perm_handler.PermissionStatus requestStatus =
-            await perm_handler.Permission.notification.request();
+        final perm_handler.PermissionStatus requestStatus = await perm_handler.Permission.notification.request();
         print('Notification permission requested: $requestStatus');
 
         if (requestStatus.isGranted) {
@@ -195,8 +190,7 @@ class _SettingScreenState extends ConsumerState<SettingScreen> {
       newEventSwitch = prefs.getBool('newEvent') ?? false;
       //newEventFriendsOnlySwitch = prefs.getBool('newEventFriendsOnly') ?? false;
       joinedEventSwitch = prefs.getBool('joinedEvent') ?? false;
-      joinedEventFriendsOnlySwitch =
-          prefs.getBool('joinedEventFriendsOnly') ?? false;
+      joinedEventFriendsOnlySwitch = prefs.getBool('joinedEventFriendsOnly') ?? false;
       eventDeletedSwitch = prefs.getBool('eventDeleted') ?? false;
       //eventDeletedFriendsOnlySwitch =
       //    prefs.getBool('eventDeletedFriendsOnly') ?? false;
@@ -228,8 +222,7 @@ class _SettingScreenState extends ConsumerState<SettingScreen> {
     }
 
     // Check notification permission status
-    final notificationStatus =
-        await perm_handler.Permission.notification.status;
+    final notificationStatus = await perm_handler.Permission.notification.status;
     if (notificationStatus.isGranted) {
       setState(() {
         notifSwitch = true;
@@ -353,15 +346,12 @@ class _SettingScreenState extends ConsumerState<SettingScreen> {
                         updateSwitchValue('joinedEventFriendsOnly');
                       }
                     : null,
-                activeColor: joinedEventSwitch
-                    ? Theme.of(context).primaryColor
-                    : Colors.grey,
+                activeColor: joinedEventSwitch ? Theme.of(context).primaryColor : Colors.grey,
               ),
             ),
           ),
           ListTile(
-            title: const Text('Event Deleted or Updated',
-                style: TextStyle(fontSize: 20)),
+            title: const Text('Event Deleted or Updated', style: TextStyle(fontSize: 20)),
             trailing: Switch(
               value: eventDeletedSwitch,
               onChanged: (newValue) {
@@ -407,9 +397,7 @@ class _SettingScreenState extends ConsumerState<SettingScreen> {
                         updateSwitchValue('messageFriendsOnly');
                       }
                     : null,
-                activeColor: messageSwitch
-                    ? Theme.of(context).primaryColor
-                    : Colors.grey,
+                activeColor: messageSwitch ? Theme.of(context).primaryColor : Colors.grey,
               ),
             ),
           ),
@@ -458,8 +446,7 @@ class _SettingScreenState extends ConsumerState<SettingScreen> {
           ),
 
           ListTile(
-            title: const Text('Device Notifications',
-                style: TextStyle(fontSize: 20)),
+            title: const Text('Device Notifications', style: TextStyle(fontSize: 20)),
             trailing: Switch(
               value: notifSwitch,
               onChanged: (newValue) {
@@ -524,8 +511,7 @@ class _SettingScreenState extends ConsumerState<SettingScreen> {
             onPressed: () {
               ref.watch(currentUserProvider.notifier).signOut();
               ref.read(savedSessionProvider.notifier).changeSessionDataList();
-              Navigator.of(context).push(MaterialPageRoute(
-                  builder: ((context) => const LoginScreen())));
+              Navigator.of(context).push(MaterialPageRoute(builder: ((context) => const LoginScreen())));
             },
             child: const Text(
               'Log Out',

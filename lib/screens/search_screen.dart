@@ -21,16 +21,17 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
   List<dynamic> _searchResults = [];
   Map<Interests, bool> categories = {};
 
+// Default initialization with event search selected
   @override
   void initState() {
     _isSelected = [true, false, false];
     super.initState();
   }
 
+// Calls the search profider and uses decodeProfileSearch method to display list of profiles matching the query
   Future<void> _searchProfiles(String query) async {
     try {
-      final List<Friend> profiles =
-          await ref.read(searchProvider.notifier).decodeProfileSearch(query);
+      final List<Friend> profiles = await ref.read(searchProvider.notifier).decodeProfileSearch(query);
       print(profiles);
       setState(() {
         _searchResults = profiles
@@ -48,18 +49,17 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
     }
   }
 
+// Calls the search profider and uses decodeEventSearch method to display list of events matching the query
   Future<void> _searchEvents(String query) async {
     try {
       // Split the query string by commas and trim any whitespace
-      final List<String> categories =
-          query.split(',').map((e) => e.trim()).toList();
+      final List<String> categories = query.split(',').map((e) => e.trim()).toList();
 
       // A list to hold the search results from each category
       List<Event> allEvents = [];
 
       for (String category in categories) {
-        final List<Event> events =
-            await ref.read(searchProvider.notifier).decodeEventSearch(category);
+        final List<Event> events = await ref.read(searchProvider.notifier).decodeEventSearch(category);
         allEvents.addAll(events);
       }
 
@@ -77,20 +77,18 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
     }
   }
 
+// Calls the search profider and uses decodeSearchInterests method to display list of events with the queried interests
   Future<void> _searchInterests(String query) async {
     ScaffoldMessenger.of(context).hideCurrentSnackBar();
     try {
       // Split the query string by commas and trim any whitespace
-      final List<String> categories =
-          query.split(',').map((e) => e.trim()).toList();
+      final List<String> categories = query.split(',').map((e) => e.trim()).toList();
 
       // A list to hold the search results from each category
       List<Event> allEvents = [];
 
       for (String category in categories) {
-        final List<Event> events = await ref
-            .read(searchProvider.notifier)
-            .decodeInterestSearch(category);
+        final List<Event> events = await ref.read(searchProvider.notifier).decodeInterestSearch(category);
         allEvents.addAll(events);
       }
 
@@ -115,12 +113,14 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
     }
   }
 
+// Resets the search bar text
   void resetScreen() {
     setState(() {
       _searchResults = [];
     });
   }
 
+// Adds or removes interest from the search bar when one is selected or deselected in interest search
   void _updateSearchBar(Map<Interests, bool> selectedInterests) {
     final selected = selectedInterests.entries
         .where((entry) => entry.value)
@@ -150,17 +150,11 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
                 autofocus: true,
                 controller: _searchController,
                 decoration: InputDecoration(
-                  hintText: _isSelected[2] == true
-                      ? 'Please select interests below.'
-                      : 'What are you looking for?',
-                  hintStyle: TextStyle(
-                      color: Theme.of(context)
-                          .primaryColorLight
-                          .withOpacity(0.75)),
+                  hintText: _isSelected[2] == true ? 'Please select interests below.' : 'What are you looking for?',
+                  hintStyle: TextStyle(color: Theme.of(context).primaryColorLight.withOpacity(0.75)),
                   prefixIcon: Icon(Icons.search),
                 ),
-                style:
-                    TextStyle(color: Theme.of(context).colorScheme.onSecondary),
+                style: TextStyle(color: Theme.of(context).colorScheme.onSecondary),
               ),
             ),
           ),

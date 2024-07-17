@@ -1,6 +1,6 @@
 import 'package:email_validator/email_validator.dart';
 import 'package:flutter/material.dart';
-import 'package:nomo/screens/login_screen.dart';
+import 'package:nomo/screens/password_handling/login_screen.dart';
 import 'reset_password_screen.dart';
 
 class ForgotPasswordScreen extends StatefulWidget {
@@ -15,6 +15,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
   final emailC = TextEditingController();
   final formKey = GlobalKey<FormState>();
 
+//If being done from settings (logged in), automatically types user's email in text field
   @override
   void initState() {
     if (widget.email != null) {
@@ -30,9 +31,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
     return Scaffold(
       backgroundColor: theme.canvasColor,
       appBar: AppBar(
-        title: widget.email != null
-            ? Text('Forgot Password')
-            : Text('Reset Password'),
+        title: widget.email != null ? Text('Forgot Password') : Text('Reset Password'),
       ),
       body: SingleChildScrollView(
         child: Padding(
@@ -53,8 +52,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                   controller: emailC,
                   hintText: 'Email',
                   icon: Icons.email,
-                  validator: (value) =>
-                      !EmailValidator.validate(value!) ? 'Invalid Email!' : null,
+                  validator: (value) => !EmailValidator.validate(value!) ? 'Invalid Email!' : null,
                 ),
                 const SizedBox(height: 32),
                 ElevatedButton(
@@ -89,6 +87,10 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
     );
   }
 
+// Builds the text field used for email input and handles format validation
+//
+// Parameters:
+// - 'validator'(optional): checks if entered text is a valid email
   Widget _buildTextField({
     required TextEditingController controller,
     required String hintText,
@@ -112,6 +114,8 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
     );
   }
 
+// Sends an email to the entered email address containing a password reset token
+// Email contents handled in Supabase
   void _sendResetEmail() async {
     FocusManager.instance.primaryFocus?.unfocus();
     if (formKey.currentState!.validate()) {
@@ -139,6 +143,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
     }
   }
 
+// Navigates to reset password screen if the user has a reset token
   void _navigateToResetPassword() {
     FocusManager.instance.primaryFocus?.unfocus();
     Navigator.push(

@@ -5,7 +5,7 @@ import 'package:nomo/functions/make-fcm.dart';
 import 'package:nomo/providers/saved_session_provider.dart';
 import 'package:nomo/providers/supabase_provider.dart';
 import 'package:nomo/providers/user_signup_provider.dart';
-import 'package:nomo/screens/forgot_password_screen.dart';
+import 'package:nomo/screens/password_handling/forgot_password_screen.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 class LoginScreen extends ConsumerStatefulWidget {
@@ -26,9 +26,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     final isValid = _form.currentState!.validate();
 
     try {
-      ref
-          .watch(currentUserProvider.notifier)
-          .submit(email, login, pass, isValid);
+      ref.watch(currentUserProvider.notifier).submit(email, login, pass, isValid);
 
       if (!login) {
         ref.watch(onSignUp.notifier).notifyAccountCreation();
@@ -80,31 +78,23 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                         mainAxisSize: MainAxisSize.min,
                         children: [
                           TextFormField(
-                            decoration: const InputDecoration(
-                                labelText: "Email Address"),
+                            decoration: const InputDecoration(labelText: "Email Address"),
                             keyboardType: TextInputType.emailAddress,
                             autocorrect: false,
                             textCapitalization: TextCapitalization.none,
                             controller: emailC,
-                            style: TextStyle(
-                                color:
-                                    Theme.of(context).colorScheme.onSecondary),
+                            style: TextStyle(color: Theme.of(context).colorScheme.onSecondary),
                             validator: (value) {
-                              if (value == null ||
-                                  value.trim().isEmpty ||
-                                  !value.contains('@')) {
+                              if (value == null || value.trim().isEmpty || !value.contains('@')) {
                                 return 'Please enter a valid email address.';
                               }
                               return null;
                             },
                           ),
                           TextFormField(
-                            decoration:
-                                const InputDecoration(labelText: "Password"),
+                            decoration: const InputDecoration(labelText: "Password"),
                             obscureText: true,
-                            style: TextStyle(
-                                color:
-                                    Theme.of(context).colorScheme.onSecondary),
+                            style: TextStyle(color: Theme.of(context).colorScheme.onSecondary),
                             controller: passC,
                             validator: (value) {
                               if (value == null || value.trim().length < 8) {
@@ -115,13 +105,9 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                           ),
                           if (!isLogin)
                             TextFormField(
-                              decoration: const InputDecoration(
-                                  labelText: "Confirm Password"),
+                              decoration: const InputDecoration(labelText: "Confirm Password"),
                               obscureText: true,
-                              style: TextStyle(
-                                  color: Theme.of(context)
-                                      .colorScheme
-                                      .onSecondary),
+                              style: TextStyle(color: Theme.of(context).colorScheme.onSecondary),
                               controller: passConfirmC,
                               validator: (value) {
                                 if (value != passC.text) {
@@ -136,9 +122,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                               onPressed: () {
                                 Navigator.push(
                                   context,
-                                  MaterialPageRoute(
-                                      builder: (context) =>
-                                          ForgotPasswordScreen()),
+                                  MaterialPageRoute(builder: (context) => ForgotPasswordScreen()),
                                 );
                               },
                               child: const Text('Forgot Password?'),
@@ -147,17 +131,14 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                           const SizedBox(
                             height: 12,
                           ),
-                          if (isAuthenticating)
-                            const CircularProgressIndicator(),
+                          if (isAuthenticating) const CircularProgressIndicator(),
                           if (!isAuthenticating)
                             ElevatedButton(
                               onPressed: () {
                                 _submit(emailC.text, isLogin, passC.text);
                               },
                               style: ElevatedButton.styleFrom(
-                                backgroundColor: Theme.of(context)
-                                    .colorScheme
-                                    .primaryContainer,
+                                backgroundColor: Theme.of(context).colorScheme.primaryContainer,
                               ),
                               child: Text(isLogin ? 'Login' : 'Signup'),
                             ),
@@ -168,9 +149,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                                   isLogin = !isLogin;
                                 });
                               },
-                              child: Text(isLogin
-                                  ? 'Create an Account'
-                                  : 'I already have an account.'),
+                              child: Text(isLogin ? 'Create an Account' : 'I already have an account.'),
                             ),
                           ElevatedButton(
                               onPressed: () async {
@@ -187,8 +166,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                                   serverClientId: webClientId,
                                 );
                                 final googleUser = await googleSignIn.signIn();
-                                final googleAuth =
-                                    await googleUser!.authentication;
+                                final googleAuth = await googleUser!.authentication;
                                 final accessToken = googleAuth.accessToken;
                                 final idToken = googleAuth.idToken;
 
@@ -203,15 +181,11 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                                     .signInWithIdToken(idToken, accessToken);
 
                                 if (firstSignIn) {
-                                  ref
-                                      .watch(onSignUp.notifier)
-                                      .notifyAccountCreation();
+                                  ref.watch(onSignUp.notifier).notifyAccountCreation();
                                 } else {
                                   makeFcm(supabase);
                                 }
-                                ref
-                                    .read(savedSessionProvider.notifier)
-                                    .changeSessionDataList();
+                                ref.read(savedSessionProvider.notifier).changeSessionDataList();
                               },
                               child: Container(
                                 width: MediaQuery.of(context).size.width * .38,
@@ -220,10 +194,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                                     Image.asset(
                                       'assets/images/google_PNG19635.png',
                                       fit: BoxFit.cover,
-                                      scale: MediaQuery.of(context)
-                                              .size
-                                              .aspectRatio *
-                                          100,
+                                      scale: MediaQuery.of(context).size.aspectRatio * 100,
                                     ),
                                     Text('Sign in with Google')
                                   ],

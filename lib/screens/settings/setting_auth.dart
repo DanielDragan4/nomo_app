@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:nomo/providers/supabase_provider.dart';
-import 'package:nomo/screens/forgot_password_screen.dart';
+import 'package:nomo/screens/password_handling/forgot_password_screen.dart';
 
 class AuthSetting extends ConsumerStatefulWidget {
   const AuthSetting({super.key});
@@ -16,8 +16,7 @@ class _AuthSettingState extends ConsumerState<AuthSetting> {
   late String userEmail;
 
   Future<void> getUserEmail() async {
-    final user =
-        await (await ref.read(supabaseInstance)).client.auth.currentUser;
+    final user = await (await ref.read(supabaseInstance)).client.auth.currentUser;
     userEmail = user!.email!;
   }
 
@@ -27,9 +26,7 @@ class _AuthSettingState extends ConsumerState<AuthSetting> {
       backgroundColor: Theme.of(context).colorScheme.surface,
       body: ListView(
         children: [
-          const ListTile(
-              title: Text("Authentication Settings:",
-                  style: TextStyle(fontSize: 25))),
+          const ListTile(title: Text("Authentication Settings:", style: TextStyle(fontSize: 25))),
           ListTile(
               onTap: () {
                 getUserEmail();
@@ -38,8 +35,7 @@ class _AuthSettingState extends ConsumerState<AuthSetting> {
                           email: userEmail,
                         )));
               },
-              title: const Text("Change Password",
-                  style: TextStyle(fontSize: 20))),
+              title: const Text("Change Password", style: TextStyle(fontSize: 20))),
         ],
       ),
     );

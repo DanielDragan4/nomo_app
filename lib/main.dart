@@ -13,7 +13,7 @@ import 'package:nomo/providers/theme_provider.dart';
 import 'package:nomo/providers/user_signup_provider.dart';
 import 'package:nomo/screens/NavBar.dart';
 import 'package:nomo/screens/create_account_screen.dart';
-import 'package:nomo/screens/login_screen.dart';
+import 'package:nomo/screens/password_handling/login_screen.dart';
 import 'package:nomo/screens/detailed_event_screen.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -82,8 +82,7 @@ class _AppState extends ConsumerState<App> {
     super.initState();
     checkProfile();
     streamSubscription = FlutterBranchSdk.listSession().listen((data) {
-      if (data.containsKey("+clicked_branch_link") &&
-          data["+clicked_branch_link"] == true) {
+      if (data.containsKey("+clicked_branch_link") && data["+clicked_branch_link"] == true) {
         String eventId = data["event_id"];
         navigateToEvent(eventId);
       }
@@ -154,8 +153,7 @@ class _AppState extends ConsumerState<App> {
                       surface: Colors.black,
                       brightness: Brightness.dark,
                       seedColor: const Color.fromARGB(255, 109, 51, 146),
-                      onPrimaryContainer:
-                          const Color.fromARGB(255, 109, 51, 146))
+                      onPrimaryContainer: const Color.fromARGB(255, 109, 51, 146))
                   .copyWith(surface: Colors.black),
               textTheme: GoogleFonts.nunitoTextTheme(),
             ),
@@ -167,8 +165,7 @@ class _AppState extends ConsumerState<App> {
                     isNew: true,
                   );
                 } else if (snapshot.data != null ||
-                    (ref.watch(savedSessionProvider) != null &&
-                        ref.watch(savedSessionProvider)!.isNotEmpty)) {
+                    (ref.watch(savedSessionProvider) != null && ref.watch(savedSessionProvider)!.isNotEmpty)) {
                   loadData();
                   makeFcm(client);
                   return const NavBar();

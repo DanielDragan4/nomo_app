@@ -36,6 +36,7 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
   bool isHosting = false;
   bool friendPending = false;
 
+// Initializes appropriate user data, depending on if viewing own profile or someone else's
   @override
   void initState() {
     super.initState();
@@ -50,6 +51,7 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
     isSelected = [true, false];
   }
 
+// Called from Event Tab
   void refreshData() async {
     setState(() {
       _fetchData();

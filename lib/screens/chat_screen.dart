@@ -61,6 +61,13 @@ class _ChatScreenState extends ConsumerState<ChatScreen> with RouteAware {
   }
 
   Future<void> _fetchChatID() async {
+    /*
+      Gets active chat id based on the user ids for the chat from the Chats provider
+
+      Params: none
+      
+      Returns: none
+    */
     final id = await ref
         .read(chatsProvider.notifier)
         .readChatId(widget.currentUser, widget.chatterUser!.friendProfileId);
@@ -72,6 +79,13 @@ class _ChatScreenState extends ConsumerState<ChatScreen> with RouteAware {
   }
 
   Future<void> _initializeChatStream() async {
+    /*
+      sets an active stream on new records created with a matching chat Id for the chat entered
+
+      Params: none
+      
+      Returns: none
+    */
     final supabaseClient =
         Supabase.instance.client; // Ensure the client is initialized correctly
     final chatID = await ref
@@ -88,6 +102,13 @@ class _ChatScreenState extends ConsumerState<ChatScreen> with RouteAware {
   }
 
   Future<void> _initializeGroupChatStream() async {
+    /*
+      sets an active stream on new records created with a matching group chat Id for the chat entered
+
+      Params: none
+      
+      Returns: none
+    */
     final supabaseClient =
         Supabase.instance.client; // Ensure the client is initialized correctly
     userIdAndAvatar = await ref
@@ -106,6 +127,13 @@ class _ChatScreenState extends ConsumerState<ChatScreen> with RouteAware {
   }
 
   void submitMessage() {
+    /*
+      calls function in chats provider to create a new record in the chat
+
+      Params: none
+      
+      Returns: none
+    */
     if (widget.groupInfo == null) {
       if (_controller.text.trim().isNotEmpty) {
         ref.read(chatsProvider.notifier).sendMessage(widget.currentUser,

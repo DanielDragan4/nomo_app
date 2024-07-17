@@ -24,13 +24,19 @@ class _NewGroupChatScreenState extends ConsumerState<NewGroupChatScreen> {
   }
 
   void addToGroup(bool removeAdd, String userId) {
+    /*
+      Adds a user to a group chat based on their userId based on wether they should be removed or added
+
+      Params: bool removeAdd, String userId
+      
+      Returns: none
+    */
     setState(() {
       if (removeAdd) {
         members.add(userId);
       } else {
         members.remove(userId);
       }
-      print(members);
     });
   }
 

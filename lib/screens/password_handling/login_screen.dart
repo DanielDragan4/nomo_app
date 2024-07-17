@@ -181,8 +181,10 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                                     .signInWithIdToken(idToken, accessToken);
 
                                 if (firstSignIn) {
+                                  print('1');
                                   ref.watch(onSignUp.notifier).notifyAccountCreation();
                                 } else {
+                                  print('2');
                                   makeFcm(supabase);
                                 }
                                 ref.read(savedSessionProvider.notifier).changeSessionDataList();

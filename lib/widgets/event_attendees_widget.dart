@@ -9,6 +9,7 @@ import 'package:nomo/widgets/friend_tab.dart';
 // Parameters:
 // - 'eventId': ID of event for which to retreive list of attendees
 // - 'areFriends': if only list of friends attending should be shown
+
 class AttendeesSection extends ConsumerStatefulWidget {
   const AttendeesSection({super.key, required this.eventId, required this.areFriends});
 

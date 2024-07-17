@@ -6,6 +6,16 @@ import 'package:nomo/screens/availability_screen.dart';
 import 'package:nomo/screens/chat_screen.dart';
 import 'package:nomo/screens/profile_screen.dart';
 
+// Widget displaying friend name and avatar in friends and requests lists
+//
+// Parameters:
+// - 'friendData': relevant data for each friend/request widget, including name and image
+// - 'isRequest': if the widget represents an existing friend or a friend request
+// - 'isSearch': if the widget is a search result
+// - 'groupMemberToggle': a toggle that enables adding the user to a group
+// - 'toggle': group toggle value
+// - 'isEventAttendee': if the widget represents the attendee of an event
+
 class FriendTab extends ConsumerStatefulWidget {
   const FriendTab({
     super.key,
@@ -39,9 +49,9 @@ class _FriendTabState extends ConsumerState<FriendTab> {
     String currentId = await getCurrentUser();
     Navigator.of(context).push(MaterialPageRoute(
       builder: ((context) => ProfileScreen(
-        isUser: widget.friendData.friendProfileId != currentId ? false : true,
-        userId: widget.friendData.friendProfileId,
-      )),
+            isUser: widget.friendData.friendProfileId != currentId ? false : true,
+            userId: widget.friendData.friendProfileId,
+          )),
     ));
   }
 
@@ -51,7 +61,6 @@ class _FriendTabState extends ConsumerState<FriendTab> {
     final avatar = widget.friendData.avatar;
     final currentUser = ref.read(profileProvider.notifier).state!.profile_id;
     final List<String> users = [currentUser, widget.friendData.friendProfileId];
- 
 
     if (widget.isEventAttendee) {
       // Simplified view for event attendees
@@ -87,9 +96,7 @@ class _FriendTabState extends ConsumerState<FriendTab> {
             String currentId = await getCurrentUser();
             Navigator.of(context).push(MaterialPageRoute(
                 builder: ((context) => ProfileScreen(
-                      isUser: widget.friendData.friendProfileId != currentId
-                          ? false
-                          : true,
+                      isUser: widget.friendData.friendProfileId != currentId ? false : true,
                       userId: widget.friendData.friendProfileId,
                     ))));
           },
@@ -102,8 +109,7 @@ class _FriendTabState extends ConsumerState<FriendTab> {
               const SizedBox(width: 10),
               Text(
                 username,
-                style:
-                    TextStyle(color: Theme.of(context).colorScheme.onSecondary),
+                style: TextStyle(color: Theme.of(context).colorScheme.onSecondary),
               ),
             ],
           ),
@@ -129,8 +135,7 @@ class _FriendTabState extends ConsumerState<FriendTab> {
                     setState(() {
                       selectedUser = !selectedUser;
                     });
-                    widget.groupMemberToggle!(
-                        selectedUser, widget.friendData.friendProfileId);
+                    widget.groupMemberToggle!(selectedUser, widget.friendData.friendProfileId);
                   },
                 )
               : widget.isRequest
@@ -142,10 +147,7 @@ class _FriendTabState extends ConsumerState<FriendTab> {
                             Navigator.of(context).push(MaterialPageRoute(
                               builder: (context) => ChatScreen(
                                 chatterUser: widget.friendData,
-                                currentUser: ref
-                                    .read(profileProvider.notifier)
-                                    .state!
-                                    .profile_id,
+                                currentUser: ref.read(profileProvider.notifier).state!.profile_id,
                               ),
                             ));
                           },
@@ -156,7 +158,11 @@ class _FriendTabState extends ConsumerState<FriendTab> {
                         ),
                         IconButton(
                           onPressed: () {
-                            Navigator.of(context).push(MaterialPageRoute(builder: (context) => AvailableTimesScreen(users: users,),));
+                            Navigator.of(context).push(MaterialPageRoute(
+                              builder: (context) => AvailableTimesScreen(
+                                users: users,
+                              ),
+                            ));
                           },
                           icon: Icon(
                             Icons.calendar_month_outlined,

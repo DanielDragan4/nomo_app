@@ -8,6 +8,7 @@ import 'package:jiffy/jiffy.dart';
 // - 'message': contents of the message/DM
 // - 'currentUser': ID of the current user
 // - 'otherAvatar': avatar of recipient (not current user)
+
 class MessageWidget extends ConsumerWidget {
   const MessageWidget({
     super.key,

@@ -6,8 +6,16 @@ import 'package:jiffy/jiffy.dart';
 import 'package:nomo/models/comments_model.dart';
 import 'package:nomo/providers/supabase_provider.dart';
 
+// Builds a widget for each individual comment in the Comments Section list, including sender avatar and name
+//
+// Parameters:
+// - 'commentData': Data for the specific comment being diplayed (includes comment + sender data)
+
 class CommentWidget extends ConsumerWidget {
-  const CommentWidget({super.key, required this.commentData});
+  const CommentWidget({
+    super.key,
+    required this.commentData,
+  });
 
   final Comment commentData;
 

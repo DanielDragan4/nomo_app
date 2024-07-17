@@ -1,6 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:nomo/providers/nominatim_service.dart';
 
+// Text Field that enables searching for locations with recommended results based on the user's current location
+//
+// Parameters:
+// - 'controller': Text editing controller for the location data
+// - 'isEvent': if the location is being entered for the user profile, or during event creation
+
 class AddressSearchField extends StatefulWidget {
   final TextEditingController controller;
 
@@ -32,8 +38,8 @@ class _AddressSearchFieldState extends State<AddressSearchField> {
           controller: widget.controller,
           style: TextStyle(color: Theme.of(context).colorScheme.onSecondary),
           decoration: InputDecoration(
-            border: const  OutlineInputBorder(),
-            labelText: (widget.isEvent) ?"Enter The Event's Address" : "Enter Your Location",
+            border: const OutlineInputBorder(),
+            labelText: (widget.isEvent) ? "Enter The Event's Address" : "Enter Your Location",
             labelStyle: TextStyle(color: Theme.of(context).colorScheme.onSecondary),
             contentPadding: const EdgeInsets.all(5),
           ),
@@ -53,8 +59,10 @@ class _AddressSearchFieldState extends State<AddressSearchField> {
           itemBuilder: (context, index) {
             final result = _searchResults[index];
             return ListTile(
-              title: Text(result['display_name'],
-              style: TextStyle(color: Theme.of(context).colorScheme.onSecondary),),
+              title: Text(
+                result['display_name'],
+                style: TextStyle(color: Theme.of(context).colorScheme.onSecondary),
+              ),
               onTap: () {
                 setState(() {
                   widget.controller.text = result['display_name'];
@@ -64,7 +72,9 @@ class _AddressSearchFieldState extends State<AddressSearchField> {
             );
           },
         ),
-        SizedBox(height: MediaQuery.of(context).size.height *.025,)
+        SizedBox(
+          height: MediaQuery.of(context).size.height * .025,
+        )
       ],
     );
   }

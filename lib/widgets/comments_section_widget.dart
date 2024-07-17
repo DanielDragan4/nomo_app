@@ -7,6 +7,11 @@ import 'package:nomo/providers/events_provider.dart';
 import 'package:nomo/providers/supabase_provider.dart';
 import 'package:nomo/widgets/comment_widget.dart';
 
+// Bottom sheet used to display event comments section outside of detailed event view
+//
+// Parameters:
+// - 'eventId': ID of event for which to retreive list of comments
+
 class CommentsSection extends ConsumerStatefulWidget {
   const CommentsSection({super.key, required this.eventId});
 
@@ -35,7 +40,8 @@ class _CommentsSectionState extends ConsumerState<CommentsSection> {
 
   Future<void> postComment(String comment) async {
     final supabase = (await ref.read(supabaseInstance)).client;
-    commentsList = await ref.read(eventsProvider.notifier)
+    commentsList = await ref
+        .read(eventsProvider.notifier)
         .postComment(supabase.auth.currentUser!.id, widget.eventId, comment, null);
     setState(() {});
   }

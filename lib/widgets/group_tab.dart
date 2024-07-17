@@ -5,6 +5,11 @@ import 'package:nomo/providers/profile_provider.dart';
 import 'package:nomo/screens/availability_screen.dart';
 import 'package:nomo/screens/chat_screen.dart';
 
+// Widget displaying group name and avatar in group chats list
+//
+// Parameters:
+// - 'groupData': relevant data for each group widget, including name and image
+
 class GroupTab extends ConsumerStatefulWidget {
   const GroupTab({
     super.key,

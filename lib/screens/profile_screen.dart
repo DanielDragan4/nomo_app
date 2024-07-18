@@ -149,6 +149,13 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
 
   @override
   Widget build(BuildContext contex) {
+    //Calculation to prevent appbar overflow on all devices
+    double appBarHeight = MediaQuery.of(context).padding.top + MediaQuery.of(context).size.width * 0.24 + 245;
+
+    if (widget.isUser) {
+      appBarHeight += 10;
+    }
+
     final profile;
 
     if (widget.isUser) {
@@ -176,7 +183,7 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
               slivers: [
                 SliverAppBar(
                   backgroundColor: Theme.of(context).colorScheme.surface,
-                  expandedHeight: MediaQuery.of(context).size.height * 0.4,
+                  expandedHeight: appBarHeight,
                   floating: true,
                   pinned: false,
                   snap: true,
@@ -197,7 +204,7 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
                         children: [
                           GestureDetector(
                             onTap: () {
-                              if (profile != null && widget.isUser) {
+                              if (profile != null && widget.isUser && widget.userId == null) {
                                 Navigator.of(context)
                                     .push(
                                       MaterialPageRoute(
@@ -342,6 +349,7 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
                                     },
                                   ),
                           ),
+                          const SizedBox(height: 10),
                           Row(
                             mainAxisAlignment: MainAxisAlignment.spaceAround,
                             children: [
@@ -450,11 +458,13 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
                               if (widget.isUser)
                                 Row(children: [
                                   IconButton(
-                                      onPressed: () {
-                                        Navigator.of(context)
-                                            .push(MaterialPageRoute(builder: (context) => NewEventScreen(event: null)));
-                                      },
-                                      icon: const Icon(Icons.add)),
+                                    onPressed: () {
+                                      Navigator.of(context).push(
+                                          MaterialPageRoute(builder: (context) => const NewEventScreen(event: null)));
+                                    },
+                                    icon: const Icon(Icons.add),
+                                    color: Theme.of(context).colorScheme.onSecondary,
+                                  ),
                                   ProfileDropdown(
                                     updateProfileInfo: updateProfileInfo,
                                     profileInfo: profileInfo,

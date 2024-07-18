@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:maps_launcher/maps_launcher.dart';
 import 'package:nomo/models/events_model.dart';
+import 'package:nomo/providers/profile_provider.dart';
 import 'package:nomo/providers/supabase_provider.dart';
 import 'package:nomo/screens/detailed_event_screen.dart';
 import 'package:nomo/screens/profile_screen.dart';
@@ -128,12 +129,22 @@ class _EventTabState extends ConsumerState<EventTab> {
       padding: const EdgeInsets.all(16),
       child: GestureDetector(
         onTap: () async {
-          await Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => ProfileScreen(isUser: false, userId: widget.eventData.host),
-            ),
-          );
+          String currentUser = await ref.read(profileProvider.notifier).getCurrentUserId();
+          if (widget.eventData.host != currentUser) {
+            await Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => ProfileScreen(isUser: false, userId: widget.eventData.host),
+              ),
+            );
+          } else {
+            await Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => ProfileScreen(isUser: true, userId: widget.eventData.host),
+              ),
+            );
+          }
           //Refresh data when popping back to your profile
           if (mounted) {
             WidgetsBinding.instance.addPostFrameCallback((_) {

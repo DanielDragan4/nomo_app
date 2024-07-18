@@ -149,6 +149,7 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
 
   @override
   Widget build(BuildContext contex) {
+    final profile = ref.watch(profileProvider);
     if (widget.isUser) {
       ref.read(attendEventsProvider.notifier).deCodeData();
       ref.read(profileProvider.notifier).decodeData();
@@ -184,79 +185,37 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
                         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                         children: [
                           GestureDetector(
-                            onTap: () {
-                              profileInfo?.then((profile) {
-                                Navigator.of(context)
-                                    .push(MaterialPageRoute(
-                                        builder: ((context) => CreateAccountScreen(
-                                              isNew: false,
-                                              avatar: profile.avatar,
-                                              profilename: profile.profile_name,
-                                              username: profile.username,
-                                              onUpdateProfile: updateProfileInfo,
-                                            ))))
-                                    .then((_) {
-                                  updateProfileInfo();
+                              onTap: () {
+                                profileInfo?.then((profile) {
+                                  Navigator.of(context)
+                                      .push(MaterialPageRoute(
+                                          builder: ((context) => CreateAccountScreen(
+                                                isNew: false,
+                                                avatar: profile.avatar,
+                                                profilename: profile.profile_name,
+                                                username: profile.username,
+                                                onUpdateProfile: updateProfileInfo,
+                                              ))))
+                                      .then((_) {
+                                    updateProfileInfo();
+                                  });
                                 });
-                              });
-                            },
-                            child: FutureBuilder(
-                              key: _futureBuilderKey,
-                              future: profileInfo,
-                              builder: (context, snapshot) {
-                                if (snapshot.hasError) {
-                                  return Column(
-                                    children: [
-                                      CircleAvatar(
-                                        radius: MediaQuery.sizeOf(context).width / 12,
-                                        child: const Text("No Image"),
-                                      ),
-                                      const Text(
-                                        "No Username",
-                                        style: TextStyle(fontSize: 13),
-                                      ),
-                                    ],
-                                  );
-                                } else if (snapshot.connectionState != ConnectionState.done) {
-                                  return const CircularProgressIndicator();
-                                } else if (!snapshot.hasData || snapshot.data!.avatar == null) {
-                                  return Column(
-                                    children: [
-                                      CircleAvatar(
-                                        radius: MediaQuery.sizeOf(context).width / 12,
-                                        child: const Text("No Image"),
-                                      ),
-                                      const Text(
-                                        "No Username",
-                                        style: TextStyle(fontSize: 13),
-                                      ),
-                                    ],
-                                  );
-                                } else {
-                                  var profile = snapshot.data!;
-                                  var avatar = profile.avatar;
-                                  var profileName = profile.profile_name ?? 'No Name';
-                                  return Column(
-                                    children: [
-                                      CircleAvatar(
-                                        key: ValueKey<String>(avatar ?? ''),
-                                        radius: MediaQuery.sizeOf(context).width / 12,
-                                        backgroundColor: Colors.white,
-                                        backgroundImage:
-                                            avatar != null && avatar.isNotEmpty ? NetworkImage(avatar) : null,
-                                        child: avatar == null || avatar.isEmpty ? const Text("No Image") : null,
-                                      ),
-                                      SizedBox(height: MediaQuery.sizeOf(context).height / 100),
-                                      Text(
-                                        profileName,
-                                        style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w600),
-                                      ),
-                                    ],
-                                  );
-                                }
                               },
-                            ),
-                          ),
+                              child: profile == null
+                                  ? CircularProgressIndicator()
+                                  : Column(
+                                      children: [
+                                        CircleAvatar(
+                                            radius: MediaQuery.sizeOf(context).width / 12,
+                                            backgroundColor: Colors.white,
+                                            backgroundImage: NetworkImage(profile.avatar!)),
+                                        SizedBox(height: MediaQuery.sizeOf(context).height / 100),
+                                        Text(
+                                          profile.profile_name!,
+                                          style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w600),
+                                        ),
+                                      ],
+                                    )),
                           Column(
                             children: [
                               Row(

@@ -27,6 +27,7 @@ class ProfileProvider extends StateNotifier<Profile?> {
 
   Future<Map> readProfile() async {
     final supabaseClient = (await supabase).client;
+    if (supabaseClient.auth.currentUser == null) return {};
     Map profile = {};
     profile = (await supabaseClient
         .from('profile_view')
@@ -40,6 +41,7 @@ class ProfileProvider extends StateNotifier<Profile?> {
 
   Future<void> decodeData() async {
     final userProfile = await readProfile();
+    if (userProfile == null) return;
     Profile profile;
     final supabaseClient = (await supabase).client;
     List<Availability> availability = [];

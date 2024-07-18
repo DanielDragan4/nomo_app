@@ -3,6 +3,7 @@ import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:nomo/functions/make-fcm.dart';
+import 'package:nomo/providers/profile_provider.dart';
 import 'package:nomo/screens/interests_screen.dart';
 import 'package:nomo/widgets/app_bar.dart';
 import 'dart:io';
@@ -169,8 +170,14 @@ class _CreateAccountScreenState extends ConsumerState<CreateAccountScreen> {
 
     await supabase.from('Profiles').update(updateProfileRowMap).eq('profile_id', supabase.auth.currentUser!.id);
 
-    //widget.onUpdateProfile!.call();
-    //Navigator.of(context).pop;
+    // Update local state
+    await ref.read(profileProvider.notifier).updateProfileLocally(
+          _userName.text,
+          _profileName.text,
+          avatarId,
+        );
+    widget.onUpdateProfile?.call();
+    //if (mounted) Navigator.of(context).pop();
   }
 
   @override

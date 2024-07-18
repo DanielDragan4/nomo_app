@@ -350,20 +350,21 @@ class _CreateAccountScreenState extends ConsumerState<CreateAccountScreen> {
                 ),
               ),
             ),
-            Padding(
-              padding: const EdgeInsets.all(7.0),
-              child: TextField(
-                maxLength: 11,
-                style: TextStyle(color: Theme.of(context).colorScheme.onSecondary),
-                controller: _phoneNum,
-                decoration: const InputDecoration(
-                  border: OutlineInputBorder(),
-                  labelText: "Phone Number",
-                  contentPadding: EdgeInsets.all(5),
-                ),
-                keyboardType: TextInputType.phone,
-              ),
-            ),
+            // Use to implement User Phone Number in future
+            // Padding(
+            //   padding: const EdgeInsets.all(7.0),
+            //   child: TextField(
+            //     maxLength: 11,
+            //     style: TextStyle(color: Theme.of(context).colorScheme.onSecondary),
+            //     controller: _phoneNum,
+            //     decoration: const InputDecoration(
+            //       border: OutlineInputBorder(),
+            //       labelText: "Phone Number",
+            //       contentPadding: EdgeInsets.all(5),
+            //     ),
+            //     keyboardType: TextInputType.phone,
+            //   ),
+            // ),
             Padding(
               padding: const EdgeInsets.symmetric(vertical: 30),
               child: ElevatedButton(

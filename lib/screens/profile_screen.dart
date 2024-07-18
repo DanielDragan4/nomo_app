@@ -10,8 +10,10 @@ import 'package:nomo/providers/supabase_provider.dart';
 import 'package:nomo/screens/chat_screen.dart';
 import 'package:nomo/screens/create_account_screen.dart';
 import 'package:nomo/screens/new_event_screen.dart';
+import 'package:nomo/screens/password_handling/login_screen.dart';
 import 'package:nomo/widgets/event_tab.dart';
 import 'package:nomo/widgets/profile_dropdown.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 class ProfileScreen extends ConsumerStatefulWidget {
   ProfileScreen({super.key, required this.isUser, this.userId});
@@ -148,7 +150,7 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
   }
 
   @override
-  Widget build(BuildContext contex) {
+  Widget build(BuildContext context) {
     //Calculation to prevent appbar overflow on all devices
     double appBarHeight = MediaQuery.of(context).padding.top + MediaQuery.of(context).size.width * 0.24 + 245;
 
@@ -161,17 +163,17 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
     if (widget.isUser) {
       profile = ref.watch(profileProvider);
       ref.read(attendEventsProvider.notifier).deCodeData();
-      ref.read(profileProvider.notifier).decodeData();
+      //ref.read(profileProvider.notifier).decodeData();
     } else {
       profile = profileInfo;
     }
-    var imageUrl;
+    //var imageUrl;
 
-    if (ref.read(profileProvider.notifier).state == null) {
-      imageUrl = '';
-    } else {
-      imageUrl = ref.read(profileProvider.notifier).state?.avatar;
-    }
+    // if (ref.read(profileProvider.notifier).state == null) {
+    //   imageUrl = '';
+    // } else {
+    //   imageUrl = ref.read(profileProvider.notifier).state?.avatar;
+    // }
 
     return Scaffold(
       backgroundColor: Theme.of(context).colorScheme.surface,
@@ -377,17 +379,13 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
                                                 return Text(
                                                   attendingEventCount.toString(),
                                                   style: TextStyle(
-                                                      fontSize: 18,
-                                                      fontWeight: FontWeight.bold,
-                                                      color: Theme.of(context).colorScheme.onSecondary),
+                                                      fontSize: 18, color: Theme.of(context).colorScheme.onSecondary),
                                                 );
                                               } else {
                                                 return Text(
                                                   "0",
                                                   style: TextStyle(
-                                                      fontSize: 18,
-                                                      fontWeight: FontWeight.bold,
-                                                      color: Theme.of(context).colorScheme.onSecondary),
+                                                      fontSize: 18, color: Theme.of(context).colorScheme.onSecondary),
                                                 );
                                               }
                                             },

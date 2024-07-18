@@ -157,7 +157,7 @@ class _EventTabState extends ConsumerState<EventTab> {
             _buildHostAvatar(context),
             const SizedBox(width: 12),
             Text(
-              widget.eventData.hostUsername,
+              '@${widget.eventData.hostUsername}',
               style: TextStyle(
                 fontWeight: FontWeight.bold,
                 fontSize: 16,

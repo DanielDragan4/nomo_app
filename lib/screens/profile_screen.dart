@@ -35,7 +35,9 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
   late List<bool> isSelected;
   late bool isFriend = true;
   bool _isLoading = true;
-  bool isHosting = false;
+  bool showUpcoming = true;
+  bool showPassed = false;
+  bool showHosting = false;
   bool friendPending = false;
 
 // Initializes appropriate user data, depending on if viewing own profile or someone else's
@@ -188,7 +190,7 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
                   expandedHeight: appBarHeight,
                   floating: true,
                   pinned: false,
-                  snap: true,
+                  snap: false,
                   flexibleSpace: FlexibleSpaceBar(
                     background: Container(
                       padding: EdgeInsets.only(top: MediaQuery.of(context).padding.top + 10),
@@ -517,14 +519,17 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
                             ),
                           ),
                           if (widget.isUser && isSelected[0])
-                            CheckboxListTile(
-                              title: Text("Hosting Only"),
-                              value: isHosting,
-                              onChanged: (newValue) {
-                                setState(() {
-                                  isHosting = newValue!;
-                                });
-                              },
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.end,
+                              children: [
+                                ElevatedButton(
+                                  onPressed: () {
+                                    _showFilterDialog();
+                                  },
+                                  child: Text("Filters"),
+                                ),
+                                SizedBox(width: 16), // Add some padding
+                              ],
                             ),
                         ],
                       ),
@@ -537,16 +542,22 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
                       stream: ref.read(attendEventsProvider.notifier).stream,
                       builder: (context, snapshot) {
                         if (snapshot.data != null) {
-                          final relevantEvents;
-                          if (isHosting == false) {
-                            relevantEvents = snapshot.data!.where((event) => event.attending || event.isHost).toList();
-                          } else {
-                            relevantEvents = snapshot.data!.where((event) => event.isHost).toList();
-                          }
+                          final relevantEvents = snapshot.data!.where((event) {
+                            final now = DateTime.now();
+                            final startDate = event.sdate;
+                            final endDate = event.edate;
+                            if (showHosting && event.isHost) return true;
+                            if (showUpcoming && event.attending && startDate.compareTo(now.toString()) > 0) return true;
+                            if (showPassed && event.attending && endDate.compareTo(now.toString()) < 0) return true;
+                            return false;
+                          }).toList();
                           if (relevantEvents.isEmpty) {
-                            return const SliverFillRemaining(
+                            return SliverFillRemaining(
                               child: Center(
-                                child: Text("Not Attending Any Events"),
+                                child: Text(
+                                  "No Events Found",
+                                  style: TextStyle(fontSize: 18, color: Theme.of(context).colorScheme.onSecondary),
+                                ),
                               ),
                             );
                           } else {
@@ -651,6 +662,63 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
                   ),
               ],
             ),
+    );
+  }
+
+  void _showFilterDialog() {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text("Filter Events", style: TextStyle(color: Theme.of(context).colorScheme.onSecondaryContainer)),
+          backgroundColor: Theme.of(context).cardColor,
+          content: StatefulBuilder(
+            builder: (BuildContext context, StateSetter setState) {
+              return Column(
+                mainAxisSize: MainAxisSize.min,
+                children: <Widget>[
+                  CheckboxListTile(
+                    title: Text("Upcoming"),
+                    value: showUpcoming,
+                    onChanged: (bool? value) {
+                      setState(() {
+                        showUpcoming = value!;
+                      });
+                    },
+                  ),
+                  CheckboxListTile(
+                    title: Text("Passed"),
+                    value: showPassed,
+                    onChanged: (bool? value) {
+                      setState(() {
+                        showPassed = value!;
+                      });
+                    },
+                  ),
+                  CheckboxListTile(
+                    title: Text("Hosting"),
+                    value: showHosting,
+                    onChanged: (bool? value) {
+                      setState(() {
+                        showHosting = value!;
+                      });
+                    },
+                  ),
+                ],
+              );
+            },
+          ),
+          actions: <Widget>[
+            TextButton(
+              child: Text("Apply"),
+              onPressed: () {
+                Navigator.of(context).pop();
+                setState(() {}); // Refresh the main screen
+              },
+            ),
+          ],
+        );
+      },
     );
   }
 }

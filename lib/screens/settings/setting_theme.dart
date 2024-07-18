@@ -17,17 +17,28 @@ class _ThemeSettingsState extends ConsumerState<ThemeSettings> {
     final themeMode = ref.watch(themeModeProvider);
     final initialThemeMode = ref.watch(initialThemeModeProvider);
 
+    ref.listen<AsyncValue<ThemeMode>>(initialThemeModeProvider, (previous, next) {
+      next.whenData((themeMode) {
+        ref.read(themeModeProvider.notifier).setThemeMode(themeMode);
+      });
+    });
+
+    final isDarkMode = themeMode == ThemeMode.dark ||
+        (themeMode == ThemeMode.system && MediaQuery.of(context).platformBrightness == Brightness.dark);
+
+    print('_________________________________themeMode: $themeMode');
+    print('_________________________________initialThemeMode: $initialThemeMode');
+
     return Scaffold(
       backgroundColor: Theme.of(context).colorScheme.surface,
       body: initialThemeMode.when(
         data: (_) => ListView(
           children: [
-            const ListTile(
-                title: Text("Theme Settings:", style: TextStyle(fontSize: 25))),
+            const ListTile(title: Text("Theme Settings:", style: TextStyle(fontSize: 25))),
             ListTile(
               title: const Text("Dark Theme", style: TextStyle(fontSize: 20)),
               trailing: Switch(
-                value: themeMode == ThemeMode.dark,
+                value: isDarkMode,
                 onChanged: (bool value) {
                   ref.read(themeModeProvider.notifier).setThemeMode(
                         value ? ThemeMode.dark : ThemeMode.light,
@@ -37,8 +48,8 @@ class _ThemeSettingsState extends ConsumerState<ThemeSettings> {
             ),
           ],
         ),
-        loading: () => const CircularProgressIndicator(),
-        error: (_, __) => const Text("Error loading theme"),
+        loading: () => const Center(child: CircularProgressIndicator()),
+        error: (_, __) => const Center(child: Text("Error loading theme")),
       ),
     );
   }

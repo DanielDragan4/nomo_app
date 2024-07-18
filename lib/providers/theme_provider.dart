@@ -7,11 +7,8 @@ final initialThemeModeProvider = FutureProvider<ThemeMode>((ref) async {
   final themeModeIndex = prefs.getInt('theme_mode');
 
   if (themeModeIndex == null) {
-    // User hasn't set a theme preference before
-    final brightness = WidgetsBinding.instance.window.platformBrightness;
-    final systemThemeMode = brightness == Brightness.dark ? ThemeMode.dark : ThemeMode.light;
+    const systemThemeMode = ThemeMode.system;
 
-    // Save the system theme mode to shared preferences
     await prefs.setInt('theme_mode', systemThemeMode.index);
 
     return systemThemeMode;
@@ -21,7 +18,13 @@ final initialThemeModeProvider = FutureProvider<ThemeMode>((ref) async {
 });
 
 final themeModeProvider = StateNotifierProvider<ThemeModeNotifier, ThemeMode>(
-  (ref) => ThemeModeNotifier(ref.watch(initialThemeModeProvider).value ?? ThemeMode.system),
+  (ref) {
+    final initialThemeMode = ref.watch(initialThemeModeProvider).maybeWhen(
+          data: (themeMode) => themeMode,
+          orElse: () => ThemeMode.system,
+        );
+    return ThemeModeNotifier(initialThemeMode);
+  },
 );
 
 class ThemeModeNotifier extends StateNotifier<ThemeMode> {

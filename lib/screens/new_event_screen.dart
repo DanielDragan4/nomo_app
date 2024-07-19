@@ -444,6 +444,29 @@ class _NewEventScreenState extends ConsumerState<NewEventScreen> {
     ref.read(attendEventsProvider.notifier).deCodeData();
   }
 
+  Widget _buildInvitationTypeItem(BuildContext context, String title, String description) {
+    return Column(
+      //crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          title,
+          style: TextStyle(
+            fontSize: 16,
+            fontWeight: FontWeight.bold,
+            color: Theme.of(context).colorScheme.onSurface,
+          ),
+        ),
+        Text(
+          description,
+          style: TextStyle(
+            fontSize: 14,
+            color: Theme.of(context).colorScheme.onSurface.withOpacity(0.8),
+          ),
+        ),
+      ],
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -709,44 +732,87 @@ class _NewEventScreenState extends ConsumerState<NewEventScreen> {
                     style: TextStyle(fontSize: 15, color: Theme.of(context).colorScheme.onSecondary),
                   ),
                   IconButton(
-                      onPressed: () {
-                        showAdaptiveDialog(
-                          context: context,
-                          builder: (context) => Dialog(
-                            child: Padding(
-                              padding: const EdgeInsets.all(10),
-                              child: SizedBox(
-                                height: MediaQuery.of(context).size.height * .21,
-                                child: const Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      'The Invatation Type you choose effects who can see the event',
-                                      style: TextStyle(fontSize: 20, fontWeight: FontWeight.w600),
-                                    ),
-                                    Text(
-                                      'Public Events: are visable to all users',
-                                      style: TextStyle(fontSize: 17, fontWeight: FontWeight.w500),
-                                    ),
-                                    Text(
-                                      'Private Events: are only viable to your Friends',
-                                      style: TextStyle(fontSize: 17, fontWeight: FontWeight.w500),
-                                    ),
-                                    Text(
-                                      'Selective Events: are only visable to those you have shared a link to',
-                                      style: TextStyle(fontSize: 17, fontWeight: FontWeight.w500),
+                    onPressed: () {
+                      showAdaptiveDialog(
+                        context: context,
+                        builder: (context) => Dialog(
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(16),
+                          ),
+                          elevation: 0,
+                          backgroundColor: Colors.transparent,
+                          child: Stack(
+                            children: [
+                              Container(
+                                padding: const EdgeInsets.all(16),
+                                decoration: BoxDecoration(
+                                  color: Theme.of(context).colorScheme.surface,
+                                  shape: BoxShape.rectangle,
+                                  borderRadius: BorderRadius.circular(16),
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: Colors.black26,
+                                      blurRadius: 10.0,
+                                      offset: const Offset(0.0, 10.0),
                                     ),
                                   ],
                                 ),
+                                child: Column(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    // Row(
+                                    //   mainAxisAlignment: MainAxisAlignment.center,
+                                    //   children: [
+                                    Center(
+                                      child: Text(
+                                        'Invitation Types',
+                                        style: TextStyle(
+                                          fontSize: 20,
+                                          fontWeight: FontWeight.bold,
+                                          color: Theme.of(context).colorScheme.onSurface,
+                                        ),
+                                      ),
+                                    ),
+
+                                    //   ],
+                                    // ),
+
+                                    Text(
+                                      'The Invitation Type you choose affects who can see the event:',
+                                      style: TextStyle(
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.w500,
+                                        color: Theme.of(context).colorScheme.onSurface,
+                                      ),
+                                    ),
+                                    const SizedBox(height: 16),
+                                    _buildInvitationTypeItem(context, 'Public Events', 'Visible to all users'),
+                                    const SizedBox(height: 8),
+                                    _buildInvitationTypeItem(context, 'Private Events', 'Only visible to your Friends'),
+                                    const SizedBox(height: 8),
+                                    _buildInvitationTypeItem(context, 'Selective Events',
+                                        'Only visible to those you have shared a link with'),
+                                  ],
+                                ),
                               ),
-                            ),
+                              Positioned(
+                                top: 5,
+                                right: 5,
+                                child: IconButton(
+                                  icon: Icon(Icons.close, color: Theme.of(context).colorScheme.onSurface),
+                                  onPressed: () => Navigator.of(context).pop(),
+                                ),
+                              ),
+                            ],
                           ),
-                        );
-                      },
-                      icon: Icon(
-                        Icons.info,
-                        color: Theme.of(context).colorScheme.onSecondary,
-                      )),
+                        ),
+                      );
+                    },
+                    icon: Icon(
+                      Icons.info,
+                      color: Theme.of(context).colorScheme.onSecondary,
+                    ),
+                  ),
                   const SizedBox(width: 10),
                   DropdownButtonHideUnderline(
                     child: DropdownButton<String>(

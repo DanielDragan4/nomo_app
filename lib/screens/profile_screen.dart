@@ -10,8 +10,10 @@ import 'package:nomo/providers/supabase_provider.dart';
 import 'package:nomo/screens/chat_screen.dart';
 import 'package:nomo/screens/create_account_screen.dart';
 import 'package:nomo/screens/new_event_screen.dart';
+import 'package:nomo/screens/password_handling/login_screen.dart';
 import 'package:nomo/widgets/event_tab.dart';
 import 'package:nomo/widgets/profile_dropdown.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 class ProfileScreen extends ConsumerStatefulWidget {
   ProfileScreen({super.key, required this.isUser, this.userId});
@@ -33,7 +35,9 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
   late List<bool> isSelected;
   late bool isFriend = true;
   bool _isLoading = true;
-  bool isHosting = false;
+  bool showUpcoming = true;
+  bool showPassed = false;
+  bool showHosting = false;
   bool friendPending = false;
 
 // Initializes appropriate user data, depending on if viewing own profile or someone else's
@@ -148,144 +152,247 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
   }
 
   @override
-  Widget build(BuildContext contex) {
-    if (widget.isUser) {
-      ref.read(attendEventsProvider.notifier).deCodeData();
-      ref.read(profileProvider.notifier).decodeData();
-    }
-    var imageUrl;
+  Widget build(BuildContext context) {
+    //Calculation to prevent appbar overflow on all devices
+    double appBarHeight = MediaQuery.of(context).padding.top + MediaQuery.of(context).size.width * 0.24 + 245;
 
-    if (ref.read(profileProvider.notifier).state == null) {
-      imageUrl = '';
-    } else {
-      imageUrl = ref.read(profileProvider.notifier).state?.avatar;
+    if (widget.isUser) {
+      appBarHeight += 10;
     }
+
+    final profile;
+
+    if (widget.isUser) {
+      profile = ref.watch(profileProvider);
+      ref.read(attendEventsProvider.notifier).deCodeData();
+      //ref.read(profileProvider.notifier).decodeData();
+    } else {
+      profile = profileInfo;
+    }
+    //var imageUrl;
+
+    // if (ref.read(profileProvider.notifier).state == null) {
+    //   imageUrl = '';
+    // } else {
+    //   imageUrl = ref.read(profileProvider.notifier).state?.avatar;
+    // }
 
     return Scaffold(
       backgroundColor: Theme.of(context).colorScheme.surface,
       body: _isLoading
-          ? Center(
+          ? const Center(
               child: CircularProgressIndicator(),
             )
-          : NestedScrollView(
-              floatHeaderSlivers: true,
-              headerSliverBuilder: (context, innerBoxIsScrolled) => [
+          : CustomScrollView(
+              slivers: [
                 SliverAppBar(
                   backgroundColor: Theme.of(context).colorScheme.surface,
-                  primary: false,
-                  titleSpacing: BorderSide.strokeAlignCenter,
+                  expandedHeight: appBarHeight,
                   floating: true,
-                  snap: true,
-                  toolbarHeight: MediaQuery.sizeOf(context).height / 4.2,
-                  title: Padding(
-                    padding: const EdgeInsets.only(top: 40, bottom: 1),
-                    child: Column(children: [
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  pinned: false,
+                  snap: false,
+                  flexibleSpace: FlexibleSpaceBar(
+                    background: Container(
+                      padding: EdgeInsets.only(top: MediaQuery.of(context).padding.top + 10),
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          begin: Alignment.topCenter,
+                          end: Alignment.bottomCenter,
+                          colors: [
+                            Theme.of(context).primaryColor,
+                            Theme.of(context).colorScheme.surface,
+                          ],
+                        ),
+                      ),
+                      child: Column(
                         children: [
                           GestureDetector(
                             onTap: () {
-                              profileInfo?.then((profile) {
+                              if (profile != null && widget.isUser && widget.userId == null) {
                                 Navigator.of(context)
-                                    .push(MaterialPageRoute(
-                                        builder: ((context) => CreateAccountScreen(
-                                              isNew: false,
-                                              avatar: profile.avatar,
-                                              profilename: profile.profile_name,
-                                              username: profile.username,
-                                              onUpdateProfile: updateProfileInfo,
-                                            ))))
-                                    .then((_) {
-                                  updateProfileInfo();
-                                });
-                              });
+                                    .push(
+                                      MaterialPageRoute(
+                                        builder: (contex) => CreateAccountScreen(
+                                          isNew: false,
+                                          avatar: profile.avatar,
+                                          profilename: profile.profile_name,
+                                          username: profile.username,
+                                          onUpdateProfile: updateProfileInfo,
+                                        ),
+                                      ),
+                                    )
+                                    .then((_) => updateProfileInfo());
+                              }
                             },
-                            child: FutureBuilder(
-                              key: _futureBuilderKey,
-                              future: profileInfo,
-                              builder: (context, snapshot) {
-                                if (snapshot.hasError) {
-                                  return Column(
+                            child: widget.isUser
+                                ? Column(
+                                    mainAxisAlignment: MainAxisAlignment.center,
                                     children: [
+                                      const SizedBox(height: 10),
                                       CircleAvatar(
-                                        radius: MediaQuery.sizeOf(context).width / 12,
-                                        child: const Text("No Image"),
-                                      ),
-                                      const Text(
-                                        "No Username",
-                                        style: TextStyle(fontSize: 13),
-                                      ),
-                                    ],
-                                  );
-                                } else if (snapshot.connectionState != ConnectionState.done) {
-                                  return const CircularProgressIndicator();
-                                } else if (!snapshot.hasData || snapshot.data!.avatar == null) {
-                                  return Column(
-                                    children: [
-                                      CircleAvatar(
-                                        radius: MediaQuery.sizeOf(context).width / 12,
-                                        child: const Text("No Image"),
-                                      ),
-                                      const Text(
-                                        "No Username",
-                                        style: TextStyle(fontSize: 13),
-                                      ),
-                                    ],
-                                  );
-                                } else {
-                                  var profile = snapshot.data!;
-                                  var avatar = profile.avatar;
-                                  var profileName = profile.profile_name ?? 'No Name';
-                                  return Column(
-                                    children: [
-                                      CircleAvatar(
-                                        key: ValueKey<String>(avatar ?? ''),
-                                        radius: MediaQuery.sizeOf(context).width / 12,
-                                        backgroundColor: Colors.white,
+                                        radius: MediaQuery.of(context).size.width * 0.12,
                                         backgroundImage:
-                                            avatar != null && avatar.isNotEmpty ? NetworkImage(avatar) : null,
-                                        child: avatar == null || avatar.isEmpty ? const Text("No Image") : null,
+                                            profile?.avatar != null ? NetworkImage(profile!.avatar!) : null,
+                                        child: profile?.avatar == null
+                                            ? Icon(Icons.person, size: MediaQuery.of(context).size.width * 0.12)
+                                            : null,
                                       ),
-                                      SizedBox(height: MediaQuery.sizeOf(context).height / 100),
+                                      const SizedBox(height: 10),
                                       Text(
-                                        profileName,
-                                        style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w600),
+                                        profile?.profile_name ?? 'Loading...',
+                                        style: TextStyle(
+                                          fontSize: 24,
+                                          fontWeight: FontWeight.bold,
+                                          color: Theme.of(context).colorScheme.onSecondary,
+                                        ),
+                                      ),
+                                      const SizedBox(height: 5),
+                                      Text(
+                                        '@${profile?.username ?? 'username'}',
+                                        style: TextStyle(
+                                          fontSize: 16,
+                                          color: Theme.of(context).colorScheme.onSecondary,
+                                        ),
                                       ),
                                     ],
-                                  );
-                                }
-                              },
-                            ),
+                                  )
+                                : FutureBuilder(
+                                    key: _futureBuilderKey,
+                                    future: profileInfo,
+                                    builder: (context, snapshot) {
+                                      if (snapshot.hasError) {
+                                        return Column(
+                                          children: [
+                                            const SizedBox(height: 10),
+                                            CircleAvatar(
+                                              radius: MediaQuery.of(context).size.width * 0.12,
+                                              child: const Text("No Image"),
+                                            ),
+                                            const SizedBox(height: 10),
+                                            Text(
+                                              'Loading...',
+                                              style: TextStyle(
+                                                fontSize: 24,
+                                                fontWeight: FontWeight.bold,
+                                                color: Theme.of(context).colorScheme.onSecondary,
+                                              ),
+                                            ),
+                                            const SizedBox(height: 5),
+                                            Text(
+                                              '@username',
+                                              style: TextStyle(
+                                                fontSize: 16,
+                                                color: Theme.of(context).colorScheme.onSecondary,
+                                              ),
+                                            ),
+                                          ],
+                                        );
+                                      } else if (snapshot.connectionState != ConnectionState.done) {
+                                        return const CircularProgressIndicator();
+                                      } else if (!snapshot.hasData || snapshot.data!.avatar == null) {
+                                        return Column(
+                                          children: [
+                                            const SizedBox(height: 10),
+                                            CircleAvatar(
+                                              radius: MediaQuery.of(context).size.width * 0.12,
+                                              child: const Text("No Image"),
+                                            ),
+                                            const SizedBox(height: 10),
+                                            Text(
+                                              'Loading...',
+                                              style: TextStyle(
+                                                fontSize: 24,
+                                                fontWeight: FontWeight.bold,
+                                                color: Theme.of(context).colorScheme.onSecondary,
+                                              ),
+                                            ),
+                                            const SizedBox(height: 5),
+                                            Text(
+                                              '@username',
+                                              style: TextStyle(
+                                                fontSize: 16,
+                                                color: Theme.of(context).colorScheme.onSecondary,
+                                              ),
+                                            ),
+                                          ],
+                                        );
+                                      } else {
+                                        var profile = snapshot.data!;
+                                        return Column(
+                                          mainAxisAlignment: MainAxisAlignment.center,
+                                          children: [
+                                            const SizedBox(height: 10),
+                                            CircleAvatar(
+                                              radius: MediaQuery.of(context).size.width * 0.12,
+                                              backgroundImage:
+                                                  profile?.avatar != null ? NetworkImage(profile.avatar!) : null,
+                                              child: profile?.avatar == null
+                                                  ? Icon(Icons.person, size: MediaQuery.of(context).size.width * 0.12)
+                                                  : null,
+                                            ),
+                                            const SizedBox(height: 10),
+                                            Text(
+                                              profile.profile_name ?? 'Loading...',
+                                              style: TextStyle(
+                                                fontSize: 24,
+                                                fontWeight: FontWeight.bold,
+                                                color: Theme.of(context).colorScheme.onSecondary,
+                                              ),
+                                            ),
+                                            const SizedBox(height: 5),
+                                            Text(
+                                              '@${profile.username}',
+                                              style: TextStyle(
+                                                fontSize: 16,
+                                                color: Theme.of(context).colorScheme.onSecondary,
+                                              ),
+                                            ),
+                                          ],
+                                        );
+                                      }
+                                    },
+                                  ),
                           ),
-                          Column(
+                          const SizedBox(height: 10),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceAround,
                             children: [
-                              Row(
+                              Column(
                                 children: [
-                                  Column(
+                                  Row(
                                     children: [
-                                      const Text(
-                                        "Upcoming Events",
-                                        style: TextStyle(fontSize: 15),
-                                      ),
-                                      StreamBuilder(
-                                        stream: ref.read(attendEventsProvider.notifier).stream,
-                                        builder: (context, snapshot) {
-                                          if (snapshot.data != null) {
-                                            final attendingEvents = snapshot.data!
-                                                .where((event) => event.attending || event.isHost)
-                                                .toList();
-                                            var attendingEventCount = attendingEvents.length;
-                                            return Text(
-                                              attendingEventCount.toString(),
-                                              style: const TextStyle(fontSize: 15),
-                                            );
-                                          } else {
-                                            return const Text(
-                                              "0",
-                                              style: TextStyle(fontSize: 15),
-                                            );
-                                          }
-                                        },
+                                      Column(
+                                        children: [
+                                          Text(
+                                            "Upcoming Events",
+                                            style: TextStyle(
+                                                fontSize: 18,
+                                                fontWeight: FontWeight.bold,
+                                                color: Theme.of(context).colorScheme.onSecondary),
+                                          ),
+                                          StreamBuilder(
+                                            stream: ref.read(attendEventsProvider.notifier).stream,
+                                            builder: (context, snapshot) {
+                                              if (snapshot.data != null) {
+                                                final attendingEvents = snapshot.data!
+                                                    .where((event) => event.attending || event.isHost)
+                                                    .toList();
+                                                var attendingEventCount = attendingEvents.length;
+                                                return Text(
+                                                  attendingEventCount.toString(),
+                                                  style: TextStyle(
+                                                      fontSize: 18, color: Theme.of(context).colorScheme.onSecondary),
+                                                );
+                                              } else {
+                                                return Text(
+                                                  "0",
+                                                  style: TextStyle(
+                                                      fontSize: 18, color: Theme.of(context).colorScheme.onSecondary),
+                                                );
+                                              }
+                                            },
+                                          ),
+                                        ],
                                       ),
                                     ],
                                   ),
@@ -348,185 +455,270 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
                                     ],
                                   ),
                                 ),
+                              if (widget.isUser)
+                                Row(children: [
+                                  IconButton(
+                                    onPressed: () {
+                                      Navigator.of(context).push(
+                                          MaterialPageRoute(builder: (context) => const NewEventScreen(event: null)));
+                                    },
+                                    icon: const Icon(Icons.add),
+                                    color: Theme.of(context).colorScheme.onSecondary,
+                                  ),
+                                  ProfileDropdown(
+                                    updateProfileInfo: updateProfileInfo,
+                                    profileInfo: profileInfo,
+                                  ),
+                                ]),
                             ],
                           ),
-                          if (widget.isUser)
-                            Row(children: [
-                              IconButton(
-                                  onPressed: () {
-                                    Navigator.of(context)
-                                        .push(MaterialPageRoute(builder: (context) => NewEventScreen(event: null)));
-                                  },
-                                  icon: const Icon(Icons.add)),
-                              ProfileDropdown(
-                                updateProfileInfo: updateProfileInfo,
-                                profileInfo: profileInfo,
+                          const SizedBox(height: 20),
+                          Center(
+                            child: ToggleButtons(
+                              constraints: BoxConstraints(
+                                minHeight: 40,
+                                minWidth: MediaQuery.of(context).size.width * 0.44,
                               ),
-                            ]),
+                              borderRadius: BorderRadius.circular(8),
+                              selectedBorderColor: Theme.of(context).primaryColor,
+                              selectedColor: Theme.of(context).primaryColor,
+                              fillColor: Theme.of(context).primaryColor.withOpacity(0.1),
+                              color: Colors.grey,
+                              onPressed: (int index) {
+                                setState(() {
+                                  for (int i = 0; i < isSelected.length; i++) {
+                                    isSelected[i] = i == index;
+                                  }
+                                });
+                              },
+                              isSelected: isSelected,
+                              children: [
+                                Padding(
+                                    padding: const EdgeInsets.symmetric(vertical: 3),
+                                    child: widget.isUser
+                                        ? const Text(
+                                            'Your Events',
+                                            style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700),
+                                          )
+                                        : const Text(
+                                            "Attending Events",
+                                            style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700),
+                                          )),
+                                Padding(
+                                    padding: const EdgeInsets.symmetric(vertical: 3),
+                                    child: widget.isUser
+                                        ? const Text(
+                                            'Bookmarked',
+                                            style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700),
+                                          )
+                                        : const Text(
+                                            "Hosting Events",
+                                            style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700),
+                                          )),
+                              ],
+                            ),
+                          ),
+                          if (widget.isUser && isSelected[0])
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.end,
+                              children: [
+                                ElevatedButton(
+                                  onPressed: () {
+                                    _showFilterDialog();
+                                  },
+                                  child: Text("Filters"),
+                                ),
+                                SizedBox(width: 16), // Add some padding
+                              ],
+                            ),
                         ],
                       ),
-                      ToggleButtons(
-                        constraints: BoxConstraints(
-                            maxHeight: MediaQuery.of(context).size.height * .05,
-                            minWidth: MediaQuery.of(context).size.width * .4,
-                            maxWidth: MediaQuery.of(context).size.width * .55),
-                        borderColor: Colors.black,
-                        fillColor: Theme.of(context).primaryColor,
-                        borderWidth: 1,
-                        selectedBorderColor: Colors.black,
-                        selectedColor: Colors.grey,
-                        borderRadius: BorderRadius.circular(15),
-                        onPressed: (int index) {
-                          setState(() {
-                            for (int i = 0; i < isSelected.length; i++) {
-                              isSelected[i] = i == index;
-                            }
-                          });
-                        },
-                        isSelected: isSelected,
-                        children: [
-                          Padding(
-                              padding: const EdgeInsets.fromLTRB(3, 3, 3, 3),
-                              child: widget.isUser
-                                  ? const Text(
-                                      'Your Events',
-                                      style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700),
-                                    )
-                                  : const Text(
-                                      "Attending Events",
-                                      style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700),
-                                    )),
-                          Padding(
-                              padding: const EdgeInsets.fromLTRB(3, 3, 3, 3),
-                              child: widget.isUser
-                                  ? const Text(
-                                      'Bookmarked',
-                                      style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700),
-                                    )
-                                  : const Text(
-                                      "Hosting Events",
-                                      style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700),
-                                    )),
-                        ],
-                      ),
-                    ]),
-                  ),
-                  centerTitle: true,
-                ),
-              ],
-              body: Column(
-                children: [
-                  if (isSelected[0] && widget.isUser)
-                    CheckboxListTile(
-                      title: Text("Hosting Only"),
-                      value: isHosting,
-                      onChanged: (newValue) {
-                        setState(() {
-                          isHosting = newValue!;
-                        });
-                      },
                     ),
-                  const Divider(),
-                  Expanded(
-                    child: isSelected.first
-                        ? (private == false || isFriend || widget.isUser)
-                            ? (StreamBuilder(
-                                stream: ref.read(attendEventsProvider.notifier).stream,
-                                builder: (context, snapshot) {
-                                  if (snapshot.data != null) {
-                                    final relevantEvents;
-                                    if (isHosting == false) {
-                                      relevantEvents =
-                                          snapshot.data!.where((event) => event.attending || event.isHost).toList();
-                                    } else {
-                                      relevantEvents = snapshot.data!.where((event) => event.isHost).toList();
-                                    }
-                                    if (relevantEvents.isEmpty) {
-                                      return const Center(
-                                        child: Text("Not Attending Any Events"),
-                                      );
-                                    } else {
-                                      return ListView.builder(
-                                        key: const PageStorageKey<String>('event'),
-                                        itemCount: relevantEvents.length,
-                                        itemBuilder: (context, index) {
-                                          final event = relevantEvents[index];
+                  ),
+                ),
+                if (isSelected.first)
+                  if (private == false || isFriend || widget.isUser)
+                    StreamBuilder(
+                      stream: ref.read(attendEventsProvider.notifier).stream,
+                      builder: (context, snapshot) {
+                        if (snapshot.data != null) {
+                          final relevantEvents = snapshot.data!.where((event) {
+                            final now = DateTime.now();
+                            final startDate = event.sdate;
+                            final endDate = event.edate;
+                            if (showHosting && event.isHost) return true;
+                            if (showUpcoming && event.attending && startDate.compareTo(now.toString()) > 0) return true;
+                            if (showPassed && event.attending && endDate.compareTo(now.toString()) < 0) return true;
+                            return false;
+                          }).toList();
+                          if (relevantEvents.isEmpty) {
+                            return SliverFillRemaining(
+                              child: Center(
+                                child: Text(
+                                  "No Events Found",
+                                  style: TextStyle(fontSize: 18, color: Theme.of(context).colorScheme.onSecondary),
+                                ),
+                              ),
+                            );
+                          } else {
+                            return SliverList(
+                              delegate: SliverChildBuilderDelegate(
+                                (context, index) {
+                                  final event = relevantEvents[index];
 
-                                          preloadImages(context, relevantEvents, index, 4);
+                                  preloadImages(context, relevantEvents, index, 4);
 
-                                          return EventTab(
-                                            eventData: event,
-                                            preloadedImage: NetworkImage(event.imageUrl),
-                                          );
-                                        },
-                                      );
-                                    }
-                                  } else {
-                                    return const Text("No Data Retrieved");
-                                  }
+                                  return EventTab(
+                                    eventData: event,
+                                    preloadedImage: NetworkImage(event.imageUrl),
+                                  );
                                 },
-                              ))
-                            : Center(
-                                child: Text(
-                                'This profile is private',
-                                style: TextStyle(color: Theme.of(context).colorScheme.onSecondary),
-                              ))
-                        : (private == false || isFriend || widget.isUser)
-                            ? StreamBuilder(
-                                stream: ref.read(attendEventsProvider.notifier).stream,
-                                builder: (context, snapshot) {
-                                  if (snapshot.data != null) {
-                                    if (widget.isUser) {
-                                      final bookmarkedEvents =
-                                          snapshot.data!.where((event) => event.bookmarked).toList();
-                                      if (bookmarkedEvents.isEmpty) {
-                                        return const Center(
-                                          child: Text("No Bookmarked Events"),
-                                        );
-                                      } else {
-                                        return ListView.builder(
-                                          key: const PageStorageKey<String>('bookmarked'),
-                                          itemCount: bookmarkedEvents.length,
-                                          itemBuilder: (context, index) {
-                                            final event = bookmarkedEvents[index];
-                                            preloadImages(context, bookmarkedEvents, index, 4);
-                                            return EventTab(
-                                              eventData: event,
-                                              preloadedImage: NetworkImage(event.imageUrl),
-                                            );
-                                          },
-                                        );
-                                      }
-                                    } else {
-                                      //only useful when viewing a profile though means other than an event header
-                                      final hostingEvents = snapshot.data!.where((event) => event.isHost).toList();
-                                      if (hostingEvents.isEmpty) {
-                                        return const Center(
-                                          child: Text("This User Is Not Hosting Any Events at the Moment"),
-                                        );
-                                      } else {
-                                        return ListView(
-                                          key: const PageStorageKey<String>('test'),
-                                          children: [
-                                            for (Event i in snapshot.data!)
-                                              if (i.isHost) EventTab(eventData: i, bookmarkSet: true),
-                                          ],
-                                        );
-                                      }
-                                    }
-                                  } else {
-                                    return const Text("No Data Retreived");
-                                  }
-                                })
-                            : Center(
-                                child: Text(
-                                'This profile is private',
-                                style: TextStyle(color: Theme.of(context).colorScheme.onSecondary),
-                              )),
+                                childCount: relevantEvents.length,
+                              ),
+                            );
+                          }
+                        } else {
+                          return const SliverFillRemaining(
+                            child: Center(
+                              child: Text("No Data Retrieved"),
+                            ),
+                          );
+                        }
+                      },
+                    )
+                  else
+                    SliverFillRemaining(
+                      child: Center(
+                        child: Text(
+                          'This profile is private',
+                          style: TextStyle(color: Theme.of(context).colorScheme.onSecondary),
+                        ),
+                      ),
+                    )
+                else if (private == false || isFriend || widget.isUser)
+                  StreamBuilder(
+                    stream: ref.read(attendEventsProvider.notifier).stream,
+                    builder: (context, snapshot) {
+                      if (snapshot.data != null) {
+                        if (widget.isUser) {
+                          final bookmarkedEvents = snapshot.data!.where((event) => event.bookmarked).toList();
+                          if (bookmarkedEvents.isEmpty) {
+                            return const SliverFillRemaining(
+                              child: Center(
+                                child: Text("No Bookmarked Events"),
+                              ),
+                            );
+                          } else {
+                            return SliverList(
+                              delegate: SliverChildBuilderDelegate(
+                                (context, index) {
+                                  final event = bookmarkedEvents[index];
+                                  preloadImages(context, bookmarkedEvents, index, 4);
+                                  return EventTab(
+                                    eventData: event,
+                                    preloadedImage: NetworkImage(event.imageUrl),
+                                  );
+                                },
+                                childCount: bookmarkedEvents.length,
+                              ),
+                            );
+                          }
+                        } else {
+                          // Only useful when viewing a profile through means other than an event header
+                          final hostingEvents = snapshot.data!.where((event) => event.isHost).toList();
+                          if (hostingEvents.isEmpty) {
+                            return const SliverFillRemaining(
+                              child: Center(
+                                child: Text("This User Is Not Hosting Any Events at the Moment"),
+                              ),
+                            );
+                          } else {
+                            return SliverList(
+                              delegate: SliverChildListDelegate(
+                                hostingEvents.map((event) {
+                                  return EventTab(eventData: event, bookmarkSet: true);
+                                }).toList(),
+                              ),
+                            );
+                          }
+                        }
+                      } else {
+                        return const SliverFillRemaining(
+                          child: Center(
+                            child: Text("No Data Retrieved"),
+                          ),
+                        );
+                      }
+                    },
+                  )
+                else
+                  SliverFillRemaining(
+                    child: Center(
+                      child: Text(
+                        'This profile is private',
+                        style: TextStyle(color: Theme.of(context).colorScheme.onSecondary),
+                      ),
+                    ),
+                  ),
+              ],
+            ),
+    );
+  }
+
+  void _showFilterDialog() {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text("Filter Events", style: TextStyle(color: Theme.of(context).colorScheme.onSecondaryContainer)),
+          backgroundColor: Theme.of(context).cardColor,
+          content: StatefulBuilder(
+            builder: (BuildContext context, StateSetter setState) {
+              return Column(
+                mainAxisSize: MainAxisSize.min,
+                children: <Widget>[
+                  CheckboxListTile(
+                    title: Text("Upcoming"),
+                    value: showUpcoming,
+                    onChanged: (bool? value) {
+                      setState(() {
+                        showUpcoming = value!;
+                      });
+                    },
+                  ),
+                  CheckboxListTile(
+                    title: Text("Passed"),
+                    value: showPassed,
+                    onChanged: (bool? value) {
+                      setState(() {
+                        showPassed = value!;
+                      });
+                    },
+                  ),
+                  CheckboxListTile(
+                    title: Text("Hosting"),
+                    value: showHosting,
+                    onChanged: (bool? value) {
+                      setState(() {
+                        showHosting = value!;
+                      });
+                    },
                   ),
                 ],
-              ),
+              );
+            },
+          ),
+          actions: <Widget>[
+            TextButton(
+              child: Text("Apply"),
+              onPressed: () {
+                Navigator.of(context).pop();
+                setState(() {}); // Refresh the main screen
+              },
             ),
+          ],
+        );
+      },
     );
   }
 }

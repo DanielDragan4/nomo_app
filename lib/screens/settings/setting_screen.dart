@@ -52,18 +52,20 @@ class _SettingScreenState extends ConsumerState<SettingScreen> {
           break;
         case 'camera':
           cameraSwitch = !cameraSwitch;
-          prefs.setBool('camera', cameraSwitch);
           handlePermissionToggle(perm_handler.Permission.camera, cameraSwitch);
+          prefs.setBool('camera', cameraSwitch);
           break;
         case 'location':
           locationSwitch = !locationSwitch;
-          prefs.setBool('location', locationSwitch);
           handlePermissionToggle(perm_handler.Permission.location, locationSwitch);
+          prefs.setBool('location', locationSwitch);
+
           break;
         case 'contact':
           contactSwitch = !contactSwitch;
-          prefs.setBool('contact', contactSwitch);
           handlePermissionToggle(perm_handler.Permission.contacts, contactSwitch);
+          prefs.setBool('contact', contactSwitch);
+
           break;
         case 'notif':
           notifSwitch = !notifSwitch;
@@ -199,9 +201,14 @@ class _SettingScreenState extends ConsumerState<SettingScreen> {
     });
     // Check camera permission status
     final cameraStatus = await perm_handler.Permission.camera.status;
+    print('_________________________cameraStatus: $cameraStatus');
     if (cameraStatus.isGranted) {
       setState(() {
         cameraSwitch = true;
+      });
+    } else {
+      setState(() {
+        cameraSwitch = false;
       });
     }
 

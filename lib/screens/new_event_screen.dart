@@ -16,6 +16,7 @@ import 'package:intl/intl.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:nomo/providers/supabase_provider.dart';
 import 'package:nomo/widgets/address_search_widget.dart';
+import 'package:nomo/widgets/custom_time_picker.dart';
 import 'package:uuid/uuid.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:image/image.dart' as img;
@@ -106,66 +107,60 @@ class _NewEventScreenState extends ConsumerState<NewEventScreen> {
       lastDate: DateTime(2100),
     );
     if (picked != null) {
-      bool isValidDate = true;
+      setState(() {
+        if (isStartDate) {
+          _selectedStartDate = picked;
+          _formattedSDate = DateFormat.yMd().format(_selectedStartDate!);
+          sdate = true;
 
-      if (isStartDate && _selectedEndDate != null && _selectedEndTime != null && _selectedStartTime != null) {
-        isValidDate = ((picked.isBefore(_selectedEndDate!)) ||
-            ((picked.isAtSameMomentAs(_selectedEndDate!)) &&
-                ((_selectedEndTime!.hour + (_selectedEndTime!.minute / 60))) >
-                    (_selectedStartTime!.hour + (_selectedStartTime!.minute / 60))));
-      } else if (!isStartDate && _selectedStartDate != null && _selectedEndTime != null && _selectedStartTime != null) {
-        isValidDate = (picked.isAfter(_selectedStartDate!) ||
-            ((picked.isAtSameMomentAs(_selectedStartDate!)) &&
-                ((_selectedEndTime!.hour + (_selectedEndTime!.minute / 60))) >
-                    (_selectedStartTime!.hour + (_selectedStartTime!.minute / 60))));
-      }
-
-      if (isValidDate) {
-        setState(() {
-          if (isStartDate) {
-            _selectedStartDate = picked;
-            _formattedSDate = DateFormat.yMd().format(_selectedStartDate!);
-            sdate = true;
+          // Check if the new start date is after the current end date
+          if (_selectedEndDate != null && picked.isAfter(_selectedEndDate!)) {
+            // Set the end date to be the same as the new start date
+            _selectedEndDate = picked;
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Text('End date adjusted to be after or equal to start date.'),
+              ),
+            );
+            _formattedEDate = DateFormat.yMd().format(_selectedEndDate!);
+            edate = true;
+          }
+        } else {
+          if (_selectedStartDate != null && picked.isBefore(_selectedStartDate!)) {
+            ScaffoldMessenger.of(context).hideCurrentSnackBar();
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Text('End date must be after or equal to start date.'),
+              ),
+            );
           } else {
             _selectedEndDate = picked;
             _formattedEDate = DateFormat.yMd().format(_selectedEndDate!);
             edate = true;
           }
-          _enableButton();
-        });
-      } else {
-        ScaffoldMessenger.of(context).hideCurrentSnackBar();
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(isStartDate ? 'Start date must be before end date.' : 'End date must be after start date.'),
-          ),
-        );
-      }
+        }
+        _enableButton();
+      });
     }
   }
 
   Future<void> _selectTime(BuildContext context, bool isStartTime) async {
     FocusManager.instance.primaryFocus?.unfocus();
-    final TimeOfDay? picked = await showTimePicker(
-      initialEntryMode: TimePickerEntryMode.input,
+    final initialTime = isStartTime ? _selectedStartTime ?? TimeOfDay.now() : _selectedEndTime ?? TimeOfDay.now();
+
+    final TimeOfDay? picked = await showDialog<TimeOfDay>(
       context: context,
-      initialTime: isStartTime ? _selectedStartTime ?? TimeOfDay.now() : _selectedEndTime ?? TimeOfDay.now(),
-      builder: (BuildContext context, Widget? child) {
-        return MediaQuery(
-          data: MediaQuery.of(context).copyWith(alwaysUse24HourFormat: false),
-          child: Theme(
-            data: Theme.of(context).copyWith(
-              timePickerTheme: const TimePickerThemeData(
-                inputDecorationTheme: InputDecorationTheme(fillColor: Colors.transparent),
-                hourMinuteTextStyle: TextStyle(fontSize: 32, fontWeight: FontWeight.bold),
-                dayPeriodTextStyle: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
-              ),
-            ),
-            child: child!,
-          ),
+      builder: (BuildContext context) {
+        return CustomTimePicker(
+          initialTime: initialTime,
+          onTimeSelected: (TimeOfDay selectedTime) {
+            return selectedTime;
+          },
+          isStartTime: isStartTime,
         );
       },
     );
+
     if (picked != null) {
       setState(() {
         if (isStartTime) {
@@ -444,6 +439,29 @@ class _NewEventScreenState extends ConsumerState<NewEventScreen> {
     ref.read(attendEventsProvider.notifier).deCodeData();
   }
 
+  Widget _buildInvitationTypeItem(BuildContext context, String title, String description) {
+    return Column(
+      //crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          title,
+          style: TextStyle(
+            fontSize: 16,
+            fontWeight: FontWeight.bold,
+            color: Theme.of(context).colorScheme.onSurface,
+          ),
+        ),
+        Text(
+          description,
+          style: TextStyle(
+            fontSize: 14,
+            color: Theme.of(context).colorScheme.onSurface.withOpacity(0.8),
+          ),
+        ),
+      ],
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -709,44 +727,87 @@ class _NewEventScreenState extends ConsumerState<NewEventScreen> {
                     style: TextStyle(fontSize: 15, color: Theme.of(context).colorScheme.onSecondary),
                   ),
                   IconButton(
-                      onPressed: () {
-                        showAdaptiveDialog(
-                          context: context,
-                          builder: (context) => Dialog(
-                            child: Padding(
-                              padding: const EdgeInsets.all(10),
-                              child: SizedBox(
-                                height: MediaQuery.of(context).size.height * .21,
-                                child: const Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      'The Invatation Type you choose effects who can see the event',
-                                      style: TextStyle(fontSize: 20, fontWeight: FontWeight.w600),
-                                    ),
-                                    Text(
-                                      'Public Events: are visable to all users',
-                                      style: TextStyle(fontSize: 17, fontWeight: FontWeight.w500),
-                                    ),
-                                    Text(
-                                      'Private Events: are only viable to your Friends',
-                                      style: TextStyle(fontSize: 17, fontWeight: FontWeight.w500),
-                                    ),
-                                    Text(
-                                      'Selective Events: are only visable to those you have shared a link to',
-                                      style: TextStyle(fontSize: 17, fontWeight: FontWeight.w500),
+                    onPressed: () {
+                      showAdaptiveDialog(
+                        context: context,
+                        builder: (context) => Dialog(
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(16),
+                          ),
+                          elevation: 0,
+                          backgroundColor: Colors.transparent,
+                          child: Stack(
+                            children: [
+                              Container(
+                                padding: const EdgeInsets.all(16),
+                                decoration: BoxDecoration(
+                                  color: Theme.of(context).colorScheme.surface,
+                                  shape: BoxShape.rectangle,
+                                  borderRadius: BorderRadius.circular(16),
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: Colors.black26,
+                                      blurRadius: 10.0,
+                                      offset: const Offset(0.0, 10.0),
                                     ),
                                   ],
                                 ),
+                                child: Column(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    // Row(
+                                    //   mainAxisAlignment: MainAxisAlignment.center,
+                                    //   children: [
+                                    Center(
+                                      child: Text(
+                                        'Invitation Types',
+                                        style: TextStyle(
+                                          fontSize: 20,
+                                          fontWeight: FontWeight.bold,
+                                          color: Theme.of(context).colorScheme.onSurface,
+                                        ),
+                                      ),
+                                    ),
+
+                                    //   ],
+                                    // ),
+
+                                    Text(
+                                      'The Invitation Type you choose affects who can see the event:',
+                                      style: TextStyle(
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.w500,
+                                        color: Theme.of(context).colorScheme.onSurface,
+                                      ),
+                                    ),
+                                    const SizedBox(height: 16),
+                                    _buildInvitationTypeItem(context, 'Public Events', 'Visible to all users'),
+                                    const SizedBox(height: 8),
+                                    _buildInvitationTypeItem(context, 'Private Events', 'Only visible to your Friends'),
+                                    const SizedBox(height: 8),
+                                    _buildInvitationTypeItem(context, 'Selective Events',
+                                        'Only visible to those you have shared a link with'),
+                                  ],
+                                ),
                               ),
-                            ),
+                              Positioned(
+                                top: 5,
+                                right: 5,
+                                child: IconButton(
+                                  icon: Icon(Icons.close, color: Theme.of(context).colorScheme.onSurface),
+                                  onPressed: () => Navigator.of(context).pop(),
+                                ),
+                              ),
+                            ],
                           ),
-                        );
-                      },
-                      icon: Icon(
-                        Icons.info,
-                        color: Theme.of(context).colorScheme.onSecondary,
-                      )),
+                        ),
+                      );
+                    },
+                    icon: Icon(
+                      Icons.info,
+                      color: Theme.of(context).colorScheme.onSecondary,
+                    ),
+                  ),
                   const SizedBox(width: 10),
                   DropdownButtonHideUnderline(
                     child: DropdownButton<String>(

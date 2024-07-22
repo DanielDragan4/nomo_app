@@ -27,7 +27,7 @@ class ProfileScreen extends ConsumerStatefulWidget {
   }
 }
 
-class ProfileScreenState extends ConsumerState<ProfileScreen> {
+class ProfileScreenState extends ConsumerState<ProfileScreen> { 
   Future<Profile>? profileInfo;
   UniqueKey _futureBuilderKey = UniqueKey();
   final TextEditingController searchController = TextEditingController();

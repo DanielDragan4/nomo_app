@@ -16,6 +16,7 @@ import 'package:intl/intl.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:nomo/providers/supabase_provider.dart';
 import 'package:nomo/widgets/address_search_widget.dart';
+import 'package:nomo/widgets/custom_time_picker.dart';
 import 'package:uuid/uuid.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:image/image.dart' as img;
@@ -106,66 +107,60 @@ class _NewEventScreenState extends ConsumerState<NewEventScreen> {
       lastDate: DateTime(2100),
     );
     if (picked != null) {
-      bool isValidDate = true;
+      setState(() {
+        if (isStartDate) {
+          _selectedStartDate = picked;
+          _formattedSDate = DateFormat.yMd().format(_selectedStartDate!);
+          sdate = true;
 
-      if (isStartDate && _selectedEndDate != null && _selectedEndTime != null && _selectedStartTime != null) {
-        isValidDate = ((picked.isBefore(_selectedEndDate!)) ||
-            ((picked.isAtSameMomentAs(_selectedEndDate!)) &&
-                ((_selectedEndTime!.hour + (_selectedEndTime!.minute / 60))) >
-                    (_selectedStartTime!.hour + (_selectedStartTime!.minute / 60))));
-      } else if (!isStartDate && _selectedStartDate != null && _selectedEndTime != null && _selectedStartTime != null) {
-        isValidDate = (picked.isAfter(_selectedStartDate!) ||
-            ((picked.isAtSameMomentAs(_selectedStartDate!)) &&
-                ((_selectedEndTime!.hour + (_selectedEndTime!.minute / 60))) >
-                    (_selectedStartTime!.hour + (_selectedStartTime!.minute / 60))));
-      }
-
-      if (isValidDate) {
-        setState(() {
-          if (isStartDate) {
-            _selectedStartDate = picked;
-            _formattedSDate = DateFormat.yMd().format(_selectedStartDate!);
-            sdate = true;
+          // Check if the new start date is after the current end date
+          if (_selectedEndDate != null && picked.isAfter(_selectedEndDate!)) {
+            // Set the end date to be the same as the new start date
+            _selectedEndDate = picked;
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Text('End date adjusted to be after or equal to start date.'),
+              ),
+            );
+            _formattedEDate = DateFormat.yMd().format(_selectedEndDate!);
+            edate = true;
+          }
+        } else {
+          if (_selectedStartDate != null && picked.isBefore(_selectedStartDate!)) {
+            ScaffoldMessenger.of(context).hideCurrentSnackBar();
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Text('End date must be after or equal to start date.'),
+              ),
+            );
           } else {
             _selectedEndDate = picked;
             _formattedEDate = DateFormat.yMd().format(_selectedEndDate!);
             edate = true;
           }
-          _enableButton();
-        });
-      } else {
-        ScaffoldMessenger.of(context).hideCurrentSnackBar();
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(isStartDate ? 'Start date must be before end date.' : 'End date must be after start date.'),
-          ),
-        );
-      }
+        }
+        _enableButton();
+      });
     }
   }
 
   Future<void> _selectTime(BuildContext context, bool isStartTime) async {
     FocusManager.instance.primaryFocus?.unfocus();
-    final TimeOfDay? picked = await showTimePicker(
-      initialEntryMode: TimePickerEntryMode.input,
+    final initialTime = isStartTime ? _selectedStartTime ?? TimeOfDay.now() : _selectedEndTime ?? TimeOfDay.now();
+
+    final TimeOfDay? picked = await showDialog<TimeOfDay>(
       context: context,
-      initialTime: isStartTime ? _selectedStartTime ?? TimeOfDay.now() : _selectedEndTime ?? TimeOfDay.now(),
-      builder: (BuildContext context, Widget? child) {
-        return MediaQuery(
-          data: MediaQuery.of(context).copyWith(alwaysUse24HourFormat: false),
-          child: Theme(
-            data: Theme.of(context).copyWith(
-              timePickerTheme: const TimePickerThemeData(
-                inputDecorationTheme: InputDecorationTheme(fillColor: Colors.transparent),
-                hourMinuteTextStyle: TextStyle(fontSize: 32, fontWeight: FontWeight.bold),
-                dayPeriodTextStyle: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
-              ),
-            ),
-            child: child!,
-          ),
+      builder: (BuildContext context) {
+        return CustomTimePicker(
+          initialTime: initialTime,
+          onTimeSelected: (TimeOfDay selectedTime) {
+            return selectedTime;
+          },
+          isStartTime: isStartTime,
         );
       },
     );
+
     if (picked != null) {
       setState(() {
         if (isStartTime) {

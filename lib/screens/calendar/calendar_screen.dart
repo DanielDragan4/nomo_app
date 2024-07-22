@@ -5,6 +5,7 @@ import 'package:nomo/providers/availability_provider.dart';
 import 'package:nomo/providers/profile_provider.dart';
 import 'package:nomo/screens/calendar/month_widget.dart';
 import 'package:nomo/screens/new_event_screen.dart';
+import 'package:nomo/widgets/custom_time_picker.dart';
 
 class CalendarScreen extends ConsumerStatefulWidget {
   const CalendarScreen({super.key});
@@ -172,9 +173,17 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
 
       Returns: none
     */
-    final pickedTime = await showTimePicker(
+    final pickedTime = await showDialog<TimeOfDay>(
       context: context,
-      initialTime: TimeOfDay.now(),
+      builder: (BuildContext context) {
+        return CustomTimePicker(
+          initialTime: TimeOfDay.now(),
+          onTimeSelected: (TimeOfDay selectedTime) {
+            return selectedTime;
+          },
+          isStartTime: isStartTime,
+        );
+      },
     );
 
     if (pickedTime != null) {

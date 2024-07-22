@@ -4,6 +4,7 @@ import 'package:nomo/models/availability_model.dart';
 import 'package:nomo/providers/profile_provider.dart';
 import 'package:nomo/screens/calendar/time_block.dart';
 import 'package:nomo/screens/detailed_event_screen.dart';
+import 'package:nomo/widgets/custom_time_picker.dart';
 
 class DayScreen extends ConsumerStatefulWidget {
   DayScreen({super.key, required this.day, required this.blockedTime});
@@ -100,10 +101,17 @@ class _DayScreenState extends ConsumerState<DayScreen> {
   // Parameters:
   // - 'isStartTime': whether the current selection is being made for the start or end time of a block
   Future<void> _selectTime(BuildContext context, bool isStartTime) async {
-    final pickedTime = await showTimePicker(
+    final pickedTime = await showDialog<TimeOfDay>(
       context: context,
-      initialTime: TimeOfDay.now(),
-      initialEntryMode: TimePickerEntryMode.input,
+      builder: (BuildContext context) {
+        return CustomTimePicker(
+          initialTime: TimeOfDay.now(),
+          onTimeSelected: (TimeOfDay selectedTime) {
+            return selectedTime;
+          },
+          isStartTime: isStartTime,
+        );
+      },
     );
 
     if (pickedTime != null) {
@@ -309,8 +317,18 @@ class _DayScreenState extends ConsumerState<DayScreen> {
                         backgroundColor: Theme.of(context).primaryColorDark,
                       ),
                       onPressed: () async {
-                        final pickedTime = await showTimePicker(
-                            context: context, initialTime: startTime!, initialEntryMode: TimePickerEntryMode.input);
+                        final pickedTime = await showDialog<TimeOfDay>(
+                          context: context,
+                          builder: (BuildContext context) {
+                            return CustomTimePicker(
+                              initialTime: startTime!,
+                              onTimeSelected: (TimeOfDay selectedTime) {
+                                return selectedTime;
+                              },
+                              isStartTime: true,
+                            );
+                          },
+                        );
 
                         if (pickedTime != null) {
                           setState(() {
@@ -328,8 +346,18 @@ class _DayScreenState extends ConsumerState<DayScreen> {
                         backgroundColor: Theme.of(context).primaryColorDark,
                       ),
                       onPressed: () async {
-                        final pickedTime = await showTimePicker(
-                            context: context, initialTime: endTime!, initialEntryMode: TimePickerEntryMode.input);
+                        final pickedTime = await showDialog<TimeOfDay>(
+                          context: context,
+                          builder: (BuildContext context) {
+                            return CustomTimePicker(
+                              initialTime: endTime!,
+                              onTimeSelected: (TimeOfDay selectedTime) {
+                                return selectedTime;
+                              },
+                              isStartTime: false,
+                            );
+                          },
+                        );
 
                         if (pickedTime != null) {
                           setState(() {

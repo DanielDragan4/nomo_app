@@ -65,6 +65,7 @@ dependencies:
   cached_network_image: ^3.3.1
   image: ^4.2.0
   time_picker_spinner: ^1.0.0
+  numberpicker: ^2.1.2
 dev_dependencies:
   flutter_test:
     sdk: flutter

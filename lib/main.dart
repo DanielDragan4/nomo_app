@@ -156,6 +156,16 @@ class _AppState extends ConsumerState<App> {
                       onPrimaryContainer: const Color.fromARGB(255, 109, 51, 146))
                   .copyWith(surface: Colors.black),
               textTheme: GoogleFonts.nunitoTextTheme(),
+              // timePickerTheme: TimePickerThemeData(
+              //   backgroundColor: Color.fromARGB(255, 44, 44, 44),
+              //   dayPeriodColor: Color.fromARGB(255, 109, 51, 146),
+              //   dayPeriodTextColor: Colors.white,
+              //   entryModeIconColor: Color.fromARGB(255, 163, 76, 217),
+              //   hourMinuteColor: Color.fromARGB(255, 117, 117, 117),
+              //   hourMinuteTextColor: Colors.white,
+              //   hourMinuteTextStyle: TextStyle(color: Colors.white, fontSize: 42),
+              //   helpTextStyle: TextStyle(color: Colors.white, fontSize: 24),
+              // ),
             ),
             home: StreamBuilder(
               stream: ref.watch(currentUserProvider.notifier).stream,

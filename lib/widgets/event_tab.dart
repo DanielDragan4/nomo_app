@@ -213,13 +213,17 @@ class _EventTabState extends ConsumerState<EventTab> {
   }
 
   Widget _buildEventTitle(BuildContext context) {
-    return Text(
+    return GestureDetector(
+      onTap: () => Navigator.of(context).push(MaterialPageRoute(
+        builder: (context) => DetailedEventScreen(eventData: widget.eventData),
+      )),child: 
+      Text(
       widget.eventData.title,
       style: Theme.of(context).textTheme.headlineLarge?.copyWith(
             fontWeight: FontWeight.bold,
             color: Theme.of(context).colorScheme.onSurface,
           ),
-    );
+    ));
   }
 
   Widget _buildEventDate(BuildContext context, String formattedDate) {

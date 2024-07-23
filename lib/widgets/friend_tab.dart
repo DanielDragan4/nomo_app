@@ -175,6 +175,9 @@ class _FriendTabState extends ConsumerState<FriendTab> {
                       IconButton(
                           onPressed: () {
                             ref.read(profileProvider.notifier).addFriend(widget.friendData.friendProfileId, true);
+                            ScaffoldMessenger.of(context).clearSnackBars();
+                            ScaffoldMessenger.of(context)
+                                .showSnackBar(SnackBar(content: Text('Added $username to friends list')));
                           },
                           icon: const Icon(
                             Icons.check,
@@ -185,6 +188,9 @@ class _FriendTabState extends ConsumerState<FriendTab> {
                       IconButton(
                           onPressed: () {
                             ref.read(profileProvider.notifier).removeRequest(widget.friendData.friendProfileId);
+                            ScaffoldMessenger.of(context).clearSnackBars();
+                            ScaffoldMessenger.of(context)
+                                .showSnackBar(SnackBar(content: Text("Rejected $username's friend request")));
                           },
                           icon: const Icon(
                             Icons.close,

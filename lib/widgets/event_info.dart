@@ -108,14 +108,16 @@ class _EventInfoState extends ConsumerState<EventInfo> {
       children: [
         GestureDetector(
           onTap: () {
-            showBottomSheet(
+            showModalBottomSheet(
                 context: context,
+                isScrollControlled: true,
+                isDismissible: true,
                 builder: (context) {
                   return Container(
                     height: MediaQuery.of(context).size.height * .6,
                     padding: const EdgeInsets.all(16),
                     decoration: BoxDecoration(
-                      color: Color.fromARGB(255, 49, 49, 49),
+                     color: Theme.of(context).cardColor,
                       borderRadius: BorderRadius.circular(8),
                     ),
                     child: Column(
@@ -156,14 +158,16 @@ class _EventInfoState extends ConsumerState<EventInfo> {
         SizedBox(width: MediaQuery.of(context).size.width * .04),
         GestureDetector(
           onTap: () {
-            showBottomSheet(
+            showModalBottomSheet(
+                isScrollControlled: true,
+                isDismissible: true,
                 context: context,
                 builder: (context) {
                   return Container(
                     height: MediaQuery.of(context).size.height * .6,
                     padding: const EdgeInsets.all(16),
                     decoration: BoxDecoration(
-                      color: Color.fromARGB(255, 49, 49, 49),
+                      color: Theme.of(context).cardColor,
                       borderRadius: BorderRadius.circular(8),
                     ),
                     child: Column(
@@ -204,14 +208,17 @@ class _EventInfoState extends ConsumerState<EventInfo> {
         SizedBox(width: MediaQuery.of(context).size.width * .04),
         GestureDetector(
           onTap: () {
-            showBottomSheet(
+            if(!Navigator.of(context).canPop()){
+              showModalBottomSheet(
                 context: context,
+                isScrollControlled: true,
+                isDismissible: true,
                 builder: (context) {
                   return Container(
                     height: MediaQuery.of(context).size.height * .6,
                     padding: const EdgeInsets.all(16),
                     decoration: BoxDecoration(
-                      color: Color.fromARGB(255, 49, 49, 49),
+                      color: Theme.of(context).cardColor,
                       borderRadius: BorderRadius.circular(8),
                     ),
                     child: Column(
@@ -242,7 +249,7 @@ class _EventInfoState extends ConsumerState<EventInfo> {
                       ],
                     ),
                   );
-                });
+                });}
           },
           child: _buildInfoItem(context, '${eventsData.numOfComments}', 'Comments', isSmallScreen),
         ),
@@ -330,8 +337,7 @@ class _EventInfoState extends ConsumerState<EventInfo> {
     ));
   }
 
-  void _showLeaveEventDialog(BuildContext context) async{
-
+  void _showLeaveEventDialog(BuildContext context) async {
     await attendeeLeaveEvent();
     await ref.read(profileProvider.notifier).deleteBlockedTime(null, eventsData.eventId);
     var newEData = await ref.read(eventsProvider.notifier).updateEventData(eventsData.eventId);
@@ -346,7 +352,7 @@ class _EventInfoState extends ConsumerState<EventInfo> {
     );
   }
 
-  void _joinEvent(BuildContext context, String currentUser) async{
+  void _joinEvent(BuildContext context, String currentUser) async {
     ref.read(profileProvider.notifier).createBlockedTime(
           currentUser,
           widget.eventsData.sdate,
@@ -356,13 +362,17 @@ class _EventInfoState extends ConsumerState<EventInfo> {
         );
     await attendeeJoinEvent();
     var newEventData = await ref.read(eventsProvider.notifier).updateEventData(eventsData.eventId);
-    
+
     setState(() {
       eventsData = newEventData!;
     });
 
-    if(!Navigator.of(context).canPop()) {
-      Navigator.of(context).push(MaterialPageRoute(builder: (context) => DetailedEventScreen(eventData: eventsData,),));
+    if (!Navigator.of(context).canPop()) {
+      Navigator.of(context).push(MaterialPageRoute(
+        builder: (context) => DetailedEventScreen(
+          eventData: eventsData,
+        ),
+      ));
     }
     ScaffoldMessenger.of(context).hideCurrentSnackBar();
     ScaffoldMessenger.of(context).showSnackBar(
@@ -381,10 +391,26 @@ class _EventInfoState extends ConsumerState<EventInfo> {
             return (isHost)
                 ? const SizedBox()
                 : IconButton(
-                    onPressed: () => setState(() {
-                      bookmarkBool ? deBookmarkEvent() : bookmarkEvent();
-                      bookmarkBool = !bookmarkBool;
-                    }),
+                    onPressed: () {
+                      setState(() {
+                        bookmarkBool
+                            ? {
+                                deBookmarkEvent(),
+                                ScaffoldMessenger.of(context).hideCurrentSnackBar(),
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(content: Text("UnBookmarked ${widget.eventsData.title}")),
+                                )
+                              }
+                            : {
+                                bookmarkEvent(),
+                                ScaffoldMessenger.of(context).hideCurrentSnackBar(),
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(content: Text("Bookmarked ${widget.eventsData.title}")),
+                                )
+                              };
+                        bookmarkBool = !bookmarkBool;
+                      });
+                    },
                     icon: Icon(
                       bookmarkBool ? Icons.bookmark : Icons.bookmark_border_outlined,
                       color: Theme.of(context).colorScheme.onSecondary,

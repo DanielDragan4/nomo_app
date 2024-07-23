@@ -124,6 +124,7 @@ class _AppState extends ConsumerState<App> {
             navigatorObservers: [routeObserver],
             themeMode: ref.read(themeModeProvider),
             theme: ThemeData().copyWith(
+              cardColor: Color.fromARGB(255, 221, 221, 221),
               colorScheme: ColorScheme.fromSeed(
                   onSecondary: Colors.black,
                   seedColor: const Color.fromARGB(255, 80, 12, 122),

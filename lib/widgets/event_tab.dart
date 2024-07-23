@@ -1,5 +1,6 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:maps_launcher/maps_launcher.dart';
 import 'package:nomo/models/events_model.dart';
@@ -73,6 +74,8 @@ class _EventTabState extends ConsumerState<EventTab> {
                     ),
                     const SizedBox(height: 12),
                     _buildEventDescription(context),
+                    const SizedBox(height: 12),
+                    _buildGetDetails(context)
                   ],
                 ),
               ),
@@ -289,6 +292,25 @@ class _EventTabState extends ConsumerState<EventTab> {
         overflow: TextOverflow.ellipsis,
         style: TextStyle(color: Theme.of(context).colorScheme.onSurface),
       ),
+    );
+  }
+
+  Widget _buildGetDetails(BuildContext context) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        GestureDetector(
+          onTap: () => Navigator.of(context).push(MaterialPageRoute(
+            builder: (context) => DetailedEventScreen(eventData: widget.eventData),
+          )),child: 
+          Text(
+          'View Details',
+          style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                fontWeight: FontWeight.bold,
+                color: Theme.of(context).primaryColor,
+              ),
+        )),
+      ],
     );
   }
 

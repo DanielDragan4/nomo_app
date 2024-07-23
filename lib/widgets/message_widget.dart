@@ -44,7 +44,7 @@ class MessageWidget extends ConsumerWidget {
                               Jiffy.parseFromDateTime(DateTime.parse(message['created_at'])).fromNow(),
                               style: TextStyle(
                                 color: Theme.of(context).colorScheme.onSecondary.withOpacity(0.6),
-                                fontSize: MediaQuery.of(context).size.width * 0.03,
+                                fontSize: MediaQuery.of(context).size.width * 0.035,
                               ),
                             ),
                           ),
@@ -63,6 +63,7 @@ class MessageWidget extends ConsumerWidget {
                         message['message'],
                         style: TextStyle(
                           color: isMe ? Colors.white : Colors.black87,
+                          fontSize: MediaQuery.of(context).size.width * 0.04,
                         ),
                       ),
                     ),

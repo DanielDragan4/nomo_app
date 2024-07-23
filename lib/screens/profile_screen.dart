@@ -378,6 +378,11 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
                                                     .where((event) => event.attending || event.isHost)
                                                     .toList();
                                                 var attendingEventCount = attendingEvents.length;
+                                                for (Event event in attendingEvents) {
+                                                  if (event.sdate.compareTo(DateTime.now().toString()) < 0) {
+                                                    attendingEventCount--;
+                                                  }
+                                                }
                                                 return Text(
                                                   attendingEventCount.toString(),
                                                   style: TextStyle(

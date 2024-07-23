@@ -43,16 +43,6 @@ class RecommendedScreen extends ConsumerWidget {
               ),
             ),
             centerTitle: true,
-            actions: [
-              IconButton(
-                onPressed: () {
-                  Navigator.of(context).push(MaterialPageRoute(builder: ((context) => const SearchScreen())));
-                },
-                icon: const Icon(Icons.search),
-                iconSize: MediaQuery.of(context).devicePixelRatio * 12,
-                padding: const EdgeInsets.only(bottom: 8, right: 15),
-              ),
-            ],
           ),
         ],
         body: RefreshIndicator(

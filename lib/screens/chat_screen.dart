@@ -8,8 +8,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:nomo/providers/chat_id_provider.dart';
 
 class ChatScreen extends ConsumerStatefulWidget {
-  ChatScreen(
-      {super.key, this.chatterUser, required this.currentUser, this.groupInfo});
+  ChatScreen({super.key, this.chatterUser, required this.currentUser, this.groupInfo});
   final Friend? chatterUser;
   final String currentUser;
   Map? groupInfo;
@@ -34,9 +33,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> with RouteAware {
     } else {
       _initializeGroupChatStream();
       // Update activeChatId in App state
-      ref
-          .read(activeChatIdProvider.notifier)
-          .setActiveChatId(widget.groupInfo!['group_id']);
+      ref.read(activeChatIdProvider.notifier).setActiveChatId(widget.groupInfo!['group_id']);
     }
   }
 
@@ -68,9 +65,8 @@ class _ChatScreenState extends ConsumerState<ChatScreen> with RouteAware {
       
       Returns: none
     */
-    final id = await ref
-        .read(chatsProvider.notifier)
-        .readChatId(widget.currentUser, widget.chatterUser!.friendProfileId);
+    final id =
+        await ref.read(chatsProvider.notifier).readChatId(widget.currentUser, widget.chatterUser!.friendProfileId);
     setState(() {
       chatID = id;
     });
@@ -86,11 +82,9 @@ class _ChatScreenState extends ConsumerState<ChatScreen> with RouteAware {
       
       Returns: none
     */
-    final supabaseClient =
-        Supabase.instance.client; // Ensure the client is initialized correctly
-    final chatID = await ref
-        .read(chatsProvider.notifier)
-        .readChatId(widget.currentUser, widget.chatterUser!.friendProfileId);
+    final supabaseClient = Supabase.instance.client; // Ensure the client is initialized correctly
+    final chatID =
+        await ref.read(chatsProvider.notifier).readChatId(widget.currentUser, widget.chatterUser!.friendProfileId);
     setState(() {
       _chatStream = supabaseClient
           .from('Messages')
@@ -109,17 +103,12 @@ class _ChatScreenState extends ConsumerState<ChatScreen> with RouteAware {
       
       Returns: none
     */
-    final supabaseClient =
-        Supabase.instance.client; // Ensure the client is initialized correctly
-    userIdAndAvatar = await ref
-        .read(chatsProvider.notifier)
-        .getMemberIdAndAvatar(widget.groupInfo!['group_id']!);
+    final supabaseClient = Supabase.instance.client; // Ensure the client is initialized correctly
+    userIdAndAvatar = await ref.read(chatsProvider.notifier).getMemberIdAndAvatar(widget.groupInfo!['group_id']!);
     setState(() {
       _chatStream = supabaseClient
           .from('Group_Messages')
-          .stream(primaryKey: [
-            'group_message_id'
-          ]) // Ensure the primary key is specified
+          .stream(primaryKey: ['group_message_id']) // Ensure the primary key is specified
           .eq('group_id', widget.groupInfo!['group_id']!)
           .order('created_at', ascending: false)
           .map((event) => event.map((e) => e).toList());
@@ -136,15 +125,14 @@ class _ChatScreenState extends ConsumerState<ChatScreen> with RouteAware {
     */
     if (widget.groupInfo == null) {
       if (_controller.text.trim().isNotEmpty) {
-        ref.read(chatsProvider.notifier).sendMessage(widget.currentUser,
-            widget.chatterUser!.friendProfileId, _controller.text);
+        ref
+            .read(chatsProvider.notifier)
+            .sendMessage(widget.currentUser, widget.chatterUser!.friendProfileId, _controller.text);
         _controller.clear();
       }
     } else {
       if (_controller.text.trim().isNotEmpty) {
-        ref
-            .read(chatsProvider.notifier)
-            .sendGroupMessage(widget.groupInfo!['group_id'], _controller.text);
+        ref.read(chatsProvider.notifier).sendGroupMessage(widget.groupInfo!['group_id'], _controller.text);
         _controller.clear();
       }
     }
@@ -156,9 +144,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> with RouteAware {
       backgroundColor: Theme.of(context).colorScheme.surface,
       appBar: AppBar(
         backgroundColor: Theme.of(context).colorScheme.surface,
-        title: Text((widget.groupInfo == null)
-            ? widget.chatterUser!.friendProfileName
-            : widget.groupInfo!['title']),
+        title: Text((widget.groupInfo == null) ? widget.chatterUser!.friendProfileName : widget.groupInfo!['title']),
       ),
       body: Column(
         children: [
@@ -190,9 +176,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> with RouteAware {
                               }
                             }
                             return MessageWidget(
-                                message: message,
-                                otherAvatar: avatar,
-                                currentUser: widget.currentUser);
+                                message: message, otherAvatar: avatar, currentUser: widget.currentUser);
                           },
                         );
                       } else {
@@ -212,10 +196,12 @@ class _ChatScreenState extends ConsumerState<ChatScreen> with RouteAware {
                     controller: _controller,
                     style: TextStyle(
                       color: Theme.of(context).colorScheme.onSecondary,
+                      fontSize: MediaQuery.of(context).size.width * 0.04,
                     ),
                     decoration: InputDecoration(
                       hintStyle: TextStyle(
                         color: Theme.of(context).colorScheme.onSecondary,
+                        fontSize: MediaQuery.of(context).size.width * 0.04,
                       ),
                       hintText: 'Send message',
                       border: OutlineInputBorder(

@@ -153,8 +153,22 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
                   hintText: _isSelected[2] == true ? 'Please select interests below.' : 'What are you looking for?',
                   hintStyle: TextStyle(color: Theme.of(context).primaryColorLight.withOpacity(0.75)),
                   prefixIcon: Icon(Icons.search),
+                  suffixIcon: _searchController.text.isNotEmpty
+                      ? IconButton(
+                          icon: Icon(Icons.clear),
+                          onPressed: () {
+                            setState(() {
+                              _searchController.clear();
+                              resetScreen();
+                            });
+                          },
+                        )
+                      : null,
                 ),
                 style: TextStyle(color: Theme.of(context).colorScheme.onSecondary),
+                onChanged: (value) {
+                  setState(() {});
+                },
               ),
             ),
           ),
@@ -237,8 +251,11 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
                         selectedInterests: categories,
                         onSelectionChanged: _updateSearchBar,
                       )
-                    : const Center(
-                        child: Text('Search results will be displayed here'),
+                    : Center(
+                        child: Text(
+                          'Search results will be displayed here',
+                          style: TextStyle(color: Theme.of(context).colorScheme.onSecondary, fontSize: 18),
+                        ),
                       ))
                 : ListView.builder(
                     itemCount: _searchResults.length,

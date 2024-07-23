@@ -225,7 +225,7 @@ class _FriendsScreenState extends ConsumerState<FriendsScreen> {
                   context: context,
                   builder: (context) => AlertDialog(
                     backgroundColor: Theme.of(context).colorScheme.onPrimary,
-                    title: Text(
+                    title: const Text(
                       'Create Group?',
                       style: TextStyle(color: Colors.white),
                     ),

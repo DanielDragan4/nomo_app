@@ -62,11 +62,8 @@ class _FriendsScreenState extends ConsumerState<FriendsScreen> {
                     ));
 
                     // Mark notifications as read when notifications icon is tapped
-                    ref
-                        .read(notificationBellProvider.notifier)
-                        .setBellState(false);
-                    print(
-                        'Bell state set to false after viewing notifications.');
+                    ref.read(notificationBellProvider.notifier).setBellState(false);
+                    print('Bell state set to false after viewing notifications.');
                   },
                   icon: hasUnreadNotifications
                       ? Icon(
@@ -92,254 +89,225 @@ class _FriendsScreenState extends ConsumerState<FriendsScreen> {
           ),
         ),
       ),
-      body: Column(
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: widget.isGroupChats
-                ? []
-                : [
-                    ToggleButtons(
-                      constraints: const BoxConstraints(
-                          maxHeight: 250, minWidth: 150, maxWidth: 200),
-                      borderColor: Colors.black,
-                      fillColor: Theme.of(context).primaryColor,
-                      borderWidth: 1,
-                      selectedBorderColor: Colors.black,
-                      selectedColor: Colors.grey,
-                      borderRadius: BorderRadius.circular(5),
-                      onPressed: (int index) {
-                        setState(() {
-                          for (int i = 0; i < isSelected.length; i++) {
-                            isSelected[i] = i == index;
-                          }
-                          friends = !friends;
-                        });
-                      },
-                      isSelected: isSelected,
-                      children: const [
-                        Padding(
+      body: Stack(children: [
+        Column(
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: widget.isGroupChats
+                  ? []
+                  : [
+                      ToggleButtons(
+                        constraints: const BoxConstraints(maxHeight: 250, minWidth: 150, maxWidth: 200),
+                        borderColor: Colors.black,
+                        fillColor: Theme.of(context).primaryColor,
+                        borderWidth: 1,
+                        selectedBorderColor: Colors.black,
+                        selectedColor: Colors.grey,
+                        borderRadius: BorderRadius.circular(5),
+                        onPressed: (int index) {
+                          setState(() {
+                            for (int i = 0; i < isSelected.length; i++) {
+                              isSelected[i] = i == index;
+                            }
+                            friends = !friends;
+                          });
+                        },
+                        isSelected: isSelected,
+                        children: const [
+                          Padding(
+                              padding: EdgeInsets.fromLTRB(3, 3, 3, 3),
+                              child: Text(
+                                'Friends',
+                                style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700),
+                              )),
+                          Padding(
                             padding: EdgeInsets.fromLTRB(3, 3, 3, 3),
                             child: Text(
-                              'Friends',
-                              style: TextStyle(
-                                  fontSize: 14, fontWeight: FontWeight.w700),
-                            )),
-                        Padding(
-                          padding: EdgeInsets.fromLTRB(3, 3, 3, 3),
-                          child: Text(
-                            'Requests',
-                            style: TextStyle(
-                                fontSize: 14, fontWeight: FontWeight.w700),
+                              'Requests',
+                              style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700),
+                            ),
                           ),
-                        ),
-                      ],
-                    ),
-                    IconButton(
-                      onPressed: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => const SearchScreen(),
-                          ),
-                        );
-                      },
-                      icon: Icon(
-                        Icons.search,
-                        color: Theme.of(context).colorScheme.onSecondary,
+                        ],
                       ),
-                    ),
-                  ],
-          ),
-          Expanded(
-              child: widget.isGroupChats
-                  ? FutureBuilder(
-                      future:
-                          ref.read(chatsProvider.notifier).getGroupChatInfo(),
-                      builder: (context, snapshot) {
-                        if (snapshot.data != null) {
-                          return ListView(
-                            children: [
-                              for (var groupChat in snapshot.data!)
-                                GroupTab(groupData: groupChat)
-                            ],
+                      IconButton(
+                        onPressed: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => const SearchScreen(),
+                            ),
                           );
-                        }
-                        return Text(
-                          'Loading Groups',
-                          style: TextStyle(
-                              color: Theme.of(context).colorScheme.onSecondary),
-                        );
-                      },
-                    )
-                  : friends
-                      ? StreamBuilder(
-                          stream: ref
-                              .read(profileProvider.notifier)
-                              .decodeFriends()
-                              .asStream(),
-                          builder: (context, snapshot) {
-                            if (snapshot.data != null) {
-                              return ListView(
+                        },
+                        icon: Icon(
+                          Icons.search,
+                          color: Theme.of(context).colorScheme.onSecondary,
+                        ),
+                      ),
+                    ],
+            ),
+            Expanded(
+                child: widget.isGroupChats
+                    ? FutureBuilder(
+                        future: ref.read(chatsProvider.notifier).getGroupChatInfo(),
+                        builder: (context, snapshot) {
+                          if (snapshot.data != null) {
+                            return ListView(
+                              children: [for (var groupChat in snapshot.data!) GroupTab(groupData: groupChat)],
+                            );
+                          }
+                          return Text(
+                            'Loading Groups',
+                            style: TextStyle(color: Theme.of(context).colorScheme.onSecondary),
+                          );
+                        },
+                      )
+                    : friends
+                        ? StreamBuilder(
+                            stream: ref.read(profileProvider.notifier).decodeFriends().asStream(),
+                            builder: (context, snapshot) {
+                              if (snapshot.data != null) {
+                                return ListView(key: const PageStorageKey('page'), children: [
+                                  for (Friend i in snapshot.data!)
+                                    FriendTab(
+                                      friendData: i,
+                                      isRequest: true,
+                                      toggle: false,
+                                      isEventAttendee: false,
+                                    ),
+                                ]);
+                              } else {
+                                return Center(
+                                  child: Text(
+                                    'No Friends Were Found. Add Some',
+                                    style: TextStyle(color: Theme.of(context).colorScheme.onSecondary),
+                                  ),
+                                );
+                              }
+                            })
+                        : StreamBuilder(
+                            stream: ref.read(profileProvider.notifier).decodeRequests().asStream(),
+                            builder: (context, snapshot) {
+                              print(snapshot.data);
+                              if (snapshot.data != null) {
+                                return ListView(
                                   key: const PageStorageKey('page'),
                                   children: [
                                     for (Friend i in snapshot.data!)
                                       FriendTab(
                                         friendData: i,
-                                        isRequest: true,
+                                        isRequest: false,
                                         toggle: false,
                                         isEventAttendee: false,
-                                      ),
-                                  ]);
-                            } else {
-                              return Center(
-                                child: Text(
-                                  'No Friends Were Found. Add Some',
-                                  style: TextStyle(
-                                      color: Theme.of(context)
-                                          .colorScheme
-                                          .onSecondary),
-                                ),
-                              );
-                            }
-                          })
-                      : StreamBuilder(
-                          stream: ref
-                              .read(profileProvider.notifier)
-                              .decodeRequests()
-                              .asStream(),
-                          builder: (context, snapshot) {
-                            print(snapshot.data);
-                            if (snapshot.data != null) {
-                              return ListView(
-                                key: const PageStorageKey('page'),
-                                children: [
-                                  for (Friend i in snapshot.data!)
-                                    FriendTab(
-                                      friendData: i,
-                                      isRequest: false,
-                                      toggle: false,
-                                      isEventAttendee: false,
-                                    )
-                                ],
-                              );
-                            } else {
-                              return Center(
-                                child: Text(
-                                  'No New Friends Were Found. Add Some',
-                                  style: TextStyle(
-                                      color: Theme.of(context)
-                                          .colorScheme
-                                          .onSecondary),
-                                ),
-                              );
-                            }
-                          })),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.end,
-            children: (widget.isGroupChats)
-                ? ([
-                    Padding(
-                      padding: const EdgeInsets.all(10.0),
-                      child: Column(
-                        children: [
-                          IconButton(
-                              onPressed: () {
-                                showDialog(
-                                    context: context,
-                                    builder: (context) => AlertDialog(
-                                          backgroundColor: Theme.of(context)
-                                              .colorScheme
-                                              .onPrimary,
-                                          title: Text(
-                                            'Create Group?',
-                                            style:
-                                                TextStyle(color: Colors.white),
-                                          ),
-                                          actions: [
-                                            TextButton(
-                                              onPressed: () {
-                                                Navigator.of(context)
-                                                    .pushReplacement(
-                                                      MaterialPageRoute(
-                                                        builder: (context) =>
-                                                            const NewGroupChatScreen(),
-                                                      ),
-                                                    )
-                                                    .then((result) =>
-                                                        Navigator.pop(context));
-                                              },
-                                              child: const Text('Continue'),
-                                            ),
-                                            TextButton(
-                                              onPressed: () {
-                                                Navigator.pop(context);
-                                              },
-                                              child: const Text('Cancel'),
-                                            )
-                                          ],
-                                        ));
-                              },
-                              icon: Icon(
-                                Icons.group_add,
-                                color:
-                                    Theme.of(context).colorScheme.onSecondary,
-                                size: MediaQuery.of(context).size.aspectRatio *
-                                    110,
-                              )),
-                          Text(
-                            "Create Group",
-                            style: TextStyle(
-                                fontSize:
-                                    MediaQuery.of(context).size.aspectRatio *
-                                        35,
-                                color:
-                                    Theme.of(context).colorScheme.onSecondary),
-                          ),
-                        ],
-                      ),
+                                      )
+                                  ],
+                                );
+                              } else {
+                                return Center(
+                                  child: Text(
+                                    'No New Friends Were Found. Add Some',
+                                    style: TextStyle(color: Theme.of(context).colorScheme.onSecondary),
+                                  ),
+                                );
+                              }
+                            })),
+          ],
+        ),
+        Positioned(
+          right: 16,
+          bottom: widget.isGroupChats ? MediaQuery.of(context).padding.bottom + 34 : 16,
+          child: CircularIconButton(
+            icon: widget.isGroupChats ? Icons.group_add : Icons.groups,
+            label: widget.isGroupChats ? 'Create\nGroup' : 'Groups',
+            onPressed: () {
+              if (widget.isGroupChats) {
+                showDialog(
+                  context: context,
+                  builder: (context) => AlertDialog(
+                    backgroundColor: Theme.of(context).colorScheme.onPrimary,
+                    title: Text(
+                      'Create Group?',
+                      style: TextStyle(color: Colors.white),
                     ),
-                  ])
-                : ([
-                    Padding(
-                      padding: const EdgeInsets.all(10.0),
-                      child: IconButton(
-                          onPressed: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) =>
-                                    const FriendsScreen(isGroupChats: true),
-                              ),
-                            );
-                          },
-                          icon: Column(
-                            children: [
-                              Icon(
-                                Icons.groups,
-                                color:
-                                    Theme.of(context).colorScheme.onSecondary,
-                                size: MediaQuery.of(context).size.aspectRatio *
-                                    120,
-                              ),
-                              Text(
-                                "Groups",
-                                style: TextStyle(
-                                    fontSize: MediaQuery.of(context)
-                                            .size
-                                            .aspectRatio *
-                                        40,
-                                    color: Theme.of(context)
-                                        .colorScheme
-                                        .onSecondary),
+                    actions: [
+                      TextButton(
+                        onPressed: () {
+                          Navigator.of(context)
+                              .pushReplacement(
+                                MaterialPageRoute(
+                                  builder: (context) => const NewGroupChatScreen(),
+                                ),
                               )
-                            ],
-                          )),
-                    )
-                  ]),
-          )
-        ],
-      ),
+                              .then((result) => Navigator.pop(context));
+                        },
+                        child: const Text('Continue'),
+                      ),
+                      TextButton(
+                        onPressed: () {
+                          Navigator.pop(context);
+                        },
+                        child: const Text('Cancel'),
+                      )
+                    ],
+                  ),
+                );
+              } else {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const FriendsScreen(isGroupChats: true),
+                  ),
+                );
+              }
+            },
+          ),
+        ),
+      ]),
+    );
+  }
+}
+
+//Class for the group icons styling
+class CircularIconButton extends StatelessWidget {
+  final IconData icon;
+  final String label;
+  final VoidCallback onPressed;
+
+  const CircularIconButton({
+    Key? key,
+    required this.icon,
+    required this.label,
+    required this.onPressed,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Container(
+          width: 60,
+          height: 60,
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            color: Theme.of(context).primaryColor,
+          ),
+          child: IconButton(
+            icon: Icon(icon),
+            onPressed: onPressed,
+            color: Theme.of(context).colorScheme.onSecondary,
+            iconSize: MediaQuery.of(context).size.aspectRatio * 90,
+          ),
+        ),
+        SizedBox(height: 4),
+        Text(
+          label,
+          style: TextStyle(
+            fontSize: 18,
+            color: Theme.of(context).colorScheme.onSecondary,
+          ),
+        ),
+      ],
     );
   }
 }

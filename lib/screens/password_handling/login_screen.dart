@@ -46,6 +46,8 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
   TextEditingController emailC = TextEditingController();
   TextEditingController passC = TextEditingController();
   TextEditingController passConfirmC = TextEditingController();
+  bool _obscurePass = true;
+  bool _obscurePassConfirm = true;
   final isAuthenticating = false;
 
   @override
@@ -92,8 +94,19 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                             },
                           ),
                           TextFormField(
-                            decoration: const InputDecoration(labelText: "Password"),
-                            obscureText: true,
+                            decoration: InputDecoration(
+                              labelText: "Password",
+                              suffixIcon: IconButton(
+                                onPressed: () {
+                                  _obscurePass = !_obscurePass;
+                                  setState(() {});
+                                },
+                                icon: _obscurePass == true
+                                    ? const Icon(Icons.visibility)
+                                    : const Icon(Icons.visibility_off),
+                              ),
+                            ),
+                            obscureText: _obscurePass,
                             style: TextStyle(color: Theme.of(context).colorScheme.onSecondary),
                             controller: passC,
                             validator: (value) {
@@ -105,8 +118,19 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                           ),
                           if (!isLogin)
                             TextFormField(
-                              decoration: const InputDecoration(labelText: "Confirm Password"),
-                              obscureText: true,
+                              decoration: InputDecoration(
+                                labelText: "Confirm Password",
+                                suffixIcon: IconButton(
+                                  onPressed: () {
+                                    _obscurePassConfirm = !_obscurePassConfirm;
+                                    setState(() {});
+                                  },
+                                  icon: _obscurePassConfirm == true
+                                      ? const Icon(Icons.visibility)
+                                      : const Icon(Icons.visibility_off),
+                                ),
+                              ),
+                              obscureText: _obscurePassConfirm,
                               style: TextStyle(color: Theme.of(context).colorScheme.onSecondary),
                               controller: passConfirmC,
                               validator: (value) {

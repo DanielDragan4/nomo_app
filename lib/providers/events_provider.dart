@@ -75,8 +75,6 @@ class EventProvider extends StateNotifier<List?> {
           bookmark = false;
         }
       }
-
-
       final Event deCodedEvent = Event(
           description: eventData['description'],
           sdate: eventData['time_start'],
@@ -258,7 +256,7 @@ class EventProvider extends StateNotifier<List?> {
     */
     final supabaseClient = (await supabase).client;
     var events = await supabaseClient
-        .from('recommended_events')
+        .from('link_events')
         .select('*, Attendees(user_id), Bookmarked(user_id)')
         .eq('event_id', eventId)
         .single();
@@ -322,6 +320,23 @@ class EventProvider extends StateNotifier<List?> {
       }
     }
     return deCodedEvent;
+  }
+
+  Future<Event?> updateEventData(eventId) async{
+    /*
+      takes in an eventId to then get the data of an updated event and then places the new event into the list
+
+      Params: eventId: uuid
+      
+      Returns: List of data
+    */
+    for (var i = 0; i < state!.length; i++) {
+      if(state![i].eventId == eventId) {
+        Event newEventData = await deCodeLinkEvent(eventId);
+        state![i] = newEventData;
+        return state![i];
+      }
+    }
   }
 
   Future<List> readEventAttendees(String eventId) async {

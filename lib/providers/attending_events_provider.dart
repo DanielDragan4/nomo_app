@@ -1,5 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:nomo/models/events_model.dart';
+import 'package:nomo/providers/events_provider.dart';
 import 'package:nomo/providers/supabase_provider.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
@@ -208,7 +209,6 @@ class AttendEventProvider extends StateNotifier<List<Event>> {
     final supabaseClient = (await supabase).client;
 
     await supabaseClient.from('Attendees').delete().eq('user_id', currentUser).eq('event_id', eventToLeave);
-    deCodeData();
   }
 
   void clearEvents() {

@@ -6,6 +6,7 @@ import 'package:nomo/providers/attending_events_provider.dart';
 import 'package:nomo/providers/events_provider.dart';
 import 'package:nomo/providers/profile_provider.dart';
 import 'package:nomo/providers/supabase_provider.dart';
+import 'package:nomo/screens/detailed_event_screen.dart';
 import 'package:nomo/screens/new_event_screen.dart';
 import 'package:flutter_branch_sdk/flutter_branch_sdk.dart';
 import 'package:nomo/widgets/comments_section_widget.dart';
@@ -22,8 +23,8 @@ enum Options { itemOne, itemTwo, itemThree, itemFour }
 // - 'bookmarkSet(optional)': if current user has this event bookmarked or not passed in by EventTab
 
 class EventInfo extends ConsumerStatefulWidget {
-  const EventInfo({Key? key, required this.eventsData, this.bookmarkSet}) : super(key: key);
-  final Event eventsData;
+  EventInfo({Key? key, required this.eventsData, this.bookmarkSet}) : super(key: key);
+  Event eventsData;
   final bool? bookmarkSet;
 
   @override
@@ -32,15 +33,19 @@ class EventInfo extends ConsumerStatefulWidget {
 
 class _EventInfoState extends ConsumerState<EventInfo> {
   late bool bookmarkBool;
+  late Event eventsData;
 
   @override
   void initState() {
     super.initState();
     bookmarkBool = widget.eventsData.bookmarked;
+    eventsData = widget.eventsData;
   }
 
   @override
   Widget build(BuildContext context) {
+    //Event eventsData = widget.eventsData;
+
     return LayoutBuilder(
       builder: (context, constraints) {
         final isSmallScreen = constraints.maxWidth < 600;
@@ -137,7 +142,7 @@ class _EventInfoState extends ConsumerState<EventInfo> {
                         const SizedBox(height: 8),
                         Flexible(
                           child: AttendeesSection(
-                            eventId: widget.eventsData.eventId,
+                            eventId: eventsData.eventId,
                             areFriends: false,
                           ),
                         ),
@@ -146,7 +151,7 @@ class _EventInfoState extends ConsumerState<EventInfo> {
                   );
                 });
           },
-          child: _buildInfoItem(context, '${widget.eventsData.attendees.length}', 'Attending', isSmallScreen),
+          child: _buildInfoItem(context, '${eventsData.attendees.length}', 'Attending', isSmallScreen),
         ),
         SizedBox(width: MediaQuery.of(context).size.width * .04),
         GestureDetector(
@@ -185,7 +190,7 @@ class _EventInfoState extends ConsumerState<EventInfo> {
                         const SizedBox(height: 8),
                         Flexible(
                           child: AttendeesSection(
-                            eventId: widget.eventsData.eventId,
+                            eventId: eventsData.eventId,
                             areFriends: true,
                           ),
                         ),
@@ -194,7 +199,7 @@ class _EventInfoState extends ConsumerState<EventInfo> {
                   );
                 });
           },
-          child: _buildInfoItem(context, '${widget.eventsData.friends.length}', 'Friends', isSmallScreen),
+          child: _buildInfoItem(context, '${eventsData.friends.length}', 'Friends', isSmallScreen),
         ),
         SizedBox(width: MediaQuery.of(context).size.width * .04),
         GestureDetector(
@@ -232,14 +237,14 @@ class _EventInfoState extends ConsumerState<EventInfo> {
                         ),
                         const SizedBox(height: 8),
                         Flexible(
-                          child: CommentsSection(eventId: widget.eventsData.eventId),
+                          child: CommentsSection(eventId: eventsData.eventId),
                         ),
                       ],
                     ),
                   );
                 });
           },
-          child: _buildInfoItem(context, '${widget.eventsData.numOfComments}', 'Comments', isSmallScreen),
+          child: _buildInfoItem(context, '${eventsData.numOfComments}', 'Comments', isSmallScreen),
         ),
       ],
     );
@@ -289,7 +294,7 @@ class _EventInfoState extends ConsumerState<EventInfo> {
           final supabase = snapshot.data!.client;
           final currentUser = supabase.auth.currentUser!.id;
           final isHost = widget.eventsData.host == currentUser;
-          final isAttending = widget.eventsData.attending;
+          bool isAttending = eventsData.attending;
 
           String buttonText = isHost ? 'Edit' : (isAttending ? 'Leave' : 'Join');
 
@@ -325,32 +330,23 @@ class _EventInfoState extends ConsumerState<EventInfo> {
     ));
   }
 
-  void _showLeaveEventDialog(BuildContext context) {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Are you sure you want to leave the event?'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('CANCEL'),
-          ),
-          TextButton(
-            onPressed: () {
-              setState(() {
-                attendeeLeaveEvent();
-                ref.read(profileProvider.notifier).deleteBlockedTime(null, widget.eventsData.eventId);
-              });
-              Navigator.pop(context);
-            },
-            child: const Text('YES'),
-          ),
-        ],
-      ),
+  void _showLeaveEventDialog(BuildContext context) async{
+
+    await attendeeLeaveEvent();
+    await ref.read(profileProvider.notifier).deleteBlockedTime(null, eventsData.eventId);
+    var newEData = await ref.read(eventsProvider.notifier).updateEventData(eventsData.eventId);
+
+    setState(() {
+      eventsData = newEData!;
+    });
+
+    ScaffoldMessenger.of(context).hideCurrentSnackBar();
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text("Left ${eventsData.title}")),
     );
   }
 
-  void _joinEvent(BuildContext context, String currentUser) {
+  void _joinEvent(BuildContext context, String currentUser) async{
     ref.read(profileProvider.notifier).createBlockedTime(
           currentUser,
           widget.eventsData.sdate,
@@ -358,7 +354,16 @@ class _EventInfoState extends ConsumerState<EventInfo> {
           widget.eventsData.title,
           widget.eventsData.eventId,
         );
-    attendeeJoinEvent();
+    await attendeeJoinEvent();
+    var newEventData = await ref.read(eventsProvider.notifier).updateEventData(eventsData.eventId);
+    
+    setState(() {
+      eventsData = newEventData!;
+    });
+
+    if(!Navigator.of(context).canPop()) {
+      Navigator.of(context).push(MaterialPageRoute(builder: (context) => DetailedEventScreen(eventData: eventsData,),));
+    }
     ScaffoldMessenger.of(context).hideCurrentSnackBar();
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(content: Text("Joined ${widget.eventsData.title}")),

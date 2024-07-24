@@ -5,7 +5,7 @@ import 'package:nomo/providers/saved_session_provider.dart';
 import 'package:nomo/providers/supabase_provider.dart';
 import 'package:nomo/screens/create_account_screen.dart';
 import 'package:nomo/screens/interests_screen.dart';
-import 'package:nomo/screens/location_test_screen.dart';
+import 'package:nomo/screens/location_screen.dart';
 import 'package:nomo/screens/settings/setting_screen.dart';
 
 enum options { itemOne, itemTwo, itemThree, itemFour, itemFive }
@@ -87,7 +87,7 @@ class _ProfileDropdownState extends ConsumerState<ProfileDropdown> {
                   Navigator.push(
                       context,
                       MaterialPageRoute(
-                          builder: ((context) => const LocationTestScreen(
+                          builder: ((context) => const LocationScreen(
                                 isCreation: false,
                               ))));
                 },

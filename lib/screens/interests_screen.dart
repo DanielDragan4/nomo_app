@@ -5,7 +5,7 @@ import 'package:nomo/providers/profile_provider.dart';
 import 'package:nomo/models/interests_enum.dart';
 import 'package:nomo/providers/saved_session_provider.dart';
 import 'package:nomo/providers/user_signup_provider.dart';
-import 'package:nomo/screens/location_test_screen.dart';
+import 'package:nomo/screens/location_screen.dart';
 
 class InterestsScreen extends ConsumerStatefulWidget {
   InterestsScreen(
@@ -263,7 +263,7 @@ class _InterestsScreenState extends ConsumerState<InterestsScreen> {
 
           Navigator.of(context).pushReplacement(MaterialPageRoute(
               builder: (context) =>
-                  const LocationTestScreen(isCreation: true)));
+                  const LocationScreen(isCreation: true)));
         }
       } else {
         Navigator.of(context).pop();

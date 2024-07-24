@@ -170,9 +170,9 @@ class Month extends ConsumerWidget {
     ref.read(profileProvider.notifier).decodeData();
     List<Event> calEvents =
         ref.read(attendEventsProvider.notifier).eventsAttendingByMonth(yearDisplayed, selectedMonth);
-    ref.read(availabilityProvider.notifier).updateAvailability(
-          ref.watch(profileProvider.notifier).availabilityByMonth(yearDisplayed, selectedMonth),
-        );
+    ref
+        .read(availabilityProvider.notifier)
+        .updateAvailability(ref.watch(profileProvider.notifier).availabilityByMonth(yearDisplayed, selectedMonth));
 
     return Container(
       alignment: Alignment.center,
@@ -211,70 +211,49 @@ class Month extends ConsumerWidget {
                         Text(
                           'S',
                           style: TextStyle(
-                            fontSize: 24,
-                            fontWeight: FontWeight.bold,
-                            color: Theme.of(context).primaryColorLight,
-                          ),
+                              fontSize: 24, fontWeight: FontWeight.bold, color: Theme.of(context).primaryColorLight),
                         ),
                         Spacer(),
                         Spacer(),
                         Text(
                           'M',
                           style: TextStyle(
-                            fontSize: 24,
-                            fontWeight: FontWeight.bold,
-                            color: Theme.of(context).primaryColorLight,
-                          ),
+                              fontSize: 24, fontWeight: FontWeight.bold, color: Theme.of(context).primaryColorLight),
                         ),
                         Spacer(),
                         Spacer(),
                         Text(
                           'T',
                           style: TextStyle(
-                            fontSize: 24,
-                            fontWeight: FontWeight.bold,
-                            color: Theme.of(context).primaryColorLight,
-                          ),
+                              fontSize: 24, fontWeight: FontWeight.bold, color: Theme.of(context).primaryColorLight),
                         ),
                         Spacer(),
                         Spacer(),
                         Text(
                           'W',
                           style: TextStyle(
-                            fontSize: 24,
-                            fontWeight: FontWeight.bold,
-                            color: Theme.of(context).primaryColorLight,
-                          ),
+                              fontSize: 24, fontWeight: FontWeight.bold, color: Theme.of(context).primaryColorLight),
                         ),
                         Spacer(),
                         Spacer(),
                         Text(
                           'T',
                           style: TextStyle(
-                            fontSize: 24,
-                            fontWeight: FontWeight.bold,
-                            color: Theme.of(context).primaryColorLight,
-                          ),
+                              fontSize: 24, fontWeight: FontWeight.bold, color: Theme.of(context).primaryColorLight),
                         ),
                         Spacer(),
                         Spacer(),
                         Text(
                           'F',
                           style: TextStyle(
-                            fontSize: 24,
-                            fontWeight: FontWeight.bold,
-                            color: Theme.of(context).primaryColorLight,
-                          ),
+                              fontSize: 24, fontWeight: FontWeight.bold, color: Theme.of(context).primaryColorLight),
                         ),
                         Spacer(),
                         Spacer(),
                         Text(
                           'S',
                           style: TextStyle(
-                            fontSize: 24,
-                            fontWeight: FontWeight.bold,
-                            color: Theme.of(context).primaryColorLight,
-                          ),
+                              fontSize: 24, fontWeight: FontWeight.bold, color: Theme.of(context).primaryColorLight),
                         ),
                         Spacer(),
                       ],

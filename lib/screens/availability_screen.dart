@@ -44,7 +44,7 @@ class _AvailableTimesScreenState extends ConsumerState<AvailableTimesScreen> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          backgroundColor: Theme.of(context).colorScheme.surface,
+          backgroundColor: Theme.of(context).cardColor,
           title: Text('How to use', style: TextStyle(color: Theme.of(context).colorScheme.primary)),
           content: Column(
             mainAxisSize: MainAxisSize.min,

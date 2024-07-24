@@ -1,5 +1,5 @@
 import 'dart:typed_data';
-
+import 'package:image_cropper/image_cropper.dart';
 import 'package:calendar_view/calendar_view.dart';
 import 'package:flutter/material.dart';
 import 'package:geocoding/geocoding.dart';
@@ -299,24 +299,35 @@ class _NewEventScreenState extends ConsumerState<NewEventScreen> {
     }
   }
 
-  Future<void> _pickImageFromGallery() async {
-    final XFile? pickedFile = await ImagePicker().pickImage(source: ImageSource.gallery);
+  Future<void> _pickAndCropImage(ImageSource source) async {
+    final XFile? pickedFile = await ImagePicker().pickImage(source: source);
     if (pickedFile == null) return;
 
-    setState(() {
-      _selectedImage = File(pickedFile.path);
-      _enableButton();
-    });
-  }
+    final croppedFile = await ImageCropper().cropImage(
+      sourcePath: pickedFile.path,
+      aspectRatio: const CropAspectRatio(ratioX: 16, ratioY: 9),
+      uiSettings: [
+        AndroidUiSettings(
+          toolbarTitle: 'Crop Image',
+          toolbarColor: Theme.of(context).primaryColor,
+          toolbarWidgetColor: Colors.white,
+          initAspectRatio: CropAspectRatioPreset.ratio16x9,
+          lockAspectRatio: true,
+        ),
+        IOSUiSettings(
+          title: 'Crop Image',
+          aspectRatioLockEnabled: true,
+          resetAspectRatioEnabled: false,
+        ),
+      ],
+    );
 
-  Future<void> _pickImageFromCamera() async {
-    final XFile? pickedFile = await ImagePicker().pickImage(source: ImageSource.camera);
-    if (pickedFile == null) return;
-
-    setState(() {
-      _selectedImage = File(pickedFile.path);
-      _enableButton();
-    });
+    if (croppedFile != null) {
+      setState(() {
+        _selectedImage = File(croppedFile.path);
+        _enableButton();
+      });
+    }
   }
 
   Future<String> getCords(location) async {
@@ -567,7 +578,7 @@ class _NewEventScreenState extends ConsumerState<NewEventScreen> {
                                   ],
                                 ),
                                 onPressed: () {
-                                  _pickImageFromGallery();
+                                  _pickAndCropImage(ImageSource.gallery);
                                   Navigator.pop(context);
                                 },
                               ),
@@ -586,7 +597,7 @@ class _NewEventScreenState extends ConsumerState<NewEventScreen> {
                                   ],
                                 ),
                                 onPressed: () {
-                                  _pickImageFromCamera();
+                                  _pickAndCropImage(ImageSource.camera);
                                   Navigator.pop(context);
                                 },
                               ),
@@ -741,7 +752,7 @@ class _NewEventScreenState extends ConsumerState<NewEventScreen> {
                               Container(
                                 padding: const EdgeInsets.all(16),
                                 decoration: BoxDecoration(
-                                  color: Theme.of(context).colorScheme.surface,
+                                  color: Theme.of(context).cardColor,
                                   shape: BoxShape.rectangle,
                                   borderRadius: BorderRadius.circular(16),
                                   boxShadow: [
@@ -764,7 +775,7 @@ class _NewEventScreenState extends ConsumerState<NewEventScreen> {
                                         style: TextStyle(
                                           fontSize: 20,
                                           fontWeight: FontWeight.bold,
-                                          color: Theme.of(context).colorScheme.onSurface,
+                                          color: Theme.of(context).colorScheme.primary,
                                         ),
                                       ),
                                     ),
@@ -777,7 +788,7 @@ class _NewEventScreenState extends ConsumerState<NewEventScreen> {
                                       style: TextStyle(
                                         fontSize: 16,
                                         fontWeight: FontWeight.w500,
-                                        color: Theme.of(context).colorScheme.onSurface,
+                                        color: Theme.of(context).colorScheme.secondary,
                                       ),
                                     ),
                                     const SizedBox(height: 16),

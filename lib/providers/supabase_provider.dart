@@ -143,13 +143,18 @@ Future<void> checkProfile() async {
       
       Returns: none
     */
-  final checkProf =
-      await supabase.from("Profiles").select('profile_id, username').eq('profile_id', supabase.auth.currentUser!.id);
+  late final checkProf;
+  if(supabase.auth.currentUser == null) {
+    checkProf = null;
+  } else {
+    checkProf =
+        await supabase.from("Profiles").select('profile_id, username').eq('profile_id', supabase.auth.currentUser!.id);
+  }
   final removeSession = await SharedPreferences.getInstance();
-  if (checkProf.isEmpty) {
+  if ((checkProf != null) && checkProf.isEmpty) {
     removeSession.remove("savedSession");
     await supabase.from("auth.users").delete().eq('id', (supabase.auth.currentUser!.id));
-  } else if ((checkProf.first['profile_id'] == supabase.auth.currentUser!.id) &&
+  } else if ((checkProf != null) && (checkProf.first['profile_id'] == supabase.auth.currentUser!.id) &&
       (checkProf.first['username'] == null)) {
     await supabase.from("Profiles").delete().eq('profile_id', (supabase.auth.currentUser!.id));
   }

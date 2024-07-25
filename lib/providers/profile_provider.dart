@@ -42,6 +42,7 @@ class ProfileProvider extends StateNotifier<Profile?> {
   Future<void> decodeData() async {
     final userProfile = await readProfile();
     if (userProfile == null) return;
+
     Profile profile;
     final supabaseClient = (await supabase).client;
     List<Availability> availability = [];
@@ -100,7 +101,7 @@ class ProfileProvider extends StateNotifier<Profile?> {
           availability.add(decodedTime);
         }
       }
-
+    }
       profile = Profile(
         profile_id: userProfile['profile_id'],
         avatar: profileUrl,
@@ -110,9 +111,7 @@ class ProfileProvider extends StateNotifier<Profile?> {
         availability: availability,
         private: userProfile['private'],
       );
-
-      state = profile;
-    }
+    state = profile;
   }
 
   // Returns all relevant data for a user with a specified ID to be decoded\

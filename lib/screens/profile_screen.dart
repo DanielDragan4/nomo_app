@@ -39,6 +39,7 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
   bool showPassed = false;
   bool showHosting = false;
   bool friendPending = false;
+  var profile;
 
 // Initializes appropriate user data, depending on if viewing own profile or someone else's
   @override
@@ -72,7 +73,9 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
     setState(() {
       _isLoading = true;
     });
-    await _fetchProfileInfo();
+    if(!widget.isUser){
+      await _fetchProfileInfo();
+    }
     await _fetchEvents();
     setState(() {
       _isLoading = false;
@@ -160,15 +163,19 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
       appBarHeight += 10;
     }
 
-    final profile;
 
     if (widget.isUser) {
-      profile = ref.watch(profileProvider);
+      print(1);
+      
+      ref.read(profileProvider.notifier).decodeData();
+      profile = ref.watch(profileProvider.notifier).state;
       ref.read(attendEventsProvider.notifier).deCodeData();
-      //ref.read(profileProvider.notifier).decodeData();
+
     } else {
       profile = profileInfo;
     }
+    print(profile);
+
     //var imageUrl;
 
     // if (ref.read(profileProvider.notifier).state == null) {

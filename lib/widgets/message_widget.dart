@@ -41,7 +41,7 @@ class MessageWidget extends ConsumerWidget {
                           )
                         : SizedBox(
                             child: Text(
-                              Jiffy.parseFromDateTime(DateTime.parse(message['created_at'])).fromNow(),
+                              Jiffy.parseFromDateTime(DateTime.parse(message['created_at']).subtract(const Duration(hours: 4))).fromNow(),
                               style: TextStyle(
                                 color: Theme.of(context).colorScheme.onSecondary.withOpacity(0.6),
                                 fontSize: MediaQuery.of(context).size.width * 0.035,

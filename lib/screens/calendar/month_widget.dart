@@ -75,8 +75,7 @@ class Month extends ConsumerWidget {
     */
     bool borderWidth;
 
-    if ((cellIndex - firstDayOfWeek) < lastOfMonth &&
-        (cellIndex - firstDayOfWeek) >= 0) {
+    if ((cellIndex - firstDayOfWeek) < lastOfMonth && (cellIndex - firstDayOfWeek) >= 0) {
       borderWidth = true;
     } else {
       borderWidth = false;
@@ -87,7 +86,7 @@ class Month extends ConsumerWidget {
 
   Color findCellColor(int cellPosition, List<Event> events) {
     /*
-      returns Different collor for DayButton depending on cell position. If in month or has event
+      returns Different color for DayButton depending on cell position. If in month or has event
       has color, if not set to grey
 
       Params: cellPosition: int, events: List<Event> 
@@ -106,10 +105,8 @@ class Month extends ConsumerWidget {
         DateTime eventEnd = DateTime.parse(event.edate);
 
         // Check if the current day is within the event's start and end dates
-        if (DateTime(yearDisplayed, selectedMonth, dayInGrid + 1)
-                .isAfter(eventStart.subtract(Duration(days: 1))) &&
-            DateTime(yearDisplayed, selectedMonth, dayInGrid + 1)
-                .isBefore(eventEnd)) {
+        if (DateTime(yearDisplayed, selectedMonth, dayInGrid + 1).isAfter(eventStart.subtract(Duration(days: 1))) &&
+            DateTime(yearDisplayed, selectedMonth, dayInGrid + 1).isBefore(eventEnd)) {
           cellColor = const Color.fromARGB(136, 162, 24, 248);
           break;
         }
@@ -130,10 +127,7 @@ class Month extends ConsumerWidget {
       
       Returns: bool
     */
-    List<bool> eventStatus = [
-      false,
-      false
-    ]; // Index 0: single day event, Index 1: multi-day event
+    List<bool> eventStatus = [false, false]; // Index 0: single day event, Index 1: multi-day event
 
     // Calculate the day in grid
     var dayInGrid = cellPosition - firstDayOfWeek;
@@ -143,10 +137,8 @@ class Month extends ConsumerWidget {
         DateTime eventStart = DateTime.parse(event.sdate);
         DateTime eventEnd = DateTime.parse(event.edate);
 
-        if (eventStart.day <= (dayInGrid + 1) &&
-            (dayInGrid + 1) <= eventEnd.day) {
-          if (eventStart.day == eventEnd.day ||
-              (dayInGrid + 1) == eventStart.day) {
+        if (eventStart.day <= (dayInGrid + 1) && (dayInGrid + 1) <= eventEnd.day) {
+          if (eventStart.day == eventEnd.day || (dayInGrid + 1) == eventStart.day) {
             eventStatus[0] = true; // Single day event
           } else {
             eventStatus[1] = true; // Multi-day event
@@ -176,12 +168,11 @@ class Month extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     ref.read(profileProvider.notifier).decodeData();
-    List<Event> calEvents = ref
-        .read(attendEventsProvider.notifier)
-        .eventsAttendingByMonth(yearDisplayed, selectedMonth);
-    ref.read(availabilityProvider.notifier).updateAvailability(ref
-        .watch(profileProvider.notifier)
-        .availabilityByMonth(yearDisplayed, selectedMonth));
+    List<Event> calEvents =
+        ref.read(attendEventsProvider.notifier).eventsAttendingByMonth(yearDisplayed, selectedMonth);
+    ref
+        .read(availabilityProvider.notifier)
+        .updateAvailability(ref.watch(profileProvider.notifier).availabilityByMonth(yearDisplayed, selectedMonth));
 
     return Container(
       alignment: Alignment.center,
@@ -190,100 +181,18 @@ class Month extends ConsumerWidget {
           child: Column(
             children: [
               // Header and month name
-              Container(
-                alignment: Alignment.topLeft,
-                child: Text(
-                  "${monthName(selectedMonth)} $yearDisplayed",
-                  style: TextStyle(
-                    fontSize: 24,
-                    fontWeight: FontWeight.bold,
-                    color: Theme.of(context).primaryColorLight,
-                  ),
-                ),
-              ),
-              Divider(),
-              Row(
-                children: [
-                  Container(
-                    height: MediaQuery.sizeOf(context).height * 0.0528,
-                    width: MediaQuery.sizeOf(context).width * .95,
-                    decoration: BoxDecoration(
-                        // color:
-                        //     Theme.of(context).primaryColorLight.withOpacity(0.35),
-                        // border: Border.all(width: 1),
-                        // borderRadius: BorderRadius.circular(20),
-                        ),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                      children: [
-                        Spacer(),
-                        Text(
-                          'S',
-                          style: TextStyle(
-                              fontSize: 24,
-                              fontWeight: FontWeight.bold,
-                              color: Theme.of(context).primaryColorLight),
-                        ),
-                        Spacer(),
-                        Spacer(),
-                        Text(
-                          'M',
-                          style: TextStyle(
-                              fontSize: 24,
-                              fontWeight: FontWeight.bold,
-                              color: Theme.of(context).primaryColorLight),
-                        ),
-                        Spacer(),
-                        Spacer(),
-                        Text(
-                          'T',
-                          style: TextStyle(
-                              fontSize: 24,
-                              fontWeight: FontWeight.bold,
-                              color: Theme.of(context).primaryColorLight),
-                        ),
-                        Spacer(),
-                        Spacer(),
-                        Text(
-                          'W',
-                          style: TextStyle(
-                              fontSize: 24,
-                              fontWeight: FontWeight.bold,
-                              color: Theme.of(context).primaryColorLight),
-                        ),
-                        Spacer(),
-                        Spacer(),
-                        Text(
-                          'T',
-                          style: TextStyle(
-                              fontSize: 24,
-                              fontWeight: FontWeight.bold,
-                              color: Theme.of(context).primaryColorLight),
-                        ),
-                        Spacer(),
-                        Spacer(),
-                        Text(
-                          'F',
-                          style: TextStyle(
-                              fontSize: 24,
-                              fontWeight: FontWeight.bold,
-                              color: Theme.of(context).primaryColorLight),
-                        ),
-                        Spacer(),
-                        Spacer(),
-                        Text(
-                          'S',
-                          style: TextStyle(
-                              fontSize: 24,
-                              fontWeight: FontWeight.bold,
-                              color: Theme.of(context).primaryColorLight),
-                        ),
-                        Spacer(),
-                      ],
-                    ),
-                  )
-                ],
-              ),
+              // Container(
+              //   alignment: Alignment.topLeft,
+              //   child: Text(
+              //     "${monthName(selectedMonth)} $yearDisplayed",
+              //     style: TextStyle(
+              //       fontSize: 24,
+              //       fontWeight: FontWeight.bold,
+              //       color: Theme.of(context).primaryColorLight,
+              //     ),
+              //   ),
+              // ),
+
               const Divider(),
 
               StreamBuilder(
@@ -293,15 +202,11 @@ class Month extends ConsumerWidget {
                       return Expanded(
                         child: GridView.builder(
                           physics: const NeverScrollableScrollPhysics(),
-                          gridDelegate:
-                              const SliverGridDelegateWithFixedCrossAxisCount(
-                                  crossAxisCount: 7),
+                          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 7),
                           itemCount: 42,
                           itemBuilder: (context, index) {
-                            DateTime currentDate = DateTime(yearDisplayed,
-                                selectedMonth, index - firstDayOfWeek + 1);
-                            bool hasTimeSelected =
-                                selectedDatesWithTime[currentDate] ?? false;
+                            DateTime currentDate = DateTime(yearDisplayed, selectedMonth, index - firstDayOfWeek + 1);
+                            bool hasTimeSelected = selectedDatesWithTime[currentDate] ?? false;
 
                             bool hasBlockedTime = snapshot.data!.any((avail) =>
                                 avail.sTime.year == currentDate.year &&
@@ -314,22 +219,17 @@ class Month extends ConsumerWidget {
 
                             if (index < firstDayOfWeek) {
                               // Previous month
-                              cellDate =
-                                  DateTime(yearDisplayed, selectedMonth, 0)
-                                      .subtract(Duration(
-                                          days: firstDayOfWeek - index - 1));
+                              cellDate = DateTime(yearDisplayed, selectedMonth, 0)
+                                  .subtract(Duration(days: firstDayOfWeek - index - 1));
                               isCurrentMonth = false;
                             } else if (index >= firstDayOfWeek + lastOfMonth) {
                               // Next month
-                              cellDate = DateTime(
-                                  yearDisplayed,
-                                  selectedMonth + 1,
-                                  index - firstDayOfWeek - lastOfMonth + 1);
+                              cellDate =
+                                  DateTime(yearDisplayed, selectedMonth + 1, index - firstDayOfWeek - lastOfMonth + 1);
                               isCurrentMonth = false;
                             } else {
                               // Current month
-                              cellDate = DateTime(yearDisplayed, selectedMonth,
-                                  index - firstDayOfWeek + 1);
+                              cellDate = DateTime(yearDisplayed, selectedMonth, index - firstDayOfWeek + 1);
                             }
 
                             return DayButton(
@@ -341,8 +241,7 @@ class Month extends ConsumerWidget {
                               hasEvent: hasEvent(index, calEvents),
                               hasTimeSelected: hasTimeSelected,
                               currentDate: currentDate,
-                              selectedMonth:
-                                  selectedMonth, // pass the current date
+                              selectedMonth: selectedMonth, // pass the current date
                               availabilityByMonth: snapshot.data!,
                               hasBlockedTime: hasBlockedTime,
                               isCurrentMonth: isCurrentMonth,
@@ -375,9 +274,7 @@ class Month extends ConsumerWidget {
                       height: MediaQuery.sizeOf(context).height * 0.1,
                       child: ListView(
                         key: const PageStorageKey<String>('cal'),
-                        children: [
-                          for (Event i in calEvents) EventCalTab(eventData: i)
-                        ],
+                        children: [for (Event i in calEvents) EventCalTab(eventData: i)],
                       ),
                     ),
                   ],
@@ -438,9 +335,9 @@ class DayButton extends ConsumerWidget {
               .whenComplete(
             () async {
               await ref.read(profileProvider.notifier).decodeData();
-              ref.read(availabilityProvider.notifier).updateAvailability(ref
-                  .read(profileProvider.notifier)
-                  .availabilityByMonth(year, selectedMonth));
+              ref
+                  .read(availabilityProvider.notifier)
+                  .updateAvailability(ref.read(profileProvider.notifier).availabilityByMonth(year, selectedMonth));
             },
           );
         }
@@ -457,8 +354,7 @@ class DayButton extends ConsumerWidget {
               width: topBorderWidth,
             ),
           ),
-          color:
-              isCurrentMonth ? cellColor : Color.fromARGB(120, 128, 128, 128),
+          color: isCurrentMonth ? cellColor : Color.fromARGB(120, 128, 128, 128),
           //borderRadius: borderRadius,
         ),
         child: Stack(
@@ -471,9 +367,7 @@ class DayButton extends ConsumerWidget {
                   dayDisplayed,
                   style: TextStyle(
                     fontSize: 16,
-                    color: isCurrentMonth
-                        ? Colors.white
-                        : Color.fromARGB(170, 149, 149, 149),
+                    color: isCurrentMonth ? Colors.white : Color.fromARGB(170, 149, 149, 149),
                   ),
                 ),
               ),

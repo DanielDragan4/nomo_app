@@ -66,6 +66,7 @@ dependencies:
   image: ^4.2.0
   time_picker_spinner: ^1.0.0
   numberpicker: ^2.1.2
+  image_cropper: ^7.1.0
 dev_dependencies:
   flutter_test:
     sdk: flutter

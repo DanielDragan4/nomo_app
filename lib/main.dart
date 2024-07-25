@@ -73,9 +73,6 @@ class _AppState extends ConsumerState<App> {
   StreamSubscription<Map>? streamSubscription;
   FirebaseMessaging firebaseMessaging = FirebaseMessaging.instance;
 
-  void checkSaved() async {
-    await checkProfile();
-  }
 
   @override
   void initState() {

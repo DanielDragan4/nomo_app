@@ -295,7 +295,7 @@ class CircularIconButton extends StatelessWidget {
           child: IconButton(
             icon: Icon(icon),
             onPressed: onPressed,
-            color: Theme.of(context).colorScheme.onSecondary,
+            color: Theme.of(context).colorScheme.onPrimary,
             iconSize: MediaQuery.of(context).size.aspectRatio * 90,
           ),
         ),

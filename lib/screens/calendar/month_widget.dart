@@ -86,7 +86,7 @@ class Month extends ConsumerWidget {
 
   Color findCellColor(int cellPosition, List<Event> events) {
     /*
-      returns Different collor for DayButton depending on cell position. If in month or has event
+      returns Different color for DayButton depending on cell position. If in month or has event
       has color, if not set to grey
 
       Params: cellPosition: int, events: List<Event> 
@@ -181,86 +181,18 @@ class Month extends ConsumerWidget {
           child: Column(
             children: [
               // Header and month name
-              Container(
-                alignment: Alignment.topLeft,
-                child: Text(
-                  "${monthName(selectedMonth)} $yearDisplayed",
-                  style: TextStyle(
-                    fontSize: 24,
-                    fontWeight: FontWeight.bold,
-                    color: Theme.of(context).primaryColorLight,
-                  ),
-                ),
-              ),
-              Divider(),
-              Row(
-                children: [
-                  Container(
-                    height: MediaQuery.sizeOf(context).height * 0.0528,
-                    width: MediaQuery.sizeOf(context).width * .95,
-                    decoration: BoxDecoration(
-                        // color:
-                        //     Theme.of(context).primaryColorLight.withOpacity(0.35),
-                        // border: Border.all(width: 1),
-                        // borderRadius: BorderRadius.circular(20),
-                        ),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                      children: [
-                        Spacer(),
-                        Text(
-                          'S',
-                          style: TextStyle(
-                              fontSize: 24, fontWeight: FontWeight.bold, color: Theme.of(context).primaryColorLight),
-                        ),
-                        Spacer(),
-                        Spacer(),
-                        Text(
-                          'M',
-                          style: TextStyle(
-                              fontSize: 24, fontWeight: FontWeight.bold, color: Theme.of(context).primaryColorLight),
-                        ),
-                        Spacer(),
-                        Spacer(),
-                        Text(
-                          'T',
-                          style: TextStyle(
-                              fontSize: 24, fontWeight: FontWeight.bold, color: Theme.of(context).primaryColorLight),
-                        ),
-                        Spacer(),
-                        Spacer(),
-                        Text(
-                          'W',
-                          style: TextStyle(
-                              fontSize: 24, fontWeight: FontWeight.bold, color: Theme.of(context).primaryColorLight),
-                        ),
-                        Spacer(),
-                        Spacer(),
-                        Text(
-                          'T',
-                          style: TextStyle(
-                              fontSize: 24, fontWeight: FontWeight.bold, color: Theme.of(context).primaryColorLight),
-                        ),
-                        Spacer(),
-                        Spacer(),
-                        Text(
-                          'F',
-                          style: TextStyle(
-                              fontSize: 24, fontWeight: FontWeight.bold, color: Theme.of(context).primaryColorLight),
-                        ),
-                        Spacer(),
-                        Spacer(),
-                        Text(
-                          'S',
-                          style: TextStyle(
-                              fontSize: 24, fontWeight: FontWeight.bold, color: Theme.of(context).primaryColorLight),
-                        ),
-                        Spacer(),
-                      ],
-                    ),
-                  )
-                ],
-              ),
+              // Container(
+              //   alignment: Alignment.topLeft,
+              //   child: Text(
+              //     "${monthName(selectedMonth)} $yearDisplayed",
+              //     style: TextStyle(
+              //       fontSize: 24,
+              //       fontWeight: FontWeight.bold,
+              //       color: Theme.of(context).primaryColorLight,
+              //     ),
+              //   ),
+              // ),
+
               const Divider(),
 
               StreamBuilder(

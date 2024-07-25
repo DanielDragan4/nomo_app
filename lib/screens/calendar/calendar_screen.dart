@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:nomo/models/events_model.dart';
 import 'package:nomo/providers/attending_events_provider.dart';
 import 'package:nomo/providers/availability_provider.dart';
+import 'package:nomo/providers/calendar_provider.dart';
 import 'package:nomo/providers/profile_provider.dart';
 import 'package:nomo/screens/calendar/month_widget.dart';
 import 'package:nomo/screens/new_event_screen.dart';
@@ -218,8 +220,35 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
         .updateAvailability(ref.watch(profileProvider.notifier).availabilityByMonth(yearDisplayed, monthDisplayed));
   }
 
+  void _updateAttendingEvents(int year, int month) {
+    final events = ref.read(attendEventsProvider.notifier).eventsAttendingByMonth(year, month);
+    ref.read(calendarStateProvider.notifier).updateAttendingEvents(events);
+  }
+
+  String _getMonthName(int month) {
+    const monthNames = [
+      "January",
+      "February",
+      "March",
+      "April",
+      "May",
+      "June",
+      "July",
+      "August",
+      "September",
+      "October",
+      "November",
+      "December"
+    ];
+    return monthNames[month - 1];
+  }
+
   @override
   Widget build(BuildContext context) {
+    List<Event> calEvents =
+        ref.read(attendEventsProvider.notifier).eventsAttendingByMonth(yearDisplayed, monthDisplayed);
+    final calendarState = ref.watch(calendarStateProvider);
+    final attendingEvents = calendarState.attendingEvents;
     setProfileAvail();
     ref.read(attendEventsProvider.notifier).deCodeData();
     final int firstDayOfWeek = DateTime(yearDisplayed, monthDisplayed, 1).weekday;
@@ -258,14 +287,35 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
           SizedBox(
             height: MediaQuery.of(context).size.height * 0.02,
           ),
+          Text(
+            "${_getMonthName(calendarState.monthDisplayed)} ${calendarState.yearDisplayed}",
+            style: TextStyle(
+              fontSize: 24,
+              fontWeight: FontWeight.bold,
+              color: Theme.of(context).primaryColorLight,
+            ),
+          ),
+          Divider(),
+          Padding(
+            padding: EdgeInsets.symmetric(horizontal: MediaQuery.of(context).size.width * 0.03),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              children: ['S', 'M', 'T', 'W', 'T', 'F', 'S']
+                  .map((day) => Text(day,
+                      style: TextStyle(
+                          fontSize: 24, fontWeight: FontWeight.bold, color: Theme.of(context).primaryColorLight)))
+                  .toList(),
+            ),
+          ),
           Expanded(
             child: PageView.builder(
               controller: _pageController,
               onPageChanged: (int index) {
-                setState(() {
-                  monthDisplayed = (index % 12) + 1;
-                  yearDisplayed = DateTime.now().year + (index ~/ 12);
-                });
+                final newMonth = (index % 12) + 1;
+                final newYear = DateTime.now().year + (index ~/ 12);
+                ref.read(calendarStateProvider.notifier).updateMonth(newMonth);
+                ref.read(calendarStateProvider.notifier).updateYear(newYear);
+                _updateAttendingEvents(newYear, newMonth);
               },
               itemBuilder: (context, index) {
                 final currentMonth = (index % 12) + 1;

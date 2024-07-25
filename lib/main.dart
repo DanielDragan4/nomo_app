@@ -105,7 +105,7 @@ class _AppState extends ConsumerState<App> {
 
   @override
   Widget build(BuildContext context) {
-    void loadData() async {
+    void loadData() {
       ref.read(savedSessionProvider.notifier).changeSessionDataList();
     }
 

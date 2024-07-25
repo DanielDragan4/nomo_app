@@ -117,7 +117,7 @@ class AuthProvider extends StateNotifier<Session?> {
       Returns: none
     */
     try {
-      String userId = await (await supabase).client.auth.currentUser!.id;
+      String userId = (await supabase).client.auth.currentUser!.id;
       await (await supabase).client.auth.signOut();
       await removeFcm(userId);
       state = null;
@@ -146,15 +146,16 @@ Future<void> checkProfile() async {
   late final checkProf;
   if(supabase.auth.currentUser == null) {
     checkProf = null;
-  } else {
-    checkProf =
-        await supabase.from("Profiles").select('profile_id, username').eq('profile_id', supabase.auth.currentUser!.id);
+  }
+  else {
+   checkProf =
+      await supabase.from("Profiles").select('profile_id, username').eq('profile_id', supabase.auth.currentUser!.id);
   }
   final removeSession = await SharedPreferences.getInstance();
-  if ((checkProf != null) && checkProf.isEmpty) {
+  if (checkProf.isEmpty || checkProf == null) {
     removeSession.remove("savedSession");
     await supabase.from("auth.users").delete().eq('id', (supabase.auth.currentUser!.id));
-  } else if ((checkProf != null) && (checkProf.first['profile_id'] == supabase.auth.currentUser!.id) &&
+  } else if ((checkProf.first['profile_id'] == supabase.auth.currentUser!.id) &&
       (checkProf.first['username'] == null)) {
     await supabase.from("Profiles").delete().eq('profile_id', (supabase.auth.currentUser!.id));
   }

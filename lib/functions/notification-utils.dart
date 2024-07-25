@@ -70,7 +70,9 @@ void handleMessage(RemoteMessage message, BuildContext context, WidgetRef ref) a
     if (joinedEventFriendsOnlySwitch) {
       bool isFriend = await ref.read(profileProvider.notifier).isFriend(attendeeId);
       if (isFriend) {
-        ref.read(unreadNotificationsProvider.notifier).addNotification("$attendeeName has joined your event, '$eventTitle'");
+        ref
+            .read(unreadNotificationsProvider.notifier)
+            .addNotification("$attendeeName has joined your event, '$eventTitle'");
         ref.read(notificationBellProvider.notifier).setBellState(true);
         showSimpleNotification(
           context,
@@ -79,7 +81,9 @@ void handleMessage(RemoteMessage message, BuildContext context, WidgetRef ref) a
         );
       }
     } else {
-      ref.read(unreadNotificationsProvider.notifier).addNotification("$attendeeName has joined your event, '$eventTitle'");
+      ref
+          .read(unreadNotificationsProvider.notifier)
+          .addNotification("$attendeeName has joined your event, '$eventTitle'");
       ref.read(notificationBellProvider.notifier).setBellState(true);
       showSimpleNotification(
         context,
@@ -153,28 +157,36 @@ void handleMessage(RemoteMessage message, BuildContext context, WidgetRef ref) a
 // - 'messageTitle': Bold text shown at the top of the message typically showing the type of notification
 // - 'background': Color of the notification, set to dark purple by default (can be overwritten)
 
-void showSimpleNotification(BuildContext context, String message, String messageTitle, {Color background = const Color.fromARGB(255, 109, 51, 146)}) {
+void showSimpleNotification(BuildContext context, String message, String messageTitle,
+    {Color background = const Color.fromARGB(255, 109, 51, 146)}) {
   showOverlayNotification(
     (context) {
-      return Card(
-        margin: EdgeInsets.symmetric(horizontal: 4),
-        color: background,
-        child: SafeArea(
-          child: ListTile(
-            leading: Icon(Icons.message, color: Colors.white),
-            title: Text(
-              messageTitle,
-              style: TextStyle(color: Colors.white),
-            ),
-            subtitle: Text(
-              message,
-              style: TextStyle(color: Colors.white),
-            ),
-            trailing: IconButton(
-              icon: Icon(Icons.close, color: Colors.white),
-              onPressed: () {
-                OverlaySupportEntry.of(context)?.dismiss();
-              },
+      return Dismissible(
+        key: Key(DateTime.now().millisecondsSinceEpoch.toString()),
+        direction: DismissDirection.up,
+        onDismissed: (_) {
+          OverlaySupportEntry.of(context)?.dismiss();
+        },
+        child: Card(
+          margin: EdgeInsets.symmetric(horizontal: 4),
+          color: background,
+          child: SafeArea(
+            child: ListTile(
+              leading: Icon(Icons.message, color: Colors.white),
+              title: Text(
+                messageTitle,
+                style: TextStyle(color: Colors.white),
+              ),
+              subtitle: Text(
+                message,
+                style: TextStyle(color: Colors.white),
+              ),
+              // trailing: IconButton(
+              //   icon: Icon(Icons.close, color: Colors.white),
+              //   onPressed: () {
+              //     OverlaySupportEntry.of(context)?.dismiss();
+              //   },
+              // ),
             ),
           ),
         ),

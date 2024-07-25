@@ -125,7 +125,8 @@ class _AppState extends ConsumerState<App> {
               colorScheme: ColorScheme.fromSeed(
                   onSecondary: Colors.black,
                   seedColor: const Color.fromARGB(255, 80, 12, 122),
-                  onPrimaryContainer: const Color.fromARGB(255, 80, 12, 122)),
+                  onPrimaryContainer: const Color.fromARGB(255, 80, 12, 122),
+                  onPrimary: Color.fromARGB(255, 212, 212, 212),),
               bottomNavigationBarTheme: const BottomNavigationBarThemeData(
                 selectedItemColor: Color.fromARGB(255, 80, 12, 122),
                 unselectedItemColor: Color.fromARGB(255, 158, 158, 158),
@@ -151,7 +152,8 @@ class _AppState extends ConsumerState<App> {
                       surface: Colors.black,
                       brightness: Brightness.dark,
                       seedColor: const Color.fromARGB(255, 109, 51, 146),
-                      onPrimaryContainer: const Color.fromARGB(255, 109, 51, 146))
+                      onPrimaryContainer: const Color.fromARGB(255, 109, 51, 146),
+                      onPrimary: Color.fromARGB(255, 212, 212, 212),)
                   .copyWith(surface: Colors.black),
               textTheme: GoogleFonts.nunitoTextTheme(),
               // timePickerTheme: TimePickerThemeData(

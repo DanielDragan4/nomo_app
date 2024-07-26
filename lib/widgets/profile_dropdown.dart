@@ -46,28 +46,28 @@ class _ProfileDropdownState extends ConsumerState<ProfileDropdown> {
           );
         },
         itemBuilder: (context) => <PopupMenuEntry<options>>[
-              PopupMenuItem(
-                value: options.itemOne,
-                child: const Text("Edit Profile"),
-                //Navigates to Create Account Screen, then calls for Profile Screen update once popped
-                onTap: () {
-                  widget.profileInfo?.then((profile) {
-                    Navigator.of(context)
-                        .push(MaterialPageRoute(
-                      builder: ((context) => CreateAccountScreen(
-                            isNew: false,
-                            avatar: profile.avatar,
-                            profilename: profile.profile_name,
-                            username: profile.username,
-                            onUpdateProfile: widget.updateProfileInfo,
-                          )),
-                    ))
-                        .then((_) {
-                      widget.updateProfileInfo();
-                    });
-                  });
-                },
-              ),
+              // PopupMenuItem(
+              //   value: options.itemOne,
+              //   child: const Text("Edit Profile"),
+              //   //Navigates to Create Account Screen, then calls for Profile Screen update once popped
+              //   onTap: () {
+              //     widget.profileInfo?.then((profile) {
+              //       Navigator.of(context)
+              //           .push(MaterialPageRoute(
+              //         builder: ((context) => CreateAccountScreen(
+              //               isNew: false,
+              //               avatar: profile.avatar,
+              //               profilename: profile.profile_name,
+              //               username: profile.username,
+              //               onUpdateProfile: widget.updateProfileInfo,
+              //             )),
+              //       ))
+              //           .then((_) {
+              //         widget.updateProfileInfo();
+              //       });
+              //     });
+              //   },
+              // ),
               PopupMenuItem(
                 value: options.itemTwo,
                 child: const Text("Edit Interests"),

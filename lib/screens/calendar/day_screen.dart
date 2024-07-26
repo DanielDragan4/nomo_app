@@ -464,19 +464,22 @@ class _DayScreenState extends ConsumerState<DayScreen> {
           children: [
             Container(
               decoration: BoxDecoration(
-                  color: Theme.of(context).colorScheme.onSecondary,
-                  border: const Border(bottom: BorderSide(), right: BorderSide())),
+                  color: Theme.of(context).cardColor,
+                  border: Border(
+                    bottom: BorderSide(color: Theme.of(context).colorScheme.inverseSurface),
+                    right: BorderSide(color: Theme.of(context).colorScheme.inverseSurface),
+                  )),
               width: 80,
               alignment: Alignment.centerLeft,
               padding: const EdgeInsets.symmetric(horizontal: 8.0),
               child: Text(
                 timeLabel,
-                style: const TextStyle(color: Color.fromARGB(255, 0, 0, 0)),
+                style: TextStyle(color: Theme.of(context).colorScheme.onSecondary),
               ),
             ),
             Expanded(
               child: Container(
-                color: Colors.white,
+                color: Theme.of(context).colorScheme.surface,
               ),
             ),
           ],

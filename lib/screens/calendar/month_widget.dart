@@ -254,32 +254,32 @@ class Month extends ConsumerWidget {
                       return CircularProgressIndicator();
                     }
                   }),
-              SizedBox(
-                height: MediaQuery.of(context).size.height * .16,
-                child: Column(
-                  children: [
-                    Container(
-                      alignment: Alignment.topLeft,
-                      child: Text(
-                        "Attending Events",
-                        style: TextStyle(
-                          fontSize: 24,
-                          fontWeight: FontWeight.bold,
-                          color: Theme.of(context).primaryColor,
-                        ),
-                      ),
-                    ),
-                    const Divider(),
-                    SizedBox(
-                      height: MediaQuery.sizeOf(context).height * 0.1,
-                      child: ListView(
-                        key: const PageStorageKey<String>('cal'),
-                        children: [for (Event i in calEvents) EventCalTab(eventData: i)],
-                      ),
-                    ),
-                  ],
-                ),
-              )
+              // SizedBox(
+              //   height: MediaQuery.of(context).size.height * .16,
+              //   child: Column(
+              //     children: [
+              //       Container(
+              //         alignment: Alignment.topLeft,
+              //         child: Text(
+              //           "Attending Events",
+              //           style: TextStyle(
+              //             fontSize: 24,
+              //             fontWeight: FontWeight.bold,
+              //             color: Theme.of(context).primaryColor,
+              //           ),
+              //         ),
+              //       ),
+              //       const Divider(),
+              //       SizedBox(
+              //         height: MediaQuery.sizeOf(context).height * 0.1,
+              //         child: ListView(
+              //           key: const PageStorageKey<String>('cal'),
+              //           children: [for (Event i in calEvents) EventCalTab(eventData: i)],
+              //         ),
+              //       ),
+              //     ],
+              //   ),
+              // )
             ],
           )),
     );

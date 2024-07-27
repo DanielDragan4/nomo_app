@@ -340,6 +340,7 @@ class ProfileProvider extends StateNotifier<Profile?> {
   Future<void> removeFriend(currentUserId, friendId) async {
     final supabaseClient = (await supabase).client;
     await supabaseClient.from('Friends').delete().eq('current', currentUserId).eq('friend', friendId);
+    await supabaseClient.from('Friends').delete().eq('friend', currentUserId).eq('current', friendId);
   }
 
   // Removes incoming friend request sent by a specified user
@@ -546,7 +547,7 @@ class ProfileProvider extends StateNotifier<Profile?> {
         profile_name: newProfileName,
         avatar: newAvatarUrl ?? state!.avatar,
       );
-      print(state);
+      print("provider: $state");
     }
   }
 }

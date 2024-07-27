@@ -127,7 +127,6 @@ class EventProvider extends StateNotifier<List?> {
     final supabaseClient = (await supabase).client;
     final newAttendeeMap = {'event_id': eventToJoin, 'user_id': currentUser};
     await supabaseClient.from('Attendees').insert(newAttendeeMap);
-    await deCodeData();
   }
 
   Future<void> deleteEvent(Event event) async {
@@ -330,11 +329,11 @@ class EventProvider extends StateNotifier<List?> {
       
       Returns: List of data
     */
-    for (var i = 0; i < state!.length; i++) {
-      if(state![i].eventId == eventId) {
+    for (var event in state!) {
+      if(event.eventId == eventId) {
         Event newEventData = await deCodeLinkEvent(eventId);
-        state![i] = newEventData;
-        return state![i];
+        event = newEventData;
+        return newEventData;
       }
     }
   }

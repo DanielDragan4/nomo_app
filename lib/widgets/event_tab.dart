@@ -32,10 +32,16 @@ class EventTab extends ConsumerStatefulWidget {
 class _EventTabState extends ConsumerState<EventTab> {
   @override
   Widget build(BuildContext context) {
+    
     final DateTime date = DateTime.parse(widget.eventData.sdate);
     final formattedDate = "${date.month}/${date.day}/${date.year} at ${_getFormattedHour(date)}";
 
-    final bool isHostOrAttending = widget.eventData.isHost || widget.eventData.attending;
+    final bool isHostOrAttending;
+    if((widget.eventData.otherAttend != null) && (widget.eventData.otherHost != null)) {
+      isHostOrAttending = widget.eventData.otherHost || widget.eventData.otherAttend;
+    } else {
+      isHostOrAttending = widget.eventData.isHost || widget.eventData.attending;
+    }
 
     return Card(
       elevation: 4,
@@ -94,14 +100,20 @@ class _EventTabState extends ConsumerState<EventTab> {
   }
 
   Widget _buildHostOrAttendingIndicator() {
+    var host;
+    if((widget.eventData.otherAttend != null) && (widget.eventData.otherHost != null)) {
+      host = widget.eventData.otherHost;
+    } else {
+      host = widget.eventData.isHost;
+    }
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
       decoration: BoxDecoration(
-        color: widget.eventData.isHost ? Colors.green : Colors.blue,
+        color: host ? Colors.green : Colors.blue,
         borderRadius: BorderRadius.circular(12),
       ),
       child: Text(
-        widget.eventData.isHost ? 'Hosting' : 'Attending',
+        host ? 'Hosting' : 'Attending',
         style: TextStyle(
           color: Colors.white,
           fontWeight: FontWeight.bold,

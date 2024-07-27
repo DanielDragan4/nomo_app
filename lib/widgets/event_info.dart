@@ -301,7 +301,7 @@ class _EventInfoState extends ConsumerState<EventInfo> {
         if (snapshot.hasData && snapshot.data != null) {
           final supabase = snapshot.data!.client;
           final currentUser = supabase.auth.currentUser!.id;
-          final isHost = widget.eventsData.host == currentUser;
+          final isHost = (widget.eventsData.host == currentUser);
           bool isAttending = eventsData.attending;
 
           String buttonText = isHost ? 'Edit' : (isAttending ? 'Leave' : 'Join');
@@ -354,7 +354,7 @@ class _EventInfoState extends ConsumerState<EventInfo> {
   }
 
   void _joinEvent(BuildContext context, String currentUser) async {
-    ref.read(profileProvider.notifier).createBlockedTime(
+    await ref.read(profileProvider.notifier).createBlockedTime(
           currentUser,
           widget.eventsData.sdate,
           widget.eventsData.edate,
@@ -365,7 +365,7 @@ class _EventInfoState extends ConsumerState<EventInfo> {
     var newEventData = await ref.read(eventsProvider.notifier).updateEventData(eventsData.eventId);
 
     setState(() {
-      if (newEventData != null) eventsData = newEventData;
+      eventsData = newEventData!;
     });
 
     if (!Navigator.of(context).canPop()) {

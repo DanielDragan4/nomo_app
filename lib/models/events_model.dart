@@ -20,7 +20,10 @@ class Event {
     required this.isHost,
     required this.friends,
     required this.numOfComments,
-    required this.isVirtual
+    required this.isVirtual,
+    this.otherHost,
+    this.otherAttend,
+    this.otherBookmark,
   });
 
   final eventId;
@@ -43,4 +46,7 @@ class Event {
   final friends;
   final int numOfComments;
   final bool isVirtual;
+  var otherHost;
+  var otherAttend;
+  var otherBookmark;
 }

@@ -629,6 +629,7 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
                                   return EventTab(
                                     eventData: event,
                                     preloadedImage: NetworkImage(event.imageUrl),
+                                    bookmarkSet: true,
                                   );
                                 },
                                 childCount: bookmarkedEvents.length,

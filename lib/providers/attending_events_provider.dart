@@ -117,16 +117,19 @@ class AttendEventProvider extends StateNotifier<List<Event>> {
 
     List<Event> deCodedList = [];
     final supabaseClient = (await supabase).client;
+    final currentUser = supabaseClient.auth.currentUser!.id;
 
     for (var eventData in codedList) {
       String profileUrl = supabaseClient.storage.from('Images').getPublicUrl(eventData['profile_path']);
       String eventUrl = supabaseClient.storage.from('Images').getPublicUrl(eventData['event_path']);
 
       bool bookmarked = false;
+      bool otherBookmark = false;
       for (var bookmark in eventData['Bookmarked']) {
         if (bookmark == userId) {
           bookmarked = true;
-          break;
+        } if (bookmark == currentUser) {
+          otherBookmark = true;
         }
       }
 
@@ -150,20 +153,29 @@ class AttendEventProvider extends StateNotifier<List<Event>> {
           isHost: false,
           friends: eventData['friends_attending'],
           numOfComments: eventData['comments_num'].length,
-          isVirtual: eventData['is_virtual']);
+          isVirtual: eventData['is_virtual'],
+          otherBookmark: otherBookmark,
+          otherAttend: false,
+          otherHost: false
+          );
 
       bool attending = false;
       for (var i = 0; i < deCodedEvent.attendees.length; i++) {
         if (deCodedEvent.attendees[i] == userId) {
           attending = true;
           deCodedEvent.attending = true;
-          break;
+        }
+        if (deCodedEvent.attendees[i] == currentUser) {
+          deCodedEvent.otherAttend = true;
         }
       }
       if ((attending) || (deCodedEvent.host == userId || (bookmarked))) {
         if (deCodedEvent.host == userId) {
           deCodedEvent.isHost = true;
         }
+      }
+      if(deCodedEvent.host == currentUser) {
+        deCodedEvent.otherHost = true;
       }
       deCodedList.add(deCodedEvent);
     }

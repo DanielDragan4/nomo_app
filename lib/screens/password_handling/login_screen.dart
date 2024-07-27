@@ -213,17 +213,21 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                                 }
                                 ref.read(savedSessionProvider.notifier).changeSessionDataList();
                               },
-                              child: Container(
-                                width: MediaQuery.of(context).size.width * .38,
-                                child: Row(
-                                  children: [
-                                    Image.asset(
-                                      'assets/images/google_PNG19635.png',
-                                      fit: BoxFit.cover,
-                                      scale: MediaQuery.of(context).size.aspectRatio * 100,
-                                    ),
-                                    Text('Sign in with Google')
-                                  ],
+                              child: Padding(
+                                padding: EdgeInsets.symmetric(horizontal: MediaQuery.of(context).size.width * 0.1),
+                                child: Container(
+                                  //width: MediaQuery.of(context).size.width * .40,
+                                  child: Row(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      Image.asset(
+                                        'assets/images/google_PNG19635.png',
+                                        fit: BoxFit.cover,
+                                        scale: MediaQuery.of(context).size.aspectRatio * 100,
+                                      ),
+                                      Text('Sign in with Google')
+                                    ],
+                                  ),
                                 ),
                               ))
                         ],

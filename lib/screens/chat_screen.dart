@@ -142,32 +142,45 @@ class _ChatScreenState extends ConsumerState<ChatScreen> with RouteAware {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Theme.of(context).colorScheme.surface,
-      appBar: (widget.groupInfo != null) ? AppBar(
-        backgroundColor: Theme.of(context).colorScheme.surface,
-        title: Text((widget.groupInfo == null) ? widget.chatterUser!.friendProfileName : widget.groupInfo!['title']),
-      ) : 
-      AppBar(
-      elevation: 0,
-      backgroundColor: Theme.of(context).colorScheme.surface,
-      title: Row(
-        children: [
-          CircleAvatar(
-            backgroundImage: NetworkImage(widget.chatterUser?.avatar ?? ''),
-            radius: 20,
-          ),
-          SizedBox(width: 12),
-          Text(
-            (widget.groupInfo == null) 
-                ? widget.chatterUser!.friendProfileName 
-                : widget.groupInfo!['title'],
-            style: TextStyle(
-              fontWeight: FontWeight.bold,
-              fontSize: 18,
+      appBar: (widget.groupInfo != null)
+          ? AppBar(
+              backgroundColor: Theme.of(context).colorScheme.surface,
+              title:
+                  Text((widget.groupInfo == null) ? widget.chatterUser!.friendProfileName : widget.groupInfo!['title']),
+            )
+          : AppBar(
+              elevation: 0,
+              backgroundColor: Theme.of(context).colorScheme.surface,
+              title: Row(
+                children: [
+                  CircleAvatar(
+                    backgroundImage: NetworkImage(widget.chatterUser?.avatar ?? ''),
+                    radius: 20,
+                  ),
+                  SizedBox(width: 12),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        (widget.groupInfo == null) ? widget.chatterUser!.friendProfileName : widget.groupInfo!['title'],
+                        style: const TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 18,
+                        ),
+                      ),
+                      if (widget.groupInfo == null)
+                        Text(
+                          "@${widget.chatterUser!.friendUsername}",
+                          style: const TextStyle(
+                            fontWeight: FontWeight.normal,
+                            fontSize: 12,
+                          ),
+                        ),
+                    ],
+                  ),
+                ],
+              ),
             ),
-          ),
-        ],
-      ),
-      ),
       body: Column(
         children: [
           Expanded(
@@ -212,7 +225,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> with RouteAware {
             padding: const EdgeInsets.all(8.0),
             child: Row(
               children: [
-                  Expanded(
+                Expanded(
                   child: TextField(
                     onSubmitted: (value) => submitMessage(),
                     controller: _controller,
@@ -242,8 +255,8 @@ class _ChatScreenState extends ConsumerState<ChatScreen> with RouteAware {
                     FocusManager.instance.primaryFocus?.unfocus();
                   },
                 ),
-        ],
-      ),
+              ],
+            ),
           )
         ],
       ),

@@ -30,13 +30,13 @@ class RecommendedScreen extends ConsumerWidget {
           floatHeaderSlivers: true,
           headerSliverBuilder: (context, innerBoxIsScrolled) => [
             SliverAppBar(
+              toolbarHeight: kToolbarHeight + 10,
               backgroundColor: Theme.of(context).colorScheme.surface,
               floating: true,
               snap: true,
-              expandedHeight: 10,
               flexibleSpace: FlexibleSpaceBar(
                 background: Padding(
-                  padding: EdgeInsets.only(top: MediaQuery.of(context).padding.top), // Add padding above the title
+                  padding: EdgeInsets.only(top: MediaQuery.of(context).padding.top + 20), // Add padding above the title
                   child: Center(
                     child: Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 25.0),

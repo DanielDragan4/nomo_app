@@ -275,13 +275,18 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
               top: 20,
               bottom: 5,
             ),
-            alignment: Alignment.bottomCenter,
-            child: Text('Availability',
+            alignment: Alignment.bottomLeft,
+            child: Padding(
+              padding: const EdgeInsets.only(left: 15, bottom: 8),
+              child: Text(
+                "${_getMonthName(calendarState.monthDisplayed)} ${calendarState.yearDisplayed}",
                 style: TextStyle(
-                  color: Theme.of(context).primaryColor,
-                  fontWeight: FontWeight.w800,
-                  fontSize: 30,
-                )),
+                  fontSize: 24,
+                  fontWeight: FontWeight.bold,
+                  color: Theme.of(context).primaryColorLight,
+                ),
+              ),
+            ),
           ),
         ),
         bottom: PreferredSize(
@@ -294,17 +299,10 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
       ),
       body: Column(
         children: [
-          SizedBox(
-            height: MediaQuery.of(context).size.height * 0.02,
-          ),
-          Text(
-            "${_getMonthName(calendarState.monthDisplayed)} ${calendarState.yearDisplayed}",
-            style: TextStyle(
-              fontSize: 24,
-              fontWeight: FontWeight.bold,
-              color: Theme.of(context).primaryColorLight,
-            ),
-          ),
+          // SizedBox(
+          //   height: MediaQuery.of(context).size.height * 0.02,
+          // ),
+
           Divider(),
           Padding(
             padding: EdgeInsets.symmetric(horizontal: MediaQuery.of(context).size.width * 0.03),

@@ -37,6 +37,14 @@ class _EventTabState extends ConsumerState<EventTab> {
 
     final bool isHostOrAttending = widget.eventData.isHost || widget.eventData.attending;
 
+    @override
+    void didUpdateWidget(EventTab oldWidget) {
+      super.didUpdateWidget(oldWidget);
+      if (widget.eventData != oldWidget.eventData) {
+        setState(() {});
+      }
+    }
+
     return Card(
       elevation: 4,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),

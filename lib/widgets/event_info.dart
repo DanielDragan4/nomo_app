@@ -43,9 +43,18 @@ class _EventInfoState extends ConsumerState<EventInfo> {
   }
 
   @override
-  Widget build(BuildContext context) {
-    //Event eventsData = widget.eventsData;
+  void didUpdateWidget(EventInfo oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.eventsData != oldWidget.eventsData) {
+      setState(() {
+        eventsData = widget.eventsData;
+        bookmarkBool = widget.eventsData.bookmarked;
+      });
+    }
+  }
 
+  @override
+  Widget build(BuildContext context) {
     return LayoutBuilder(
       builder: (context, constraints) {
         final isSmallScreen = constraints.maxWidth < 600;

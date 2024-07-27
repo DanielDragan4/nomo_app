@@ -27,7 +27,7 @@ class ProfileScreen extends ConsumerStatefulWidget {
   }
 }
 
-class ProfileScreenState extends ConsumerState<ProfileScreen> { 
+class ProfileScreenState extends ConsumerState<ProfileScreen> {
   Future<Profile>? profileInfo;
   UniqueKey _futureBuilderKey = UniqueKey();
   final TextEditingController searchController = TextEditingController();
@@ -73,7 +73,7 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
     setState(() {
       _isLoading = true;
     });
-    if(!widget.isUser){
+    if (!widget.isUser) {
       await _fetchProfileInfo();
     }
     await _fetchEvents();
@@ -157,20 +157,18 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
   @override
   Widget build(BuildContext context) {
     //Calculation to prevent appbar overflow on all devices
-    double appBarHeight = MediaQuery.of(context).padding.top + MediaQuery.of(context).size.width * 0.24 + 245;
+    double appBarHeight = MediaQuery.of(context).padding.top + MediaQuery.of(context).size.width * 0.24 + 260;
 
     if (widget.isUser) {
       appBarHeight += 10;
     }
 
-
     if (widget.isUser) {
       print(1);
-      
+
       ref.read(profileProvider.notifier).decodeData();
       profile = ref.watch(profileProvider.notifier).state;
       ref.read(attendEventsProvider.notifier).deCodeData();
-
     } else {
       profile = profileInfo;
     }
@@ -190,404 +188,473 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
           ? const Center(
               child: CircularProgressIndicator(),
             )
-          : CustomScrollView(
-              slivers: [
-                SliverAppBar(
-                  backgroundColor: Theme.of(context).colorScheme.surface,
-                  expandedHeight: appBarHeight,
-                  floating: true,
-                  pinned: false,
-                  snap: false,
-                  flexibleSpace: FlexibleSpaceBar(
-                    background: Container(
-                      padding: EdgeInsets.only(top: MediaQuery.of(context).padding.top + 10),
-                      decoration: BoxDecoration(
-                        gradient: LinearGradient(
-                          begin: Alignment.topCenter,
-                          end: Alignment.bottomCenter,
-                          colors: [
-                            Theme.of(context).primaryColor,
-                            Theme.of(context).colorScheme.surface,
+          : MediaQuery.removePadding(
+              context: context,
+              removeTop: true,
+              child: CustomScrollView(
+                slivers: [
+                  SliverAppBar(
+                    backgroundColor: Theme.of(context).colorScheme.surface,
+                    expandedHeight: appBarHeight,
+                    floating: true,
+                    pinned: false,
+                    snap: false,
+                    flexibleSpace: FlexibleSpaceBar(
+                      background: Container(
+                        padding: EdgeInsets.only(top: MediaQuery.of(context).padding.top + 10),
+                        decoration: BoxDecoration(
+                          gradient: LinearGradient(
+                            begin: Alignment.topCenter,
+                            end: Alignment.bottomCenter,
+                            colors: [
+                              Theme.of(context).primaryColor,
+                              Theme.of(context).colorScheme.surface,
+                            ],
+                          ),
+                        ),
+                        child: Column(
+                          children: [
+                            GestureDetector(
+                              onTap: () {
+                                if (profile != null && widget.isUser && widget.userId == null) {
+                                  Navigator.of(context)
+                                      .push(
+                                        MaterialPageRoute(
+                                          builder: (contex) => CreateAccountScreen(
+                                            isNew: false,
+                                            avatar: profile.avatar,
+                                            profilename: profile.profile_name,
+                                            username: profile.username,
+                                            onUpdateProfile: updateProfileInfo,
+                                          ),
+                                        ),
+                                      )
+                                      .then((_) => updateProfileInfo());
+                                }
+                              },
+                              child: widget.isUser
+                                  ? Column(
+                                      mainAxisAlignment: MainAxisAlignment.center,
+                                      children: [
+                                        const SizedBox(height: 10),
+                                        CircleAvatar(
+                                          radius: MediaQuery.of(context).size.width * 0.12,
+                                          backgroundImage:
+                                              profile?.avatar != null ? NetworkImage(profile!.avatar!) : null,
+                                          child: profile?.avatar == null
+                                              ? Icon(Icons.person, size: MediaQuery.of(context).size.width * 0.12)
+                                              : null,
+                                        ),
+                                        const SizedBox(height: 10),
+                                        Text(
+                                          profile?.profile_name ?? 'Loading...',
+                                          style: TextStyle(
+                                            fontSize: 24,
+                                            fontWeight: FontWeight.bold,
+                                            color: Theme.of(context).colorScheme.onSecondary,
+                                          ),
+                                        ),
+                                        const SizedBox(height: 5),
+                                        Text(
+                                          '@${profile?.username ?? 'username'}',
+                                          style: TextStyle(
+                                            fontSize: 16,
+                                            color: Theme.of(context).colorScheme.onSecondary,
+                                          ),
+                                        ),
+                                      ],
+                                    )
+                                  : FutureBuilder(
+                                      key: _futureBuilderKey,
+                                      future: profileInfo,
+                                      builder: (context, snapshot) {
+                                        if (snapshot.hasError) {
+                                          return Column(
+                                            children: [
+                                              const SizedBox(height: 10),
+                                              CircleAvatar(
+                                                radius: MediaQuery.of(context).size.width * 0.12,
+                                                child: const Text("No Image"),
+                                              ),
+                                              const SizedBox(height: 10),
+                                              Text(
+                                                'Loading...',
+                                                style: TextStyle(
+                                                  fontSize: 24,
+                                                  fontWeight: FontWeight.bold,
+                                                  color: Theme.of(context).colorScheme.onSecondary,
+                                                ),
+                                              ),
+                                              const SizedBox(height: 5),
+                                              Text(
+                                                '@username',
+                                                style: TextStyle(
+                                                  fontSize: 16,
+                                                  color: Theme.of(context).colorScheme.onSecondary,
+                                                ),
+                                              ),
+                                            ],
+                                          );
+                                        } else if (snapshot.connectionState != ConnectionState.done) {
+                                          return const CircularProgressIndicator();
+                                        } else if (!snapshot.hasData || snapshot.data!.avatar == null) {
+                                          return Column(
+                                            children: [
+                                              const SizedBox(height: 10),
+                                              CircleAvatar(
+                                                radius: MediaQuery.of(context).size.width * 0.12,
+                                                child: const Text("No Image"),
+                                              ),
+                                              const SizedBox(height: 10),
+                                              Text(
+                                                'Loading...',
+                                                style: TextStyle(
+                                                  fontSize: 24,
+                                                  fontWeight: FontWeight.bold,
+                                                  color: Theme.of(context).colorScheme.onSecondary,
+                                                ),
+                                              ),
+                                              const SizedBox(height: 5),
+                                              Text(
+                                                '@username',
+                                                style: TextStyle(
+                                                  fontSize: 16,
+                                                  color: Theme.of(context).colorScheme.onSecondary,
+                                                ),
+                                              ),
+                                            ],
+                                          );
+                                        } else {
+                                          var profile = snapshot.data!;
+                                          return Column(
+                                            mainAxisAlignment: MainAxisAlignment.center,
+                                            children: [
+                                              const SizedBox(height: 10),
+                                              CircleAvatar(
+                                                radius: MediaQuery.of(context).size.width * 0.12,
+                                                backgroundImage:
+                                                    profile?.avatar != null ? NetworkImage(profile.avatar!) : null,
+                                                child: profile?.avatar == null
+                                                    ? Icon(Icons.person, size: MediaQuery.of(context).size.width * 0.12)
+                                                    : null,
+                                              ),
+                                              const SizedBox(height: 10),
+                                              Text(
+                                                profile.profile_name ?? 'Loading...',
+                                                style: TextStyle(
+                                                  fontSize: 24,
+                                                  fontWeight: FontWeight.bold,
+                                                  color: Theme.of(context).colorScheme.onSecondary,
+                                                ),
+                                              ),
+                                              const SizedBox(height: 5),
+                                              Text(
+                                                '@${profile.username}',
+                                                style: TextStyle(
+                                                  fontSize: 16,
+                                                  color: Theme.of(context).colorScheme.onSecondary,
+                                                ),
+                                              ),
+                                            ],
+                                          );
+                                        }
+                                      },
+                                    ),
+                            ),
+                            const SizedBox(height: 10),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceAround,
+                              children: [
+                                Column(
+                                  children: [
+                                    Row(
+                                      children: [
+                                        Column(
+                                          children: [
+                                            Text(
+                                              "Upcoming Events",
+                                              style: TextStyle(
+                                                  fontSize: 18,
+                                                  fontWeight: FontWeight.bold,
+                                                  color: Theme.of(context).colorScheme.onSecondary),
+                                            ),
+                                            StreamBuilder(
+                                              stream: ref.read(attendEventsProvider.notifier).stream,
+                                              builder: (context, snapshot) {
+                                                if (snapshot.data != null) {
+                                                  final attendingEvents = snapshot.data!
+                                                      .where((event) => event.attending || event.isHost)
+                                                      .toList();
+                                                  var attendingEventCount = attendingEvents.length;
+                                                  for (Event event in attendingEvents) {
+                                                    if (event.sdate.compareTo(DateTime.now().toString()) < 0) {
+                                                      attendingEventCount--;
+                                                    }
+                                                  }
+                                                  return Text(
+                                                    attendingEventCount.toString(),
+                                                    style: TextStyle(
+                                                        fontSize: 18, color: Theme.of(context).colorScheme.onSecondary),
+                                                  );
+                                                } else {
+                                                  return Text(
+                                                    "0",
+                                                    style: TextStyle(
+                                                        fontSize: 18, color: Theme.of(context).colorScheme.onSecondary),
+                                                  );
+                                                }
+                                              },
+                                            ),
+                                          ],
+                                        ),
+                                      ],
+                                    ),
+                                  ],
+                                ),
+                                if (!widget.isUser)
+                                  Padding(
+                                    padding: const EdgeInsets.only(top: 8.0),
+                                    child: Row(
+                                      children: [
+                                        isFriend
+                                            //If profile is private, make this a request instead of instant
+                                            ? ElevatedButton(
+                                                onPressed: () {
+                                                  setState(() {
+                                                    removeFriend();
+                                                    isFriend = !isFriend;
+                                                  });
+                                                },
+                                                child: const Text("Remove"),
+                                              )
+                                            : ElevatedButton(
+                                                onPressed: friendPending
+                                                    ? null
+                                                    : () {
+                                                        setState(() {
+                                                          addFriend();
+                                                        });
+                                                      },
+                                                child: friendPending
+                                                    ? const Text("Pending")
+                                                    : (private == false
+                                                        ? const Text("Friend")
+                                                        : const Text("Request Friend")),
+                                              ),
+                                        SizedBox(width: MediaQuery.of(context).size.width / 20),
+                                        Container(
+                                          decoration: BoxDecoration(
+                                              borderRadius: BorderRadius.circular(100),
+                                              color: Theme.of(context).primaryColor),
+                                          child: IconButton(
+                                            onPressed: () async {
+                                              Friend friend = Friend(
+                                                  avatar: (await profileInfo)?.avatar,
+                                                  friendProfileId: widget.userId!,
+                                                  friendProfileName: (await profileInfo)!.profile_name,
+                                                  friendUsername: (await profileInfo)!.username);
+                                              Navigator.push(
+                                                  context,
+                                                  MaterialPageRoute(
+                                                      builder: (context) => ChatScreen(
+                                                            chatterUser: friend,
+                                                            currentUser:
+                                                                ref.read(profileProvider.notifier).state!.profile_id,
+                                                          )));
+                                            },
+                                            icon: const Icon(Icons.message),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                if (widget.isUser)
+                                  Row(children: [
+                                    IconButton(
+                                      onPressed: () {
+                                        Navigator.of(context).push(
+                                            MaterialPageRoute(builder: (context) => const NewEventScreen(event: null)));
+                                      },
+                                      icon: const Icon(Icons.add),
+                                      color: Theme.of(context).colorScheme.onSecondary,
+                                    ),
+                                    ProfileDropdown(
+                                      updateProfileInfo: updateProfileInfo,
+                                      profileInfo: profileInfo,
+                                    ),
+                                  ]),
+                              ],
+                            ),
+                            const SizedBox(height: 20),
+                            Center(
+                              child: ToggleButtons(
+                                constraints: BoxConstraints(
+                                  minHeight: 40,
+                                  minWidth: MediaQuery.of(context).size.width * 0.44,
+                                ),
+                                borderRadius: BorderRadius.circular(8),
+                                selectedBorderColor: Theme.of(context).primaryColor,
+                                selectedColor: Theme.of(context).primaryColor,
+                                fillColor: Theme.of(context).primaryColor.withOpacity(0.1),
+                                color: Colors.grey,
+                                onPressed: (int index) {
+                                  setState(() {
+                                    for (int i = 0; i < isSelected.length; i++) {
+                                      isSelected[i] = i == index;
+                                    }
+                                  });
+                                },
+                                isSelected: isSelected,
+                                children: [
+                                  Padding(
+                                      padding: const EdgeInsets.symmetric(vertical: 3),
+                                      child: widget.isUser
+                                          ? const Text(
+                                              'Your Events',
+                                              style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700),
+                                            )
+                                          : const Text(
+                                              "Attending Events",
+                                              style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700),
+                                            )),
+                                  Padding(
+                                      padding: const EdgeInsets.symmetric(vertical: 3),
+                                      child: widget.isUser
+                                          ? const Text(
+                                              'Bookmarked',
+                                              style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700),
+                                            )
+                                          : const Text(
+                                              "Hosting Events",
+                                              style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700),
+                                            )),
+                                ],
+                              ),
+                            ),
+                            if (widget.isUser && isSelected[0])
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.end,
+                                children: [
+                                  ElevatedButton(
+                                    onPressed: () {
+                                      _showFilterDialog();
+                                    },
+                                    child: Text("Filters"),
+                                  ),
+                                  SizedBox(width: 16), // Add some padding
+                                ],
+                              ),
                           ],
                         ),
                       ),
-                      child: Column(
-                        children: [
-                          GestureDetector(
-                            onTap: () {
-                              if (profile != null && widget.isUser && widget.userId == null) {
-                                Navigator.of(context)
-                                    .push(
-                                      MaterialPageRoute(
-                                        builder: (contex) => CreateAccountScreen(
-                                          isNew: false,
-                                          avatar: profile.avatar,
-                                          profilename: profile.profile_name,
-                                          username: profile.username,
-                                          onUpdateProfile: updateProfileInfo,
-                                        ),
-                                      ),
-                                    )
-                                    .then((_) => updateProfileInfo());
-                              }
-                            },
-                            child: widget.isUser
-                                ? Column(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    children: [
-                                      const SizedBox(height: 10),
-                                      CircleAvatar(
-                                        radius: MediaQuery.of(context).size.width * 0.12,
-                                        backgroundImage:
-                                            profile?.avatar != null ? NetworkImage(profile!.avatar!) : null,
-                                        child: profile?.avatar == null
-                                            ? Icon(Icons.person, size: MediaQuery.of(context).size.width * 0.12)
-                                            : null,
-                                      ),
-                                      const SizedBox(height: 10),
-                                      Text(
-                                        profile?.profile_name ?? 'Loading...',
-                                        style: TextStyle(
-                                          fontSize: 24,
-                                          fontWeight: FontWeight.bold,
-                                          color: Theme.of(context).colorScheme.onSecondary,
-                                        ),
-                                      ),
-                                      const SizedBox(height: 5),
-                                      Text(
-                                        '@${profile?.username ?? 'username'}',
-                                        style: TextStyle(
-                                          fontSize: 16,
-                                          color: Theme.of(context).colorScheme.onSecondary,
-                                        ),
-                                      ),
-                                    ],
-                                  )
-                                : FutureBuilder(
-                                    key: _futureBuilderKey,
-                                    future: profileInfo,
-                                    builder: (context, snapshot) {
-                                      if (snapshot.hasError) {
-                                        return Column(
-                                          children: [
-                                            const SizedBox(height: 10),
-                                            CircleAvatar(
-                                              radius: MediaQuery.of(context).size.width * 0.12,
-                                              child: const Text("No Image"),
-                                            ),
-                                            const SizedBox(height: 10),
-                                            Text(
-                                              'Loading...',
-                                              style: TextStyle(
-                                                fontSize: 24,
-                                                fontWeight: FontWeight.bold,
-                                                color: Theme.of(context).colorScheme.onSecondary,
-                                              ),
-                                            ),
-                                            const SizedBox(height: 5),
-                                            Text(
-                                              '@username',
-                                              style: TextStyle(
-                                                fontSize: 16,
-                                                color: Theme.of(context).colorScheme.onSecondary,
-                                              ),
-                                            ),
-                                          ],
-                                        );
-                                      } else if (snapshot.connectionState != ConnectionState.done) {
-                                        return const CircularProgressIndicator();
-                                      } else if (!snapshot.hasData || snapshot.data!.avatar == null) {
-                                        return Column(
-                                          children: [
-                                            const SizedBox(height: 10),
-                                            CircleAvatar(
-                                              radius: MediaQuery.of(context).size.width * 0.12,
-                                              child: const Text("No Image"),
-                                            ),
-                                            const SizedBox(height: 10),
-                                            Text(
-                                              'Loading...',
-                                              style: TextStyle(
-                                                fontSize: 24,
-                                                fontWeight: FontWeight.bold,
-                                                color: Theme.of(context).colorScheme.onSecondary,
-                                              ),
-                                            ),
-                                            const SizedBox(height: 5),
-                                            Text(
-                                              '@username',
-                                              style: TextStyle(
-                                                fontSize: 16,
-                                                color: Theme.of(context).colorScheme.onSecondary,
-                                              ),
-                                            ),
-                                          ],
-                                        );
-                                      } else {
-                                        var profile = snapshot.data!;
-                                        return Column(
-                                          mainAxisAlignment: MainAxisAlignment.center,
-                                          children: [
-                                            const SizedBox(height: 10),
-                                            CircleAvatar(
-                                              radius: MediaQuery.of(context).size.width * 0.12,
-                                              backgroundImage:
-                                                  profile?.avatar != null ? NetworkImage(profile.avatar!) : null,
-                                              child: profile?.avatar == null
-                                                  ? Icon(Icons.person, size: MediaQuery.of(context).size.width * 0.12)
-                                                  : null,
-                                            ),
-                                            const SizedBox(height: 10),
-                                            Text(
-                                              profile.profile_name ?? 'Loading...',
-                                              style: TextStyle(
-                                                fontSize: 24,
-                                                fontWeight: FontWeight.bold,
-                                                color: Theme.of(context).colorScheme.onSecondary,
-                                              ),
-                                            ),
-                                            const SizedBox(height: 5),
-                                            Text(
-                                              '@${profile.username}',
-                                              style: TextStyle(
-                                                fontSize: 16,
-                                                color: Theme.of(context).colorScheme.onSecondary,
-                                              ),
-                                            ),
-                                          ],
-                                        );
-                                      }
-                                    },
-                                  ),
-                          ),
-                          const SizedBox(height: 10),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceAround,
-                            children: [
-                              Column(
-                                children: [
-                                  Row(
-                                    children: [
-                                      Column(
-                                        children: [
-                                          Text(
-                                            "Upcoming Events",
-                                            style: TextStyle(
-                                                fontSize: 18,
-                                                fontWeight: FontWeight.bold,
-                                                color: Theme.of(context).colorScheme.onSecondary),
-                                          ),
-                                          StreamBuilder(
-                                            stream: ref.read(attendEventsProvider.notifier).stream,
-                                            builder: (context, snapshot) {
-                                              if (snapshot.data != null) {
-                                                final attendingEvents = snapshot.data!
-                                                    .where((event) => event.attending || event.isHost)
-                                                    .toList();
-                                                var attendingEventCount = attendingEvents.length;
-                                                for (Event event in attendingEvents) {
-                                                  if (event.sdate.compareTo(DateTime.now().toString()) < 0) {
-                                                    attendingEventCount--;
-                                                  }
-                                                }
-                                                return Text(
-                                                  attendingEventCount.toString(),
-                                                  style: TextStyle(
-                                                      fontSize: 18, color: Theme.of(context).colorScheme.onSecondary),
-                                                );
-                                              } else {
-                                                return Text(
-                                                  "0",
-                                                  style: TextStyle(
-                                                      fontSize: 18, color: Theme.of(context).colorScheme.onSecondary),
-                                                );
-                                              }
-                                            },
-                                          ),
-                                        ],
-                                      ),
-                                    ],
-                                  ),
-                                ],
-                              ),
-                              if (!widget.isUser)
-                                Padding(
-                                  padding: const EdgeInsets.only(top: 8.0),
-                                  child: Row(
-                                    children: [
-                                      isFriend
-                                          //If profile is private, make this a request instead of instant
-                                          ? ElevatedButton(
-                                              onPressed: () {
-                                                setState(() {
-                                                  removeFriend();
-                                                  isFriend = !isFriend;
-                                                });
-                                              },
-                                              child: const Text("Remove"),
-                                            )
-                                          : ElevatedButton(
-                                              onPressed: friendPending
-                                                  ? null
-                                                  : () {
-                                                      setState(() {
-                                                        addFriend();
-                                                      });
-                                                    },
-                                              child: friendPending
-                                                  ? const Text("Pending")
-                                                  : (private == false
-                                                      ? const Text("Friend")
-                                                      : const Text("Request Friend")),
-                                            ),
-                                      SizedBox(width: MediaQuery.of(context).size.width / 20),
-                                      Container(
-                                        decoration: BoxDecoration(
-                                            borderRadius: BorderRadius.circular(100),
-                                            color: Theme.of(context).primaryColor),
-                                        child: IconButton(
-                                          onPressed: () async {
-                                            Friend friend = Friend(
-                                                avatar: (await profileInfo)?.avatar,
-                                                friendProfileId: widget.userId!,
-                                                friendProfileName: (await profileInfo)!.profile_name,
-                                                friendUsername: (await profileInfo)!.username);
-                                            Navigator.push(
-                                                context,
-                                                MaterialPageRoute(
-                                                    builder: (context) => ChatScreen(
-                                                          chatterUser: friend,
-                                                          currentUser:
-                                                              ref.read(profileProvider.notifier).state!.profile_id,
-                                                        )));
-                                          },
-                                          icon: const Icon(Icons.message),
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              if (widget.isUser)
-                                Row(children: [
-                                  IconButton(
-                                    onPressed: () {
-                                      Navigator.of(context).push(
-                                          MaterialPageRoute(builder: (context) => const NewEventScreen(event: null)));
-                                    },
-                                    icon: const Icon(Icons.add),
-                                    color: Theme.of(context).colorScheme.onSecondary,
-                                  ),
-                                  ProfileDropdown(
-                                    updateProfileInfo: updateProfileInfo,
-                                    profileInfo: profileInfo,
-                                  ),
-                                ]),
-                            ],
-                          ),
-                          const SizedBox(height: 20),
-                          Center(
-                            child: ToggleButtons(
-                              constraints: BoxConstraints(
-                                minHeight: 40,
-                                minWidth: MediaQuery.of(context).size.width * 0.44,
-                              ),
-                              borderRadius: BorderRadius.circular(8),
-                              selectedBorderColor: Theme.of(context).primaryColor,
-                              selectedColor: Theme.of(context).primaryColor,
-                              fillColor: Theme.of(context).primaryColor.withOpacity(0.1),
-                              color: Colors.grey,
-                              onPressed: (int index) {
-                                setState(() {
-                                  for (int i = 0; i < isSelected.length; i++) {
-                                    isSelected[i] = i == index;
-                                  }
-                                });
-                              },
-                              isSelected: isSelected,
-                              children: [
-                                Padding(
-                                    padding: const EdgeInsets.symmetric(vertical: 3),
-                                    child: widget.isUser
-                                        ? const Text(
-                                            'Your Events',
-                                            style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700),
-                                          )
-                                        : const Text(
-                                            "Attending Events",
-                                            style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700),
-                                          )),
-                                Padding(
-                                    padding: const EdgeInsets.symmetric(vertical: 3),
-                                    child: widget.isUser
-                                        ? const Text(
-                                            'Bookmarked',
-                                            style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700),
-                                          )
-                                        : const Text(
-                                            "Hosting Events",
-                                            style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700),
-                                          )),
-                              ],
-                            ),
-                          ),
-                          if (widget.isUser && isSelected[0])
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.end,
-                              children: [
-                                ElevatedButton(
-                                  onPressed: () {
-                                    _showFilterDialog();
-                                  },
-                                  child: Text("Filters"),
-                                ),
-                                SizedBox(width: 16), // Add some padding
-                              ],
-                            ),
-                        ],
-                      ),
                     ),
                   ),
-                ),
-                if (isSelected.first)
-                  if (private == false || isFriend || widget.isUser)
+                  if (isSelected.first)
+                    if (private == false || isFriend || widget.isUser)
+                      StreamBuilder(
+                        stream: ref.read(attendEventsProvider.notifier).stream,
+                        builder: (context, snapshot) {
+                          if (snapshot.data != null) {
+                            final relevantEvents = snapshot.data!.where((event) {
+                              final now = DateTime.now();
+                              final startDate = event.sdate;
+                              final endDate = event.edate;
+                              if (showHosting && event.isHost) return true;
+                              if (showUpcoming && event.attending && startDate.compareTo(now.toString()) > 0)
+                                return true;
+                              if (showPassed && event.attending && endDate.compareTo(now.toString()) < 0) return true;
+                              return false;
+                            }).toList();
+                            if (relevantEvents.isEmpty) {
+                              return SliverFillRemaining(
+                                child: Center(
+                                  child: Text(
+                                    "No Events Found",
+                                    style: TextStyle(fontSize: 18, color: Theme.of(context).colorScheme.onSecondary),
+                                  ),
+                                ),
+                              );
+                            } else {
+                              return SliverList(
+                                delegate: SliverChildBuilderDelegate(
+                                  (context, index) {
+                                    final event = relevantEvents[index];
+
+                                    preloadImages(context, relevantEvents, index, 4);
+
+                                    return EventTab(
+                                      eventData: event,
+                                      preloadedImage: NetworkImage(event.imageUrl),
+                                    );
+                                  },
+                                  childCount: relevantEvents.length,
+                                ),
+                              );
+                            }
+                          } else {
+                            return const SliverFillRemaining(
+                              child: Center(
+                                child: Text("No Data Retrieved"),
+                              ),
+                            );
+                          }
+                        },
+                      )
+                    else
+                      SliverFillRemaining(
+                        child: Center(
+                          child: Text(
+                            'This profile is private',
+                            style: TextStyle(color: Theme.of(context).colorScheme.onSecondary),
+                          ),
+                        ),
+                      )
+                  else if (private == false || isFriend || widget.isUser)
                     StreamBuilder(
                       stream: ref.read(attendEventsProvider.notifier).stream,
                       builder: (context, snapshot) {
                         if (snapshot.data != null) {
-                          final relevantEvents = snapshot.data!.where((event) {
-                            final now = DateTime.now();
-                            final startDate = event.sdate;
-                            final endDate = event.edate;
-                            if (showHosting && event.isHost) return true;
-                            if (showUpcoming && event.attending && startDate.compareTo(now.toString()) > 0) return true;
-                            if (showPassed && event.attending && endDate.compareTo(now.toString()) < 0) return true;
-                            return false;
-                          }).toList();
-                          if (relevantEvents.isEmpty) {
-                            return SliverFillRemaining(
-                              child: Center(
-                                child: Text(
-                                  "No Events Found",
-                                  style: TextStyle(fontSize: 18, color: Theme.of(context).colorScheme.onSecondary),
+                          if (widget.isUser) {
+                            final bookmarkedEvents = snapshot.data!.where((event) => event.bookmarked).toList();
+                            if (bookmarkedEvents.isEmpty) {
+                              return const SliverFillRemaining(
+                                child: Center(
+                                  child: Text("No Bookmarked Events"),
                                 ),
-                              ),
-                            );
+                              );
+                            } else {
+                              return SliverList(
+                                delegate: SliverChildBuilderDelegate(
+                                  (context, index) {
+                                    final event = bookmarkedEvents[index];
+                                    preloadImages(context, bookmarkedEvents, index, 4);
+                                    return EventTab(
+                                      eventData: event,
+                                      preloadedImage: NetworkImage(event.imageUrl),
+                                    );
+                                  },
+                                  childCount: bookmarkedEvents.length,
+                                ),
+                              );
+                            }
                           } else {
-                            return SliverList(
-                              delegate: SliverChildBuilderDelegate(
-                                (context, index) {
-                                  final event = relevantEvents[index];
-
-                                  preloadImages(context, relevantEvents, index, 4);
-
-                                  return EventTab(
-                                    eventData: event,
-                                    preloadedImage: NetworkImage(event.imageUrl),
-                                  );
-                                },
-                                childCount: relevantEvents.length,
-                              ),
-                            );
+                            // Only useful when viewing a profile through means other than an event header
+                            final hostingEvents = snapshot.data!.where((event) => event.isHost).toList();
+                            if (hostingEvents.isEmpty) {
+                              return const SliverFillRemaining(
+                                child: Center(
+                                  child: Text("This User Is Not Hosting Any Events at the Moment"),
+                                ),
+                              );
+                            } else {
+                              return SliverList(
+                                delegate: SliverChildListDelegate(
+                                  hostingEvents.map((event) {
+                                    return EventTab(eventData: event, bookmarkSet: true);
+                                  }).toList(),
+                                ),
+                              );
+                            }
                           }
                         } else {
                           return const SliverFillRemaining(
@@ -606,73 +673,9 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
                           style: TextStyle(color: Theme.of(context).colorScheme.onSecondary),
                         ),
                       ),
-                    )
-                else if (private == false || isFriend || widget.isUser)
-                  StreamBuilder(
-                    stream: ref.read(attendEventsProvider.notifier).stream,
-                    builder: (context, snapshot) {
-                      if (snapshot.data != null) {
-                        if (widget.isUser) {
-                          final bookmarkedEvents = snapshot.data!.where((event) => event.bookmarked).toList();
-                          if (bookmarkedEvents.isEmpty) {
-                            return const SliverFillRemaining(
-                              child: Center(
-                                child: Text("No Bookmarked Events"),
-                              ),
-                            );
-                          } else {
-                            return SliverList(
-                              delegate: SliverChildBuilderDelegate(
-                                (context, index) {
-                                  final event = bookmarkedEvents[index];
-                                  preloadImages(context, bookmarkedEvents, index, 4);
-                                  return EventTab(
-                                    eventData: event,
-                                    preloadedImage: NetworkImage(event.imageUrl),
-                                  );
-                                },
-                                childCount: bookmarkedEvents.length,
-                              ),
-                            );
-                          }
-                        } else {
-                          // Only useful when viewing a profile through means other than an event header
-                          final hostingEvents = snapshot.data!.where((event) => event.isHost).toList();
-                          if (hostingEvents.isEmpty) {
-                            return const SliverFillRemaining(
-                              child: Center(
-                                child: Text("This User Is Not Hosting Any Events at the Moment"),
-                              ),
-                            );
-                          } else {
-                            return SliverList(
-                              delegate: SliverChildListDelegate(
-                                hostingEvents.map((event) {
-                                  return EventTab(eventData: event, bookmarkSet: true);
-                                }).toList(),
-                              ),
-                            );
-                          }
-                        }
-                      } else {
-                        return const SliverFillRemaining(
-                          child: Center(
-                            child: Text("No Data Retrieved"),
-                          ),
-                        );
-                      }
-                    },
-                  )
-                else
-                  SliverFillRemaining(
-                    child: Center(
-                      child: Text(
-                        'This profile is private',
-                        style: TextStyle(color: Theme.of(context).colorScheme.onSecondary),
-                      ),
                     ),
-                  ),
-              ],
+                ],
+              ),
             ),
     );
   }

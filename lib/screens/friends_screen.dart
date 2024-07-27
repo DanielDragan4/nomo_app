@@ -31,9 +31,6 @@ class _FriendsScreenState extends ConsumerState<FriendsScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final hasUnreadNotifications = ref.watch(notificationBellProvider);
-    //Start on friends list. If false, show requests list
-
     return Scaffold(
       backgroundColor: Theme.of(context).colorScheme.surface,
       appBar: AppBar(
@@ -55,28 +52,6 @@ class _FriendsScreenState extends ConsumerState<FriendsScreen> {
                       fontWeight: FontWeight.w800,
                       fontSize: 30,
                     )),
-                IconButton(
-                  onPressed: () {
-                    Navigator.of(context).push(MaterialPageRoute(
-                      builder: (context) => const NotificationsScreen(),
-                    ));
-
-                    // Mark notifications as read when notifications icon is tapped
-                    ref.read(notificationBellProvider.notifier).setBellState(false);
-                    print('Bell state set to false after viewing notifications.');
-                  },
-                  icon: hasUnreadNotifications
-                      ? Icon(
-                          Icons.notifications_active,
-                          color: Theme.of(context).colorScheme.primary,
-                        )
-                      : Icon(
-                          Icons.notifications_none,
-                          color: Theme.of(context).colorScheme.onSecondary,
-                        ),
-                  iconSize: MediaQuery.of(context).devicePixelRatio * 10,
-                  padding: const EdgeInsets.only(top: 10, bottom: 10, left: 15),
-                ),
               ],
             ),
           ),

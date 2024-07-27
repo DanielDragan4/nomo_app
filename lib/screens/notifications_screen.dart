@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:nomo/providers/notification-provider.dart';
+import 'package:nomo/widgets/fade_out_dismissable.dart';
 import 'package:nomo/widgets/notification.dart';
 
 class NotificationsScreen extends ConsumerStatefulWidget {
   const NotificationsScreen({super.key});
 
   @override
-  ConsumerState<NotificationsScreen> createState() =>
-      _NotificationsScreenState();
+  ConsumerState<NotificationsScreen> createState() => _NotificationsScreenState();
 }
 
 class _NotificationsScreenState extends ConsumerState<NotificationsScreen> {
@@ -50,26 +50,24 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen> {
         ),
       ),
       body: ListView.builder(
-          itemCount: notifications.length,
-          itemBuilder: (context, index) {
-            return Dismissible(
-              key: Key(notifications[index].title),
-              onDismissed: (direction) {
-                ref
-                    .read(unreadNotificationsProvider.notifier)
-                    .removeNotification(index);
-                ScaffoldMessenger.of(context).hideCurrentSnackBar();
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Notification dismissed')),
-                );
-              },
-              background: Container(color: Colors.red),
-              child: NotificationItem(
-                title: notifications[index].title,
-                details: notifications[index].description,
-              ),
-            );
-          }),
+        itemCount: notifications.length,
+        itemBuilder: (context, index) {
+          return FadeOutDismissible(
+            key: Key(notifications[index].title),
+            onDismissed: (direction) {
+              ref.read(unreadNotificationsProvider.notifier).removeNotification(index);
+              ScaffoldMessenger.of(context).hideCurrentSnackBar();
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text('Notification dismissed')),
+              );
+            },
+            child: NotificationItem(
+              title: notifications[index].title,
+              details: notifications[index].description,
+            ),
+          );
+        },
+      ),
     );
   }
 }

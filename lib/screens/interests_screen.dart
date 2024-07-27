@@ -27,9 +27,7 @@ class InterestsScreen extends ConsumerStatefulWidget {
 }
 
 class _InterestsScreenState extends ConsumerState<InterestsScreen> {
-  late Map<Interests, bool> _selectedOptions = {
-    for (var option in Interests.values) option: false
-  };
+  late Map<Interests, bool> _selectedOptions = {for (var option in Interests.values) option: false};
   late int _selectedCount;
   bool _isLoading = false;
 
@@ -41,8 +39,7 @@ class _InterestsScreenState extends ConsumerState<InterestsScreen> {
       initializeSelectedOptions().then((_) {
         setState(() => _isLoading = false);
       });
-    } else if (widget.creatingEvent != null &&
-        widget.selectedInterests!.isNotEmpty) {
+    } else if (widget.creatingEvent != null && widget.selectedInterests!.isNotEmpty) {
       _selectedOptions = widget.selectedInterests!;
       _selectedCount = _selectedOptions.values.where((value) => value).length;
     } else {
@@ -51,23 +48,17 @@ class _InterestsScreenState extends ConsumerState<InterestsScreen> {
   }
 
   Future<void> initializeSelectedOptions() async {
-    final existingInterests =
-        await ref.read(profileProvider.notifier).fetchExistingInterests();
+    final existingInterests = await ref.read(profileProvider.notifier).fetchExistingInterests();
 
     _selectedOptions = {
-      for (var option in Interests.values)
-        option: existingInterests.contains(ref
-            .read(profileProvider.notifier)
-            .enumToString(option.toString().split('.')[1])),
+      for (var option in Interests.values) option: existingInterests.contains(option.value),
     };
 
     _selectedCount = _selectedOptions.values.where((value) => value).length;
   }
 
   void _handleInterestSelection(Interests interest) {
-    if (widget.isEditing ||
-        (!widget.isEditing && _selectedCount < 5) ||
-        _selectedOptions[interest] == true) {
+    if (widget.isEditing || (!widget.isEditing && _selectedCount < 5) || _selectedOptions[interest] == true) {
       setState(() {
         _selectedOptions[interest] = !_selectedOptions[interest]!;
         _selectedCount = _selectedOptions.values.where((value) => value).length;
@@ -80,8 +71,7 @@ class _InterestsScreenState extends ConsumerState<InterestsScreen> {
       ScaffoldMessenger.of(context).hideCurrentSnackBar();
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text(
-              "You can only select up to 5 options. You can edit these later."),
+          content: Text("You can only select up to 5 options. You can edit these later."),
         ),
       );
     }
@@ -117,9 +107,7 @@ class _InterestsScreenState extends ConsumerState<InterestsScreen> {
                     padding: const EdgeInsets.only(top: 8.0),
                     child: Text(
                       "Select up to 5 of your interests",
-                      style: TextStyle(
-                          fontSize: 18,
-                          color: colorScheme.onBackground.withOpacity(0.7)),
+                      style: TextStyle(fontSize: 18, color: colorScheme.onBackground.withOpacity(0.7)),
                     ),
                   ),
                 ),
@@ -162,8 +150,7 @@ class _InterestsScreenState extends ConsumerState<InterestsScreen> {
         childAspectRatio: 2.2,
       ),
       itemCount: Interests.values.length,
-      itemBuilder: (context, index) =>
-          _buildInterestItem(Interests.values[index]),
+      itemBuilder: (context, index) => _buildInterestItem(Interests.values[index]),
     );
   }
 
@@ -175,10 +162,8 @@ class _InterestsScreenState extends ConsumerState<InterestsScreen> {
       duration: const Duration(milliseconds: 200),
       child: ElevatedButton(
         style: ElevatedButton.styleFrom(
-          backgroundColor:
-              isSelected ? colorScheme.primary : colorScheme.surface,
-          foregroundColor:
-              isSelected ? colorScheme.onPrimary : colorScheme.onSurface,
+          backgroundColor: isSelected ? colorScheme.primaryContainer : colorScheme.surface,
+          foregroundColor: isSelected ? colorScheme.onPrimary : colorScheme.onSurface,
           elevation: isSelected ? 4 : 1,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(20),
@@ -193,7 +178,7 @@ class _InterestsScreenState extends ConsumerState<InterestsScreen> {
         child: FittedBox(
           fit: BoxFit.scaleDown,
           child: Text(
-            ref.read(profileProvider.notifier).enumToString(option),
+            option.value, // Use the custom string value
             textAlign: TextAlign.center,
             style: TextStyle(
               fontSize: 16,
@@ -212,11 +197,10 @@ class _InterestsScreenState extends ConsumerState<InterestsScreen> {
           padding: const EdgeInsets.symmetric(vertical: 15.0),
           child: ElevatedButton(
             style: ElevatedButton.styleFrom(
-              backgroundColor: colorScheme.primary,
+              backgroundColor: colorScheme.primaryContainer,
               foregroundColor: colorScheme.onPrimary,
               padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 32),
-              shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(30)),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
             ),
             onPressed: _handleContinueButton,
             child: Text(
@@ -253,17 +237,14 @@ class _InterestsScreenState extends ConsumerState<InterestsScreen> {
 
   void _handleContinueButton() async {
     if (widget.creatingEvent == null) {
-      await ref
-          .watch(profileProvider.notifier)
-          .updateInterests(_selectedOptions);
+      await ref.watch(profileProvider.notifier).updateInterests(_selectedOptions);
       if (!widget.isEditing) {
         if (widget.creatingEvent == null) {
           ref.read(onSignUp.notifier).completeProfileCreation();
           ref.read(savedSessionProvider.notifier).changeSessionDataList();
 
-          Navigator.of(context).pushReplacement(MaterialPageRoute(
-              builder: (context) =>
-                  const LocationScreen(isCreation: true)));
+          Navigator.of(context)
+              .pushReplacement(MaterialPageRoute(builder: (context) => const LocationScreen(isCreation: true)));
         }
       } else {
         Navigator.of(context).pop();
@@ -279,8 +260,7 @@ class _InterestsScreenState extends ConsumerState<InterestsScreen> {
       ref.watch(profileProvider.notifier).skipInterests();
       ref.read(onSignUp.notifier).completeProfileCreation();
       ref.read(savedSessionProvider.notifier).changeSessionDataList();
-      Navigator.of(context).pushReplacement(
-          MaterialPageRoute(builder: (context) => const NavBar()));
+      Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (context) => const NavBar()));
     }
   }
 }

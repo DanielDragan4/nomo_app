@@ -5,6 +5,7 @@ import 'package:nomo/providers/attending_events_provider.dart';
 import 'package:nomo/providers/availability_provider.dart';
 import 'package:nomo/providers/calendar_provider.dart';
 import 'package:nomo/providers/profile_provider.dart';
+import 'package:nomo/screens/calendar/event_cal_tab.dart';
 import 'package:nomo/screens/calendar/month_widget.dart';
 import 'package:nomo/screens/new_event_screen.dart';
 import 'package:nomo/widgets/custom_time_picker.dart';
@@ -29,6 +30,14 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
   TimeOfDay? endTime;
   String? blockTitle;
   Map<DateTime, bool> selectedDatesWithTime = {};
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _updateAttendingEvents(yearDisplayed, monthDisplayed);
+    });
+  }
 
   Future<DateTime?> _showDatePickerDialog(BuildContext context) async {
     DateTime? selectedDate;
@@ -223,6 +232,7 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
   void _updateAttendingEvents(int year, int month) {
     final events = ref.read(attendEventsProvider.notifier).eventsAttendingByMonth(year, month);
     ref.read(calendarStateProvider.notifier).updateAttendingEvents(events);
+    setState(() {}); // Trigger a rebuild
   }
 
   String _getMonthName(int month) {
@@ -307,7 +317,8 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
                   .toList(),
             ),
           ),
-          Expanded(
+          SizedBox(
+            height: MediaQuery.of(context).size.height * 0.45,
             child: PageView.builder(
               controller: _pageController,
               onPageChanged: (int index) {
@@ -334,40 +345,69 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
               },
             ),
           ),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.end,
-            children: [
-              IconButton(
-                  onPressed: () {
-                    showDialog(
-                        context: context,
-                        builder: (context) => AlertDialog(
-                              backgroundColor: Theme.of(context).canvasColor,
-                              title: Text(
-                                'What would you like to do?',
-                                style: TextStyle(color: Theme.of(context).primaryColor),
-                              ),
-                              actions: [
-                                TextButton(
-                                    onPressed: () => Navigator.of(context)
-                                        .push(MaterialPageRoute(
-                                            builder: ((context) => const NewEventScreen(event: null))))
-                                        .then((result) => Navigator.pop(context)),
-                                    child: const Text('CREATE EVENT')),
-                                TextButton(
-                                    onPressed: () async {
-                                      selectedDate = await _showDatePickerDialog(context);
-                                      if (selectedDate != null) {
-                                        _showTimeRangePicker(context);
-                                      }
-                                    },
-                                    child: const Text('CREATE BLOCKED TIME')),
-                              ],
-                            ));
-                  },
-                  icon: Icon(Icons.add_box_rounded, size: 45, color: Theme.of(context).colorScheme.onSecondary)),
-            ],
-          )
+          Expanded(
+            child: Column(
+              children: [
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 10),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Container(
+                        alignment: Alignment.topLeft,
+                        child: Text(
+                          "Attending Events",
+                          style: TextStyle(
+                            fontSize: 24,
+                            fontWeight: FontWeight.bold,
+                            color: Theme.of(context).primaryColor,
+                          ),
+                        ),
+                      ),
+                      IconButton(
+                          onPressed: () {
+                            showDialog(
+                                context: context,
+                                builder: (context) => AlertDialog(
+                                      backgroundColor: Theme.of(context).canvasColor,
+                                      title: Text(
+                                        'What would you like to do?',
+                                        style: TextStyle(color: Theme.of(context).primaryColor),
+                                      ),
+                                      actions: [
+                                        TextButton(
+                                            onPressed: () => Navigator.of(context)
+                                                .push(MaterialPageRoute(
+                                                    builder: ((context) => const NewEventScreen(event: null))))
+                                                .then((result) => Navigator.pop(context)),
+                                            child: const Text('CREATE EVENT')),
+                                        TextButton(
+                                            onPressed: () async {
+                                              selectedDate = await _showDatePickerDialog(context);
+                                              if (selectedDate != null) {
+                                                _showTimeRangePicker(context);
+                                              }
+                                            },
+                                            child: const Text('CREATE BLOCKED TIME')),
+                                      ],
+                                    ));
+                          },
+                          icon:
+                              Icon(Icons.add_box_rounded, size: 45, color: Theme.of(context).colorScheme.onSecondary)),
+                    ],
+                  ),
+                ),
+                const Divider(),
+                Expanded(
+                  //height: MediaQuery.of(context).size.height * 0.1,
+                  child: ListView(
+                    key: const PageStorageKey<String>('cal'),
+                    children: [for (Event event in attendingEvents) EventCalTab(eventData: event)],
+                  ),
+                ),
+              ],
+            ),
+          ),
         ],
       ),
     );

@@ -117,7 +117,7 @@ class _EventInfoState extends ConsumerState<EventInfo> {
                     height: MediaQuery.of(context).size.height * .6,
                     padding: const EdgeInsets.all(16),
                     decoration: BoxDecoration(
-                     color: Theme.of(context).cardColor,
+                      color: Theme.of(context).cardColor,
                       borderRadius: BorderRadius.circular(8),
                     ),
                     child: Column(
@@ -208,48 +208,49 @@ class _EventInfoState extends ConsumerState<EventInfo> {
         SizedBox(width: MediaQuery.of(context).size.width * .04),
         GestureDetector(
           onTap: () {
-            if(!Navigator.of(context).canPop()){
+            if (!Navigator.of(context).canPop()) {
               showModalBottomSheet(
-                context: context,
-                isScrollControlled: true,
-                isDismissible: true,
-                builder: (context) {
-                  return Container(
-                    height: MediaQuery.of(context).size.height * .6,
-                    padding: const EdgeInsets.all(16),
-                    decoration: BoxDecoration(
-                      color: Theme.of(context).cardColor,
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Text(
-                              'Comments',
-                              style: TextStyle(
-                                color: Theme.of(context).primaryColor,
-                                fontWeight: FontWeight.bold,
-                                fontSize: 30,
+                  context: context,
+                  isScrollControlled: true,
+                  isDismissible: true,
+                  builder: (context) {
+                    return Container(
+                      height: MediaQuery.of(context).size.height * .6,
+                      padding: const EdgeInsets.all(16),
+                      decoration: BoxDecoration(
+                        color: Theme.of(context).cardColor,
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text(
+                                'Comments',
+                                style: TextStyle(
+                                  color: Theme.of(context).primaryColor,
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 30,
+                                ),
                               ),
-                            ),
-                            IconButton(
-                              icon: const Icon(Icons.close),
-                              onPressed: () => Navigator.of(context).pop(),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 8),
-                        Flexible(
-                          child: CommentsSection(eventId: eventsData.eventId),
-                        ),
-                      ],
-                    ),
-                  );
-                });}
+                              IconButton(
+                                icon: const Icon(Icons.close),
+                                onPressed: () => Navigator.of(context).pop(),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 8),
+                          Flexible(
+                            child: CommentsSection(eventId: eventsData.eventId),
+                          ),
+                        ],
+                      ),
+                    );
+                  });
+            }
           },
           child: _buildInfoItem(context, '${eventsData.numOfComments}', 'Comments', isSmallScreen),
         ),
@@ -364,7 +365,7 @@ class _EventInfoState extends ConsumerState<EventInfo> {
     var newEventData = await ref.read(eventsProvider.notifier).updateEventData(eventsData.eventId);
 
     setState(() {
-      eventsData = newEventData!;
+      if (newEventData != null) eventsData = newEventData;
     });
 
     if (!Navigator.of(context).canPop()) {

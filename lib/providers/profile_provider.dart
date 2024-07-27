@@ -102,15 +102,15 @@ class ProfileProvider extends StateNotifier<Profile?> {
         }
       }
     }
-      profile = Profile(
-        profile_id: userProfile['profile_id'],
-        avatar: profileUrl,
-        username: userProfile['username'],
-        profile_name: userProfile['profile_name'],
-        interests: userProfile['Interests'],
-        availability: availability,
-        private: userProfile['private'],
-      );
+    profile = Profile(
+      profile_id: userProfile['profile_id'],
+      avatar: profileUrl,
+      username: userProfile['username'],
+      profile_name: userProfile['profile_name'],
+      interests: userProfile['Interests'],
+      availability: availability,
+      private: userProfile['private'],
+    );
     state = profile;
   }
 
@@ -197,10 +197,9 @@ class ProfileProvider extends StateNotifier<Profile?> {
 
     // Get selected interests
     final newInterestsRows = selectedInterests.entries.where((entry) => entry.value).map((entry) {
-      final interestString = enumToString(entry.key);
       return {
         'user_id': userId,
-        'interests': interestString,
+        'interests': entry.key.value, // Use the custom string value
       };
     }).toList();
 
@@ -226,9 +225,8 @@ class ProfileProvider extends StateNotifier<Profile?> {
   // Parameters:
   // - 'interest': current interest selection to be formatted
 
-  String enumToString(interest) {
-    final str = interest.toString().split('.').last;
-    return str.replaceAllMapped(RegExp(r"((?<!^)([A-Z][a-z]|(?<=[a-z])[A-Z]))"), (match) => ' ${match.group(1)}');
+  String enumToString(Interests interest) {
+    return interest.value; // Return the custom string value
   }
 
   // Returns list of friends data for current user to be decoded

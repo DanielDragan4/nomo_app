@@ -541,12 +541,14 @@ class _NewEventScreenState extends ConsumerState<NewEventScreen> {
               bottom: 5,
             ),
             alignment: Alignment.bottomCenter,
-            child: Text(isNewEvent ? 'Create Event' : 'Update Event',
-                style: TextStyle(
-                  color: Theme.of(context).primaryColor,
-                  fontWeight: FontWeight.w800,
-                  fontSize: 30,
-                )),
+            child: !isNewEvent
+                ? Text('Update Event',
+                    style: TextStyle(
+                      color: Theme.of(context).primaryColor,
+                      fontWeight: FontWeight.w800,
+                      fontSize: 25,
+                    ))
+                : null,
           ),
         ),
       ),

@@ -37,7 +37,7 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
   bool _isLoading = true;
   bool showUpcoming = true;
   bool showPassed = false;
-  bool showHosting = false;
+  bool showHosting = true;
   bool friendPending = false;
   var profile;
 

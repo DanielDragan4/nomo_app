@@ -20,27 +20,17 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen> {
       backgroundColor: Theme.of(context).colorScheme.surface,
       appBar: AppBar(
         backgroundColor: Theme.of(context).colorScheme.surface,
-        flexibleSpace: PreferredSize(
-          preferredSize: const Size.fromHeight(kToolbarHeight),
-          child: Container(
-            padding: const EdgeInsets.only(
-              top: 20,
-              bottom: 5,
-            ),
-            alignment: Alignment.bottomCenter,
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Text('Notifications',
-                    style: TextStyle(
-                      color: Theme.of(context).primaryColor,
-                      fontWeight: FontWeight.w800,
-                      fontSize: 30,
-                    )),
-              ],
-            ),
-          ),
-        ),
+        // flexibleSpace: PreferredSize(
+        //   preferredSize: const Size.fromHeight(kToolbarHeight),
+
+        // ),
+        title: Text('Notifications',
+            style: TextStyle(
+              color: Theme.of(context).primaryColor,
+              fontWeight: FontWeight.w800,
+              fontSize: 20,
+            )),
+        centerTitle: false,
         bottom: PreferredSize(
           preferredSize: const Size.fromHeight(4.0),
           child: Container(

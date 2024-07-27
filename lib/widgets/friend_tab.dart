@@ -39,6 +39,7 @@ class FriendTab extends ConsumerStatefulWidget {
 }
 
 class _FriendTabState extends ConsumerState<FriendTab> {
+  bool currentFriend = true; // if the request is current and hasnt been interacted with
   bool selectedUser = false;
 
   Future<String> getCurrentUser() async {
@@ -87,7 +88,7 @@ class _FriendTabState extends ConsumerState<FriendTab> {
     }
 
     // Original FriendTab layout
-    return Container(
+    return currentFriend ? Container(
       height: 60,
       padding: const EdgeInsets.symmetric(vertical: 5),
       child: Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
@@ -178,6 +179,9 @@ class _FriendTabState extends ConsumerState<FriendTab> {
                             ScaffoldMessenger.of(context).clearSnackBars();
                             ScaffoldMessenger.of(context)
                                 .showSnackBar(SnackBar(content: Text('Added $username to friends list')));
+                                setState(() {
+                              currentFriend = false;
+                            });
                           },
                           icon: const Icon(
                             Icons.check,
@@ -191,6 +195,9 @@ class _FriendTabState extends ConsumerState<FriendTab> {
                             ScaffoldMessenger.of(context).clearSnackBars();
                             ScaffoldMessenger.of(context)
                                 .showSnackBar(SnackBar(content: Text("Rejected $username's friend request")));
+                            setState(() {
+                              currentFriend = false;
+                            });
                           },
                           icon: const Icon(
                             Icons.close,
@@ -199,6 +206,8 @@ class _FriendTabState extends ConsumerState<FriendTab> {
                           splashRadius: 15),
                     ]),
       ]),
-    );
+    )
+    :
+    Container();
   }
 }

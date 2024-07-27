@@ -63,7 +63,7 @@ class MessageWidget extends ConsumerWidget {
                         message['message'],
                         style: TextStyle(
                           color: isMe ? Colors.white : Colors.black87,
-                          fontSize: MediaQuery.of(context).size.width * 0.04,
+                          fontSize: MediaQuery.of(context).size.width * 0.045,
                         ),
                       ),
                     ),

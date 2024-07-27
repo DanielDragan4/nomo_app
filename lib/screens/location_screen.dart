@@ -304,7 +304,7 @@ class _LocationScreenState extends State<LocationScreen> {
                 ),
               ),
             SizedBox(height: 24),
-            ElevatedButton(
+            widget.isCreation? ElevatedButton(
               onPressed: (_currentPosition != null || manualLocation.text.isNotEmpty)
                   ? () async {
                       final saveRadius = await SharedPreferences.getInstance();
@@ -322,7 +322,9 @@ class _LocationScreenState extends State<LocationScreen> {
               style: ElevatedButton.styleFrom(
                 minimumSize: Size(double.infinity, 50),
               ),
-            ),
+            )
+            :
+            SizedBox()
           ],
         ),
       ),

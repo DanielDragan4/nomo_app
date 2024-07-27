@@ -142,9 +142,31 @@ class _ChatScreenState extends ConsumerState<ChatScreen> with RouteAware {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Theme.of(context).colorScheme.surface,
-      appBar: AppBar(
+      appBar: (widget.groupInfo != null) ? AppBar(
         backgroundColor: Theme.of(context).colorScheme.surface,
         title: Text((widget.groupInfo == null) ? widget.chatterUser!.friendProfileName : widget.groupInfo!['title']),
+      ) : 
+      AppBar(
+      elevation: 0,
+      backgroundColor: Theme.of(context).colorScheme.surface,
+      title: Row(
+        children: [
+          CircleAvatar(
+            backgroundImage: NetworkImage(widget.chatterUser?.avatar ?? ''),
+            radius: 20,
+          ),
+          SizedBox(width: 12),
+          Text(
+            (widget.groupInfo == null) 
+                ? widget.chatterUser!.friendProfileName 
+                : widget.groupInfo!['title'],
+            style: TextStyle(
+              fontWeight: FontWeight.bold,
+              fontSize: 18,
+            ),
+          ),
+        ],
+      ),
       ),
       body: Column(
         children: [
@@ -190,42 +212,38 @@ class _ChatScreenState extends ConsumerState<ChatScreen> with RouteAware {
             padding: const EdgeInsets.all(8.0),
             child: Row(
               children: [
-                Expanded(
+                  Expanded(
                   child: TextField(
                     onSubmitted: (value) => submitMessage(),
                     controller: _controller,
                     style: TextStyle(
-                      color: Theme.of(context).colorScheme.onSecondary,
-                      fontSize: MediaQuery.of(context).size.width * 0.04,
+                      color: Theme.of(context).colorScheme.onSurface,
+                      fontSize: 16,
                     ),
                     decoration: InputDecoration(
-                      hintStyle: TextStyle(
-                        color: Theme.of(context).colorScheme.onSecondary,
-                        fontSize: MediaQuery.of(context).size.width * 0.04,
-                      ),
-                      hintText: 'Send message',
+                      hintText: 'Type a message',
+                      hintStyle: TextStyle(color: Colors.grey),
                       border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(8.0),
+                        borderRadius: BorderRadius.circular(24),
+                        borderSide: BorderSide.none,
                       ),
+                      filled: true,
+                      fillColor: Theme.of(context).colorScheme.surface.withOpacity(0.8),
+                      contentPadding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
                     ),
                   ),
                 ),
-                SizedBox(width: MediaQuery.of(context).size.width * .01),
-                IconButton(
-                  icon: Icon(
-                    Icons.send,
-                    color: Theme.of(context).colorScheme.onSecondary,
-                  ),
+                SizedBox(width: 8),
+                FloatingActionButton(
+                  mini: true,
+                  child: Icon(Icons.send),
                   onPressed: () {
                     submitMessage();
                     FocusManager.instance.primaryFocus?.unfocus();
                   },
                 ),
-              ],
-            ),
-          ),
-          SizedBox(
-            height: MediaQuery.of(context).size.height * 0.04,
+        ],
+      ),
           )
         ],
       ),

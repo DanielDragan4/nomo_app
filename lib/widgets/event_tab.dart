@@ -50,10 +50,20 @@ class _EventTabState extends ConsumerState<EventTab> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   _buildHostInfo(context),
-                  if (_hasEventEnded()) _buildEventEndedIndicator(),
-                  if (isHostOrAttending) _buildHostOrAttendingIndicator(),
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(0, 0, 5, 0),
+                    child: Container(
+                      child: Row(children: [
+                        if (_hasEventEnded()) _buildEventEndedIndicator(),
+                        SizedBox(width: 4,),
+                        if (isHostOrAttending) _buildHostOrAttendingIndicator(),
+                      ],),
+                    ),
+                  )
+
                 ],
               ),
               _buildEventImage(context),
@@ -64,16 +74,13 @@ class _EventTabState extends ConsumerState<EventTab> {
                   children: [
                     _buildEventTitle(context),
                     const SizedBox(height: 8),
-                    _buildEventDate(context, formattedDate),
-                    const SizedBox(height: 12),
                     _buildEventLocation(context),
-                    const SizedBox(height: 16),
                     EventInfo(
                       eventsData: widget.eventData,
                       bookmarkSet: widget.bookmarkSet,
                     ),
                     const SizedBox(height: 12),
-                    _buildEventDescription(context),
+                    //_buildEventDescription(context),
                     const SizedBox(height: 12),
                     _buildGetDetails(context)
                   ],
@@ -88,7 +95,7 @@ class _EventTabState extends ConsumerState<EventTab> {
 
   Widget _buildHostOrAttendingIndicator() {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
       decoration: BoxDecoration(
         color: widget.eventData.isHost ? Colors.green : Colors.blue,
         borderRadius: BorderRadius.circular(12),
@@ -111,7 +118,7 @@ class _EventTabState extends ConsumerState<EventTab> {
 
   Widget _buildEventEndedIndicator() {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
       decoration: BoxDecoration(
         color: Colors.red,
         borderRadius: BorderRadius.circular(12),
@@ -129,7 +136,7 @@ class _EventTabState extends ConsumerState<EventTab> {
 
   Widget _buildHostInfo(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.all(16),
+      padding: EdgeInsets.all(MediaQuery.of(context).devicePixelRatio * 2.5),
       child: GestureDetector(
         onTap: () async {
           String currentUser = await ref.read(profileProvider.notifier).getCurrentUserId();
@@ -158,12 +165,12 @@ class _EventTabState extends ConsumerState<EventTab> {
         child: Row(
           children: [
             _buildHostAvatar(context),
-            const SizedBox(width: 12),
+             SizedBox(width: MediaQuery.of(context).size.height * .012),
             Text(
               '@${widget.eventData.hostUsername}',
               style: TextStyle(
                 fontWeight: FontWeight.bold,
-                fontSize: 16,
+                fontSize: 14,
                 color: Theme.of(context).colorScheme.onSurface,
               ),
             ),
@@ -227,19 +234,6 @@ class _EventTabState extends ConsumerState<EventTab> {
             color: Theme.of(context).colorScheme.onSurface,
           ),
     ));
-  }
-
-  Widget _buildEventDate(BuildContext context, String formattedDate) {
-    return Row(
-      children: [
-        Icon(Icons.calendar_today, size: 18, color: Theme.of(context).colorScheme.secondary),
-        const SizedBox(width: 8),
-        Text(
-          formattedDate,
-          style: TextStyle(color: Theme.of(context).colorScheme.secondary),
-        ),
-      ],
-    );
   }
 
   Widget _buildEventLocation(BuildContext context) {

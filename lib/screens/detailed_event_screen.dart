@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:maps_launcher/maps_launcher.dart';
 import 'package:nomo/models/events_model.dart';
 import 'package:nomo/providers/events_provider.dart';
 import 'package:nomo/providers/supabase_provider.dart';
@@ -77,6 +78,7 @@ class _DetailedEventScreenState extends ConsumerState<DetailedEventScreen> {
               const SizedBox(height: 16),
               _buildEventHost(),
               const SizedBox(height: 16),
+              _buildEventLocation(context),
               EventInfo(eventsData: event!),
               const SizedBox(height: 16),
               _buildEventDescription(),
@@ -144,6 +146,44 @@ class _DetailedEventScreenState extends ConsumerState<DetailedEventScreen> {
         )
       ],
     );
+  }
+  Widget _buildEventLocation(BuildContext context) {
+    return (widget.eventData!.isVirtual)
+        ? Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Icon(Icons.computer, size: 18, color: Theme.of(context).colorScheme.secondary),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Text(
+                  'Virtual',
+                  style: TextStyle(
+                    color: Theme.of(context).colorScheme.secondary,
+                    decoration: TextDecoration.underline,
+                  ),
+                ),
+              ),
+            ],
+          )
+        : GestureDetector(
+            onTap: () => MapsLauncher.launchQuery(widget.eventData?.location),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Icon(Icons.location_on, size: 18, color: Theme.of(context).colorScheme.secondary),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Text(
+                    widget.eventData?.location,
+                    style: TextStyle(
+                      color: Theme.of(context).colorScheme.secondary,
+                      decoration: TextDecoration.underline,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          );
   }
 
   Widget _buildEventDescription() {

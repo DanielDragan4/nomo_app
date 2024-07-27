@@ -43,6 +43,14 @@ class _EventTabState extends ConsumerState<EventTab> {
       isHostOrAttending = widget.eventData.isHost || widget.eventData.attending;
     }
 
+    @override
+    void didUpdateWidget(EventTab oldWidget) {
+      super.didUpdateWidget(oldWidget);
+      if (widget.eventData != oldWidget.eventData) {
+        setState(() {});
+      }
+    }
+
     return Card(
       elevation: 4,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
@@ -62,14 +70,17 @@ class _EventTabState extends ConsumerState<EventTab> {
                   Padding(
                     padding: const EdgeInsets.fromLTRB(0, 0, 5, 0),
                     child: Container(
-                      child: Row(children: [
-                        if (_hasEventEnded()) _buildEventEndedIndicator(),
-                        SizedBox(width: 4,),
-                        if (isHostOrAttending) _buildHostOrAttendingIndicator(),
-                      ],),
+                      child: Row(
+                        children: [
+                          if (_hasEventEnded()) _buildEventEndedIndicator(),
+                          const SizedBox(
+                            width: 4,
+                          ),
+                          if (isHostOrAttending) _buildHostOrAttendingIndicator(),
+                        ],
+                      ),
                     ),
                   )
-
                 ],
               ),
               _buildEventImage(context),
@@ -177,7 +188,7 @@ class _EventTabState extends ConsumerState<EventTab> {
         child: Row(
           children: [
             _buildHostAvatar(context),
-             SizedBox(width: MediaQuery.of(context).size.height * .012),
+            SizedBox(width: MediaQuery.of(context).size.height * .012),
             Text(
               '@${widget.eventData.hostUsername}',
               style: TextStyle(
@@ -236,16 +247,16 @@ class _EventTabState extends ConsumerState<EventTab> {
 
   Widget _buildEventTitle(BuildContext context) {
     return GestureDetector(
-      onTap: () => Navigator.of(context).push(MaterialPageRoute(
-        builder: (context) => DetailedEventScreen(eventData: widget.eventData),
-      )),child: 
-      Text(
-      widget.eventData.title,
-      style: Theme.of(context).textTheme.headlineLarge?.copyWith(
-            fontWeight: FontWeight.bold,
-            color: Theme.of(context).colorScheme.onSurface,
-          ),
-    ));
+        onTap: () => Navigator.of(context).push(MaterialPageRoute(
+              builder: (context) => DetailedEventScreen(eventData: widget.eventData),
+            )),
+        child: Text(
+          widget.eventData.title,
+          style: Theme.of(context).textTheme.headlineLarge?.copyWith(
+                fontWeight: FontWeight.bold,
+                color: Theme.of(context).colorScheme.onSurface,
+              ),
+        ));
   }
 
   Widget _buildEventLocation(BuildContext context) {
@@ -306,16 +317,16 @@ class _EventTabState extends ConsumerState<EventTab> {
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
         GestureDetector(
-          onTap: () => Navigator.of(context).push(MaterialPageRoute(
-            builder: (context) => DetailedEventScreen(eventData: widget.eventData),
-          )),child: 
-          Text(
-          'View Details',
-          style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                fontWeight: FontWeight.bold,
-                color: Theme.of(context).primaryColor,
-              ),
-        )),
+            onTap: () => Navigator.of(context).push(MaterialPageRoute(
+                  builder: (context) => DetailedEventScreen(eventData: widget.eventData),
+                )),
+            child: Text(
+              'View Details',
+              style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                    fontWeight: FontWeight.bold,
+                    color: Theme.of(context).primaryColor,
+                  ),
+            )),
       ],
     );
   }

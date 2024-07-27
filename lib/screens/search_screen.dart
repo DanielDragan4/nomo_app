@@ -137,17 +137,17 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
       backgroundColor: Theme.of(context).colorScheme.surface,
       appBar: AppBar(
         backgroundColor: Theme.of(context).colorScheme.surface,
-        toolbarHeight: 30,
+        toolbarHeight: MediaQuery.of(context).padding.top,
         titleTextStyle: Theme.of(context).appBarTheme.titleTextStyle,
       ),
       body: Column(
         children: [
           SizedBox(
             child: Padding(
-              padding: const EdgeInsets.fromLTRB(10, 10, 10, 10),
+              padding: const EdgeInsets.fromLTRB(10, 0, 10, 5),
               child: TextField(
                 readOnly: _isSelected[2] == true,
-                autofocus: true,
+                autofocus: false,
                 controller: _searchController,
                 decoration: InputDecoration(
                   hintText: _isSelected[2] == true ? 'Please select interests below.' : 'What are you looking for?',

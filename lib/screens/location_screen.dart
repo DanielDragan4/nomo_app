@@ -266,10 +266,12 @@ class _LocationScreenState extends State<LocationScreen> {
                       min: 1,
                       max: 100,
                       divisions: 99,
-                      onChanged: (double value) {
+                      onChanged: (double value) async {
                         setState(() {
                           _preferredRadius = value;
                         });
+                        final saveRadius = await SharedPreferences.getInstance();
+                        await saveRadius.setStringList('savedRadius', [value.toString()]);
                       },
                     ),
                   ],
@@ -304,27 +306,27 @@ class _LocationScreenState extends State<LocationScreen> {
                 ),
               ),
             SizedBox(height: 24),
-            widget.isCreation? ElevatedButton(
-              onPressed: (_currentPosition != null || manualLocation.text.isNotEmpty)
-                  ? () async {
-                      final saveRadius = await SharedPreferences.getInstance();
-                      saveRadius.setStringList('savedRadius', [_preferredRadius.toString()]);
-                      if (widget.isCreation) {
-                        Navigator.of(context).pushReplacement(
-                          MaterialPageRoute(builder: (context) => const NavBar()),
-                        );
-                      } else {
-                        Navigator.of(context).pop();
-                      }
-                    }
-                  : null,
-              child: Text(widget.isCreation ? 'See Events' : 'Save Location Data'),
-              style: ElevatedButton.styleFrom(
-                minimumSize: Size(double.infinity, 50),
-              ),
-            )
-            :
-            SizedBox()
+            widget.isCreation
+                ? ElevatedButton(
+                    onPressed: (_currentPosition != null || manualLocation.text.isNotEmpty)
+                        ? () async {
+                            final saveRadius = await SharedPreferences.getInstance();
+                            saveRadius.setStringList('savedRadius', [_preferredRadius.toString()]);
+                            if (widget.isCreation) {
+                              Navigator.of(context).pushReplacement(
+                                MaterialPageRoute(builder: (context) => const NavBar()),
+                              );
+                            } else {
+                              Navigator.of(context).pop();
+                            }
+                          }
+                        : null,
+                    child: Text(widget.isCreation ? 'See Events' : 'Save Location Data'),
+                    style: ElevatedButton.styleFrom(
+                      minimumSize: Size(double.infinity, 50),
+                    ),
+                  )
+                : SizedBox()
           ],
         ),
       ),

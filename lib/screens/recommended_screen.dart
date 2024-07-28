@@ -42,7 +42,7 @@ class _RecommendedScreenState extends ConsumerState<RecommendedScreen> {
           floatHeaderSlivers: true,
           headerSliverBuilder: (context, innerBoxIsScrolled) => [
             SliverAppBar(
-              toolbarHeight: kToolbarHeight + 25,
+              toolbarHeight: kToolbarHeight + 30,
               backgroundColor: Theme.of(context).colorScheme.surface,
               floating: true,
               snap: true,

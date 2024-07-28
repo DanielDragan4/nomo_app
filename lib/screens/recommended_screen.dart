@@ -11,7 +11,7 @@ import 'package:nomo/functions/image-handling.dart';
 
 class RecommendedScreen extends ConsumerStatefulWidget {
   const RecommendedScreen({super.key});
-  
+
   @override
   ConsumerState<RecommendedScreen> createState() => _RecommendedScreenState();
 }
@@ -27,6 +27,7 @@ class _RecommendedScreenState extends ConsumerState<RecommendedScreen> {
     super.initState();
     ref.read(eventsProvider.notifier).deCodeData();
   }
+
   @override
   Widget build(BuildContext context) {
     final hasUnreadNotifications = ref.watch(notificationBellProvider);
@@ -41,14 +42,15 @@ class _RecommendedScreenState extends ConsumerState<RecommendedScreen> {
           floatHeaderSlivers: true,
           headerSliverBuilder: (context, innerBoxIsScrolled) => [
             SliverAppBar(
-              toolbarHeight: kToolbarHeight + 10,
+              toolbarHeight: kToolbarHeight + 25,
               backgroundColor: Theme.of(context).colorScheme.surface,
               floating: true,
               snap: true,
               flexibleSpace: FlexibleSpaceBar(
                 background: Container(
-                child: Padding(
-                    padding: EdgeInsets.only(top: MediaQuery.of(context).padding.top + 20), // Add padding above the title
+                  child: Padding(
+                    padding:
+                        EdgeInsets.only(top: MediaQuery.of(context).padding.top + 20), // Add padding above the title
                     child: Center(
                       child: Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 25.0),
@@ -59,7 +61,7 @@ class _RecommendedScreenState extends ConsumerState<RecommendedScreen> {
                               'Nomo',
                               style: TextStyle(
                                 fontFamily: 'alice', //GoogleFonts.alice,
-                              color: Theme.of(context).primaryColor,
+                                color: Theme.of(context).primaryColor,
                                 fontWeight: FontWeight.bold,
                                 fontSize: 30,
                               ),
@@ -69,7 +71,7 @@ class _RecommendedScreenState extends ConsumerState<RecommendedScreen> {
                                 Navigator.of(context).push(MaterialPageRoute(
                                   builder: (context) => const NotificationsScreen(),
                                 ));
-                
+
                                 // Mark notifications as read when notifications icon is tapped
                                 ref.read(notificationBellProvider.notifier).setBellState(false);
                               },
@@ -87,7 +89,7 @@ class _RecommendedScreenState extends ConsumerState<RecommendedScreen> {
                             ),
                           ],
                         ),
-                    ),
+                      ),
                     ),
                   ),
                 ),

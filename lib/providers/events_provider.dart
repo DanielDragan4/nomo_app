@@ -329,11 +329,11 @@ class EventProvider extends StateNotifier<List?> {
       
       Returns: List of data
     */
-    for (var event in state!) {
-      if(event.eventId == eventId) {
+    for (var i = 0; i < state!.length; i++) {
+      if(state![i].eventId == eventId) {
         Event newEventData = await deCodeLinkEvent(eventId);
-        event = newEventData;
-        return newEventData;
+        state![i] = newEventData;
+        return state![i];
       }
     }
   }

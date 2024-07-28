@@ -650,6 +650,11 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
                               return SliverList(
                                 delegate: SliverChildListDelegate(
                                   hostingEvents.map((event) {
+                                    if(event.otherHost != null) {
+                                      event.isHost = event.otherHost;
+                                      event.attending = event.otherAttend;
+                                      event.bookmarked = event.otherBookmark;
+                                    }
                                     return EventTab(eventData: event, bookmarkSet: true);
                                   }).toList(),
                                 ),

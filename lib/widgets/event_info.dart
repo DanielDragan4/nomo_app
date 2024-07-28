@@ -348,7 +348,7 @@ class _EventInfoState extends ConsumerState<EventInfo> {
   void _showLeaveEventDialog(BuildContext context) async {
     await attendeeLeaveEvent();
     await ref.read(profileProvider.notifier).deleteBlockedTime(null, widget.eventsData.eventId);
-    var newEData = await ref.read(eventsProvider.notifier).updateEventData(widget.eventsData.eventId);
+    var newEData = await ref.read(eventsProvider.notifier).deCodeLinkEvent(widget.eventsData.eventId);
 
     setState(() {
       widget.eventsData = newEData!;
@@ -369,7 +369,7 @@ class _EventInfoState extends ConsumerState<EventInfo> {
           widget.eventsData.eventId,
         );
     await attendeeJoinEvent();
-    var newEventData = await ref.read(eventsProvider.notifier).updateEventData(widget.eventsData.eventId);
+    var newEventData = await ref.read(eventsProvider.notifier).deCodeLinkEvent(widget.eventsData.eventId);
 
     setState(() {
       widget.eventsData = newEventData!;

@@ -157,7 +157,7 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
   @override
   Widget build(BuildContext context) {
     //Calculation to prevent appbar overflow on all devices
-    double appBarHeight = MediaQuery.of(context).padding.top + MediaQuery.of(context).size.width * 0.24 + 260;
+    double appBarHeight = MediaQuery.of(context).padding.top + MediaQuery.of(context).size.width * 0.24 + 270;
 
     if (widget.isUser) {
       appBarHeight += 10;
@@ -650,7 +650,7 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
                               return SliverList(
                                 delegate: SliverChildListDelegate(
                                   hostingEvents.map((event) {
-                                    if(event.otherHost != null) {
+                                    if (event.otherHost != null) {
                                       event.isHost = event.otherHost;
                                       event.attending = event.otherAttend;
                                       event.bookmarked = event.otherBookmark;

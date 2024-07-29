@@ -379,7 +379,7 @@ class DayButton extends ConsumerWidget {
                 child: CustomPaint(
                   size: Size(16, 16),
                   painter: TrianglePainter(
-                    color: hasTimeSelected ? Colors.blue : Colors.red,
+                    color: Colors.red,
                   ),
                 ),
               ),

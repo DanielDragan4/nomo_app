@@ -461,7 +461,7 @@ class _SettingScreenState extends ConsumerState<SettingScreen> {
               },
             ),
           ),
-          if (widget.isCorp != null && true)
+          if (widget.isCorp != null && widget.isCorp == true)
             const ListTile(
               title: Row(
                 children: [
@@ -470,22 +470,22 @@ class _SettingScreenState extends ConsumerState<SettingScreen> {
                 ],
               ),
             ),
-          if (widget.isCorp != null && true) const Divider(),
-          if (widget.isCorp != null && true)
+          if (widget.isCorp != null && widget.isCorp == true) const Divider(),
+          if (widget.isCorp != null && widget.isCorp == true)
             SettingButton(
               title: 'Event Analytics',
               onPressed: () {
                 redirect("Analytics");
               },
             ),
-          if (widget.isCorp != null && true)
+          if (widget.isCorp != null && widget.isCorp == true)
             SettingButton(
               title: 'Payment',
               onPressed: () {
                 redirect("Payment");
               },
             ),
-          if (widget.isCorp != null && true)
+          if (widget.isCorp != null && widget.isCorp == true)
             SettingButton(
               title: 'Customer Support',
               onPressed: () {

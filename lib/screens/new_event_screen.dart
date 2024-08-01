@@ -165,7 +165,9 @@ class _NewEventScreenState extends ConsumerState<NewEventScreen> {
 
   Future<void> _selectTime(BuildContext context, bool isStartTime) async {
     FocusManager.instance.primaryFocus?.unfocus();
-    final initialTime = isStartTime ? _selectedStartTime ?? TimeOfDay.now() : _selectedEndTime ?? TimeOfDay.now();
+    final initialTime = isStartTime
+        ? _selectedStartTime ?? TimeOfDay(hour: 12, minute: 00)
+        : _selectedEndTime ?? TimeOfDay(hour: 12, minute: 00);
 
     final TimeOfDay? picked = await showDialog<TimeOfDay>(
       context: context,
@@ -1043,10 +1045,6 @@ class _NewEventScreenState extends ConsumerState<NewEventScreen> {
                                     ),
                                     actions: [
                                       TextButton(
-                                        onPressed: () => Navigator.pop(context),
-                                        child: const Text('CANCEL'),
-                                      ),
-                                      TextButton(
                                         onPressed: () async {
                                           FocusManager.instance.primaryFocus?.unfocus();
                                           await updateEvent(
@@ -1073,6 +1071,10 @@ class _NewEventScreenState extends ConsumerState<NewEventScreen> {
                                           );
                                         },
                                         child: const Text('YES'),
+                                      ),
+                                      TextButton(
+                                        onPressed: () => Navigator.pop(context),
+                                        child: const Text('CANCEL'),
                                       ),
                                     ],
                                   ),

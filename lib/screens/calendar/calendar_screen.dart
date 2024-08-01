@@ -367,10 +367,10 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
                             showDialog(
                                 context: context,
                                 builder: (context) => AlertDialog(
-                                      backgroundColor: Theme.of(context).canvasColor,
+                                      backgroundColor: Theme.of(context).cardColor,
                                       title: Text(
                                         'What would you like to do?',
-                                        style: TextStyle(color: Theme.of(context).primaryColor),
+                                        style: TextStyle(color: Theme.of(context).colorScheme.onPrimary),
                                       ),
                                       actions: [
                                         TextButton(

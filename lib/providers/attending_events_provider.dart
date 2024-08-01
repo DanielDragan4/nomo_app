@@ -1,6 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:nomo/models/events_model.dart';
-import 'package:nomo/providers/events_provider.dart';
 import 'package:nomo/providers/supabase_provider.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
@@ -165,20 +164,20 @@ class AttendEventProvider extends StateNotifier<List<Event>> {
 
       bool attending = false;
       for (var i = 0; i < deCodedEvent.attendees.length; i++) {
-        if (deCodedEvent.attendees[i] == userId) {
+        if (deCodedEvent.attendees[i] == currentUser) {
           attending = true;
           deCodedEvent.attending = true;
         }
-        if (deCodedEvent.attendees[i] == currentUser) {
+        if (deCodedEvent.attendees[i] == userId) {
           deCodedEvent.otherAttend = true;
         }
       }
       if ((attending) || (deCodedEvent.host == userId || (bookmarked))) {
-        if (deCodedEvent.host == userId) {
+        if (deCodedEvent.host == currentUser) {
           deCodedEvent.isHost = true;
         }
       }
-      if (deCodedEvent.host == currentUser) {
+      if(deCodedEvent.host == userId) {
         deCodedEvent.otherHost = true;
       }
       print(deCodedEvent);

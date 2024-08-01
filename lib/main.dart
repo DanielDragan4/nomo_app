@@ -5,6 +5,8 @@ import 'package:flutter_branch_sdk/flutter_branch_sdk.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:nomo/functions/make-fcm.dart';
 import 'package:nomo/functions/notification-utils.dart';
+import 'package:nomo/models/events_model.dart';
+import 'package:nomo/providers/events_provider.dart';
 import 'package:nomo/providers/location_on_reload_service.dart';
 import 'package:nomo/providers/notification-provider.dart';
 import 'package:nomo/providers/saved_session_provider.dart';
@@ -54,12 +56,7 @@ void main() async {
 
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
-void navigateToEvent(String eventId) {
-  // Implement navigation logic to DetailedEventScreen
-  navigatorKey.currentState?.push(MaterialPageRoute(
-    builder: (context) => DetailedEventScreen(linkEventId: eventId),
-  ));
-}
+
 
 class App extends ConsumerStatefulWidget {
   const App({super.key});
@@ -71,6 +68,14 @@ class App extends ConsumerStatefulWidget {
 class _AppState extends ConsumerState<App> {
   StreamSubscription<Map>? streamSubscription;
   FirebaseMessaging firebaseMessaging = FirebaseMessaging.instance;
+
+  void navigateToEvent(String eventId) async{
+    // Implement navigation logic to DetailedEventScreen
+    Event eventData = await ref.read(eventsProvider.notifier).deCodeLinkEvent(eventId);
+    navigatorKey.currentState?.push(MaterialPageRoute(
+      builder: (context) => DetailedEventScreen(eventData: eventData),
+    ));
+  }
 
   @override
   void initState() {

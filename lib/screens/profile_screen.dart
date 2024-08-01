@@ -164,7 +164,6 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
     }
 
     if (widget.isUser) {
-      print(1);
 
       ref.read(profileProvider.notifier).decodeData();
       profile = ref.watch(profileProvider.notifier).state;
@@ -172,7 +171,6 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
     } else {
       profile = profileInfo;
     }
-    print(profile);
 
     //var imageUrl;
 
@@ -382,8 +380,9 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
                                               stream: ref.read(attendEventsProvider.notifier).stream,
                                               builder: (context, snapshot) {
                                                 if (snapshot.data != null) {
-                                                  final attendingEvents = snapshot.data!
-                                                      .where((event) => event.attending || event.isHost)
+                                                  final attendingEvents
+                                                   = snapshot.data!
+                                                      .where((event) => (event.otherHost == null) ? event.attending || event.isHost : event.otherAttend || event.otherHost)
                                                       .toList();
                                                   var attendingEventCount = attendingEvents.length;
                                                   for (Event event in attendingEvents) {
@@ -500,7 +499,7 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
                                 onPressed: (int index) {
                                   setState(() {
                                     for (int i = 0; i < isSelected.length; i++) {
-                                      isSelected[i] = i == index;
+                                      isSelected[i] = (i == index);
                                     }
                                   });
                                 },
@@ -550,7 +549,7 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
                     ),
                   ),
                   if (isSelected.first)
-                    if (private == false || isFriend || widget.isUser)
+                    if (widget.isUser)
                       StreamBuilder(
                         stream: ref.read(attendEventsProvider.notifier).stream,
                         builder: (context, snapshot) {
@@ -590,6 +589,84 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
                                   childCount: relevantEvents.length,
                                 ),
                               );
+                            }
+                          } else {
+                            return const SliverFillRemaining(
+                              child: Center(
+                                child: Text("No Data Retrieved"),
+                              ),
+                            );
+                          }
+                        },
+                      )
+                    else if (private == false || isFriend)
+                      StreamBuilder(
+                        stream: ref.read(attendEventsProvider.notifier).stream,
+                        builder: (context, snapshot) {
+                          if (snapshot.data != null) {
+                            final hostingEvents = snapshot.data!.where((event) {
+                              if (showHosting && event.otherHost) {
+                                return true;}
+                              return false;
+                            }).toList();
+                            final attendingEvents = snapshot.data!.where((event) {
+                              final now = DateTime.now();
+                              final startDate = event.sdate;
+                              final endDate = event.edate;
+                              if (showUpcoming && event.otherAttend && startDate.compareTo(now.toString()) > 0)
+                                return true;
+                              if (showPassed && event.otherAttend && endDate.compareTo(now.toString()) < 0) return true;
+                              return false;
+                            }).toList();
+                            if (attendingEvents.isEmpty && isSelected.first) {
+                              return SliverFillRemaining(
+                                child: Center(
+                                  child: Text(
+                                    "No Events Found",
+                                    style: TextStyle(fontSize: 18, color: Theme.of(context).colorScheme.onSecondary),
+                                  ),
+                                ),
+                              );
+                            } else if (isSelected.first && attendingEvents.isNotEmpty) {
+                              return SliverList(
+                                delegate: SliverChildBuilderDelegate(
+                                  (context, index) {
+                                    final event = attendingEvents[index];
+
+                                    preloadImages(context, attendingEvents, index, 4);
+
+                                    return EventTab(
+                                      eventData: event,
+                                      preloadedImage: NetworkImage(event.imageUrl),
+                                    );
+                                  },
+                                  childCount: attendingEvents.length,
+                                ),
+                              );
+                            }
+                             else if (isSelected.last && hostingEvents.isNotEmpty) {
+                              return SliverList(
+                                delegate: SliverChildBuilderDelegate(
+                                  (context, index) {
+                                    final event = hostingEvents[index];
+
+                                    preloadImages(context, hostingEvents, index, 4);
+
+                                    return EventTab(
+                                      eventData: event,
+                                      preloadedImage: NetworkImage(event.imageUrl),
+                                    );
+                                  },
+                                  childCount: hostingEvents.length,
+                                ),
+                              );
+                            }
+                            else {
+                              return const SliverFillRemaining(
+                              child: Center(
+                                child: Text("No Events Hosted"),
+                              ),
+                            );
                             }
                           } else {
                             return const SliverFillRemaining(
@@ -642,7 +719,7 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
                             }
                           } else {
                             // Only useful when viewing a profile through means other than an event header
-                            final hostingEvents = snapshot.data!.where((event) => event.isHost).toList();
+                            final hostingEvents = snapshot.data!.where((event) => event.otherHost).toList();
                             if (hostingEvents.isEmpty) {
                               return const SliverFillRemaining(
                                 child: Center(
@@ -653,11 +730,6 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
                               return SliverList(
                                 delegate: SliverChildListDelegate(
                                   hostingEvents.map((event) {
-                                    if (event.otherHost != null) {
-                                      event.isHost = event.otherHost;
-                                      event.attending = event.otherAttend;
-                                      event.bookmarked = event.otherBookmark;
-                                    }
                                     return EventTab(eventData: event, bookmarkSet: true);
                                   }).toList(),
                                 ),

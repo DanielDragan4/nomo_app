@@ -301,23 +301,6 @@ class EventProvider extends StateNotifier<List?> {
     return deCodedEvent;
   }
 
-  Future<Event?> updateEventData(eventId) async {
-    /*
-      takes in an eventId to then get the data of an updated event and then places the new event into the list
-
-      Params: eventId: uuid
-      
-      Returns: List of data
-    */
-    for (var i = 0; i < state!.length; i++) {
-      if (state![i].eventId == eventId) {
-        Event newEventData = await deCodeLinkEvent(eventId);
-        state![i] = newEventData;
-        return state![i];
-      }
-    }
-  }
-
   Future<List> readEventAttendees(String eventId) async {
     /*
       takes in an eventId to then get the data of the events attendees from the supabase

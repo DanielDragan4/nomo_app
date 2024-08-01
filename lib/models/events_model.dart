@@ -41,7 +41,7 @@ class Event {
   late final hostProfileUrl;
   final String profileName;
   late bool bookmarked;
-  late var attending;
+  late bool attending;
   late bool isHost;
   final friends;
   final int numOfComments;

@@ -107,7 +107,7 @@ class _DayScreenState extends ConsumerState<DayScreen> {
       context: context,
       builder: (BuildContext context) {
         return CustomTimePicker(
-          initialTime: TimeOfDay.now(),
+          initialTime: TimeOfDay(hour: 12, minute: 00),
           onTimeSelected: (TimeOfDay selectedTime) {
             return selectedTime;
           },

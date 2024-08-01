@@ -509,7 +509,7 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
                                       padding: const EdgeInsets.symmetric(vertical: 3),
                                       child: widget.isUser
                                           ? const Text(
-                                              'Your Events',
+                                              'Joined Events',
                                               style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700),
                                             )
                                           : const Text(
@@ -694,9 +694,12 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
                           if (widget.isUser) {
                             final bookmarkedEvents = snapshot.data!.where((event) => event.bookmarked).toList();
                             if (bookmarkedEvents.isEmpty) {
-                              return const SliverFillRemaining(
+                              return SliverFillRemaining(
                                 child: Center(
-                                  child: Text("No Bookmarked Events"),
+                                  child: Text(
+                                    "No Bookmarked Events",
+                                    style: TextStyle(color: Theme.of(context).colorScheme.onSurface),
+                                  ),
                                 ),
                               );
                             } else {

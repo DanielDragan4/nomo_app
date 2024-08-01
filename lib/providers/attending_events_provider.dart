@@ -1,6 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:nomo/models/events_model.dart';
-import 'package:nomo/providers/events_provider.dart';
 import 'package:nomo/providers/supabase_provider.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
@@ -52,26 +51,28 @@ class AttendEventProvider extends StateNotifier<List<Event>> {
       }
 
       final Event deCodedEvent = Event(
-          description: eventData['description'],
-          sdate: eventData['time_start'],
-          eventId: eventData['event_id'],
-          eventType: eventData['invitationType'],
-          host: eventData['host'],
-          imageId: eventData['image_id'],
-          imageUrl: eventUrl,
-          location: eventData['location'],
-          title: eventData['title'],
-          edate: eventData['time_end'],
-          attendees: eventData['Attendees'],
-          hostProfileUrl: profileUrl,
-          hostUsername: eventData['username'],
-          profileName: eventData['profile_name'],
-          bookmarked: bookmarked,
-          attending: false,
-          isHost: false,
-          friends: eventData['friends_attending'],
-          numOfComments: eventData['comments_num'].length,
-          isVirtual: eventData['is_virtual']);
+        description: eventData['description'],
+        sdate: eventData['time_start'],
+        eventId: eventData['event_id'],
+        eventType: eventData['invitationType'],
+        host: eventData['host'],
+        imageId: eventData['image_id'],
+        imageUrl: eventUrl,
+        location: eventData['location'],
+        title: eventData['title'],
+        edate: eventData['time_end'],
+        attendees: eventData['Attendees'],
+        hostProfileUrl: profileUrl,
+        hostUsername: eventData['username'],
+        profileName: eventData['profile_name'],
+        bookmarked: bookmarked,
+        attending: false,
+        isHost: false,
+        friends: eventData['friends_attending'],
+        numOfComments: eventData['comments_num'].length,
+        isVirtual: eventData['is_virtual'],
+        categories: eventData['event_interests'],
+      );
 
       bool attending = false;
       for (var i = 0; i < deCodedEvent.attendees.length; i++) {
@@ -85,6 +86,7 @@ class AttendEventProvider extends StateNotifier<List<Event>> {
         if (deCodedEvent.host == supabaseClient.auth.currentUser!.id) {
           deCodedEvent.isHost = true;
         }
+
         deCodedList.add(deCodedEvent);
       }
     }
@@ -128,7 +130,8 @@ class AttendEventProvider extends StateNotifier<List<Event>> {
       for (var bookmark in eventData['Bookmarked']) {
         if (bookmark == userId) {
           bookmarked = true;
-        } if (bookmark == currentUser) {
+        }
+        if (bookmark == currentUser) {
           otherBookmark = true;
         }
       }
@@ -154,10 +157,10 @@ class AttendEventProvider extends StateNotifier<List<Event>> {
           friends: eventData['friends_attending'],
           numOfComments: eventData['comments_num'].length,
           isVirtual: eventData['is_virtual'],
+          categories: eventData['event_interests'],
           otherBookmark: otherBookmark,
           otherAttend: false,
-          otherHost: false
-          );
+          otherHost: false);
 
       bool attending = false;
       for (var i = 0; i < deCodedEvent.attendees.length; i++) {
@@ -177,6 +180,7 @@ class AttendEventProvider extends StateNotifier<List<Event>> {
       if(deCodedEvent.host == userId) {
         deCodedEvent.otherHost = true;
       }
+      print(deCodedEvent);
       deCodedList.add(deCodedEvent);
     }
     state = deCodedList;

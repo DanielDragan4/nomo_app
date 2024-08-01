@@ -57,15 +57,7 @@ class _RecommendedScreenState extends ConsumerState<RecommendedScreen> {
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            Text(
-                              'Nomo',
-                              style: TextStyle(
-                                fontFamily: 'alice', //GoogleFonts.alice,
-                                color: Theme.of(context).primaryColor,
-                                fontWeight: FontWeight.bold,
-                                fontSize: 30,
-                              ),
-                            ),
+                            Image.asset('assets/images/logo.png', height: 40),
                             IconButton(
                               onPressed: () {
                                 Navigator.of(context).push(MaterialPageRoute(

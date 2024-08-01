@@ -58,7 +58,7 @@ class _NewEventScreenState extends ConsumerState<NewEventScreen> {
 
   @override
   void initState() {
-    isNewEvent = widget.event == null;
+    isNewEvent = (widget.event == null);
     if (!isNewEvent) {
       _title.text = widget.event!.title;
       _description.text = widget.event!.description;
@@ -80,6 +80,7 @@ class _NewEventScreenState extends ConsumerState<NewEventScreen> {
       _formattedSDate = DateFormat.yMd().format(DateTime.parse(widget.event!.sdate));
       enableButton = true;
       virtualEvent = widget.event!.isVirtual;
+      categories = convertCategoriesToMap(widget.event!.categories);
 
       for (int i = 0; i < list.length; i++) {
         if (list[i] == widget.event!.eventType) {
@@ -87,6 +88,8 @@ class _NewEventScreenState extends ConsumerState<NewEventScreen> {
           break;
         }
       }
+    } else {
+      categories = {for (var interest in Interests.values) interest: false};
     }
     super.initState();
   }
@@ -97,6 +100,21 @@ class _NewEventScreenState extends ConsumerState<NewEventScreen> {
     _description.dispose();
     _title.dispose();
     super.dispose();
+  }
+
+  Map<Interests, bool> convertCategoriesToMap(List<dynamic> categoryStrings) {
+    Map<Interests, bool> result = {for (var interest in Interests.values) interest: false};
+
+    for (var categoryString in categoryStrings) {
+      for (var interest in Interests.values) {
+        if (interest.value == categoryString) {
+          result[interest] = true;
+          break;
+        }
+      }
+    }
+
+    return result;
   }
 
   Future<void> _selectDate(BuildContext context, bool isStartDate) async {
@@ -147,7 +165,9 @@ class _NewEventScreenState extends ConsumerState<NewEventScreen> {
 
   Future<void> _selectTime(BuildContext context, bool isStartTime) async {
     FocusManager.instance.primaryFocus?.unfocus();
-    final initialTime = isStartTime ? _selectedStartTime ?? TimeOfDay.now() : _selectedEndTime ?? TimeOfDay.now();
+    final initialTime = isStartTime
+        ? _selectedStartTime ?? TimeOfDay(hour: 12, minute: 00)
+        : _selectedEndTime ?? TimeOfDay(hour: 12, minute: 00);
 
     final TimeOfDay? picked = await showDialog<TimeOfDay>(
       context: context,
@@ -460,6 +480,14 @@ class _NewEventScreenState extends ConsumerState<NewEventScreen> {
         'title': title,
         'point': point
       };
+    }
+    if (categories.isNotEmpty) {
+      final List<String> interestStrings = categories.entries
+          .where((entry) => entry.value)
+          .map((entry) => ref.read(profileProvider.notifier).enumToString(entry.key))
+          .toList();
+
+      newEventRowMap['event_interests'] = interestStrings;
     }
 
     await supabase.from('Event').update(newEventRowMap).eq('event_id', widget.event?.eventId);
@@ -1017,10 +1045,6 @@ class _NewEventScreenState extends ConsumerState<NewEventScreen> {
                                     ),
                                     actions: [
                                       TextButton(
-                                        onPressed: () => Navigator.pop(context),
-                                        child: const Text('CANCEL'),
-                                      ),
-                                      TextButton(
                                         onPressed: () async {
                                           FocusManager.instance.primaryFocus?.unfocus();
                                           await updateEvent(
@@ -1047,6 +1071,10 @@ class _NewEventScreenState extends ConsumerState<NewEventScreen> {
                                           );
                                         },
                                         child: const Text('YES'),
+                                      ),
+                                      TextButton(
+                                        onPressed: () => Navigator.pop(context),
+                                        child: const Text('CANCEL'),
                                       ),
                                     ],
                                   ),

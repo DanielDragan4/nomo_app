@@ -17,9 +17,26 @@ class NavBar extends ConsumerStatefulWidget {
 
 class _NavBarState extends ConsumerState<NavBar> {
   int _index = 0;
-  final _pageViewController = PageController(
-    initialPage: 0,
-  );
+  final PageController _pageController = PageController();
+
+  final List<GlobalKey<NavigatorState>> _navigatorKeys = [
+    GlobalKey<NavigatorState>(),
+    GlobalKey<NavigatorState>(),
+    GlobalKey<NavigatorState>(),
+    GlobalKey<NavigatorState>(),
+    GlobalKey<NavigatorState>(),
+  ];
+
+  void _onItemTapped(int index) {
+    if (index == _index) {
+      _navigatorKeys[index].currentState?.popUntil((route) => route.isFirst);
+    } else {
+      setState(() {
+        _index = index;
+      });
+      _pageController.jumpToPage(index);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -29,9 +46,7 @@ class _NavBarState extends ConsumerState<NavBar> {
     return Scaffold(
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _index,
-        onTap: (index) {
-          _pageViewController.jumpToPage(index);
-        },
+        onTap: _onItemTapped,
         items: [
           BottomNavigationBarItem(
             icon: Icon(Icons.event_available_outlined, color: navBarTheme.unselectedItemColor),
@@ -44,21 +59,24 @@ class _NavBarState extends ConsumerState<NavBar> {
             label: 'Search',
           ),
           BottomNavigationBarItem(
-              icon: Icon(Icons.calendar_month_outlined, color: navBarTheme.unselectedItemColor),
-              activeIcon: Icon(Icons.calendar_month, color: navBarTheme.selectedItemColor),
-              label: "Calendar"),
+            icon: Icon(Icons.calendar_month_outlined, color: navBarTheme.unselectedItemColor),
+            activeIcon: Icon(Icons.calendar_month, color: navBarTheme.selectedItemColor),
+            label: "Calendar",
+          ),
           BottomNavigationBarItem(
-              icon: Icon(Icons.people_alt_outlined, color: navBarTheme.unselectedItemColor),
-              activeIcon: Icon(Icons.people, color: navBarTheme.selectedItemColor),
-              label: "Friends"),
+            icon: Icon(Icons.people_alt_outlined, color: navBarTheme.unselectedItemColor),
+            activeIcon: Icon(Icons.people, color: navBarTheme.selectedItemColor),
+            label: "Friends",
+          ),
           BottomNavigationBarItem(
-              icon: Icon(Icons.person_2_outlined, color: navBarTheme.unselectedItemColor),
-              activeIcon: Icon(Icons.person_2, color: navBarTheme.selectedItemColor),
-              label: "Profile"),
+            icon: Icon(Icons.person_2_outlined, color: navBarTheme.unselectedItemColor),
+            activeIcon: Icon(Icons.person_2, color: navBarTheme.selectedItemColor),
+            label: "Profile",
+          ),
         ],
       ),
       body: PageView(
-        controller: _pageViewController,
+        controller: _pageController,
         physics: NeverScrollableScrollPhysics(),
         onPageChanged: (index) {
           setState(() {
@@ -66,15 +84,24 @@ class _NavBarState extends ConsumerState<NavBar> {
           });
         },
         children: [
-          const RecommendedScreen(),
-          const SearchScreen(),
-          const CalendarScreen(),
-          const FriendsScreen(isGroupChats: false),
-          ProfileScreen(
-            isUser: true,
-          ),
+          _buildPage(const RecommendedScreen(), _navigatorKeys[0]),
+          _buildPage(const SearchScreen(), _navigatorKeys[1]),
+          _buildPage(const CalendarScreen(), _navigatorKeys[2]),
+          _buildPage(const FriendsScreen(isGroupChats: false), _navigatorKeys[3]),
+          _buildPage(ProfileScreen(isUser: true), _navigatorKeys[4]),
         ],
       ),
+    );
+  }
+
+  Widget _buildPage(Widget child, GlobalKey<NavigatorState> navigatorKey) {
+    return Navigator(
+      key: navigatorKey,
+      onGenerateRoute: (routeSettings) {
+        return MaterialPageRoute(
+          builder: (context) => child,
+        );
+      },
     );
   }
 }

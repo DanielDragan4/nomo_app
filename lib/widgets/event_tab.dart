@@ -1,4 +1,5 @@
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:calendar_view/calendar_view.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_branch_sdk/flutter_branch_sdk.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -57,7 +58,6 @@ class _EventTabState extends ConsumerState<EventTab> {
   }
   @override
   Widget build(BuildContext context) {
-    
     final DateTime date = DateTime.parse(widget.eventData.sdate);
     final formattedDate = "${date.month}/${date.day}/${date.year} at ${_getFormattedHour(date)}";
 
@@ -332,7 +332,9 @@ class _EventTabState extends ConsumerState<EventTab> {
               'View Details',
               style: Theme.of(context).textTheme.bodyLarge?.copyWith(
                     fontWeight: FontWeight.bold,
-                    color: Theme.of(context).primaryColor,
+                    color: isHostOrAttending
+                        ? Theme.of(context).colorScheme.onPrimaryContainer // Color for hosted/attended events
+                        : Theme.of(context).colorScheme.onSecondary, // Default card color
                   ),
             )),
       ],

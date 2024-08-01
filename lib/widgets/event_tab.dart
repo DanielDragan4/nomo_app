@@ -126,7 +126,7 @@ class _EventTabState extends ConsumerState<EventTab> {
                     const SizedBox(height: 12),
                     //_buildEventDescription(context),
                     const SizedBox(height: 12),
-                    _buildGetDetails(context),
+                    _buildGetDetails(context, isHostOrAttending),
                   ],
                 ),
               ),
@@ -320,7 +320,7 @@ class _EventTabState extends ConsumerState<EventTab> {
           );
   }
 
-  Widget _buildGetDetails(BuildContext context) {
+  Widget _buildGetDetails(BuildContext context, isHostOrAttending) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [

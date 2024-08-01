@@ -374,10 +374,11 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
                                       ),
                                       actions: [
                                         TextButton(
-                                            onPressed: () => Navigator.of(context)
-                                                .push(MaterialPageRoute(
-                                                    builder: ((context) => const NewEventScreen(event: null))))
-                                                .then((result) => Navigator.pop(context)),
+                                            onPressed: () {
+                                              Navigator.pop(context);
+                                              Navigator.of(context, rootNavigator: true).push(MaterialPageRoute(
+                                                  builder: ((context) => const NewEventScreen(event: null))));
+                                            },
                                             child: const Text('CREATE EVENT')),
                                         TextButton(
                                             onPressed: () async {

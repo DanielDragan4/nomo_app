@@ -20,6 +20,10 @@ class _AvailableTimesScreenState extends ConsumerState<AvailableTimesScreen> {
   String? formattedStart;
   String? formattedEnd;
 
+  bool _startDateError = false;
+  bool _endDateError = false;
+  bool _durationError = false;
+
   void _submitForm() async {
     /*
       gets all values to get valuse for mutual availability from the profile provider. Sets the values for _freeTimes
@@ -29,13 +33,27 @@ class _AvailableTimesScreenState extends ConsumerState<AvailableTimesScreen> {
       Returns: none
     */
     FocusManager.instance.primaryFocus?.unfocus();
-    if ((startPicked != null) && (endPicked != null) && (int.parse(durationController.text) != null)) {
+
+    setState(() {
+      _startDateError = startPicked == null;
+      _endDateError = endPicked == null;
+      _durationError = durationController.text.isEmpty || int.tryParse(durationController.text) == null;
+    });
+
+    if (!_startDateError && !_endDateError && !_durationError) {
       final freeTimes = await ref
           .read(profileProvider.notifier)
-          .mutualAvailability(widget.users, startPicked!, endPicked!, (int.parse(durationController.text)));
+          .mutualAvailability(widget.users, startPicked!, endPicked!, int.parse(durationController.text));
       setState(() {
         _freeTimes = freeTimes;
       });
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Please fill in all fields correctly.'),
+          backgroundColor: Colors.red,
+        ),
+      );
     }
   }
 
@@ -173,13 +191,16 @@ class _AvailableTimesScreenState extends ConsumerState<AvailableTimesScreen> {
                   endPicked = startPicked;
                   setState(() {
                     formattedEnd = DateFormat.yMd().format(endPicked!);
+                    _endDateError = false;
                   });
                 }
                 setState(() {
                   formattedStart = DateFormat.yMd().format(startPicked!);
+                  _startDateError = false;
                 });
               }
             },
+            _startDateError,
           ),
         ),
         const SizedBox(width: 8),
@@ -199,16 +220,19 @@ class _AvailableTimesScreenState extends ConsumerState<AvailableTimesScreen> {
                 endPicked = endPicked!.add(const Duration(hours: 23, minutes: 59));
                 setState(() {
                   formattedEnd = DateFormat.yMd().format(endPicked!);
+                  _endDateError = false;
                 });
               }
             },
+            _endDateError,
           ),
         ),
       ],
     );
   }
 
-  Widget _buildDateSelector(BuildContext context, String label, String displayText, VoidCallback onPressed) {
+  Widget _buildDateSelector(
+      BuildContext context, String label, String displayText, VoidCallback onPressed, bool hasError) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -219,11 +243,19 @@ class _AvailableTimesScreenState extends ConsumerState<AvailableTimesScreen> {
         const SizedBox(height: 4),
         OutlinedButton(
           onPressed: onPressed,
+          style: OutlinedButton.styleFrom(
+            side: BorderSide(color: hasError ? Colors.red : Theme.of(context).colorScheme.onSecondary),
+          ),
           child: Text(
             displayText,
             style: TextStyle(fontSize: 14, color: Theme.of(context).colorScheme.onSecondary),
           ),
         ),
+        if (hasError)
+          Text(
+            'Please select a date',
+            style: TextStyle(color: Colors.red, fontSize: 12),
+          ),
       ],
     );
   }
@@ -234,13 +266,26 @@ class _AvailableTimesScreenState extends ConsumerState<AvailableTimesScreen> {
         Expanded(
           flex: 2,
           child: TextFormField(
-            decoration: const InputDecoration(
+            decoration: InputDecoration(
               labelText: 'Duration (hours)',
               border: OutlineInputBorder(),
+              errorText: _durationError ? 'Please enter a valid duration' : null,
+              errorStyle: TextStyle(color: Colors.red),
+              enabledBorder: OutlineInputBorder(
+                borderSide: BorderSide(color: _durationError ? Colors.red : Colors.grey),
+              ),
+              focusedBorder: OutlineInputBorder(
+                borderSide: BorderSide(color: _durationError ? Colors.red : Theme.of(context).primaryColor),
+              ),
             ),
             style: TextStyle(color: Theme.of(context).colorScheme.onSecondary),
             keyboardType: TextInputType.number,
             controller: durationController,
+            onChanged: (value) {
+              setState(() {
+                _durationError = value.isEmpty || int.tryParse(value) == null;
+              });
+            },
           ),
         ),
         const SizedBox(width: 16),

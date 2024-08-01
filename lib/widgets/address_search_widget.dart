@@ -1,18 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:nomo/providers/nominatim_service.dart';
 
-// Text Field that enables searching for locations with recommended results based on the user's current location
-//
-// Parameters:
-// - 'controller': Text editing controller for the location data
-// - 'isEvent': if the location is being entered for the user profile, or during event creation
-
 class AddressSearchField extends StatefulWidget {
   final TextEditingController controller;
-
-  const AddressSearchField({super.key, required this.controller, required this.isEvent});
-
   final bool isEvent;
+  final bool hasError;
+
+  const AddressSearchField({
+    Key? key,
+    required this.controller,
+    required this.isEvent,
+    this.hasError = false,
+  }) : super(key: key);
 
   @override
   _AddressSearchFieldState createState() => _AddressSearchFieldState();
@@ -38,10 +37,21 @@ class _AddressSearchFieldState extends State<AddressSearchField> {
           controller: widget.controller,
           style: TextStyle(color: Theme.of(context).colorScheme.onSecondary),
           decoration: InputDecoration(
-            border: const OutlineInputBorder(),
+            border: OutlineInputBorder(
+              borderSide: BorderSide(color: widget.hasError ? Colors.red : Colors.grey),
+            ),
+            enabledBorder: OutlineInputBorder(
+              borderSide: BorderSide(color: widget.hasError ? Colors.red : Colors.grey),
+            ),
+            focusedBorder: OutlineInputBorder(
+              borderSide: BorderSide(color: widget.hasError ? Colors.red : Theme.of(context).colorScheme.primary),
+            ),
             labelText: (widget.isEvent) ? "Enter The Event's Address" : "Enter Your Location",
-            labelStyle: TextStyle(color: Theme.of(context).colorScheme.onSecondary),
+            labelStyle: TextStyle(
+              color: widget.hasError ? Colors.red : Theme.of(context).colorScheme.onSecondary,
+            ),
             contentPadding: const EdgeInsets.all(5),
+            errorText: widget.hasError ? "Location is required" : null,
           ),
           onChanged: (value) {
             if (value.length > 3) {

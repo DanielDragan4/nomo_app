@@ -31,13 +31,31 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
       if (!login) {
         ref.watch(onSignUp.notifier).notifyAccountCreation();
       }
+
+      setState(() {
+        _emailError = false;
+        _passwordError = false;
+        _emailErrorText = '';
+        _passwordErrorText = '';
+      });
     } catch (error) {
-      ScaffoldMessenger.of(context).clearSnackBars();
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Authentication Failed'),
-        ),
-      );
+      setState(() {
+        if (error.toString().contains('Invalid email')) {
+          _emailError = true;
+          _emailErrorText = 'Invalid email address';
+        } else if (error.toString().contains('Invalid password')) {
+          _passwordError = true;
+          _passwordErrorText = 'Incorrect password';
+        } else {
+          // Generic error handling
+          ScaffoldMessenger.of(context).clearSnackBars();
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Authentication Failed'),
+            ),
+          );
+        }
+      });
     }
     ref.read(savedSessionProvider.notifier).changeSessionDataList();
   }
@@ -49,6 +67,10 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
   bool _obscurePass = true;
   bool _obscurePassConfirm = true;
   final isAuthenticating = false;
+  bool _emailError = false;
+  bool _passwordError = false;
+  String _emailErrorText = '';
+  String _passwordErrorText = '';
 
   @override
   Widget build(BuildContext context) {
@@ -80,7 +102,18 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                         mainAxisSize: MainAxisSize.min,
                         children: [
                           TextFormField(
-                            decoration: const InputDecoration(labelText: "Email Address"),
+                            decoration: InputDecoration(
+                              labelText: "Email Address",
+                              errorText: _emailError ? _emailErrorText : null,
+                              errorStyle: TextStyle(color: Colors.red),
+                              enabledBorder: OutlineInputBorder(
+                                borderSide: BorderSide(color: _emailError ? Colors.red : Colors.grey),
+                              ),
+                              focusedBorder: OutlineInputBorder(
+                                borderSide:
+                                    BorderSide(color: _emailError ? Colors.red : Theme.of(context).primaryColor),
+                              ),
+                            ),
                             keyboardType: TextInputType.emailAddress,
                             autocorrect: false,
                             textCapitalization: TextCapitalization.none,
@@ -96,6 +129,15 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                           TextFormField(
                             decoration: InputDecoration(
                               labelText: "Password",
+                              errorText: _passwordError ? _passwordErrorText : null,
+                              errorStyle: TextStyle(color: Colors.red),
+                              enabledBorder: OutlineInputBorder(
+                                borderSide: BorderSide(color: _passwordError ? Colors.red : Colors.grey),
+                              ),
+                              focusedBorder: OutlineInputBorder(
+                                borderSide:
+                                    BorderSide(color: _passwordError ? Colors.red : Theme.of(context).primaryColor),
+                              ),
                               suffixIcon: IconButton(
                                 onPressed: () {
                                   _obscurePass = !_obscurePass;

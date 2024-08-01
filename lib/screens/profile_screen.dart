@@ -164,7 +164,6 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
     }
 
     if (widget.isUser) {
-
       ref.read(profileProvider.notifier).decodeData();
       profile = ref.watch(profileProvider.notifier).state;
       ref.read(attendEventsProvider.notifier).deCodeData();
@@ -380,9 +379,10 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
                                               stream: ref.read(attendEventsProvider.notifier).stream,
                                               builder: (context, snapshot) {
                                                 if (snapshot.data != null) {
-                                                  final attendingEvents
-                                                   = snapshot.data!
-                                                      .where((event) => (event.otherHost == null) ? event.attending || event.isHost : event.otherAttend || event.otherHost)
+                                                  final attendingEvents = snapshot.data!
+                                                      .where((event) => (event.otherHost == null)
+                                                          ? event.attending || event.isHost
+                                                          : event.otherAttend || event.otherHost)
                                                       .toList();
                                                   var attendingEventCount = attendingEvents.length;
                                                   for (Event event in attendingEvents) {
@@ -471,7 +471,7 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
                                   Row(children: [
                                     IconButton(
                                       onPressed: () {
-                                        Navigator.of(context).push(
+                                        Navigator.of(context, rootNavigator: true).push(
                                             MaterialPageRoute(builder: (context) => const NewEventScreen(event: null)));
                                       },
                                       icon: const Icon(Icons.add),
@@ -606,7 +606,8 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
                           if (snapshot.data != null) {
                             final hostingEvents = snapshot.data!.where((event) {
                               if (showHosting && event.otherHost) {
-                                return true;}
+                                return true;
+                              }
                               return false;
                             }).toList();
                             final attendingEvents = snapshot.data!.where((event) {
@@ -643,8 +644,7 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
                                   childCount: attendingEvents.length,
                                 ),
                               );
-                            }
-                             else if (isSelected.last && hostingEvents.isNotEmpty) {
+                            } else if (isSelected.last && hostingEvents.isNotEmpty) {
                               return SliverList(
                                 delegate: SliverChildBuilderDelegate(
                                   (context, index) {
@@ -660,13 +660,12 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
                                   childCount: hostingEvents.length,
                                 ),
                               );
-                            }
-                            else {
+                            } else {
                               return const SliverFillRemaining(
-                              child: Center(
-                                child: Text("No Events Hosted"),
-                              ),
-                            );
+                                child: Center(
+                                  child: Text("No Events Hosted"),
+                                ),
+                              );
                             }
                           } else {
                             return const SliverFillRemaining(

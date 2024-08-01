@@ -1,4 +1,3 @@
-
 class Event {
   Event({
     required this.eventId,
@@ -21,6 +20,7 @@ class Event {
     required this.friends,
     required this.numOfComments,
     required this.isVirtual,
+    this.categories,
     this.otherHost,
     this.otherAttend,
     this.otherBookmark,
@@ -46,6 +46,7 @@ class Event {
   final friends;
   final int numOfComments;
   final bool isVirtual;
+  var categories;
   var otherHost;
   var otherAttend;
   var otherBookmark;

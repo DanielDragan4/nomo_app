@@ -28,8 +28,7 @@ class EventProvider extends StateNotifier<List?> {
     final getLocation = await SharedPreferences.getInstance();
     final exsistingLocation = getLocation.getStringList('savedLocation');
     final setRadius = getLocation.getStringList('savedRadius');
-    final _currentPosition =
-        Position.fromMap(json.decode(exsistingLocation![0]));
+    final _currentPosition = Position.fromMap(json.decode(exsistingLocation![0]));
     final _preferredRadius = double.parse(setRadius!.first);
     var events = await supabaseClient.rpc('get_recommended_events', params: {
       'user_lon': _currentPosition.longitude,
@@ -40,7 +39,7 @@ class EventProvider extends StateNotifier<List?> {
   }
 
   Future<void> deCodeData() async {
-     /*
+    /*
       Receives a list of events from readEvents in the form of a List<Map>. This list is then decoded
       and each object in the list is converted to an Event Data type. During this process the Events image
       url is received from the database for the event and the host of the event. The event is also checked
@@ -52,7 +51,7 @@ class EventProvider extends StateNotifier<List?> {
       
       Returns: None, Provider state is set
     */
-    
+
     final codedList = await readEvents();
 
     List<Event> deCodedList = [];
@@ -60,12 +59,8 @@ class EventProvider extends StateNotifier<List?> {
 
     for (var eventData in codedList) {
       print(eventData);
-      String profilePictureUrl = supabaseClient.storage
-          .from('Images')
-          .getPublicUrl(eventData['profile_path']);
-      String eventUrl = supabaseClient.storage
-          .from('Images')
-          .getPublicUrl(eventData['event_path']);
+      String profilePictureUrl = supabaseClient.storage.from('Images').getPublicUrl(eventData['profile_path']);
+      String eventUrl = supabaseClient.storage.from('Images').getPublicUrl(eventData['event_path']);
       bool bookmarked = false;
       for (var bookmark in eventData['bookmarked']) {
         if (bookmark == supabaseClient.auth.currentUser!.id) {
@@ -94,8 +89,9 @@ class EventProvider extends StateNotifier<List?> {
           isHost: false,
           friends: eventData['friends_attending'],
           numOfComments: eventData['comments_num'].length,
-          isVirtual: eventData['is_virtual'], 
-          attending: false);
+          isVirtual: eventData['is_virtual'],
+          attending: false,
+          categories: eventData['event_interests']);
 
       for (var i = 0; i < deCodedEvent.attendees.length; i++) {
         if (deCodedEvent.attendees[i] == supabaseClient.auth.currentUser!.id) {
@@ -111,8 +107,10 @@ class EventProvider extends StateNotifier<List?> {
       } else {
         deCodedEvent.isHost = true;
       }
+
       deCodedList.add(deCodedEvent);
     }
+
     state = deCodedList;
   }
 
@@ -167,11 +165,7 @@ class EventProvider extends StateNotifier<List?> {
       Returns: none
     */
     final supabaseClient = (await supabase).client;
-    await supabaseClient
-        .from('Bookmarked')
-        .delete()
-        .eq('event_id', eventToMark)
-        .eq('user_id', currentUser);
+    await supabaseClient.from('Bookmarked').delete().eq('event_id', eventToMark).eq('user_id', currentUser);
     await deCodeData();
   }
 
@@ -185,10 +179,7 @@ class EventProvider extends StateNotifier<List?> {
       Returns: List of Comments
     */
     final supabaseClient = (await supabase).client;
-    var comments = await supabaseClient
-        .from('event_comments')
-        .select('*')
-        .eq("event_id", eventId);
+    var comments = await supabaseClient.from('event_comments').select('*').eq("event_id", eventId);
     return comments.toList();
   }
 
@@ -207,9 +198,7 @@ class EventProvider extends StateNotifier<List?> {
     final supabaseClient = (await supabase).client;
 
     for (var commentData in codedList) {
-      String profileUrl = supabaseClient.storage
-          .from('Images')
-          .getPublicUrl(commentData['profile_path']);
+      String profileUrl = supabaseClient.storage.from('Images').getPublicUrl(commentData['profile_path']);
 
       final Comment decodedComment = Comment(
           comment_id: commentData['comments_id'],
@@ -225,9 +214,8 @@ class EventProvider extends StateNotifier<List?> {
     return deCodedList;
   }
 
-  Future<List<Comment>> postComment(
-      currentUser, eventid, String comment, replyId) async {
-        /*
+  Future<List<Comment>> postComment(currentUser, eventid, String comment, replyId) async {
+    /*
       takes in the new comments data to then insert this new comment into the comments tabe.
       gets the new Comments list and returns it
 
@@ -236,12 +224,7 @@ class EventProvider extends StateNotifier<List?> {
       Returns: List of Comments
     */
     final supabaseClient = (await supabase).client;
-    final newCommentMap = {
-      'reply_id': replyId,
-      'user_id': currentUser,
-      'comment_text': comment,
-      'event_id': eventid
-    };
+    final newCommentMap = {'reply_id': replyId, 'user_id': currentUser, 'comment_text': comment, 'event_id': eventid};
     await supabaseClient.from('Comments').insert(newCommentMap);
     return await getComments(eventid);
   }
@@ -275,12 +258,8 @@ class EventProvider extends StateNotifier<List?> {
     final codedEvent = await readLinkEvent(eventId);
     final supabaseClient = (await supabase).client;
 
-    String profilePictureUrl = supabaseClient.storage
-        .from('Images')
-        .getPublicUrl(codedEvent['profile_path']);
-    String eventUrl = supabaseClient.storage
-        .from('Images')
-        .getPublicUrl(codedEvent['event_path']);
+    String profilePictureUrl = supabaseClient.storage.from('Images').getPublicUrl(codedEvent['profile_path']);
+    String eventUrl = supabaseClient.storage.from('Images').getPublicUrl(codedEvent['event_path']);
     bool bookmarked = false;
     for (var bookmark in codedEvent['Bookmarked']) {
       if (bookmark['user_id'] == supabaseClient.auth.currentUser!.id) {
@@ -310,11 +289,11 @@ class EventProvider extends StateNotifier<List?> {
         isHost: false,
         friends: codedEvent['friends_attending'],
         numOfComments: codedEvent['comments_num'].length,
-        isVirtual: codedEvent['is_virtual']);
+        isVirtual: codedEvent['is_virtual'],
+        categories: codedEvent['event_interests']);
 
     for (var i = 0; i < deCodedEvent.attendees.length; i++) {
-      if (deCodedEvent.attendees[i]['user_id'] ==
-          supabaseClient.auth.currentUser!.id) {
+      if (deCodedEvent.attendees[i]['user_id'] == supabaseClient.auth.currentUser!.id) {
         deCodedEvent.attending = true;
         break;
       }
@@ -322,7 +301,7 @@ class EventProvider extends StateNotifier<List?> {
     return deCodedEvent;
   }
 
-  Future<Event?> updateEventData(eventId) async{
+  Future<Event?> updateEventData(eventId) async {
     /*
       takes in an eventId to then get the data of an updated event and then places the new event into the list
 
@@ -331,7 +310,7 @@ class EventProvider extends StateNotifier<List?> {
       Returns: List of data
     */
     for (var i = 0; i < state!.length; i++) {
-      if(state![i].eventId == eventId) {
+      if (state![i].eventId == eventId) {
         Event newEventData = await deCodeLinkEvent(eventId);
         state![i] = newEventData;
         return state![i];
@@ -349,8 +328,7 @@ class EventProvider extends StateNotifier<List?> {
       Returns: List of data
     */
     final supabaseClient = (await supabase).client;
-    var attendees = await supabaseClient
-        .rpc('attendees_by_event',params: {'current_event_id' : eventId});
+    var attendees = await supabaseClient.rpc('attendees_by_event', params: {'current_event_id': eventId});
     return attendees.toList();
   }
 
@@ -369,14 +347,10 @@ class EventProvider extends StateNotifier<List?> {
     final supabaseClient = (await supabase).client;
 
     for (var attendeeData in codedList) {
-      String profileUrl = supabaseClient.storage
-          .from('Images')
-          .getPublicUrl(attendeeData['profile_path']);
+      String profileUrl = supabaseClient.storage.from('Images').getPublicUrl(attendeeData['profile_path']);
 
       final Friend decodedAttendee = Friend(
-          friendProfileId: attendeeData['user_id'],
-          friendUsername: attendeeData['username'],
-          avatar: profileUrl);
+          friendProfileId: attendeeData['user_id'], friendUsername: attendeeData['username'], avatar: profileUrl);
 
       deCodedList.add(decodedAttendee);
     }
@@ -392,10 +366,9 @@ class EventProvider extends StateNotifier<List?> {
       
       Returns: List of data
     */
-    
+
     final supabaseClient = (await supabase).client;
-    var comments = await supabaseClient
-        .rpc('friends_by_event',params: {'event_id_t' : eventId});
+    var comments = await supabaseClient.rpc('friends_by_event', params: {'event_id_t': eventId});
     return comments.toList();
   }
 
@@ -414,14 +387,10 @@ class EventProvider extends StateNotifier<List?> {
     final supabaseClient = (await supabase).client;
 
     for (var attendeeData in codedList) {
-      String profileUrl = supabaseClient.storage
-          .from('Images')
-          .getPublicUrl(attendeeData['profile_path']);
+      String profileUrl = supabaseClient.storage.from('Images').getPublicUrl(attendeeData['profile_path']);
 
       final Friend decodedAttendee = Friend(
-          friendProfileId: attendeeData['user_id'],
-          friendUsername: attendeeData['username'],
-          avatar: profileUrl);
+          friendProfileId: attendeeData['user_id'], friendUsername: attendeeData['username'], avatar: profileUrl);
 
       deCodedList.add(decodedAttendee);
     }

@@ -1,14 +1,20 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
+import 'package:flutter_branch_sdk/flutter_branch_sdk.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:intl/intl.dart';
 import 'package:maps_launcher/maps_launcher.dart';
 import 'package:nomo/models/events_model.dart';
+import 'package:nomo/providers/attending_events_provider.dart';
+import 'package:nomo/providers/events_provider.dart';
 import 'package:nomo/providers/profile_provider.dart';
 import 'package:nomo/providers/supabase_provider.dart';
 import 'package:nomo/screens/detailed_event_screen.dart';
+import 'package:nomo/screens/new_event_screen.dart';
 import 'package:nomo/screens/profile_screen.dart';
-import 'package:nomo/widgets/event_info.dart';
+import 'package:nomo/widgets/comments_section_widget.dart';
+import 'package:nomo/widgets/event_attendees_widget.dart';
+import 'package:share/share.dart';
 
 // Widget used to display all event information in recommended and profile screen
 // Calls EventInfo to build all details below the location
@@ -17,11 +23,12 @@ import 'package:nomo/widgets/event_info.dart';
 // - 'eventData': all relevant data pertaining to specific event
 // - 'bookmarkSet(optional)': if current user has this event bookmarked or not
 // - 'preloadedImage'(optional): image for specified event. only passed in if already loaded
+enum Options { itemOne}
 
 class EventTab extends ConsumerStatefulWidget {
   EventTab({Key? key, required this.eventData, this.bookmarkSet, this.preloadedImage}) : super(key: key);
 
-  final Event eventData;
+  Event eventData;
   final bool? bookmarkSet;
   final ImageProvider? preloadedImage;
 
@@ -30,26 +37,32 @@ class EventTab extends ConsumerStatefulWidget {
 }
 
 class _EventTabState extends ConsumerState<EventTab> {
+  late bool bookmarkBool;
+
+    @override
+  void initState() {
+    super.initState();
+    bookmarkBool = widget.eventData.bookmarked;
+  }
+
+  @override
+  void didUpdateWidget(EventTab oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.eventData != oldWidget.eventData) {
+      setState(() {
+        widget.eventData = widget.eventData;
+        bookmarkBool = widget.eventData.bookmarked;
+      });
+    }
+  }
   @override
   Widget build(BuildContext context) {
     
     final DateTime date = DateTime.parse(widget.eventData.sdate);
     final formattedDate = "${date.month}/${date.day}/${date.year} at ${_getFormattedHour(date)}";
 
-    final bool isHostOrAttending;
-    if((widget.eventData.otherAttend != null) && (widget.eventData.otherHost != null)) {
-      isHostOrAttending = widget.eventData.otherHost || widget.eventData.otherAttend;
-    } else {
-      isHostOrAttending = widget.eventData.isHost || widget.eventData.attending;
-    }
-
-    @override
-    void didUpdateWidget(EventTab oldWidget) {
-      super.didUpdateWidget(oldWidget);
-      if (widget.eventData != oldWidget.eventData) {
-        setState(() {});
-      }
-    }
+    final bool isHostOrAttending = widget.eventData.isHost || widget.eventData.attending;
+  
 
     return Card(
       elevation: 4,
@@ -92,14 +105,28 @@ class _EventTabState extends ConsumerState<EventTab> {
                     _buildEventTitle(context),
                     const SizedBox(height: 8),
                     _buildEventLocation(context),
-                    EventInfo(
-                      eventsData: widget.eventData,
-                      bookmarkSet: widget.bookmarkSet,
-                    ),
+                    LayoutBuilder(
+                  builder: (context, constraints) {
+                  final isSmallScreen = constraints.maxWidth < 600;
+                  return Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        _buildDateTimeInfo(context, isSmallScreen),
+                        const SizedBox(height: 8),
+                        _buildAttendeeInfo(context, isSmallScreen),
+                        const SizedBox(height: 16),
+                        _buildActionButtons(context, isSmallScreen),
+                          ],
+                        ),
+                      );
+                    },
+                  ),
                     const SizedBox(height: 12),
                     //_buildEventDescription(context),
                     const SizedBox(height: 12),
-                    _buildGetDetails(context)
+                    _buildGetDetails(context),
                   ],
                 ),
               ),
@@ -111,12 +138,7 @@ class _EventTabState extends ConsumerState<EventTab> {
   }
 
   Widget _buildHostOrAttendingIndicator() {
-    var host;
-    if((widget.eventData.otherAttend != null) && (widget.eventData.otherHost != null)) {
-      host = widget.eventData.otherHost;
-    } else {
-      host = widget.eventData.isHost;
-    }
+    var host = widget.eventData.isHost;
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
       decoration: BoxDecoration(
@@ -228,7 +250,7 @@ class _EventTabState extends ConsumerState<EventTab> {
     return GestureDetector(
       onTap: () => Navigator.of(context).push(MaterialPageRoute(
         builder: (context) => DetailedEventScreen(eventData: widget.eventData),
-      )),
+      )).whenComplete(newData),
       child: AspectRatio(
         aspectRatio: 16 / 9,
         child: widget.preloadedImage != null
@@ -249,7 +271,7 @@ class _EventTabState extends ConsumerState<EventTab> {
     return GestureDetector(
         onTap: () => Navigator.of(context).push(MaterialPageRoute(
               builder: (context) => DetailedEventScreen(eventData: widget.eventData),
-            )),
+            )).whenComplete(newData),
         child: Text(
           widget.eventData.title,
           style: Theme.of(context).textTheme.headlineLarge?.copyWith(
@@ -298,20 +320,6 @@ class _EventTabState extends ConsumerState<EventTab> {
           );
   }
 
-  Widget _buildEventDescription(BuildContext context) {
-    return GestureDetector(
-      onTap: () => Navigator.of(context).push(MaterialPageRoute(
-        builder: (context) => DetailedEventScreen(eventData: widget.eventData),
-      )),
-      child: Text(
-        widget.eventData.description,
-        maxLines: 3,
-        overflow: TextOverflow.ellipsis,
-        style: TextStyle(color: Theme.of(context).colorScheme.onSurface),
-      ),
-    );
-  }
-
   Widget _buildGetDetails(BuildContext context) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
@@ -319,7 +327,7 @@ class _EventTabState extends ConsumerState<EventTab> {
         GestureDetector(
             onTap: () => Navigator.of(context).push(MaterialPageRoute(
                   builder: (context) => DetailedEventScreen(eventData: widget.eventData),
-                )),
+                )).whenComplete(newData),
             child: Text(
               'View Details',
               style: Theme.of(context).textTheme.bodyLarge?.copyWith(
@@ -335,5 +343,462 @@ class _EventTabState extends ConsumerState<EventTab> {
     final hour = date.hour > 12 ? date.hour - 12 : date.hour;
     final period = date.hour >= 12 ? 'P.M.' : 'A.M.';
     return '$hour $period';
+  }
+  Widget _buildDateTimeInfo(BuildContext context, bool isSmallScreen) {
+    final startDate = DateTime.parse(widget.eventData.sdate);
+    final endDate = DateTime.parse(widget.eventData.edate);
+    final dateFormat = DateFormat('MMM d, yyyy');
+    final timeFormat = DateFormat('h:mm a');
+
+    var displayedDates;
+
+    if (dateFormat.format(startDate) == dateFormat.format(endDate)) {
+      displayedDates = "${dateFormat.format(startDate)}";
+    } else {
+      displayedDates = "${dateFormat.format(startDate)} - ${dateFormat.format(endDate)}";
+    }
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          'Date: $displayedDates',
+          style: TextStyle(
+            fontSize: isSmallScreen ? 14 : 16,
+            fontWeight: FontWeight.bold,
+            color: Theme.of(context).colorScheme.onSecondary,
+          ),
+        ),
+        const SizedBox(height: 4),
+        Text(
+          'Time: ${timeFormat.format(startDate)} - ${timeFormat.format(endDate)}',
+          style: TextStyle(
+            fontSize: isSmallScreen ? 14 : 16,
+            color: Theme.of(context).colorScheme.onSecondary,
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildAttendeeInfo(BuildContext context, bool isSmallScreen) {
+    return Row(
+      children: [
+        GestureDetector(
+          onTap: () {
+            showModalBottomSheet(
+                context: context,
+                isScrollControlled: true,
+                isDismissible: true,
+                builder: (context) {
+                  return Container(
+                    height: MediaQuery.of(context).size.height * .6,
+                    padding: const EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      color: Theme.of(context).cardColor,
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(
+                              'People Attending',
+                              style: TextStyle(
+                                color: Theme.of(context).primaryColor,
+                                fontWeight: FontWeight.bold,
+                                fontSize: 30,
+                              ),
+                            ),
+                            IconButton(
+                              icon: const Icon(Icons.close),
+                              onPressed: () => Navigator.of(context).pop(),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 8),
+                        Flexible(
+                          child: AttendeesSection(
+                            eventId: widget.eventData.eventId,
+                            areFriends: false,
+                          ),
+                        ),
+                      ],
+                    ),
+                  );
+                });
+          },
+          child: _buildInfoItem(context, '${widget.eventData.attendees.length}', 'Attending', isSmallScreen),
+        ),
+        SizedBox(width: MediaQuery.of(context).size.width * .04),
+        GestureDetector(
+          onTap: () {
+            showModalBottomSheet(
+                isScrollControlled: true,
+                isDismissible: true,
+                context: context,
+                builder: (context) {
+                  return Container(
+                    height: MediaQuery.of(context).size.height * .6,
+                    padding: const EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      color: Theme.of(context).cardColor,
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(
+                              'Friends Attending',
+                              style: TextStyle(
+                                color: Theme.of(context).primaryColor,
+                                fontWeight: FontWeight.bold,
+                                fontSize: 30,
+                              ),
+                            ),
+                            IconButton(
+                              icon: const Icon(Icons.close),
+                              onPressed: () => Navigator.of(context).pop(),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 8),
+                        Flexible(
+                          child: AttendeesSection(
+                            eventId: widget.eventData.eventId,
+                            areFriends: true,
+                          ),
+                        ),
+                      ],
+                    ),
+                  );
+                });
+          },
+          child: _buildInfoItem(context, '${widget.eventData.friends.length}', 'Friends', isSmallScreen),
+        ),
+        SizedBox(width: MediaQuery.of(context).size.width * .04),
+        GestureDetector(
+          onTap: () {
+            if (!Navigator.of(context).canPop()) {
+              showModalBottomSheet(
+                  context: context,
+                  isScrollControlled: true,
+                  isDismissible: true,
+                  builder: (context) {
+                    return Container(
+                      height: MediaQuery.of(context).size.height * .6,
+                      padding: const EdgeInsets.all(16),
+                      decoration: BoxDecoration(
+                        color: Theme.of(context).cardColor,
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text(
+                                'Comments',
+                                style: TextStyle(
+                                  color: Theme.of(context).primaryColor,
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 30,
+                                ),
+                              ),
+                              IconButton(
+                                icon: const Icon(Icons.close),
+                                onPressed: () => Navigator.of(context).pop(),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 8),
+                          Flexible(
+                            child: CommentsSection(eventId: widget.eventData.eventId),
+                          ),
+                        ],
+                      ),
+                    );
+                  });
+            }
+          },
+          child: _buildInfoItem(context, '${widget.eventData.numOfComments}', 'Comments', isSmallScreen),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildInfoItem(BuildContext context, String value, String label, bool isSmallScreen) {
+    return Column(
+      children: [
+        Text(
+          value,
+          style: TextStyle(
+            fontSize: isSmallScreen ? 16 : 18,
+            fontWeight: FontWeight.bold,
+            color: Theme.of(context).colorScheme.onSecondary,
+          ),
+        ),
+        Text(
+          label,
+          style: TextStyle(
+            fontSize: isSmallScreen ? 12 : 14,
+            color: Theme.of(context).colorScheme.onSecondary,
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildActionButtons(BuildContext context, bool isSmallScreen) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Expanded(
+          child: _buildJoinLeaveButton(context, isSmallScreen),
+        ),
+        const SizedBox(width: 8),
+        _buildBookmarkButton(context),
+        _buildMoreOptionsButton(context),
+      ],
+    );
+  }
+
+  Widget _buildJoinLeaveButton(BuildContext context, bool isSmallScreen) {
+    return FutureBuilder(
+      future: ref.read(supabaseInstance),
+      builder: (context, snapshot) {
+        if (snapshot.hasData && snapshot.data != null) {
+          final supabase = snapshot.data!.client;
+          final currentUser = supabase.auth.currentUser!.id;
+          final isHost = (widget.eventData.host == currentUser);
+          bool isAttending = widget.eventData.attending;
+
+          String buttonText = isHost ? 'Edit' : (isAttending ? 'Leave' : 'Join');
+
+          return ElevatedButton(
+            onPressed: () => _handleJoinLeaveAction(context, isHost, isAttending, currentUser),
+            style: ElevatedButton.styleFrom(
+              padding: EdgeInsets.symmetric(vertical: isSmallScreen ? 8 : 12),
+            ),
+            child: Text(buttonText, style: TextStyle(fontSize: isSmallScreen ? 14 : 16)),
+          );
+        }
+        return const SizedBox.shrink();
+      },
+    );
+  }
+
+  void _handleJoinLeaveAction(BuildContext context, bool isHost, bool isAttending, String currentUser) {
+    if (isHost) {
+      _showEditEventDialog(context);
+    } else if (isAttending) {
+      _showLeaveEventDialog(context);
+    } else {
+      _joinEvent(context, currentUser);
+    }
+  }
+
+  void _showEditEventDialog(BuildContext context) {
+    Navigator.of(context).push(MaterialPageRoute(
+      builder: ((context) => NewEventScreen(
+            event: widget.eventData,
+            isEdit: true,
+          )),
+    ));
+  }
+
+  void _showLeaveEventDialog(BuildContext context) async {
+    final supabase = (await ref.read(supabaseInstance)).client;
+    await attendeeLeaveEvent();
+    await ref.read(profileProvider.notifier).deleteBlockedTime(null, widget.eventData.eventId);
+    var newEData = await ref.read(eventsProvider.notifier).deCodeLinkEvent(widget.eventData.eventId);
+
+    if(widget.eventData.otherHost != null) {
+      newEData.otherAttend = widget.eventData.attending;
+      newEData.otherHost = widget.eventData.otherHost;
+      newEData.otherBookmark = widget.eventData.otherBookmark;
+    }
+
+    ScaffoldMessenger.of(context).hideCurrentSnackBar();
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text("Left ${widget.eventData.title}")),
+    );
+  }
+  Future<void> newData() async{
+    Event newEventData = await ref.read(eventsProvider.notifier).deCodeLinkEvent(widget.eventData.eventId);
+    if(widget.eventData.otherHost != null) {
+      newEventData.otherAttend = widget.eventData.attending;
+      newEventData.otherHost = widget.eventData.otherHost;
+      newEventData.otherBookmark = widget.eventData.otherBookmark;
+    }
+    setState(() {
+      widget.eventData= newEventData;
+    });
+  }
+
+  void _joinEvent(BuildContext context, String currentUser) async {
+    final supabase = (await ref.read(supabaseInstance)).client;
+    await ref.read(profileProvider.notifier).createBlockedTime(
+          currentUser,
+          widget.eventData.sdate,
+          widget.eventData.edate,
+          widget.eventData.title,
+          widget.eventData.eventId,
+        );
+    await attendeeJoinEvent();
+    var newEventData = await ref.read(eventsProvider.notifier).deCodeLinkEvent(widget.eventData.eventId);
+    if(widget.eventData.otherHost != null) {
+      newEventData.otherAttend = widget.eventData.attending;
+      newEventData.otherHost = widget.eventData.otherHost;
+      newEventData.otherBookmark = widget.eventData.otherBookmark;
+    }
+
+        setState(() {
+      widget.eventData.attending = true;
+      widget.eventData.attendees.remove(supabase.auth.currentUser!.id);
+    });
+
+  print(widget.eventData.attending);
+      Navigator.of(context).push(MaterialPageRoute(
+        builder: (context) => DetailedEventScreen(
+          eventData: widget.eventData,
+        ),
+      )).whenComplete(newData);
+    ScaffoldMessenger.of(context).hideCurrentSnackBar();
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text("Joined ${widget.eventData.title}")),
+    );
+  }
+
+  Widget _buildBookmarkButton(BuildContext context) {
+    return FutureBuilder(
+        future: ref.read(supabaseInstance),
+        builder: (context, snapshot) {
+          if (snapshot.hasData && snapshot.data != null) {
+            final supabase = snapshot.data!.client;
+            final currentUser = supabase.auth.currentUser!.id;
+            final isHost = widget.eventData.host == currentUser;
+            return (isHost)
+                ? const SizedBox()
+                : IconButton(
+                    onPressed: () {
+                      setState(() {
+                        bookmarkBool
+                            ? {
+                                deBookmarkEvent(),
+                                ScaffoldMessenger.of(context).hideCurrentSnackBar(),
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(content: Text("UnBookmarked ${widget.eventData.title}")),
+                                )
+                              }
+                            : {
+                                bookmarkEvent(),
+                                ScaffoldMessenger.of(context).hideCurrentSnackBar(),
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(content: Text("Bookmarked ${widget.eventData.title}")),
+                                )
+                              };
+                        bookmarkBool = !bookmarkBool;
+                      });
+                    },
+                    icon: Icon(
+                      bookmarkBool ? Icons.bookmark : Icons.bookmark_border_outlined,
+                      color: Theme.of(context).colorScheme.onSecondary,
+                    ),
+                  );
+          }
+          return const SizedBox();
+        });
+  }
+
+  Widget _buildMoreOptionsButton(BuildContext context) {
+    return PopupMenuButton<Options>(
+      iconColor: Theme.of(context).colorScheme.onSecondary,
+      onSelected: (Options item) {
+        if (item == Options.itemOne) {
+          _shareEventLink();
+        }
+      },
+      itemBuilder: (context) => <PopupMenuEntry<Options>>[
+        const PopupMenuItem(value: Options.itemOne, child: Text("Share Link")),
+      ],
+    );
+  }
+
+  Future<void> attendeeJoinEvent() async {
+    final supabase = (await ref.read(supabaseInstance)).client;
+    await ref.read(eventsProvider.notifier).joinEvent(supabase.auth.currentUser!.id, widget.eventData.eventId);
+  }
+
+  Future<void> attendeeLeaveEvent() async {
+    final supabase = (await ref.read(supabaseInstance)).client;
+    await ref.read(attendEventsProvider.notifier).leaveEvent(widget.eventData.eventId, supabase.auth.currentUser!.id);
+  }
+
+  Future<void> bookmarkEvent() async {
+    final supabase = (await ref.read(supabaseInstance)).client;
+    await ref.read(eventsProvider.notifier).bookmark(widget.eventData.eventId, supabase.auth.currentUser!.id);
+  }
+
+  Future<void> deBookmarkEvent() async {
+    final supabase = (await ref.read(supabaseInstance)).client;
+    await ref.read(eventsProvider.notifier).unBookmark(widget.eventData.eventId, supabase.auth.currentUser!.id);
+  }
+
+  Future<void> _shareEventLink() async {
+    final link = await generateBranchLink();
+    if (link != null) {
+      Share.share(
+        'Check out this event: $link',
+        subject: 'Event Link',
+      );
+    } else {
+      print('Error: Unable to generate Branch link');
+    }
+  }
+
+  Future<String?> generateBranchLink() async {
+    try {
+      BranchUniversalObject buo = BranchUniversalObject(
+        canonicalIdentifier: 'event/${widget.eventData.eventId}',
+        title: widget.eventData.title,
+        imageUrl: widget.eventData.imageUrl,
+        contentDescription: widget.eventData.description,
+        keywords: [],
+        publiclyIndex: true,
+        locallyIndex: true,
+        contentMetadata: BranchContentMetaData()..addCustomMetadata("event_id", widget.eventData.eventId),
+      );
+
+      BranchLinkProperties lp = BranchLinkProperties(
+        channel: 'app',
+        feature: 'sharing',
+        campaign: 'event_share',
+        stage: 'user_share',
+      )
+        ..addControlParam('\$fallback_url', 'https://example.com')
+        ..addControlParam('\$ios_url', 'https://apps.apple.com/app/id123456789')
+        ..addControlParam('\$android_url', 'https://play.google.com/store/apps/details?id=com.nomo.nomoapp');
+
+      BranchResponse response = await FlutterBranchSdk.getShortUrl(buo: buo, linkProperties: lp);
+      if (response.success) {
+        return response.result;
+      } else {
+        print('Error generating Branch link: ${response.errorMessage}');
+        return null;
+      }
+    } catch (e) {
+      print('Error: $e');
+      return null;
+    }
   }
 }

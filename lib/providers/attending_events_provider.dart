@@ -161,20 +161,20 @@ class AttendEventProvider extends StateNotifier<List<Event>> {
 
       bool attending = false;
       for (var i = 0; i < deCodedEvent.attendees.length; i++) {
-        if (deCodedEvent.attendees[i] == userId) {
+        if (deCodedEvent.attendees[i] == currentUser) {
           attending = true;
           deCodedEvent.attending = true;
         }
-        if (deCodedEvent.attendees[i] == currentUser) {
+        if (deCodedEvent.attendees[i] == userId) {
           deCodedEvent.otherAttend = true;
         }
       }
       if ((attending) || (deCodedEvent.host == userId || (bookmarked))) {
-        if (deCodedEvent.host == userId) {
+        if (deCodedEvent.host == currentUser) {
           deCodedEvent.isHost = true;
         }
       }
-      if(deCodedEvent.host == currentUser) {
+      if(deCodedEvent.host == userId) {
         deCodedEvent.otherHost = true;
       }
       deCodedList.add(deCodedEvent);

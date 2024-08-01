@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:nomo/models/availability_model.dart';
+import 'package:nomo/models/events_model.dart';
+import 'package:nomo/providers/events_provider.dart';
 import 'package:nomo/providers/profile_provider.dart';
 import 'package:nomo/screens/calendar/time_block.dart';
 import 'package:nomo/screens/detailed_event_screen.dart';
@@ -510,13 +512,14 @@ class _DayScreenState extends ConsumerState<DayScreen> {
             left: 80,
             right: 0,
             child: GestureDetector(
-              onTap: () {
+              onTap: () async{
                 if (!isEvent) {
                   _showEditTimeBlock(context, availID, blockStart, blockEnd - 1, blockedHours[blockStart]['title']);
                 } else {
+                  Event eventData =await ref.read(eventsProvider.notifier).deCodeLinkEvent(blockedHours[blockStart]['event_id']);
                   Navigator.of(context).push(MaterialPageRoute(
                     builder: (context) => DetailedEventScreen(
-                      linkEventId: blockedHours[blockStart]['event_id'],
+                      eventData: eventData ,
                     ),
                   ));
                 }

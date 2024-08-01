@@ -17,7 +17,6 @@ class NavBar extends ConsumerStatefulWidget {
 
 class _NavBarState extends ConsumerState<NavBar> {
   int _index = 0;
-  final PageController _pageController = PageController();
 
   final List<GlobalKey<NavigatorState>> _navigatorKeys = [
     GlobalKey<NavigatorState>(),
@@ -34,8 +33,20 @@ class _NavBarState extends ConsumerState<NavBar> {
       setState(() {
         _index = index;
       });
-      _pageController.jumpToPage(index);
     }
+  }
+
+  Future<bool> _onWillPop() async {
+    final isFirstRouteInCurrentTab = !await _navigatorKeys[_index].currentState!.maybePop();
+    if (isFirstRouteInCurrentTab) {
+      if (_index != 0) {
+        setState(() {
+          _index = 0;
+        });
+        return false;
+      }
+    }
+    return isFirstRouteInCurrentTab;
   }
 
   @override
@@ -43,65 +54,77 @@ class _NavBarState extends ConsumerState<NavBar> {
     var navBarTheme = Theme.of(context).bottomNavigationBarTheme;
     ref.read(profileProvider.notifier).decodeData();
 
-    return Scaffold(
-      bottomNavigationBar: BottomNavigationBar(
-        currentIndex: _index,
-        onTap: _onItemTapped,
-        items: [
-          BottomNavigationBarItem(
-            icon: Icon(Icons.event_available_outlined, color: navBarTheme.unselectedItemColor),
-            activeIcon: Icon(Icons.event_available, color: navBarTheme.selectedItemColor),
-            label: "Events",
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.search_rounded, color: navBarTheme.unselectedItemColor),
-            activeIcon: Icon(Icons.search_rounded, color: navBarTheme.selectedItemColor),
-            label: 'Search',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.calendar_month_outlined, color: navBarTheme.unselectedItemColor),
-            activeIcon: Icon(Icons.calendar_month, color: navBarTheme.selectedItemColor),
-            label: "Calendar",
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.people_alt_outlined, color: navBarTheme.unselectedItemColor),
-            activeIcon: Icon(Icons.people, color: navBarTheme.selectedItemColor),
-            label: "Friends",
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.person_2_outlined, color: navBarTheme.unselectedItemColor),
-            activeIcon: Icon(Icons.person_2, color: navBarTheme.selectedItemColor),
-            label: "Profile",
-          ),
-        ],
-      ),
-      body: PageView(
-        controller: _pageController,
-        physics: NeverScrollableScrollPhysics(),
-        onPageChanged: (index) {
-          setState(() {
-            _index = index;
-          });
-        },
-        children: [
-          _buildPage(const RecommendedScreen(), _navigatorKeys[0]),
-          _buildPage(const SearchScreen(), _navigatorKeys[1]),
-          _buildPage(const CalendarScreen(), _navigatorKeys[2]),
-          _buildPage(const FriendsScreen(isGroupChats: false), _navigatorKeys[3]),
-          _buildPage(ProfileScreen(isUser: true), _navigatorKeys[4]),
-        ],
+    return WillPopScope(
+      onWillPop: _onWillPop,
+      child: Scaffold(
+        bottomNavigationBar: BottomNavigationBar(
+          currentIndex: _index,
+          onTap: _onItemTapped,
+          items: [
+            BottomNavigationBarItem(
+              icon: Icon(Icons.event_available_outlined, color: navBarTheme.unselectedItemColor),
+              activeIcon: Icon(Icons.event_available, color: navBarTheme.selectedItemColor),
+              label: "Events",
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(Icons.search_rounded, color: navBarTheme.unselectedItemColor),
+              activeIcon: Icon(Icons.search_rounded, color: navBarTheme.selectedItemColor),
+              label: 'Search',
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(Icons.calendar_month_outlined, color: navBarTheme.unselectedItemColor),
+              activeIcon: Icon(Icons.calendar_month, color: navBarTheme.selectedItemColor),
+              label: "Calendar",
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(Icons.people_alt_outlined, color: navBarTheme.unselectedItemColor),
+              activeIcon: Icon(Icons.people, color: navBarTheme.selectedItemColor),
+              label: "Friends",
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(Icons.person_2_outlined, color: navBarTheme.unselectedItemColor),
+              activeIcon: Icon(Icons.person_2, color: navBarTheme.selectedItemColor),
+              label: "Profile",
+            ),
+          ],
+        ),
+        body: Stack(
+          children: List.generate(_navigatorKeys.length, (index) {
+            return _buildOffstageNavigator(index);
+          }),
+        ),
       ),
     );
   }
 
-  Widget _buildPage(Widget child, GlobalKey<NavigatorState> navigatorKey) {
-    return Navigator(
-      key: navigatorKey,
-      onGenerateRoute: (routeSettings) {
-        return MaterialPageRoute(
-          builder: (context) => child,
-        );
-      },
+  Widget _buildOffstageNavigator(int index) {
+    return Offstage(
+      offstage: _index != index,
+      child: Navigator(
+        key: _navigatorKeys[index],
+        onGenerateRoute: (routeSettings) {
+          return MaterialPageRoute(
+            builder: (context) => _buildPage(index),
+          );
+        },
+      ),
     );
+  }
+
+  Widget _buildPage(int index) {
+    switch (index) {
+      case 0:
+        return RecommendedScreen();
+      case 1:
+        return SearchScreen();
+      case 2:
+        return CalendarScreen();
+      case 3:
+        return FriendsScreen(isGroupChats: false);
+      case 4:
+        return ProfileScreen(isUser: true);
+      default:
+        return Container();
+    }
   }
 }

@@ -84,24 +84,20 @@ class _ProfileDropdownState extends ConsumerState<ProfileDropdown> {
                 value: options.itemThree,
                 child: const Text("Location"),
                 onTap: () {
-                  Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: ((context) => const LocationScreen(
-                                isCreation: false,
-                              ))));
+                  Navigator.of(context, rootNavigator: true).push(MaterialPageRoute(
+                      builder: ((context) => const LocationScreen(
+                            isCreation: false,
+                          ))));
                 },
               ),
               PopupMenuItem(
                 value: options.itemFour,
                 child: const Text("Settings"),
                 onTap: () {
-                  Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: ((context) => SettingScreen(
-                                isCorp: false,
-                              ))));
+                  Navigator.of(context, rootNavigator: true).push(MaterialPageRoute(
+                      builder: ((context) => SettingScreen(
+                            isCorp: false,
+                          ))));
                 },
               ),
               PopupMenuItem(

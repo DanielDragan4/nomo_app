@@ -629,6 +629,10 @@ class _EventTabState extends ConsumerState<EventTab> {
       newEData.otherHost = widget.eventData.otherHost;
       newEData.otherBookmark = widget.eventData.otherBookmark;
     }
+    setState(() {
+      widget.eventData.attending = false;
+      widget.eventData.attendees.remove(supabase.auth.currentUser!.id);
+    });
 
     ScaffoldMessenger.of(context).hideCurrentSnackBar();
     ScaffoldMessenger.of(context).showSnackBar(

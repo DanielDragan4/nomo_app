@@ -72,7 +72,6 @@ class _AppState extends ConsumerState<App> {
   StreamSubscription<Map>? streamSubscription;
   FirebaseMessaging firebaseMessaging = FirebaseMessaging.instance;
 
-
   @override
   void initState() {
     super.initState();
@@ -122,10 +121,12 @@ class _AppState extends ConsumerState<App> {
             theme: ThemeData().copyWith(
               cardColor: Color.fromARGB(255, 221, 221, 221),
               colorScheme: ColorScheme.fromSeed(
-                  onSecondary: Colors.black,
-                  seedColor: const Color.fromARGB(255, 80, 12, 122),
-                  onPrimaryContainer: const Color.fromARGB(255, 80, 12, 122),
-                  onPrimary: Color.fromARGB(255, 212, 212, 212),),
+                onSecondary: Colors.black,
+                seedColor: const Color.fromARGB(255, 80, 12, 122),
+                onPrimaryContainer: const Color.fromARGB(255, 80, 12, 122),
+                primary: Color.fromARGB(255, 139, 66, 185),
+                onPrimary: Color.fromARGB(255, 230, 230, 230),
+              ),
               bottomNavigationBarTheme: const BottomNavigationBarThemeData(
                 selectedItemColor: Color.fromARGB(255, 80, 12, 122),
                 unselectedItemColor: Color.fromARGB(255, 158, 158, 158),
@@ -147,13 +148,14 @@ class _AppState extends ConsumerState<App> {
               canvasColor: Colors.black,
               brightness: Brightness.dark,
               colorScheme: ColorScheme.fromSeed(
-                      onSecondary: const Color.fromARGB(255, 206, 206, 206),
-                      surface: Colors.black,
-                      brightness: Brightness.dark,
-                      seedColor: const Color.fromARGB(255, 109, 51, 146),
-                      onPrimaryContainer: const Color.fromARGB(255, 109, 51, 146),
-                      onPrimary: Color.fromARGB(255, 212, 212, 212),)
-                  .copyWith(surface: Colors.black),
+                onSecondary: const Color.fromARGB(255, 206, 206, 206),
+                surface: Colors.black,
+                brightness: Brightness.dark,
+                seedColor: const Color.fromARGB(255, 109, 51, 146),
+                onPrimaryContainer: Color.fromARGB(255, 237, 208, 255),
+                primary: Color.fromARGB(255, 139, 66, 185),
+                onPrimary: Color.fromARGB(255, 230, 230, 230),
+              ).copyWith(surface: Colors.black),
               textTheme: GoogleFonts.nunitoTextTheme(),
               // timePickerTheme: TimePickerThemeData(
               //   backgroundColor: Color.fromARGB(255, 44, 44, 44),

@@ -179,7 +179,7 @@ class _CustomTimePickerState extends State<CustomTimePicker> {
           color: isSelected ? colorScheme.primary : colorScheme.surface,
           borderRadius: BorderRadius.circular(8),
           border: Border.all(
-            color: isSelected ? colorScheme.primary : colorScheme.onSurface.withOpacity(0.2),
+            color: isSelected ? colorScheme.onPrimary : colorScheme.onSurface.withOpacity(0.2),
           ),
         ),
         child: Text(

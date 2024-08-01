@@ -1,4 +1,5 @@
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:calendar_view/calendar_view.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -32,12 +33,11 @@ class EventTab extends ConsumerStatefulWidget {
 class _EventTabState extends ConsumerState<EventTab> {
   @override
   Widget build(BuildContext context) {
-    
     final DateTime date = DateTime.parse(widget.eventData.sdate);
     final formattedDate = "${date.month}/${date.day}/${date.year} at ${_getFormattedHour(date)}";
 
     final bool isHostOrAttending;
-    if((widget.eventData.otherAttend != null) && (widget.eventData.otherHost != null)) {
+    if ((widget.eventData.otherAttend != null) && (widget.eventData.otherHost != null)) {
       isHostOrAttending = widget.eventData.otherHost || widget.eventData.otherAttend;
     } else {
       isHostOrAttending = widget.eventData.isHost || widget.eventData.attending;
@@ -99,7 +99,7 @@ class _EventTabState extends ConsumerState<EventTab> {
                     const SizedBox(height: 12),
                     //_buildEventDescription(context),
                     const SizedBox(height: 12),
-                    _buildGetDetails(context)
+                    _buildGetDetails(context, isHostOrAttending)
                   ],
                 ),
               ),
@@ -112,7 +112,7 @@ class _EventTabState extends ConsumerState<EventTab> {
 
   Widget _buildHostOrAttendingIndicator() {
     var host;
-    if((widget.eventData.otherAttend != null) && (widget.eventData.otherHost != null)) {
+    if ((widget.eventData.otherAttend != null) && (widget.eventData.otherHost != null)) {
       host = widget.eventData.otherHost;
     } else {
       host = widget.eventData.isHost;
@@ -312,7 +312,7 @@ class _EventTabState extends ConsumerState<EventTab> {
     );
   }
 
-  Widget _buildGetDetails(BuildContext context) {
+  Widget _buildGetDetails(BuildContext context, bool isHostOrAttending) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
@@ -324,7 +324,9 @@ class _EventTabState extends ConsumerState<EventTab> {
               'View Details',
               style: Theme.of(context).textTheme.bodyLarge?.copyWith(
                     fontWeight: FontWeight.bold,
-                    color: Theme.of(context).primaryColor,
+                    color: isHostOrAttending
+                        ? Theme.of(context).colorScheme.onPrimaryContainer // Color for hosted/attended events
+                        : Theme.of(context).colorScheme.onSecondary, // Default card color
                   ),
             )),
       ],

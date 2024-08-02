@@ -21,6 +21,8 @@ class _LocationScreenState extends State<LocationScreen> {
   double _preferredRadius = 10.0;
   TextEditingController manualLocation = TextEditingController();
   var hasPermission = false;
+  ScrollController scrollController = ScrollController();
+
 
   Future<void> getExistingLocation() async {
     final getLocation = await SharedPreferences.getInstance();
@@ -160,6 +162,7 @@ class _LocationScreenState extends State<LocationScreen> {
         centerTitle: true,
       ),
       body: SingleChildScrollView(
+        controller: scrollController,
         padding: const EdgeInsets.all(16.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -186,7 +189,10 @@ class _LocationScreenState extends State<LocationScreen> {
                     ),
                     SizedBox(height: 16),
                     ElevatedButton.icon(
-                      onPressed: _getCurrentPosition,
+                      onPressed: () {
+                      scrollController.animateTo(100, duration: Duration(milliseconds: 200), curve: Curves.easeIn);                        
+                      _getCurrentPosition;
+                      },
                       icon: Icon(Icons.my_location),
                       label: Text('Use Current Location'),
                       style: ElevatedButton.styleFrom(
@@ -207,7 +213,10 @@ class _LocationScreenState extends State<LocationScreen> {
                     ),
                     SizedBox(height: 8),
                     ElevatedButton.icon(
-                      onPressed: _setLocationManually,
+                      onPressed: () {
+                        _setLocationManually;
+                        scrollController.animateTo(100, duration: Duration(milliseconds: 200), curve: Curves.easeIn);   
+                        },
                       icon: Icon(Icons.edit_location),
                       label: Text('Set Manual Location'),
                       style: ElevatedButton.styleFrom(

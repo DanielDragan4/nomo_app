@@ -77,18 +77,26 @@ class _AppState extends ConsumerState<App> {
     ));
   }
 
+  void initBranch() async {
+    await FlutterBranchSdk.init(
+      useTestKey: true, // Use this for beta testing
+      enableLogging: true,
+      disableTracking: false
+    );
+  }
+
   @override
   void initState() {
     super.initState();
     checkProfile();
-    streamSubscription = FlutterBranchSdk.listSession().listen((data) {
-      if (data.containsKey("+clicked_branch_link") && data["+clicked_branch_link"] == true) {
-        String eventId = data["event_id"];
-        navigateToEvent(eventId);
-      }
-    }, onError: (error) {
-      print('listSession error: ${error.toString()}');
-    });
+    // streamSubscription = FlutterBranchSdk.listSession().listen((data) {
+    //   if (data.containsKey("+clicked_branch_link") && data["+clicked_branch_link"] == true) {
+    //     String eventId = data["event_id"];
+    //     navigateToEvent(eventId);
+    //   }
+    // }, onError: (error) {
+    //   print('listSession error: ${error.toString()}');
+    // });
 
     firebaseMessaging.setForegroundNotificationPresentationOptions(
       alert: true,

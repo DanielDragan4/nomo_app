@@ -46,6 +46,13 @@ import 'package:shared_preferences/shared_preferences.dart';
     hasPermission = await _handleLocationPermission();
     var _currentPosition;
 
+    final saveRadius = await SharedPreferences.getInstance();
+    var radius = saveRadius.getStringList('savedRadius');
+
+    if(radius == null || radius.isEmpty){
+      saveRadius.setStringList('savedRadius', [jsonEncode('10')]);
+    }
+
     if (!hasPermission) return;
     await Geolocator.getCurrentPosition(desiredAccuracy: LocationAccuracy.high)
         .then((Position position) {

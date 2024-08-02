@@ -15,8 +15,7 @@ import 'package:nomo/screens/new_event_screen.dart';
 import 'package:nomo/screens/profile_screen.dart';
 import 'package:nomo/widgets/comments_section_widget.dart';
 import 'package:nomo/widgets/event_attendees_widget.dart';
-import 'package:share/share.dart';
-
+import 'package:share_plus/share_plus.dart';
 // Widget used to display all event information in recommended and profile screen
 // Calls EventInfo to build all details below the location
 //
@@ -764,8 +763,8 @@ class _EventTabState extends ConsumerState<EventTab> {
     final link = await generateBranchLink();
     if (link != null) {
       Share.share(
-        'Check out this event: $link',
-        subject: 'Event Link',
+        'Check out this | ${widget.eventData.title}: $link',
+        subject: '${widget.eventData.title}',
       );
     } else {
       print('Error: Unable to generate Branch link');
@@ -773,20 +772,18 @@ class _EventTabState extends ConsumerState<EventTab> {
   }
 
   Future<String?> generateBranchLink() async {
-    try {
       BranchUniversalObject buo = BranchUniversalObject(
         canonicalIdentifier: 'event/${widget.eventData.eventId}',
         title: widget.eventData.title,
         imageUrl: widget.eventData.imageUrl,
         contentDescription: widget.eventData.description,
-        keywords: [],
         publiclyIndex: true,
         locallyIndex: true,
         contentMetadata: BranchContentMetaData()..addCustomMetadata("event_id", widget.eventData.eventId),
       );
 
       BranchLinkProperties lp = BranchLinkProperties(
-        channel: 'app',
+        channel: 'sharing',
         feature: 'sharing',
         campaign: 'event_share',
         stage: 'user_share',
@@ -802,9 +799,5 @@ class _EventTabState extends ConsumerState<EventTab> {
         print('Error generating Branch link: ${response.errorMessage}');
         return null;
       }
-    } catch (e) {
-      print('Error: $e');
-      return null;
-    }
   }
 }

@@ -71,6 +71,7 @@ class AttendEventProvider extends StateNotifier<List<Event>> {
         friends: eventData['friends_attending'],
         numOfComments: eventData['comments_num'].length,
         isVirtual: eventData['is_virtual'],
+        isRecurring: eventData['recurring'],
         categories: eventData['event_interests'],
       );
 
@@ -157,6 +158,7 @@ class AttendEventProvider extends StateNotifier<List<Event>> {
           friends: eventData['friends_attending'],
           numOfComments: eventData['comments_num'].length,
           isVirtual: eventData['is_virtual'],
+          isRecurring: eventData['recurring'],
           categories: eventData['event_interests'],
           otherBookmark: otherBookmark,
           otherAttend: false,
@@ -177,7 +179,7 @@ class AttendEventProvider extends StateNotifier<List<Event>> {
           deCodedEvent.isHost = true;
         }
       }
-      if(deCodedEvent.host == userId) {
+      if (deCodedEvent.host == userId) {
         deCodedEvent.otherHost = true;
       }
       print(deCodedEvent);

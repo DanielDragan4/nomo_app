@@ -154,6 +154,13 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
     await ref.read(profileProvider.notifier).removeFriend(supabase.auth.currentUser!.id, widget.userId);
   }
 
+  void refreshEvents() {
+    setState(() {
+      _fetchEvents();
+      _futureBuilderKey = UniqueKey();
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     //Calculation to prevent appbar overflow on all devices
@@ -472,7 +479,13 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
                                     IconButton(
                                       onPressed: () {
                                         Navigator.of(context, rootNavigator: true).push(
-                                            MaterialPageRoute(builder: (context) => const NewEventScreen(event: null)));
+                                          MaterialPageRoute(
+                                            builder: (context) => NewEventScreen(
+                                              event: null,
+                                              onEventCreated: refreshEvents,
+                                            ),
+                                          ),
+                                        );
                                       },
                                       icon: const Icon(Icons.add),
                                       color: Theme.of(context).colorScheme.onSecondary,

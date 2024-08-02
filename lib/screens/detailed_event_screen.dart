@@ -12,8 +12,7 @@ import 'package:nomo/screens/new_event_screen.dart';
 import 'package:nomo/screens/profile_screen.dart';
 import 'package:nomo/widgets/comments_section_widget.dart';
 import 'package:nomo/widgets/event_attendees_widget.dart';
-import 'package:nomo/widgets/event_info.dart';
-import 'package:share/share.dart';
+import 'package:share_plus/share_plus.dart';
 
 enum Options { itemOne}
 

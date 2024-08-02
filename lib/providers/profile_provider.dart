@@ -437,8 +437,6 @@ class ProfileProvider extends StateNotifier<Profile?> {
     List<Availability> availByMonth = [];
     final List allAttend = state!.availability;
 
-    // Print the original availability data
-
     for (int i = 0; i < allAttend.length; i++) {
       int eventYear = allAttend[i].sTime.year;
       int eventMonth = allAttend[i].sTime.month;

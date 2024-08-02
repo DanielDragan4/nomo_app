@@ -6,6 +6,7 @@ import 'package:nomo/providers/supabase_provider.dart';
 import 'package:nomo/screens/create_account_screen.dart';
 import 'package:nomo/screens/interests_screen.dart';
 import 'package:nomo/screens/location_screen.dart';
+import 'package:nomo/screens/password_handling/login_screen.dart';
 import 'package:nomo/screens/settings/setting_screen.dart';
 
 enum options { itemOne, itemTwo, itemThree, itemFour, itemFive }
@@ -106,6 +107,7 @@ class _ProfileDropdownState extends ConsumerState<ProfileDropdown> {
                 onTap: () {
                   ref.watch(currentUserProvider.notifier).signOut();
                   ref.read(savedSessionProvider.notifier).changeSessionDataList();
+                  Navigator.of(context).push(MaterialPageRoute(builder: ((context) => const LoginScreen())));
                 },
               ),
             ],

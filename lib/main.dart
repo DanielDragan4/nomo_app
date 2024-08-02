@@ -23,11 +23,14 @@ import 'package:nomo/firebase_options.dart';
 import 'package:overlay_support/overlay_support.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:flutter/services.dart';
 
 final routeObserver = RouteObserver<ModalRoute<void>>();
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
 
   // Request location permission
   var status = await Permission.location.request();
@@ -56,8 +59,6 @@ void main() async {
 
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
-
-
 class App extends ConsumerStatefulWidget {
   const App({super.key});
 
@@ -69,7 +70,7 @@ class _AppState extends ConsumerState<App> {
   StreamSubscription<Map>? streamSubscription;
   FirebaseMessaging firebaseMessaging = FirebaseMessaging.instance;
 
-  void navigateToEvent(String eventId) async{
+  void navigateToEvent(String eventId) async {
     // Implement navigation logic to DetailedEventScreen
     Event eventData = await ref.read(eventsProvider.notifier).deCodeLinkEvent(eventId);
     navigatorKey.currentState?.push(MaterialPageRoute(

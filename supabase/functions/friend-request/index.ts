@@ -15,11 +15,11 @@ interface FriendRequest {
 }
 
 interface WebhookPayload {
-  type: 'INSERT'
+  type: 'INSERT' | 'DELETE'
   table: string
-  record: FriendRequest
-  schema: 'public',
-  old_record: null | FriendRequest
+  record: FriendRequest | null
+  schema: 'public'
+  old_record: FriendRequest | null
 }
 
 const supabase = createClient(
@@ -29,14 +29,28 @@ const supabase = createClient(
 
 Deno.serve(async (req) => {
   const payload: WebhookPayload = await req.json()
+  console.log('Received payload:', JSON.stringify(payload))
 
-  // Ensure the event type is INSERT
-  if (payload.type !== 'INSERT') {
+  if (payload.type !== 'INSERT' && payload.type !== 'DELETE') {
     return new Response('Invalid event type', { status: 400 })
   }
 
-  const { record } = payload
+  const record = payload.type === 'DELETE' ? payload.old_record : payload.record
 
+  if (!record || !record.sender_id || !record.reciever_id) {
+    return new Response('Invalid payload structure', { status: 400 })
+  }
+
+  if (payload.type === 'INSERT') {
+    return await handleInsert(record)
+  } else if (payload.type === 'DELETE') {
+    return await handleDelete(record)
+  }
+
+  return new Response('Unhandled event type', { status: 400 })
+})
+
+async function handleInsert(record: FriendRequest) {
   // Fetch sender profile details
   const { data: senderProfile, error: senderError } = await supabase
     .from('Profiles')
@@ -64,18 +78,50 @@ Deno.serve(async (req) => {
   const senderName = senderProfile.profile_name
   const recieverFcmToken = recieverProfile.fcm_token
 
-  // Import the service account details
+  return await sendNotification(recieverFcmToken, 'New Friend Request', `${senderName} sent you a friend request.`, { senderName, type: 'REQUEST' })
+}
+
+async function handleDelete(record: FriendRequest) {
+  // Fetch sender profile details
+  const { data: senderProfile, error: senderError } = await supabase
+    .from('Profiles')
+    .select('fcm_token')
+    .eq('profile_id', record.sender_id)
+    .single()
+
+  if (senderError) {
+    console.error('Error fetching sender profile:', senderError)
+    return new Response('Internal Server Error', { status: 500 })
+  }
+
+  // Fetch reciever profile details
+  const { data: recieverProfile, error: recieverError } = await supabase
+    .from('Profiles')
+    .select('profile_name')
+    .eq('profile_id', record.reciever_id)
+    .single()
+
+  if (recieverError) {
+    console.error('Error fetching reciever profile:', recieverError)
+    return new Response('Internal Server Error', { status: 500 })
+  }
+
+  const recieverName = recieverProfile.profile_name
+  const senderFcmToken = senderProfile.fcm_token
+
+  return await sendNotification(senderFcmToken, 'Friend Request Accepted', `${recieverName} has accepted your friend request.`, { senderName: recieverName, type: 'ACCEPT' })
+}
+
+async function sendNotification(token: string, title: string, body: string, data: any) {
   const { default: serviceAccount } = await import('../service-account.json', {
     with: { type: 'json' },
   })
 
-  // Get the access token
   const accessToken = await getAccessToken({
     clientEmail: serviceAccount.client_email,
     privateKey: serviceAccount.private_key,
   })
 
-  // Send the notification
   const res = await fetch(`https://fcm.googleapis.com/v1/projects/nomo-app-c3417/messages:send`, {
     method: 'POST',
     headers: {
@@ -84,30 +130,21 @@ Deno.serve(async (req) => {
     },
     body: JSON.stringify({
       message: {
-        token: recieverFcmToken,
-        notification: {
-          title: 'New Friend Request',
-          body: `${senderName} sent you a friend request.`,
-        },
-        data: {
-          senderName: senderName,
-          type: 'REQUEST',
-        }
+        token,
+        notification: { title, body },
+        data
       }
     })
   })
 
   const resData = await res.json()
-  if (res.status < 200 || 299 < res.status) {
+  if (res.status < 200 || res.status > 299) {
     console.error('Error sending notification:', resData)
     return new Response('Internal Server Error', { status: 500 })
   }
 
-  return new Response(
-    JSON.stringify(resData),
-    { headers: { 'Content-Type': 'application/json' } },
-  )
-})
+  return new Response(JSON.stringify(resData), { headers: { 'Content-Type': 'application/json' } })
+}
 
 const getAccessToken = ({
   clientEmail,

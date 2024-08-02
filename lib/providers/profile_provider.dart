@@ -438,10 +438,6 @@ class ProfileProvider extends StateNotifier<Profile?> {
     final List allAttend = state!.availability;
 
     // Print the original availability data
-    for (var item in allAttend) {
-      print('Original Start Time: ${item.sTime}');
-      print('Original End Time: ${item.eTime}');
-    }
 
     for (int i = 0; i < allAttend.length; i++) {
       int eventYear = allAttend[i].sTime.year;
@@ -450,14 +446,6 @@ class ProfileProvider extends StateNotifier<Profile?> {
       if (eventYear == year && eventMonth == month) {
         availByMonth.add(allAttend[i]);
       }
-    }
-
-    // Print filtered availability data by month
-    for (Availability availability in availByMonth) {
-      DateTime startDate = availability.sTime;
-      DateTime endDate = availability.eTime;
-      print('Filtered Start Time: ${startDate.toString()}');
-      print('Filtered End Time: ${endDate.toString()}');
     }
 
     return availByMonth;

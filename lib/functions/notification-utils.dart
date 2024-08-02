@@ -118,6 +118,17 @@ void handleMessage(RemoteMessage message, BuildContext context, WidgetRef ref) a
       message.notification?.title ?? 'Notification',
     );
   }
+  if (type == 'ACCEPT') {
+    print('ACCEPT notification handling');
+    String recieverName = message.data['senderName'];
+    ref.read(unreadNotificationsProvider.notifier).addNotification("$recieverName has accepted your Friend Request");
+    ref.read(notificationBellProvider.notifier).setBellState(true);
+    showSimpleNotification(
+      context,
+      message.notification?.body ?? 'New Message',
+      message.notification?.title ?? 'Notification',
+    );
+  }
   if (type == 'DM') {
     print('DM notification handling');
     String? senderId = message.data['sender_id'];

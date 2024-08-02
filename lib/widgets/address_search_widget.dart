@@ -5,12 +5,14 @@ class AddressSearchField extends StatefulWidget {
   final TextEditingController controller;
   final bool isEvent;
   final bool hasError;
+  final bool isVirtual;
 
   const AddressSearchField({
     Key? key,
     required this.controller,
     required this.isEvent,
     this.hasError = false,
+    this.isVirtual = false,
   }) : super(key: key);
 
   @override
@@ -34,6 +36,7 @@ class _AddressSearchFieldState extends State<AddressSearchField> {
     return Column(
       children: [
         TextField(
+          enabled: !widget.isVirtual,
           controller: widget.controller,
           style: TextStyle(color: Theme.of(context).colorScheme.onSecondary),
           decoration: InputDecoration(

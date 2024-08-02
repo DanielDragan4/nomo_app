@@ -61,6 +61,7 @@ class _NewEventScreenState extends ConsumerState<NewEventScreen> {
   bool _locationError = false;
   bool _dateError = false;
   bool _timeError = false;
+  bool _isRecurring = false;
 
   @override
   void initState() {
@@ -779,6 +780,21 @@ class _NewEventScreenState extends ConsumerState<NewEventScreen> {
                               ),
                             ),
                           ),
+                          Text(
+                            "Recurring",
+                            style: TextStyle(
+                              fontSize: 15,
+                              color: Theme.of(context).colorScheme.onSecondary,
+                            ),
+                          ),
+                          Checkbox(
+                            value: _isRecurring, // Add a variable to hold this state
+                            onChanged: (bool? value) {
+                              setState(() {
+                                _isRecurring = value ?? false;
+                              });
+                            },
+                          ),
                         ],
                       ),
                     ),
@@ -938,26 +954,19 @@ class _NewEventScreenState extends ConsumerState<NewEventScreen> {
                             "Virtual",
                             style: TextStyle(fontSize: 15, color: Theme.of(context).colorScheme.onSecondary),
                           ),
-                          IconButton(
-                              onPressed: () {
-                                setState(() {
-                                  virtualEvent = !virtualEvent;
-                                  if (virtualEvent) {
-                                    _locationController.text = 'Virtual';
-                                  } else {
-                                    _locationController.clear();
-                                  }
-                                });
-                              },
-                              icon: virtualEvent
-                                  ? Icon(
-                                      Icons.check_box_outlined,
-                                      color: Theme.of(context).colorScheme.onSecondary,
-                                    )
-                                  : Icon(
-                                      Icons.check_box_outline_blank,
-                                      color: Theme.of(context).colorScheme.onSecondary,
-                                    ))
+                          Checkbox(
+                            value: virtualEvent,
+                            onChanged: (value) {
+                              setState(() {
+                                virtualEvent = !virtualEvent;
+                                if (virtualEvent) {
+                                  _locationController.text = 'Virtual';
+                                } else {
+                                  _locationController.clear();
+                                }
+                              });
+                            },
+                          )
                         ],
                       ),
                     ),
@@ -967,6 +976,7 @@ class _NewEventScreenState extends ConsumerState<NewEventScreen> {
                         controller: _locationController,
                         isEvent: false,
                         hasError: _locationError,
+                        isVirtual: virtualEvent,
                       ),
                     ),
                     Padding(

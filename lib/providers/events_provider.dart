@@ -90,6 +90,7 @@ class EventProvider extends StateNotifier<List?> {
           friends: eventData['friends_attending'],
           numOfComments: eventData['comments_num'].length,
           isVirtual: eventData['is_virtual'],
+          isRecurring: eventData['recurring'],
           attending: false,
           categories: eventData['event_interests'],
           distanceAway: eventData['distance_away']);
@@ -291,6 +292,7 @@ class EventProvider extends StateNotifier<List?> {
         friends: codedEvent['friends_attending'],
         numOfComments: codedEvent['comments_num'].length,
         isVirtual: codedEvent['is_virtual'],
+        isRecurring: codedEvent['recurring'],
         categories: codedEvent['event_interests']);
 
     for (var i = 0; i < deCodedEvent.attendees.length; i++) {

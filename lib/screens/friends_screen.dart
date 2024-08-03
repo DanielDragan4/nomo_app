@@ -115,7 +115,9 @@ class _FriendsScreenState extends ConsumerState<FriendsScreen> {
                           Navigator.push(
                             context,
                             MaterialPageRoute(
-                              builder: (context) => const SearchScreen(),
+                              builder: (context) => SearchScreen(
+                                searchingPeople: true,
+                              ),
                             ),
                           );
                         },

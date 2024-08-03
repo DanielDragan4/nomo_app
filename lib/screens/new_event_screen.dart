@@ -25,9 +25,10 @@ import 'package:path_provider/path_provider.dart';
 const List<String> list = <String>['Public', 'Selective', 'Private'];
 
 class NewEventScreen extends ConsumerStatefulWidget {
-  const NewEventScreen({super.key, this.event, this.isEdit});
+  const NewEventScreen({super.key, this.event, this.isEdit, this.onEventCreated});
   final Event? event;
   final bool? isEdit;
+  final VoidCallback? onEventCreated;
 
   @override
   ConsumerState<NewEventScreen> createState() => _NewEventScreenState();
@@ -61,6 +62,7 @@ class _NewEventScreenState extends ConsumerState<NewEventScreen> {
   bool _locationError = false;
   bool _dateError = false;
   bool _timeError = false;
+  bool _isRecurring = false;
 
   @override
   void initState() {
@@ -398,7 +400,8 @@ class _NewEventScreenState extends ConsumerState<NewEventScreen> {
       String inviteType,
       var location,
       String title,
-      String description) async {
+      String description,
+      bool isRecurring) async {
     _showLoadingOverlay();
     try {
       DateTime start = DateTime(selectedStartDate.year, selectedStartDate.month, selectedStartDate.day,
@@ -426,7 +429,8 @@ class _NewEventScreenState extends ConsumerState<NewEventScreen> {
         'image_id': imageId,
         'title': title,
         'is_virtual': virtualEvent,
-        'point': point
+        'point': point,
+        'recurring': isRecurring
       };
       if (categories.isNotEmpty) {
         final List<String> interestStrings = categories.entries
@@ -462,7 +466,8 @@ class _NewEventScreenState extends ConsumerState<NewEventScreen> {
       String inviteType,
       var location,
       String title,
-      String description) async {
+      String description,
+      bool isRecurring) async {
     DateTime start = DateTime(selectedStartDate.year, selectedStartDate.month, selectedStartDate.day,
         selectedStart.hour, selectedStart.minute);
     DateTime end = DateTime(
@@ -491,7 +496,8 @@ class _NewEventScreenState extends ConsumerState<NewEventScreen> {
         'invitationType': inviteType,
         'image_id': imageId,
         'title': title,
-        'point': point
+        'point': point,
+        'recurring': isRecurring
       };
     } else {
       newEventRowMap = {
@@ -779,6 +785,21 @@ class _NewEventScreenState extends ConsumerState<NewEventScreen> {
                               ),
                             ),
                           ),
+                          Text(
+                            "Recurring",
+                            style: TextStyle(
+                              fontSize: 15,
+                              color: Theme.of(context).colorScheme.onSecondary,
+                            ),
+                          ),
+                          Checkbox(
+                            value: _isRecurring, // Add a variable to hold this state
+                            onChanged: (bool? value) {
+                              setState(() {
+                                _isRecurring = value ?? false;
+                              });
+                            },
+                          ),
                         ],
                       ),
                     ),
@@ -846,11 +867,11 @@ class _NewEventScreenState extends ConsumerState<NewEventScreen> {
                                           color: Theme.of(context).cardColor,
                                           shape: BoxShape.rectangle,
                                           borderRadius: BorderRadius.circular(16),
-                                          boxShadow: [
+                                          boxShadow: const [
                                             BoxShadow(
                                               color: Colors.black26,
                                               blurRadius: 10.0,
-                                              offset: const Offset(0.0, 10.0),
+                                              offset: Offset(0.0, 10.0),
                                             ),
                                           ],
                                         ),
@@ -938,26 +959,19 @@ class _NewEventScreenState extends ConsumerState<NewEventScreen> {
                             "Virtual",
                             style: TextStyle(fontSize: 15, color: Theme.of(context).colorScheme.onSecondary),
                           ),
-                          IconButton(
-                              onPressed: () {
-                                setState(() {
-                                  virtualEvent = !virtualEvent;
-                                  if (virtualEvent) {
-                                    _locationController.text = 'Virtual';
-                                  } else {
-                                    _locationController.clear();
-                                  }
-                                });
-                              },
-                              icon: virtualEvent
-                                  ? Icon(
-                                      Icons.check_box_outlined,
-                                      color: Theme.of(context).colorScheme.onSecondary,
-                                    )
-                                  : Icon(
-                                      Icons.check_box_outline_blank,
-                                      color: Theme.of(context).colorScheme.onSecondary,
-                                    ))
+                          Checkbox(
+                            value: virtualEvent,
+                            onChanged: (value) {
+                              setState(() {
+                                virtualEvent = !virtualEvent;
+                                if (virtualEvent) {
+                                  _locationController.text = 'Virtual';
+                                } else {
+                                  _locationController.clear();
+                                }
+                              });
+                            },
+                          )
                         ],
                       ),
                     ),
@@ -967,6 +981,7 @@ class _NewEventScreenState extends ConsumerState<NewEventScreen> {
                         controller: _locationController,
                         isEvent: false,
                         hasError: _locationError,
+                        isVirtual: virtualEvent,
                       ),
                     ),
                     Padding(
@@ -1080,16 +1095,19 @@ class _NewEventScreenState extends ConsumerState<NewEventScreen> {
                                 ? () async {
                                     FocusManager.instance.primaryFocus?.unfocus();
                                     await createEvent(
-                                      _selectedStartTime!,
-                                      _selectedEndTime!,
-                                      _selectedStartDate!,
-                                      _selectedEndDate!,
-                                      _selectedImage!,
-                                      dropDownValue,
-                                      _locationController.text,
-                                      _title.text,
-                                      _description.text,
-                                    );
+                                        _selectedStartTime!,
+                                        _selectedEndTime!,
+                                        _selectedStartDate!,
+                                        _selectedEndDate!,
+                                        _selectedImage!,
+                                        dropDownValue,
+                                        _locationController.text,
+                                        _title.text,
+                                        _description.text,
+                                        _isRecurring);
+                                    if (widget.onEventCreated != null) {
+                                      widget.onEventCreated!();
+                                    }
                                     Navigator.of(context).pushReplacement(MaterialPageRoute(
                                         builder: ((context) => DetailedEventScreen(eventData: eventData))));
                                     ScaffoldMessenger.of(context).hideCurrentSnackBar();
@@ -1113,16 +1131,16 @@ class _NewEventScreenState extends ConsumerState<NewEventScreen> {
                                             onPressed: () async {
                                               FocusManager.instance.primaryFocus?.unfocus();
                                               await updateEvent(
-                                                _selectedStartTime!,
-                                                _selectedEndTime!,
-                                                _selectedStartDate!,
-                                                _selectedEndDate!,
-                                                _selectedImage,
-                                                dropDownValue,
-                                                _locationController.text,
-                                                _title.text,
-                                                _description.text,
-                                              );
+                                                  _selectedStartTime!,
+                                                  _selectedEndTime!,
+                                                  _selectedStartDate!,
+                                                  _selectedEndDate!,
+                                                  _selectedImage,
+                                                  dropDownValue,
+                                                  _locationController.text,
+                                                  _title.text,
+                                                  _description.text,
+                                                  _isRecurring);
                                               Navigator.of(context)
                                                   .pushAndRemoveUntil(
                                                       MaterialPageRoute(builder: ((context) => const NavBar())),

@@ -1,5 +1,3 @@
-// comments_section_widget.dart
-
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:nomo/models/comments_model.dart';
@@ -48,69 +46,78 @@ class _CommentsSectionState extends ConsumerState<CommentsSection> {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        commentsList.isNotEmpty
-            ? SizedBox(
-                height: MediaQuery.of(context).size.height * 0.4,
-                child: ListView.builder(
-                  itemCount: commentsList.length,
-                  itemBuilder: (context, index) => CommentWidget(commentData: commentsList[index]),
-                ),
-              )
-            : Center(
-                child: Padding(
-                  padding: EdgeInsets.all(MediaQuery.of(context).size.height * 0.02),
-                  child: Text(
-                    "No comments available",
-                    style: TextStyle(
-                      color: Theme.of(context).colorScheme.onSecondary.withOpacity(0.6),
-                      fontSize: MediaQuery.of(context).size.width * 0.04,
+    return SafeArea(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Flexible(
+            child: commentsList.isNotEmpty
+                ? SizedBox(
+                    height: MediaQuery.of(context).size.height * 0.4,
+                    child: ListView.builder(
+                      itemCount: commentsList.length,
+                      itemBuilder: (context, index) => CommentWidget(commentData: commentsList[index]),
+                    ),
+                  )
+                : Center(
+                    child: Padding(
+                      padding: EdgeInsets.all(MediaQuery.of(context).size.height * 0.02),
+                      child: Text(
+                        "No comments available",
+                        style: TextStyle(
+                          color: Theme.of(context).colorScheme.onSecondary.withOpacity(0.6),
+                          fontSize: MediaQuery.of(context).size.width * 0.04,
+                        ),
+                      ),
                     ),
                   ),
-                ),
-              ),
-        Padding(
-          padding: EdgeInsets.all(MediaQuery.of(context).size.width * 0.04),
-          child: Row(
-            children: [
-              Expanded(
-                child: TextField(
-                  controller: newComment,
-                  decoration: InputDecoration(
-                    hintText: 'Add a comment',
-                    hintStyle: TextStyle(color: Theme.of(context).colorScheme.onSecondary.withOpacity(0.6)),
-                    filled: true,
-                    fillColor: Theme.of(context).colorScheme.surface,
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(30),
-                      borderSide: BorderSide.none,
-                    ),
-                    contentPadding: EdgeInsets.symmetric(
-                      horizontal: MediaQuery.of(context).size.width * 0.04,
-                      vertical: MediaQuery.of(context).size.height * 0.015,
-                    ),
-                  ),
-                  style: TextStyle(color: Theme.of(context).colorScheme.onSecondary),
-                ),
-              ),
-              SizedBox(width: MediaQuery.of(context).size.width * 0.02),
-              IconButton(
-                onPressed: () {
-                  if (newComment.text.isNotEmpty) {
-                    postComment(newComment.text);
-                    newComment.clear();
-                    receiveComments();
-                  }
-                },
-                icon: Icon(Icons.send_rounded),
-                color: Theme.of(context).colorScheme.primary,
-              ),
-            ],
           ),
-        ),
-      ],
+          Padding(
+            padding: EdgeInsets.fromLTRB(
+              MediaQuery.of(context).size.width * 0.04,
+              MediaQuery.of(context).size.width * 0.04,
+              MediaQuery.of(context).size.width * 0.04,
+              MediaQuery.of(context).viewInsets.bottom + MediaQuery.of(context).size.width * 0.04,
+            ),
+            child: Row(
+              children: [
+                Flexible(
+                  child: TextField(
+                    controller: newComment,
+                    decoration: InputDecoration(
+                      hintText: 'Add a comment',
+                      hintStyle: TextStyle(color: Theme.of(context).colorScheme.onSecondary.withOpacity(0.6)),
+                      filled: true,
+                      fillColor: Theme.of(context).colorScheme.surface,
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(30),
+                        borderSide: BorderSide.none,
+                      ),
+                      contentPadding: EdgeInsets.symmetric(
+                        horizontal: MediaQuery.of(context).size.width * 0.04,
+                        vertical: MediaQuery.of(context).size.height * 0.015,
+                      ),
+                    ),
+                    style: TextStyle(color: Theme.of(context).colorScheme.onSecondary),
+                  ),
+                ),
+                SizedBox(width: MediaQuery.of(context).size.width * 0.02),
+                IconButton(
+                  onPressed: () {
+                    if (newComment.text.isNotEmpty) {
+                      postComment(newComment.text);
+                      newComment.clear();
+                      receiveComments();
+                    }
+                  },
+                  icon: Icon(Icons.send_rounded),
+                  color: Theme.of(context).colorScheme.primary,
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

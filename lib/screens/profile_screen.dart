@@ -32,7 +32,7 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
   UniqueKey _futureBuilderKey = UniqueKey();
   final TextEditingController searchController = TextEditingController();
   bool? private;
-  late List<bool> isSelected;
+  List<bool> isSelected = [true, false];
   late bool isFriend = true;
   bool _isLoading = true;
   bool showUpcoming = true;
@@ -53,7 +53,6 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
       ref.read(attendEventsProvider.notifier).deCodeDataWithId(widget.userId!);
       checkPendingRequest();
     }
-    isSelected = [true, false];
   }
 
 // Called from Event Tab to refresh data when leaving anothe profile view
@@ -152,6 +151,13 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
   Future<void> removeFriend() async {
     final supabase = (await ref.read(supabaseInstance)).client;
     await ref.read(profileProvider.notifier).removeFriend(supabase.auth.currentUser!.id, widget.userId);
+  }
+
+  void refreshEvents() {
+    setState(() {
+      _fetchEvents();
+      _futureBuilderKey = UniqueKey();
+    });
   }
 
   @override
@@ -477,7 +483,13 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
                                     IconButton(
                                       onPressed: () {
                                         Navigator.of(context, rootNavigator: true).push(
-                                            MaterialPageRoute(builder: (context) => const NewEventScreen(event: null)));
+                                          MaterialPageRoute(
+                                            builder: (context) => NewEventScreen(
+                                              event: null,
+                                              onEventCreated: refreshEvents,
+                                            ),
+                                          ),
+                                        );
                                       },
                                       icon: const Icon(Icons.add),
                                       color: Theme.of(context).colorScheme.onSecondary,

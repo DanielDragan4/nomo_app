@@ -23,7 +23,6 @@ class _LocationScreenState extends State<LocationScreen> {
   var hasPermission = false;
   ScrollController scrollController = ScrollController();
 
-
   Future<void> getExistingLocation() async {
     final getLocation = await SharedPreferences.getInstance();
     final exsistingLocation = getLocation.getStringList('savedLocation');
@@ -190,8 +189,8 @@ class _LocationScreenState extends State<LocationScreen> {
                     SizedBox(height: 16),
                     ElevatedButton.icon(
                       onPressed: () {
-                      scrollController.animateTo(100, duration: Duration(milliseconds: 200), curve: Curves.easeIn);                        
-                      _getCurrentPosition;
+                        scrollController.animateTo(100, duration: Duration(milliseconds: 200), curve: Curves.easeIn);
+                        _getCurrentPosition;
                       },
                       icon: Icon(Icons.my_location),
                       label: Text('Use Current Location'),
@@ -215,8 +214,8 @@ class _LocationScreenState extends State<LocationScreen> {
                     ElevatedButton.icon(
                       onPressed: () {
                         _setLocationManually;
-                        scrollController.animateTo(100, duration: Duration(milliseconds: 200), curve: Curves.easeIn);   
-                        },
+                        scrollController.animateTo(100, duration: Duration(milliseconds: 200), curve: Curves.easeIn);
+                      },
                       icon: Icon(Icons.edit_location),
                       label: Text('Set Manual Location'),
                       style: ElevatedButton.styleFrom(
@@ -315,25 +314,25 @@ class _LocationScreenState extends State<LocationScreen> {
                 ),
               ),
             SizedBox(height: 24),
- ElevatedButton(
-                    onPressed: (_currentPosition != null || manualLocation.text.isNotEmpty)
-                        ? () async {
-                            final saveRadius = await SharedPreferences.getInstance();
-                            saveRadius.setStringList('savedRadius', [_preferredRadius.toString()]);
-                            if (widget.isCreation) {
-                              Navigator.of(context).pushReplacement(
-                                MaterialPageRoute(builder: (context) => const NavBar()),
-                              );
-                            } else {
-                              Navigator.of(context).pop();
-                            }
-                          }
-                        : null,
-                    child: Text(widget.isCreation ? 'See Events' : 'Save Location Data'),
-                    style: ElevatedButton.styleFrom(
-                      minimumSize: Size(double.infinity, 50),
-                    ),
-                  ),
+            ElevatedButton(
+              onPressed: (_currentPosition != null || manualLocation.text.isNotEmpty)
+                  ? () async {
+                      final saveRadius = await SharedPreferences.getInstance();
+                      saveRadius.setStringList('savedRadius', [_preferredRadius.toString()]);
+                      if (widget.isCreation) {
+                        Navigator.of(context).pushReplacement(
+                          MaterialPageRoute(builder: (context) => const NavBar()),
+                        );
+                      } else {
+                        Navigator.of(context).pop();
+                      }
+                    }
+                  : null,
+              child: Text(widget.isCreation ? 'See Events' : 'Save Location Data'),
+              style: ElevatedButton.styleFrom(
+                minimumSize: Size(double.infinity, 50),
+              ),
+            ),
           ],
         ),
       ),

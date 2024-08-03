@@ -9,7 +9,12 @@ import 'package:nomo/widgets/friend_tab.dart';
 import 'package:nomo/models/events_model.dart';
 
 class SearchScreen extends ConsumerStatefulWidget {
-  const SearchScreen({Key? key}) : super(key: key);
+  SearchScreen({
+    Key? key,
+    required this.searchingPeople,
+  }) : super(key: key);
+
+  final bool searchingPeople;
 
   @override
   _SearchScreenState createState() => _SearchScreenState();
@@ -19,16 +24,15 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
   final TextEditingController _searchController = TextEditingController();
   late List<bool> _isSelected;
   List<dynamic> _searchResults = [];
-  Map<Interests, bool> categories = {};
+  Map<Interests, bool> _selectedInterests = {};
+  String _mainSearchText = '';
 
-// Default initialization with event search selected
   @override
   void initState() {
-    _isSelected = [true, false, false];
+    _isSelected = widget.searchingPeople ? [false, true, false] : [true, false, false];
     super.initState();
   }
 
-// Calls the search profider and uses decodeProfileSearch method to display list of profiles matching the query
   Future<void> _searchProfiles(String query) async {
     try {
       final List<Friend> profiles = await ref.read(searchProvider.notifier).decodeProfileSearch(query);
@@ -49,13 +53,9 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
     }
   }
 
-// Calls the search profider and uses decodeEventSearch method to display list of events matching the query
   Future<void> _searchEvents(String query) async {
     try {
-      // Split the query string by commas and trim any whitespace
       final List<String> categories = query.split(',').map((e) => e.trim()).toList();
-
-      // A list to hold the search results from each category
       List<Event> allEvents = [];
 
       for (String category in categories) {
@@ -77,14 +77,10 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
     }
   }
 
-// Calls the search profider and uses decodeSearchInterests method to display list of events with the queried interests
   Future<void> _searchInterests(String query) async {
     ScaffoldMessenger.of(context).hideCurrentSnackBar();
     try {
-      // Split the query string by commas and trim any whitespace
       final List<String> categories = query.split(',').map((e) => e.trim()).toList();
-
-      // A list to hold the search results from each category
       List<Event> allEvents = [];
 
       for (String category in categories) {
@@ -113,21 +109,45 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
     }
   }
 
-// Resets the search bar text
   void resetScreen() {
     setState(() {
       _searchResults = [];
     });
   }
 
-// Adds or removes interest from the search bar when one is selected or deselected in interest search
   void _updateSearchBar(Map<Interests, bool> selectedInterests) {
-    final selected = selectedInterests.entries
-        .where((entry) => entry.value)
-        .map((entry) => entry.key.toString().split('.').last)
-        .join(', ');
     setState(() {
-      _searchController.text = selected;
+      _selectedInterests = selectedInterests;
+      _searchController.text = selectedInterests.entries
+          .where((entry) => entry.value)
+          .map((entry) => entry.key.toString().split('.').last)
+          .join(', ');
+    });
+  }
+
+  void _switchTab(int index) {
+    FocusManager.instance.primaryFocus?.unfocus();
+    setState(() {
+      if (_isSelected[0] || _isSelected[1]) _mainSearchText = _searchController.text;
+
+      for (int i = 0; i < _isSelected.length; i++) {
+        _isSelected[i] = i == index;
+      }
+
+      if (index == 0) {
+        _searchController.text = _mainSearchText;
+      } else if (index == 1) {
+        _searchController.text = _mainSearchText;
+      } else if (index == 2) {
+        _searchController.text = _selectedInterests.entries
+            .where((entry) => entry.value)
+            .map((entry) => entry.key.toString().split('.').last)
+            .join(', ');
+      } else {
+        _searchController.clear();
+      }
+
+      resetScreen();
     });
   }
 
@@ -150,10 +170,14 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
                 autofocus: false,
                 controller: _searchController,
                 decoration: InputDecoration(
-                  hintText: _isSelected[2] == true ? 'Please select interests below.' : 'What are you looking for?',
+                  hintText: _isSelected[2] == true
+                      ? 'Please select interests below.'
+                      : _isSelected[1] == true
+                          ? 'Who are you looking for?'
+                          : 'What are you looking for?',
                   hintStyle: TextStyle(color: Theme.of(context).primaryColorLight.withOpacity(0.75)),
                   prefixIcon: Icon(Icons.search),
-                  suffixIcon: _searchController.text.isNotEmpty
+                  suffixIcon: _searchController.text.isNotEmpty && !_isSelected[2]
                       ? IconButton(
                           icon: Icon(Icons.clear),
                           onPressed: () {
@@ -172,56 +196,45 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
               ),
             ),
           ),
-          ToggleButtons(
-            constraints: const BoxConstraints(
-              maxHeight: 250,
-              minWidth: 90,
-              maxWidth: 200,
+          if (!widget.searchingPeople)
+            ToggleButtons(
+              constraints: const BoxConstraints(
+                maxHeight: 250,
+                minWidth: 90,
+                maxWidth: 200,
+              ),
+              borderColor: Colors.black,
+              fillColor: Theme.of(context).primaryColor,
+              borderWidth: 1,
+              selectedBorderColor: Colors.black,
+              selectedColor: Colors.grey,
+              borderRadius: BorderRadius.circular(15),
+              onPressed: _switchTab,
+              isSelected: _isSelected,
+              children: const [
+                Padding(
+                  padding: EdgeInsets.fromLTRB(10, 3, 10, 3),
+                  child: Text(
+                    'Events',
+                    style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700),
+                  ),
+                ),
+                Padding(
+                  padding: EdgeInsets.fromLTRB(10, 3, 10, 3),
+                  child: Text(
+                    'People',
+                    style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700),
+                  ),
+                ),
+                Padding(
+                  padding: EdgeInsets.fromLTRB(10, 3, 10, 3),
+                  child: Text(
+                    'Interests',
+                    style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700),
+                  ),
+                ),
+              ],
             ),
-            borderColor: Colors.black,
-            fillColor: Theme.of(context).primaryColor,
-            borderWidth: 1,
-            selectedBorderColor: Colors.black,
-            selectedColor: Colors.grey,
-            borderRadius: BorderRadius.circular(15),
-            onPressed: (int index) {
-              FocusManager.instance.primaryFocus?.unfocus();
-              resetScreen();
-              setState(() {
-                for (int i = 0; i < _isSelected.length; i++) {
-                  _isSelected[i] = i == index;
-                }
-              });
-              if (_isSelected[2] == true) {
-                FocusManager.instance.primaryFocus?.unfocus();
-                _searchController.text = '';
-              }
-            },
-            isSelected: _isSelected,
-            children: const [
-              Padding(
-                padding: EdgeInsets.fromLTRB(10, 3, 10, 3),
-                child: Text(
-                  'Events',
-                  style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700),
-                ),
-              ),
-              Padding(
-                padding: EdgeInsets.fromLTRB(10, 3, 10, 3),
-                child: Text(
-                  'People',
-                  style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700),
-                ),
-              ),
-              Padding(
-                padding: EdgeInsets.fromLTRB(10, 3, 10, 3),
-                child: Text(
-                  'Interests',
-                  style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700),
-                ),
-              ),
-            ],
-          ),
           const Divider(),
           Padding(
             padding: const EdgeInsets.only(bottom: 15.0),
@@ -248,7 +261,7 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
                         isEditing: false,
                         creatingEvent: false,
                         searching: true,
-                        selectedInterests: categories,
+                        selectedInterests: _selectedInterests,
                         onSelectionChanged: _updateSearchBar,
                       )
                     : Center(

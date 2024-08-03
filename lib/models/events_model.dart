@@ -20,6 +20,7 @@ class Event {
     required this.friends,
     required this.numOfComments,
     required this.isVirtual,
+    required this.isRecurring,
     this.distanceAway,
     this.categories,
     this.otherHost,
@@ -47,6 +48,7 @@ class Event {
   final friends;
   final int numOfComments;
   final bool isVirtual;
+  final bool isRecurring;
   var distanceAway;
   var categories;
   var otherHost;

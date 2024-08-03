@@ -14,7 +14,7 @@ import 'package:nomo/widgets/comments_section_widget.dart';
 import 'package:nomo/widgets/event_attendees_widget.dart';
 import 'package:share_plus/share_plus.dart';
 
-enum Options { itemOne}
+enum Options { itemOne }
 
 class DetailedEventScreen extends ConsumerStatefulWidget {
   DetailedEventScreen({Key? key, required this.eventData}) : super(key: key);
@@ -61,8 +61,10 @@ class _DetailedEventScreenState extends ConsumerState<DetailedEventScreen> {
         elevation: 0,
         title: Text(
           widget.eventData.title,
-          style: TextStyle(color: Theme.of(context).primaryColor,
-          fontWeight: FontWeight.bold,),
+          style: TextStyle(
+            color: Theme.of(context).primaryColor,
+            fontWeight: FontWeight.bold,
+          ),
         ),
       ),
       body: SingleChildScrollView(
@@ -131,34 +133,34 @@ class _DetailedEventScreenState extends ConsumerState<DetailedEventScreen> {
       children: [
         GestureDetector(
           onTap: () => Navigator.of(context).push(MaterialPageRoute(
-          builder: (context) => ProfileScreen(isUser: false, userId: widget.eventData?.host),
-        )),
-          child: Row (children: 
-          [
+            builder: (context) => ProfileScreen(isUser: false, userId: widget.eventData?.host),
+          )),
+          child: Row(children: [
             CircleAvatar(
-            radius: MediaQuery.of(context).devicePixelRatio *7,
-            backgroundImage: NetworkImage(widget.eventData.hostProfileUrl),
-          ),
-          const SizedBox(width: 8),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                'Hosted by',
-                style: TextStyle(
-                  color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
-                  fontSize: 12,
+              radius: MediaQuery.of(context).devicePixelRatio * 7,
+              backgroundImage: NetworkImage(widget.eventData.hostProfileUrl),
+            ),
+            const SizedBox(width: 8),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Hosted by',
+                  style: TextStyle(
+                    color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
+                    fontSize: 12,
+                  ),
                 ),
-              ),
-              Text(
-                widget.eventData!.hostUsername,
-                style: TextStyle(
-                  color: Theme.of(context).colorScheme.onSurface,
-                  fontWeight: FontWeight.bold,
+                Text(
+                  widget.eventData!.hostUsername,
+                  style: TextStyle(
+                    color: Theme.of(context).colorScheme.onSurface,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
-              ),
-            ],
-          ),]),
+              ],
+            ),
+          ]),
         )
       ],
     );
@@ -274,11 +276,15 @@ class _DetailedEventScreenState extends ConsumerState<DetailedEventScreen> {
           ),
         ),
         const SizedBox(height: 8),
-        CommentsSection(eventId: widget.eventData!.eventId),
-      ],  
+        Container(
+          height: MediaQuery.of(context).size.height * .4,
+          child: CommentsSection(eventId: widget.eventData!.eventId),
+        ),
+      ],
     );
   }
-    Widget _buildDateTimeInfo(BuildContext context, bool isSmallScreen) {
+
+  Widget _buildDateTimeInfo(BuildContext context, bool isSmallScreen) {
     final startDate = DateTime.parse(widget.eventData!.sdate);
     final endDate = DateTime.parse(widget.eventData!.edate);
     final dateFormat = DateFormat('MMM d, yyyy');

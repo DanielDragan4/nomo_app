@@ -116,7 +116,9 @@ class _NavBarState extends ConsumerState<NavBar> {
       case 0:
         return RecommendedScreen();
       case 1:
-        return SearchScreen();
+        return SearchScreen(
+          searchingPeople: false,
+        );
       case 2:
         return CalendarScreen();
       case 3:

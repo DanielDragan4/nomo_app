@@ -303,9 +303,8 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
           //   height: MediaQuery.of(context).size.height * 0.02,
           // ),
 
-          Divider(),
           Padding(
-            padding: EdgeInsets.symmetric(horizontal: MediaQuery.of(context).size.width * 0.03),
+            padding: EdgeInsets.symmetric(horizontal: MediaQuery.of(context).size.width * 0.03, vertical: 5),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: ['S', 'M', 'T', 'W', 'T', 'F', 'S']
@@ -315,8 +314,8 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
                   .toList(),
             ),
           ),
-          SizedBox(
-            height: MediaQuery.of(context).size.height * 0.45,
+          Flexible(
+            //height: MediaQuery.of(context).size.height * 0.45,
             child: PageView.builder(
               controller: _pageController,
               onPageChanged: (int index) {

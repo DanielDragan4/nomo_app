@@ -22,6 +22,7 @@ class FriendsScreen extends ConsumerStatefulWidget {
 class _FriendsScreenState extends ConsumerState<FriendsScreen> {
   var friends = true;
   late List<bool> isSelected;
+  var currentUser;
 
   @override
   void initState() {
@@ -31,9 +32,13 @@ class _FriendsScreenState extends ConsumerState<FriendsScreen> {
 
   @override
   Widget build(BuildContext context) {
-    String currentUser = ref.read(profileProvider)!.username;
 
-    return Scaffold(
+    if(ref.read(profileProvider) != null) {
+      currentUser = ref.read(profileProvider)!.username;
+    }
+
+    return (currentUser != null) ?
+    Scaffold(
       backgroundColor: Theme.of(context).colorScheme.surface,
       appBar: AppBar(
         backgroundColor: Theme.of(context).colorScheme.surface,
@@ -88,9 +93,8 @@ class _FriendsScreenState extends ConsumerState<FriendsScreen> {
                         onPressed: (int index) {
                           setState(() {
                             for (int i = 0; i < isSelected.length; i++) {
-                              isSelected[i] = i == index;
+                              isSelected[i] = (i == index);
                             }
-                            friends = !friends;
                           });
                         },
                         isSelected: isSelected,
@@ -144,7 +148,7 @@ class _FriendsScreenState extends ConsumerState<FriendsScreen> {
                           );
                         },
                       )
-                    : friends
+                    : isSelected.first
                         ? StreamBuilder(
                             stream: ref.read(profileProvider.notifier).decodeFriends().asStream(),
                             builder: (context, snapshot) {
@@ -245,7 +249,9 @@ class _FriendsScreenState extends ConsumerState<FriendsScreen> {
           ),
         ),
       ]),
-    );
+    )
+    :
+    Scaffold(body: CircularProgressIndicator(),);
   }
 }
 

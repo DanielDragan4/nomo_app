@@ -57,10 +57,10 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
 
 // Called from Event Tab to refresh data when leaving anothe profile view
   void refreshData() async {
-    setState(() {
+    if(mounted){setState(() {
       _fetchData();
       _futureBuilderKey = UniqueKey();
-    });
+    });}
     await ref.read(attendEventsProvider.notifier).deCodeData();
     if (!widget.isUser) {
       ref.read(attendEventsProvider.notifier).deCodeDataWithId(widget.userId!);
@@ -76,9 +76,9 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
       await _fetchProfileInfo();
     }
     await _fetchEvents();
-    setState(() {
+    if(mounted){setState(() {
       _isLoading = false;
-    });
+    });}
   }
 
 // Gets all relevant profile information for profile being viewed
@@ -123,10 +123,10 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
 
 // Updates profile information after editing profile. Called from Create Account Screen when popping
   void updateProfileInfo() {
-    setState(() {
+    if(mounted){setState(() {
       _fetchData();
       _futureBuilderKey = UniqueKey();
-    });
+    });}
   }
 
   Future<void> addFriend() async {
@@ -154,10 +154,10 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
   }
 
   void refreshEvents() {
-    setState(() {
+    if(mounted){setState(() {
       _fetchEvents();
       _futureBuilderKey = UniqueKey();
-    });
+    });}
   }
 
   @override
@@ -387,7 +387,7 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
                                                   color: Theme.of(context).colorScheme.onSecondary),
                                             ),
                                             StreamBuilder(
-                                              stream: ref.read(attendEventsProvider.notifier).stream,
+                                              stream: ref.watch(attendEventsProvider.notifier).stream,
                                               builder: (context, snapshot) {
                                                 if (snapshot.data != null) {
                                                   final attendingEvents = snapshot.data!
@@ -568,7 +568,7 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
                   if (isSelected.first)
                     if (widget.isUser)
                       StreamBuilder(
-                        stream: ref.read(attendEventsProvider.notifier).stream,
+                        stream: ref.watch(attendEventsProvider.notifier).stream,
                         builder: (context, snapshot) {
                           if (snapshot.data != null) {
                             final relevantEvents = snapshot.data!.where((event) {
@@ -618,14 +618,16 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
                       )
                     else if (private == false || isFriend)
                       StreamBuilder(
-                        stream: ref.read(attendEventsProvider.notifier).stream,
+                        stream: ref.watch(attendEventsProvider.notifier).stream,
                         builder: (context, snapshot) {
                           if (snapshot.data != null) {
                             final hostingEvents = snapshot.data!.where((event) {
                               if (showHosting && event.otherHost) {
                                 return true;
                               }
-                              return false;
+                              else {
+                                return false;
+                              }
                             }).toList();
                             final attendingEvents = snapshot.data!.where((event) {
                               final now = DateTime.now();
@@ -702,9 +704,9 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
                           ),
                         ),
                       )
-                  else if (private == false || isFriend || widget.isUser)
+                  else if ((private == false)|| isFriend || widget.isUser)
                     StreamBuilder(
-                      stream: ref.read(attendEventsProvider.notifier).stream,
+                      stream: ref.watch(attendEventsProvider.notifier).stream,
                       builder: (context, snapshot) {
                         if (snapshot.data != null) {
                           if (widget.isUser) {

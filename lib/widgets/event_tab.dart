@@ -132,6 +132,12 @@ class _EventTabState extends ConsumerState<EventTab> {
     );
   }
 
+  Future<void> getOriginalProfileInfo() async {
+    if (Navigator.canPop(context)) {
+      await ref.read(attendEventsProvider.notifier).deCodeData();
+    }
+  }
+
   Widget _buildDistanceInfo(BuildContext context) {
     if (widget.eventData.distanceAway == null) {
       return const SizedBox.shrink();
@@ -250,11 +256,13 @@ class _EventTabState extends ConsumerState<EventTab> {
         onTap: () async {
           String currentUser = await ref.read(profileProvider.notifier).getCurrentUserId();
           if (widget.eventData.host != currentUser) {
-            await Navigator.of(context, rootNavigator: true).push(
-              MaterialPageRoute(
-                builder: (context) => ProfileScreen(isUser: false, userId: widget.eventData.host),
-              ),
-            );
+            await Navigator.of(context, rootNavigator: true)
+                .push(
+                  MaterialPageRoute(
+                    builder: (context) => ProfileScreen(isUser: false, userId: widget.eventData.host),
+                  ),
+                )
+                .whenComplete(getOriginalProfileInfo);
           } else {
             await Navigator.of(context, rootNavigator: true).push(
               MaterialPageRoute(
@@ -265,7 +273,7 @@ class _EventTabState extends ConsumerState<EventTab> {
           //Refresh data when popping back to your profile
           if (mounted) {
             WidgetsBinding.instance.addPostFrameCallback((_) {
-              context.findAncestorStateOfType<ProfileScreenState>()?.refreshData();
+              //context.findAncestorStateOfType<ProfileScreenState>()?.refreshData();
             });
           }
         },
@@ -559,46 +567,58 @@ class _EventTabState extends ConsumerState<EventTab> {
           onTap: () {
             if (!Navigator.of(context).canPop()) {
               showModalBottomSheet(
-                  context: context,
-                  isScrollControlled: true,
-                  isDismissible: true,
-                  builder: (context) {
-                    return Container(
-                      height: MediaQuery.of(context).size.height * .6,
-                      padding: const EdgeInsets.all(16),
-                      decoration: BoxDecoration(
-                        color: Theme.of(context).cardColor,
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Text(
-                                'Comments',
-                                style: TextStyle(
-                                  color: Theme.of(context).primaryColor,
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 30,
+                context: context,
+                isScrollControlled: true,
+                isDismissible: true,
+                backgroundColor: Colors.transparent,
+                builder: (context) {
+                  return DraggableScrollableSheet(
+                    initialChildSize: 0.6,
+                    minChildSize: 0.2,
+                    maxChildSize: 0.9,
+                    expand: false,
+                    builder: (context, scrollController) {
+                      return Container(
+                        decoration: BoxDecoration(
+                          color: Theme.of(context).cardColor,
+                          borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
+                        ),
+                        child: CustomScrollView(
+                          controller: scrollController,
+                          slivers: [
+                            SliverToBoxAdapter(
+                              child: Container(
+                                padding: const EdgeInsets.all(16),
+                                child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    // Text(
+                                    //   'Comments',
+                                    //   style: TextStyle(
+                                    //     color: Theme.of(context).primaryColor,
+                                    //     fontWeight: FontWeight.bold,
+                                    //     fontSize: 30,
+                                    //   ),
+                                    // ),
+                                    // IconButton(
+                                    //   icon: const Icon(Icons.close),
+                                    //   onPressed: () => Navigator.of(context).pop(),
+                                    // ),
+                                  ],
                                 ),
                               ),
-                              IconButton(
-                                icon: const Icon(Icons.close),
-                                onPressed: () => Navigator.of(context).pop(),
-                              ),
-                            ],
-                          ),
-                          const SizedBox(height: 8),
-                          Flexible(
-                            child: CommentsSection(eventId: widget.eventData.eventId),
-                          ),
-                        ],
-                      ),
-                    );
-                  });
+                            ),
+                            SliverFillRemaining(
+                              hasScrollBody: true,
+                              child: CommentsSection(eventId: widget.eventData.eventId),
+                            ),
+                          ],
+                        ),
+                      );
+                    },
+                  );
+                },
+              );
             }
           },
           child: _buildInfoItem(context, '${widget.eventData.numOfComments}', 'Comments', isSmallScreen),
@@ -743,7 +763,6 @@ class _EventTabState extends ConsumerState<EventTab> {
       widget.eventData.attendees.remove(supabase.auth.currentUser!.id);
     });
 
-    print(widget.eventData.attending);
     Navigator.of(context)
         .push(MaterialPageRoute(
           builder: (context) => DetailedEventScreen(

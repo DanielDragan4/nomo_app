@@ -170,9 +170,9 @@ class Month extends ConsumerWidget {
     ref.read(profileProvider.notifier).decodeData();
     List<Event> calEvents =
         ref.read(attendEventsProvider.notifier).eventsAttendingByMonth(yearDisplayed, selectedMonth);
-    ref
+    Future((){ref
         .read(availabilityProvider.notifier)
-        .updateAvailability(ref.watch(profileProvider.notifier).availabilityByMonth(yearDisplayed, selectedMonth));
+        .updateAvailability(ref.watch(profileProvider.notifier).availabilityByMonth(yearDisplayed, selectedMonth));});
 
     return Container(
       alignment: Alignment.center,

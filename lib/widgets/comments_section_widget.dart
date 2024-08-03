@@ -50,27 +50,24 @@ class _CommentsSectionState extends ConsumerState<CommentsSection> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Flexible(
+          Expanded(
             child: commentsList.isNotEmpty
-                ? SizedBox(
-                    height: MediaQuery.of(context).size.height * 0.4,
-                    child: ListView.builder(
-                      itemCount: commentsList.length,
-                      itemBuilder: (context, index) => CommentWidget(commentData: commentsList[index]),
-                    ),
-                  )
-                : Center(
-                    child: Padding(
-                      padding: EdgeInsets.all(MediaQuery.of(context).size.height * 0.02),
-                      child: Text(
-                        "No comments available",
-                        style: TextStyle(
-                          color: Theme.of(context).colorScheme.onSecondary.withOpacity(0.6),
-                          fontSize: MediaQuery.of(context).size.width * 0.04,
-                        ),
+              ? ListView.builder(
+                  itemCount: commentsList.length,
+                  itemBuilder: (context, index) => CommentWidget(commentData: commentsList[index]),
+                )
+              : Center(
+                  child: Padding(
+                    padding: EdgeInsets.all(MediaQuery.of(context).size.height * 0.02),
+                    child: Text(
+                      "No comments available",
+                      style: TextStyle(
+                        color: Theme.of(context).colorScheme.onSecondary.withOpacity(0.6),
+                        fontSize: MediaQuery.of(context).size.width * 0.04,
                       ),
                     ),
                   ),
+                ),
           ),
           Padding(
             padding: EdgeInsets.fromLTRB(

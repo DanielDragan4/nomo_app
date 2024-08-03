@@ -88,9 +88,8 @@ class _FriendsScreenState extends ConsumerState<FriendsScreen> {
                         onPressed: (int index) {
                           setState(() {
                             for (int i = 0; i < isSelected.length; i++) {
-                              isSelected[i] = i == index;
+                              isSelected[i] = (i == index);
                             }
-                            friends = !friends;
                           });
                         },
                         isSelected: isSelected,
@@ -144,7 +143,7 @@ class _FriendsScreenState extends ConsumerState<FriendsScreen> {
                           );
                         },
                       )
-                    : friends
+                    : isSelected.first
                         ? StreamBuilder(
                             stream: ref.read(profileProvider.notifier).decodeFriends().asStream(),
                             builder: (context, snapshot) {

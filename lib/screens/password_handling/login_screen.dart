@@ -101,62 +101,68 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                       child: Column(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          TextFormField(
-                            decoration: InputDecoration(
-                              labelText: "Email Address",
-                              errorText: _emailError ? _emailErrorText : null,
-                              errorStyle: TextStyle(color: Colors.red),
-                              enabledBorder: OutlineInputBorder(
-                                borderSide: BorderSide(color: _emailError ? Colors.red : Colors.grey),
+                          Padding(
+                            padding: const EdgeInsets.only(bottom: 12.0),
+                            child: TextFormField(
+                              decoration: InputDecoration(
+                                labelText: "Email Address",
+                                errorText: _emailError ? _emailErrorText : null,
+                                errorStyle: TextStyle(color: Colors.red),
+                                enabledBorder: OutlineInputBorder(
+                                  borderSide: BorderSide(color: _emailError ? Colors.red : Colors.grey),
+                                ),
+                                focusedBorder: OutlineInputBorder(
+                                  borderSide:
+                                      BorderSide(color: _emailError ? Colors.red : Theme.of(context).primaryColor),
+                                ),
                               ),
-                              focusedBorder: OutlineInputBorder(
-                                borderSide:
-                                    BorderSide(color: _emailError ? Colors.red : Theme.of(context).primaryColor),
-                              ),
+                              keyboardType: TextInputType.emailAddress,
+                              autocorrect: false,
+                              textCapitalization: TextCapitalization.none,
+                              controller: emailC,
+                              style: TextStyle(color: Theme.of(context).colorScheme.onSecondary),
+                              validator: (value) {
+                                if (value == null || value.trim().isEmpty || !value.contains('@')) {
+                                  return 'Please enter a valid email address.';
+                                }
+                                return null;
+                              },
                             ),
-                            keyboardType: TextInputType.emailAddress,
-                            autocorrect: false,
-                            textCapitalization: TextCapitalization.none,
-                            controller: emailC,
-                            style: TextStyle(color: Theme.of(context).colorScheme.onSecondary),
-                            validator: (value) {
-                              if (value == null || value.trim().isEmpty || !value.contains('@')) {
-                                return 'Please enter a valid email address.';
-                              }
-                              return null;
-                            },
                           ),
-                          TextFormField(
-                            decoration: InputDecoration(
-                              labelText: "Password",
-                              errorText: _passwordError ? _passwordErrorText : null,
-                              errorStyle: TextStyle(color: Colors.red),
-                              enabledBorder: OutlineInputBorder(
-                                borderSide: BorderSide(color: _passwordError ? Colors.red : Colors.grey),
+                          Padding(
+                            padding: const EdgeInsets.only(bottom: 12.0),
+                            child: TextFormField(
+                              decoration: InputDecoration(
+                                labelText: "Password",
+                                errorText: _passwordError ? _passwordErrorText : null,
+                                errorStyle: TextStyle(color: Colors.red),
+                                enabledBorder: OutlineInputBorder(
+                                  borderSide: BorderSide(color: _passwordError ? Colors.red : Colors.grey),
+                                ),
+                                focusedBorder: OutlineInputBorder(
+                                  borderSide:
+                                      BorderSide(color: _passwordError ? Colors.red : Theme.of(context).primaryColor),
+                                ),
+                                suffixIcon: IconButton(
+                                  onPressed: () {
+                                    _obscurePass = !_obscurePass;
+                                    setState(() {});
+                                  },
+                                  icon: _obscurePass == true
+                                      ? const Icon(Icons.visibility)
+                                      : const Icon(Icons.visibility_off),
+                                ),
                               ),
-                              focusedBorder: OutlineInputBorder(
-                                borderSide:
-                                    BorderSide(color: _passwordError ? Colors.red : Theme.of(context).primaryColor),
-                              ),
-                              suffixIcon: IconButton(
-                                onPressed: () {
-                                  _obscurePass = !_obscurePass;
-                                  setState(() {});
-                                },
-                                icon: _obscurePass == true
-                                    ? const Icon(Icons.visibility)
-                                    : const Icon(Icons.visibility_off),
-                              ),
+                              obscureText: _obscurePass,
+                              style: TextStyle(color: Theme.of(context).colorScheme.onSecondary),
+                              controller: passC,
+                              validator: (value) {
+                                if (value == null || value.trim().length < 8) {
+                                  return 'Password must be at least 8 characters long.';
+                                }
+                                return null;
+                              },
                             ),
-                            obscureText: _obscurePass,
-                            style: TextStyle(color: Theme.of(context).colorScheme.onSecondary),
-                            controller: passC,
-                            validator: (value) {
-                              if (value == null || value.trim().length < 8) {
-                                return 'Password must be at least 8 characters long.';
-                              }
-                              return null;
-                            },
                           ),
                           if (!isLogin)
                             TextFormField(

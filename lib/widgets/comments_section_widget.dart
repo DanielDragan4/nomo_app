@@ -1,5 +1,3 @@
-// comments_section_widget.dart
-
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:nomo/models/comments_model.dart';
@@ -52,7 +50,7 @@ class _CommentsSectionState extends ConsumerState<CommentsSection> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Expanded(
+          Flexible(
             child: commentsList.isNotEmpty
                 ? SizedBox(
                     height: MediaQuery.of(context).size.height * 0.4,
@@ -83,7 +81,7 @@ class _CommentsSectionState extends ConsumerState<CommentsSection> {
             ),
             child: Row(
               children: [
-                Expanded(
+                Flexible(
                   child: TextField(
                     controller: newComment,
                     decoration: InputDecoration(

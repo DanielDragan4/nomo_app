@@ -32,7 +32,7 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
   UniqueKey _futureBuilderKey = UniqueKey();
   final TextEditingController searchController = TextEditingController();
   bool? private;
-  late List<bool> isSelected;
+  List<bool> isSelected = [true, false];
   late bool isFriend = true;
   bool _isLoading = true;
   bool showUpcoming = true;
@@ -53,7 +53,6 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
       ref.read(attendEventsProvider.notifier).deCodeDataWithId(widget.userId!);
       checkPendingRequest();
     }
-    isSelected = [true, false];
   }
 
 // Called from Event Tab to refresh data when leaving anothe profile view

@@ -108,6 +108,11 @@ class _DetailedEventScreenState extends ConsumerState<DetailedEventScreen> {
       ),
     );
   }
+  Future<void> getOriginalProfileInfo() async{
+  if(Navigator.canPop(context)) {
+    await ref.read(attendEventsProvider.notifier).deCodeData();
+  }
+}
 
   Widget _buildEventImage() {
     return ClipRRect(
@@ -134,7 +139,7 @@ class _DetailedEventScreenState extends ConsumerState<DetailedEventScreen> {
         GestureDetector(
           onTap: () => Navigator.of(context).push(MaterialPageRoute(
             builder: (context) => ProfileScreen(isUser: false, userId: widget.eventData?.host),
-          )),
+          )).whenComplete(getOriginalProfileInfo),
           child: Row(children: [
             CircleAvatar(
               radius: MediaQuery.of(context).devicePixelRatio * 7,

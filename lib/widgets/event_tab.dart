@@ -132,6 +132,12 @@ Widget build(BuildContext context) {
   );
 }
 
+Future<void> getOriginalProfileInfo() async{
+  if(Navigator.canPop(context)) {
+    await ref.read(attendEventsProvider.notifier).deCodeData();
+  }
+}
+
   Widget _buildDistanceInfo(BuildContext context) {
     if (widget.eventData.distanceAway == null) {
       return const SizedBox.shrink();
@@ -261,7 +267,7 @@ Widget _buildEventEndedIndicator() {
               MaterialPageRoute(
                 builder: (context) => ProfileScreen(isUser: false, userId: widget.eventData.host),
               ),
-            );
+            ).whenComplete(getOriginalProfileInfo);
           } else {
             await Navigator.push(
               context,
@@ -273,7 +279,7 @@ Widget _buildEventEndedIndicator() {
           //Refresh data when popping back to your profile
           if (mounted) {
             WidgetsBinding.instance.addPostFrameCallback((_) {
-              context.findAncestorStateOfType<ProfileScreenState>()?.refreshData();
+              //context.findAncestorStateOfType<ProfileScreenState>()?.refreshData();
             });
           }
         },
@@ -743,7 +749,6 @@ Widget _buildEventEndedIndicator() {
       widget.eventData.attendees.remove(supabase.auth.currentUser!.id);
     });
 
-  print(widget.eventData.attending);
       Navigator.of(context).push(MaterialPageRoute(
         builder: (context) => DetailedEventScreen(
           eventData: widget.eventData,

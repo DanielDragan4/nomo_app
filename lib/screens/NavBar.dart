@@ -3,7 +3,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:nomo/providers/profile_provider.dart';
 import 'package:nomo/screens/calendar/calendar_screen.dart';
 import 'package:nomo/screens/friends_screen.dart';
-import 'package:nomo/screens/new_event_screen.dart';
 import 'package:nomo/screens/profile_screen.dart';
 import 'package:nomo/screens/recommended_screen.dart';
 import 'package:nomo/screens/search_screen.dart';
@@ -36,8 +35,8 @@ class _NavBarState extends ConsumerState<NavBar> {
     }
   }
 
-  Future<bool> _onWillPop() async {
-    final isFirstRouteInCurrentTab = !await _navigatorKeys[_index].currentState!.maybePop();
+  bool _handlePopScope() {
+    final isFirstRouteInCurrentTab = !(_navigatorKeys[_index].currentState?.canPop() ?? false);
     if (isFirstRouteInCurrentTab) {
       if (_index != 0) {
         setState(() {
@@ -45,8 +44,11 @@ class _NavBarState extends ConsumerState<NavBar> {
         });
         return false;
       }
+    } else {
+      _navigatorKeys[_index].currentState?.pop();
+      return false;
     }
-    return isFirstRouteInCurrentTab;
+    return true;
   }
 
   @override
@@ -54,8 +56,12 @@ class _NavBarState extends ConsumerState<NavBar> {
     var navBarTheme = Theme.of(context).bottomNavigationBarTheme;
     ref.read(profileProvider.notifier).decodeData();
 
-    return WillPopScope(
-      onWillPop: _onWillPop,
+    return PopScope(
+      canPop: false,
+      onPopInvoked: (didPop) {
+        if (didPop) return;
+        _handlePopScope();
+      },
       child: Scaffold(
         bottomNavigationBar: BottomNavigationBar(
           currentIndex: _index,

@@ -186,8 +186,8 @@ Widget _buildHostOrAttendingIndicator() {
       borderRadius: BorderRadius.circular(16),
       border: Border.all(
         color: host 
-          ? Theme.of(context).colorScheme.tertiary 
-          : Theme.of(context).colorScheme.primary,
+          ? Colors.green 
+          : Color.fromARGB(255, 60, 132, 255),
         width: 1.5,
       ),
     ),
@@ -198,16 +198,16 @@ Widget _buildHostOrAttendingIndicator() {
           host ? Icons.star : Icons.check_circle,
           size: 14,
           color: host 
-            ? Theme.of(context).colorScheme.tertiary 
-            : Theme.of(context).colorScheme.primary,
+            ? Colors.green 
+            : Color.fromARGB(255, 60, 132, 255),
         ),
         const SizedBox(width: 4),
         Text(
           host ? 'Hosting' : 'Attending',
           style: TextStyle(
             color: host 
-              ? Theme.of(context).colorScheme.tertiary 
-              : Theme.of(context).colorScheme.primary,
+              ? Colors.green 
+              : Color.fromARGB(255, 60, 132, 255),
             fontWeight: FontWeight.bold,
             fontSize: 12,
           ),
@@ -229,23 +229,23 @@ Widget _buildEventEndedIndicator() {
       color: Theme.of(context).colorScheme.error.withOpacity(0.2),
       borderRadius: BorderRadius.circular(16),
       border: Border.all(
-        color: Theme.of(context).colorScheme.error,
+        color: Color.fromARGB(255, 214, 52, 52),
         width: 1.5,
       ),
     ),
-    child: Row(
+    child: const Row(
       mainAxisSize: MainAxisSize.min,
       children: [
         Icon(
           Icons.event_busy,
           size: 14,
-          color: Theme.of(context).colorScheme.error,
+          color: Color.fromARGB(255, 214, 52, 52),
         ),
         const SizedBox(width: 4),
         Text(
           'Passed',
           style: TextStyle(
-            color: Theme.of(context).colorScheme.error,
+            color: Color.fromARGB(255, 214, 52, 52),
             fontWeight: FontWeight.bold,
             fontSize: 12,
           ),

@@ -269,7 +269,7 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
   @override
   Widget build(BuildContext context) {
     calendarState = ref.read(calendarStateProvider);
-    attendingEvents = calendarState.attendingEvents;
+    //attendingEvents = calendarState.attendingEvents;
     setProfileAvail();
     final int firstDayOfWeek = DateTime(yearDisplayed, monthDisplayed, 1).weekday;
     final int lastOfMonth = DateTime(yearDisplayed, monthDisplayed + 1, 0).day;

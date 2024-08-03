@@ -158,9 +158,13 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
   Widget build(BuildContext context) {
     //Calculation to prevent appbar overflow on all devices
     double appBarHeight = MediaQuery.of(context).padding.top + MediaQuery.of(context).size.width * 0.24 + 270;
+    double toolbar;
 
     if (widget.isUser) {
       appBarHeight += 10;
+      toolbar = 10;
+    } else {
+      toolbar = 50;
     }
 
     if (widget.isUser) {
@@ -191,6 +195,7 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
               child: CustomScrollView(
                 slivers: [
                   SliverAppBar(
+                    toolbarHeight: kToolbarHeight + toolbar,
                     backgroundColor: Theme.of(context).colorScheme.surface,
                     expandedHeight: appBarHeight,
                     floating: true,

@@ -91,7 +91,8 @@ class EventProvider extends StateNotifier<List?> {
           numOfComments: eventData['comments_num'].length,
           isVirtual: eventData['is_virtual'],
           attending: false,
-          categories: eventData['event_interests']);
+          categories: eventData['event_interests'],
+          distanceAway: eventData['distance_away']);
 
       for (var i = 0; i < deCodedEvent.attendees.length; i++) {
         if (deCodedEvent.attendees[i] == supabaseClient.auth.currentUser!.id) {

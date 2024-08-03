@@ -175,8 +175,6 @@ class _InterestsScreenState extends ConsumerState<InterestsScreen> {
           padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 8),
         ),
         onPressed: () => _handleInterestSelection(option),
-        child: FittedBox(
-          fit: BoxFit.scaleDown,
           child: Text(
             option.value, // Use the custom string value
             textAlign: TextAlign.center,
@@ -185,7 +183,6 @@ class _InterestsScreenState extends ConsumerState<InterestsScreen> {
               fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
             ),
           ),
-        ),
       ),
     );
   }

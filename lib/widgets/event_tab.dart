@@ -55,128 +55,199 @@ class _EventTabState extends ConsumerState<EventTab> {
       });
     }
   }
-  @override
-  Widget build(BuildContext context) {
-    final DateTime date = DateTime.parse(widget.eventData.sdate);
-    final formattedDate = "${date.month}/${date.day}/${date.year} at ${_getFormattedHour(date)}";
+@override
+Widget build(BuildContext context) {
+  final DateTime date = DateTime.parse(widget.eventData.sdate);
+  final formattedDate = "${date.month}/${date.day}/${date.year} at ${_getFormattedHour(date)}";
 
-    final bool isHostOrAttending = widget.eventData.isHost || widget.eventData.attending;
-  
+  final bool isHostOrAttending = widget.eventData.isHost || widget.eventData.attending;
 
-    return Card(
-      elevation: 4,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
-      color: isHostOrAttending
-          ? Theme.of(context).colorScheme.primaryContainer // Color for hosted/attended events
-          : Theme.of(context).cardColor, // Default card color
-      child: Stack(
-        children: [
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  _buildHostInfo(context),
-                  Padding(
-                    padding: const EdgeInsets.fromLTRB(0, 0, 5, 0),
-                    child: Container(
-                      child: Row(
-                        children: [
-                          if (_hasEventEnded()) _buildEventEndedIndicator(),
-                          const SizedBox(
-                            width: 4,
-                          ),
-                          if (isHostOrAttending) _buildHostOrAttendingIndicator(),
-                        ],
-                      ),
-                    ),
-                  )
-                ],
-              ),
-              _buildEventImage(context),
-              Padding(
-                padding: const EdgeInsets.all(16),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    _buildEventTitle(context),
-                    const SizedBox(height: 8),
-                    _buildEventLocation(context),
-                    LayoutBuilder(
-                  builder: (context, constraints) {
-                  final isSmallScreen = constraints.maxWidth < 600;
-                  return Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
+  return Card(
+    elevation: 4,
+    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+    margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
+    color: isHostOrAttending
+        ? Theme.of(context).colorScheme.primaryContainer
+        : Theme.of(context).cardColor,
+    child: Stack(
+      children: [
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                _buildHostInfo(context),
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(0, 0, 5, 0),
+                  child: Container(
+                    child: Row(
                       children: [
-                        _buildDateTimeInfo(context, isSmallScreen),
-                        const SizedBox(height: 8),
-                        _buildAttendeeInfo(context, isSmallScreen),
-                        const SizedBox(height: 16),
-                        _buildActionButtons(context, isSmallScreen),
+                        if (_hasEventEnded()) _buildEventEndedIndicator(),
+                        const SizedBox(width: 4),
+                        if (isHostOrAttending) _buildHostOrAttendingIndicator(),
+                      ],
+                    ),
+                  ),
+                )
+              ],
+            ),
+            _buildEventImage(context),
+            Padding(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  _buildEventTitle(context),
+                  const SizedBox(height: 8),
+                  _buildEventLocation(context),
+                  _buildDistanceInfo(context), // Add this line
+                  LayoutBuilder(
+                    builder: (context, constraints) {
+                      final isSmallScreen = constraints.maxWidth < 600;
+                      return Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            _buildDateTimeInfo(context, isSmallScreen),
+                            const SizedBox(height: 8),
+                            _buildAttendeeInfo(context, isSmallScreen),
+                            const SizedBox(height: 16),
+                            _buildActionButtons(context, isSmallScreen),
                           ],
                         ),
                       );
                     },
                   ),
-                    const SizedBox(height: 12),
-                    //_buildEventDescription(context),
-                    const SizedBox(height: 12),
-                    _buildGetDetails(context, isHostOrAttending),
-                  ],
-                ),
+                  const SizedBox(height: 12),
+                  _buildGetDetails(context, isHostOrAttending),
+                ],
               ),
-            ],
+            ),
+          ],
+        ),
+      ],
+    ),
+  );
+}
+
+  Widget _buildDistanceInfo(BuildContext context) {
+    if (widget.eventData.distanceAway == null) {
+      return const SizedBox.shrink();
+    }
+
+    final double distance = widget.eventData.distanceAway!;
+    final String distanceText = '${distance.toStringAsFixed(1)} miles away';
+
+    return Container(
+      margin: const EdgeInsets.only(top: 8),
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+      decoration: BoxDecoration(
+        color: Theme.of(context).colorScheme.secondaryContainer,
+        borderRadius: BorderRadius.circular(16),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(
+            Icons.directions_run,  // Changed icon to a running person
+            size: 18,
+            color: Theme.of(context).colorScheme.secondary,
+          ),
+          const SizedBox(width: 6),
+          Text(
+            distanceText,
+            style: TextStyle(
+              fontSize: 14,
+              fontWeight: FontWeight.bold,
+              color: Theme.of(context).colorScheme.secondary,
+            ),
           ),
         ],
       ),
     );
   }
 
-  Widget _buildHostOrAttendingIndicator() {
-    var host = widget.eventData.isHost;
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
-      decoration: BoxDecoration(
-        color: host ? Colors.green : Colors.blue,
-        borderRadius: BorderRadius.circular(12),
+Widget _buildHostOrAttendingIndicator() {
+  var host = widget.eventData.isHost;
+  return Container(
+    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+    decoration: BoxDecoration(
+      color: host 
+        ? Theme.of(context).colorScheme.tertiary.withOpacity(0.2)
+        : Theme.of(context).colorScheme.primary.withOpacity(0.2),
+      borderRadius: BorderRadius.circular(16),
+      border: Border.all(
+        color: host 
+          ? Theme.of(context).colorScheme.tertiary 
+          : Theme.of(context).colorScheme.primary,
+        width: 1.5,
       ),
-      child: Text(
-        host ? 'Hosting' : 'Attending',
-        style: TextStyle(
-          color: Colors.white,
-          fontWeight: FontWeight.bold,
-          fontSize: 12,
+    ),
+    child: Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Icon(
+          host ? Icons.star : Icons.check_circle,
+          size: 14,
+          color: host 
+            ? Theme.of(context).colorScheme.tertiary 
+            : Theme.of(context).colorScheme.primary,
         ),
-      ),
-    );
-  }
-
-  bool _hasEventEnded() {
-    final DateTime endDate = DateTime.parse(widget.eventData.edate);
-    return DateTime.now().isAfter(endDate);
-  }
-
-  Widget _buildEventEndedIndicator() {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
-      decoration: BoxDecoration(
-        color: Colors.red,
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: Text(
-        'Passed',
-        style: TextStyle(
-          color: Colors.white,
-          fontWeight: FontWeight.bold,
-          fontSize: 12,
+        const SizedBox(width: 4),
+        Text(
+          host ? 'Hosting' : 'Attending',
+          style: TextStyle(
+            color: host 
+              ? Theme.of(context).colorScheme.tertiary 
+              : Theme.of(context).colorScheme.primary,
+            fontWeight: FontWeight.bold,
+            fontSize: 12,
+          ),
         ),
+      ],
+    ),
+  );
+}
+
+bool _hasEventEnded() {
+  final DateTime endDate = DateTime.parse(widget.eventData.edate);
+  return DateTime.now().isAfter(endDate);
+}
+
+Widget _buildEventEndedIndicator() {
+  return Container(
+    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+    decoration: BoxDecoration(
+      color: Theme.of(context).colorScheme.error.withOpacity(0.2),
+      borderRadius: BorderRadius.circular(16),
+      border: Border.all(
+        color: Theme.of(context).colorScheme.error,
+        width: 1.5,
       ),
-    );
-  }
+    ),
+    child: Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Icon(
+          Icons.event_busy,
+          size: 14,
+          color: Theme.of(context).colorScheme.error,
+        ),
+        const SizedBox(width: 4),
+        Text(
+          'Passed',
+          style: TextStyle(
+            color: Theme.of(context).colorScheme.error,
+            fontWeight: FontWeight.bold,
+            fontSize: 12,
+          ),
+        ),
+      ],
+    ),
+  );
+}
 
   Widget _buildHostInfo(BuildContext context) {
     return Padding(

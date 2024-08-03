@@ -74,7 +74,9 @@ class _DetailedEventScreenState extends ConsumerState<DetailedEventScreen> {
               _buildEventImage(),
               const SizedBox(height: 16),
               _buildEventHost(),
-              const SizedBox(height: 16),
+              const SizedBox(height: 6),
+              _buildDistanceInfo(context),
+              const SizedBox(height: 6),
               _buildEventLocation(context),
               LayoutBuilder(
                 builder: (context, constraints) {
@@ -161,6 +163,42 @@ class _DetailedEventScreenState extends ConsumerState<DetailedEventScreen> {
       ],
     );
   }
+  Widget _buildDistanceInfo(BuildContext context) {
+  if (widget.eventData.distanceAway == null) {
+    return const SizedBox.shrink();
+  }
+
+  final double distance = widget.eventData.distanceAway!;
+  final String distanceText = '${distance.toStringAsFixed(1)} miles away';
+
+  return Container(
+    margin: const EdgeInsets.only(top: 8),
+    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+    decoration: BoxDecoration(
+      color: Theme.of(context).colorScheme.secondaryContainer,
+      borderRadius: BorderRadius.circular(16),
+    ),
+    child: Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Icon(
+          Icons.directions_run,  // Changed icon to a running person
+          size: 18,
+          color: Theme.of(context).colorScheme.secondary,
+        ),
+        const SizedBox(width: 6),
+        Text(
+          distanceText,
+          style: TextStyle(
+            fontSize: 14,
+            fontWeight: FontWeight.bold,
+            color: Theme.of(context).colorScheme.secondary,
+          ),
+        ),
+      ],
+    ),
+  );
+}
   Widget _buildEventLocation(BuildContext context) {
     return (widget.eventData!.isVirtual)
         ? Row(

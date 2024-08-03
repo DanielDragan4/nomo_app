@@ -1,7 +1,14 @@
+import 'dart:convert';
+import 'dart:math';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:nomo/models/events_model.dart';
 import 'package:nomo/providers/supabase_provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:geocoding/geocoding.dart';
+import 'package:geolocator/geolocator.dart';
 
 class AttendEventProvider extends StateNotifier<List<Event>> {
   AttendEventProvider({required this.supabase}) : super([]);
@@ -37,10 +44,21 @@ class AttendEventProvider extends StateNotifier<List<Event>> {
 
     List<Event> deCodedList = [];
     final supabaseClient = (await supabase).client;
+    final getLocation = await SharedPreferences.getInstance();
+    final exsistingLocation = getLocation.getStringList('savedLocation');
+    final currentPosition = Position.fromMap(json.decode(exsistingLocation![0]));
 
     for (var eventData in codedList) {
       String profileUrl = supabaseClient.storage.from('Images').getPublicUrl(eventData['profile_path']);
       String eventUrl = supabaseClient.storage.from('Images').getPublicUrl(eventData['event_path']);
+
+
+
+      var distance;
+      
+      if(eventData['lat'] != null) {
+        distance = Geolocator.distanceBetween(currentPosition.latitude, currentPosition.longitude, eventData['lat'], eventData['long']) * 0.000621371;
+      }
 
       bool bookmarked = false;
       for (var bookmark in eventData['Bookmarked']) {
@@ -72,6 +90,7 @@ class AttendEventProvider extends StateNotifier<List<Event>> {
         numOfComments: eventData['comments_num'].length,
         isVirtual: eventData['is_virtual'],
         categories: eventData['event_interests'],
+        distanceAway: distance
       );
 
       bool attending = false;
@@ -120,10 +139,19 @@ class AttendEventProvider extends StateNotifier<List<Event>> {
     List<Event> deCodedList = [];
     final supabaseClient = (await supabase).client;
     final currentUser = supabaseClient.auth.currentUser!.id;
+    final getLocation = await SharedPreferences.getInstance();
+    final exsistingLocation = getLocation.getStringList('savedLocation');
+    final currentPosition = Position.fromMap(json.decode(exsistingLocation![0]));
 
     for (var eventData in codedList) {
       String profileUrl = supabaseClient.storage.from('Images').getPublicUrl(eventData['profile_path']);
       String eventUrl = supabaseClient.storage.from('Images').getPublicUrl(eventData['event_path']);
+
+      var distance;
+
+      if(eventData['lat'] != null) {
+        distance = Geolocator.distanceBetween(currentPosition.latitude, currentPosition.longitude, eventData['lat'], eventData['long']) * 0.000621371;
+      }
 
       bool bookmarked = false;
       bool otherBookmark = false;
@@ -160,7 +188,8 @@ class AttendEventProvider extends StateNotifier<List<Event>> {
           categories: eventData['event_interests'],
           otherBookmark: otherBookmark,
           otherAttend: false,
-          otherHost: false);
+          otherHost: false,
+          distanceAway: distance);
 
       bool attending = false;
       for (var i = 0; i < deCodedEvent.attendees.length; i++) {

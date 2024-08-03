@@ -30,12 +30,23 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
   TimeOfDay? endTime;
   String? blockTitle;
   Map<DateTime, bool> selectedDatesWithTime = {};
+  var calendarState;
+  var attendingEvents;
+
+  void initilizeAttendingEvents() async{
+    await ref.read(attendEventsProvider.notifier).deCodeData();
+    setState(() {
+    calendarState = ref.watch(calendarStateProvider);
+    attendingEvents = ref.read(attendEventsProvider.notifier).eventsAttendingByMonth(yearDisplayed, monthDisplayed);
+    });
+  }
 
   @override
   void initState() {
     super.initState();
+    initilizeAttendingEvents();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      _updateAttendingEvents(yearDisplayed, monthDisplayed);
+    _updateAttendingEvents(yearDisplayed, monthDisplayed);
     });
   }
 
@@ -232,7 +243,9 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
   void _updateAttendingEvents(int year, int month) {
     final events = ref.read(attendEventsProvider.notifier).eventsAttendingByMonth(year, month);
     ref.read(calendarStateProvider.notifier).updateAttendingEvents(events);
-    setState(() {}); // Trigger a rebuild
+    setState(() {
+      attendingEvents = events;
+    }); // Trigger a rebuild
   }
 
   String _getMonthName(int month) {
@@ -255,12 +268,9 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
 
   @override
   Widget build(BuildContext context) {
-    List<Event> calEvents =
-        ref.read(attendEventsProvider.notifier).eventsAttendingByMonth(yearDisplayed, monthDisplayed);
-    final calendarState = ref.watch(calendarStateProvider);
-    final attendingEvents = calendarState.attendingEvents;
+    calendarState = ref.read(calendarStateProvider);
+    attendingEvents = calendarState.attendingEvents;
     setProfileAvail();
-    ref.read(attendEventsProvider.notifier).deCodeData();
     final int firstDayOfWeek = DateTime(yearDisplayed, monthDisplayed, 1).weekday;
     final int lastOfMonth = DateTime(yearDisplayed, monthDisplayed + 1, 0).day;
 
@@ -297,54 +307,88 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
           ),
         ),
       ),
-      body: Column(
-        children: [
-          // SizedBox(
-          //   height: MediaQuery.of(context).size.height * 0.02,
-          // ),
-
-          Padding(
-            padding: EdgeInsets.symmetric(horizontal: MediaQuery.of(context).size.width * 0.03, vertical: 5),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
-              children: ['S', 'M', 'T', 'W', 'T', 'F', 'S']
-                  .map((day) => Text(day,
-                      style: TextStyle(
-                          fontSize: 24, fontWeight: FontWeight.bold, color: Theme.of(context).primaryColorLight)))
-                  .toList(),
+      body: Stack(
+        children:[ 
+          Positioned.fill(
+          child: 
+          Column(
+          children: [
+            // SizedBox(
+            //   height: MediaQuery.of(context).size.height * 0.02,
+            // ),
+        
+            Padding(
+              padding: EdgeInsets.symmetric(horizontal: MediaQuery.of(context).size.width * 0.03, vertical: 5),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                children: ['S', 'M', 'T', 'W', 'T', 'F', 'S']
+                    .map((day) => Text(day,
+                        style: TextStyle(
+                            fontSize: 24, fontWeight: FontWeight.bold, color: Theme.of(context).primaryColorLight)))
+                    .toList(),
+              ),
             ),
-          ),
-          Flexible(
-            //height: MediaQuery.of(context).size.height * 0.45,
-            child: PageView.builder(
-              controller: _pageController,
-              onPageChanged: (int index) {
-                final newMonth = (index % 12) + 1;
-                final newYear = DateTime.now().year + (index ~/ 12);
-                ref.read(calendarStateProvider.notifier).updateMonth(newMonth);
-                ref.read(calendarStateProvider.notifier).updateYear(newYear);
-                _updateAttendingEvents(newYear, newMonth);
-              },
-              itemBuilder: (context, index) {
-                final currentMonth = (index % 12) + 1;
-                final currentYear = DateTime.now().year + (index ~/ 12);
-                final firstDayOfWeek = DateTime(currentYear, currentMonth, 1).weekday;
-                final lastOfMonth = DateTime(currentYear, currentMonth + 1, 0).day;
-
-                return Month(
-                  selectedMonth: currentMonth,
-                  eventsByDate: const [],
-                  firstDayOfWeek: firstDayOfWeek,
-                  lastOfMonth: lastOfMonth,
-                  yearDisplayed: currentYear,
-                  selectedDatesWithTime: selectedDatesWithTime,
-                );
-              },
+            Flexible(
+              //height: MediaQuery.of(context).size.height * 0.45,
+              child: PageView.builder(
+                controller: _pageController,
+                onPageChanged: (int index) {
+                  final newMonth = (index % 12) + 1;
+                  final newYear = DateTime.now().year + (index ~/ 12);
+                  ref.read(calendarStateProvider.notifier).updateMonth(newMonth);
+                  ref.read(calendarStateProvider.notifier).updateYear(newYear);
+                  _updateAttendingEvents(newYear, newMonth);
+                },
+                itemBuilder: (context, index) {
+                  final currentMonth = (index % 12) + 1;
+                  final currentYear = DateTime.now().year + (index ~/ 12);
+                  final firstDayOfWeek = DateTime(currentYear, currentMonth, 1).weekday;
+                  final lastOfMonth = DateTime(currentYear, currentMonth + 1, 0).day;
+        
+                  return Month(
+                    selectedMonth: currentMonth,
+                    eventsByDate: const [],
+                    firstDayOfWeek: firstDayOfWeek,
+                    lastOfMonth: lastOfMonth,
+                    yearDisplayed: currentYear,
+                    selectedDatesWithTime: selectedDatesWithTime,
+                  );
+                },
+              ),
             ),
+          ],
+        ),
+      ),
+      DraggableScrollableSheet(
+  initialChildSize: 0.37,
+  minChildSize: 0.1,
+  maxChildSize: .8,
+  builder: (BuildContext context, ScrollController scrollController) {
+    return Container(
+      decoration: BoxDecoration(
+        color: Theme.of(context).scaffoldBackgroundColor,
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.grey.withOpacity(0.5),
+            spreadRadius: 5,
+            blurRadius: 7,
+            offset: Offset(0, 3),
           ),
-          Expanded(
-            child: Column(
+        ],
+      ),
+      child: CustomScrollView(
+        controller: scrollController,
+        slivers: [
+          SliverAppBar(
+            pinned: true,
+            floating: false,
+            automaticallyImplyLeading: false,
+            backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+            flexibleSpace: Column(
               children: [
+                // Drag handle
+                // Your fixed row
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 10),
                   child: Row(
@@ -362,50 +406,36 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
                         ),
                       ),
                       IconButton(
-                          onPressed: () {
-                            showDialog(
-                                context: context,
-                                builder: (context) => AlertDialog(
-                                      backgroundColor: Theme.of(context).cardColor,
-                                      title: Text(
-                                        'What would you like to do?',
-                                        style: TextStyle(color: Theme.of(context).colorScheme.onPrimary),
-                                      ),
-                                      actions: [
-                                        TextButton(
-                                            onPressed: () {
-                                              Navigator.pop(context);
-                                              Navigator.of(context, rootNavigator: true).push(MaterialPageRoute(
-                                                  builder: ((context) => const NewEventScreen(event: null))));
-                                            },
-                                            child: const Text('CREATE EVENT')),
-                                        TextButton(
-                                            onPressed: () async {
-                                              selectedDate = await _showDatePickerDialog(context);
-                                              if (selectedDate != null) {
-                                                _showTimeRangePicker(context);
-                                              }
-                                            },
-                                            child: const Text('CREATE BLOCKED TIME')),
-                                      ],
-                                    ));
-                          },
-                          icon:
-                              Icon(Icons.add_box_rounded, size: 45, color: Theme.of(context).colorScheme.onSecondary)),
+                        onPressed: () {
+                          // Your existing onPressed logic
+                        },
+                        icon: Icon(Icons.add_box_rounded, size: 30, color: Theme.of(context).colorScheme.onSecondary),
+                      ),
                     ],
-                  ),
-                ),
-                const Divider(),
-                Expanded(
-                  //height: MediaQuery.of(context).size.height * 0.1,
-                  child: ListView(
-                    key: const PageStorageKey<String>('cal'),
-                    children: [for (Event event in attendingEvents) EventCalTab(eventData: event)],
                   ),
                 ),
               ],
             ),
           ),
+          SliverToBoxAdapter(
+            child: Divider(),
+          ),
+          SliverList(
+            delegate: SliverChildBuilderDelegate(
+              (BuildContext context, int index) {
+                if (attendingEvents == null) {
+                  return CircularProgressIndicator();
+                }
+                return EventCalTab(eventData: attendingEvents[index]);
+              },
+              childCount: attendingEvents?.length ?? 1,
+            ),
+          ),
+        ],
+      ),
+    );
+  },
+)
         ],
       ),
     );

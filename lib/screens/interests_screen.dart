@@ -141,16 +141,13 @@ class _InterestsScreenState extends ConsumerState<InterestsScreen> {
   }
 
   Widget _buildInterestGrid() {
-    return GridView.builder(
+    return SingleChildScrollView(
       physics: const BouncingScrollPhysics(),
-      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: 3,
-        crossAxisSpacing: 12.0,
-        mainAxisSpacing: 16.0,
-        childAspectRatio: 2.2,
+      child: Wrap(
+        spacing: 10.0, // horizontal spacing between items
+        runSpacing: 5.0, // vertical spacing between lines
+        children: Interests.values.map((interest) => _buildInterestItem(interest)).toList(),
       ),
-      itemCount: Interests.values.length,
-      itemBuilder: (context, index) => _buildInterestItem(Interests.values[index]),
     );
   }
 
@@ -158,31 +155,32 @@ class _InterestsScreenState extends ConsumerState<InterestsScreen> {
     final colorScheme = Theme.of(context).colorScheme;
     final isSelected = _selectedOptions[option] ?? false;
 
-    return AnimatedContainer(
-      duration: const Duration(milliseconds: 200),
-      child: ElevatedButton(
-        style: ElevatedButton.styleFrom(
-          backgroundColor: isSelected ? colorScheme.primaryContainer : colorScheme.surface,
-          foregroundColor: isSelected ? colorScheme.onPrimary : colorScheme.onSurface,
-          elevation: isSelected ? 4 : 1,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(20),
-            side: BorderSide(
-              color: isSelected ? colorScheme.primary : colorScheme.outline,
-              width: 1,
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 4.0),
+      child: IntrinsicWidth(
+        child: ElevatedButton(
+          style: ElevatedButton.styleFrom(
+            backgroundColor: isSelected ? colorScheme.primaryContainer : colorScheme.surface,
+            foregroundColor: isSelected ? colorScheme.onPrimary : colorScheme.onSurface,
+            elevation: isSelected ? 4 : 1,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(20),
+              side: BorderSide(
+                color: isSelected ? colorScheme.primary : colorScheme.outline,
+                width: 1,
+              ),
             ),
+            padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
           ),
-          padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 8),
-        ),
-        onPressed: () => _handleInterestSelection(option),
+          onPressed: () => _handleInterestSelection(option),
           child: Text(
-            option.value, // Use the custom string value
-            textAlign: TextAlign.center,
+            option.value,
             style: TextStyle(
               fontSize: 16,
-              fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+              fontWeight: FontWeight.w500,
             ),
           ),
+        ),
       ),
     );
   }
@@ -196,7 +194,7 @@ class _InterestsScreenState extends ConsumerState<InterestsScreen> {
             style: ElevatedButton.styleFrom(
               backgroundColor: colorScheme.primaryContainer,
               foregroundColor: colorScheme.onPrimary,
-              padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 32),
+              padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 24),
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
             ),
             onPressed: _handleContinueButton,

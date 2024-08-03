@@ -16,6 +16,7 @@ import 'package:nomo/screens/profile_screen.dart';
 import 'package:nomo/widgets/comments_section_widget.dart';
 import 'package:nomo/widgets/event_attendees_widget.dart';
 import 'package:share_plus/share_plus.dart';
+
 // Widget used to display all event information in recommended and profile screen
 // Calls EventInfo to build all details below the location
 //
@@ -23,7 +24,7 @@ import 'package:share_plus/share_plus.dart';
 // - 'eventData': all relevant data pertaining to specific event
 // - 'bookmarkSet(optional)': if current user has this event bookmarked or not
 // - 'preloadedImage'(optional): image for specified event. only passed in if already loaded
-enum Options { itemOne}
+enum Options { itemOne }
 
 class EventTab extends ConsumerStatefulWidget {
   EventTab({Key? key, required this.eventData, this.bookmarkSet, this.preloadedImage}) : super(key: key);
@@ -39,7 +40,7 @@ class EventTab extends ConsumerStatefulWidget {
 class _EventTabState extends ConsumerState<EventTab> {
   late bool bookmarkBool;
 
-    @override
+  @override
   void initState() {
     super.initState();
     bookmarkBool = widget.eventData.bookmarked;
@@ -55,88 +56,87 @@ class _EventTabState extends ConsumerState<EventTab> {
       });
     }
   }
-@override
-Widget build(BuildContext context) {
-  final DateTime date = DateTime.parse(widget.eventData.sdate);
-  final formattedDate = "${date.month}/${date.day}/${date.year} at ${_getFormattedHour(date)}";
 
-  final bool isHostOrAttending = widget.eventData.isHost || widget.eventData.attending;
+  @override
+  Widget build(BuildContext context) {
+    final DateTime date = DateTime.parse(widget.eventData.sdate);
+    final formattedDate = "${date.month}/${date.day}/${date.year} at ${_getFormattedHour(date)}";
 
-  return Card(
-    elevation: 4,
-    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-    margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
-    color: isHostOrAttending
-        ? Theme.of(context).colorScheme.primaryContainer
-        : Theme.of(context).cardColor,
-    child: Stack(
-      children: [
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                _buildHostInfo(context),
-                Padding(
-                  padding: const EdgeInsets.fromLTRB(0, 0, 5, 0),
-                  child: Container(
-                    child: Row(
-                      children: [
-                        if (_hasEventEnded()) _buildEventEndedIndicator(),
-                        const SizedBox(width: 4),
-                        if (isHostOrAttending) _buildHostOrAttendingIndicator(),
-                      ],
-                    ),
-                  ),
-                )
-              ],
-            ),
-            _buildEventImage(context),
-            Padding(
-              padding: const EdgeInsets.all(16),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+    final bool isHostOrAttending = widget.eventData.isHost || widget.eventData.attending;
+
+    return Card(
+      elevation: 4,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
+      color: isHostOrAttending ? Theme.of(context).colorScheme.primaryContainer : Theme.of(context).cardColor,
+      child: Stack(
+        children: [
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  _buildEventTitle(context),
-                  const SizedBox(height: 8),
-                  _buildEventLocation(context),
-                  _buildDistanceInfo(context), // Add this line
-                  LayoutBuilder(
-                    builder: (context, constraints) {
-                      final isSmallScreen = constraints.maxWidth < 600;
-                      return Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            _buildDateTimeInfo(context, isSmallScreen),
-                            const SizedBox(height: 8),
-                            _buildAttendeeInfo(context, isSmallScreen),
-                            const SizedBox(height: 16),
-                            _buildActionButtons(context, isSmallScreen),
-                          ],
-                        ),
-                      );
-                    },
-                  ),
-                  const SizedBox(height: 12),
-                  _buildGetDetails(context, isHostOrAttending),
+                  _buildHostInfo(context),
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(0, 0, 5, 0),
+                    child: Container(
+                      child: Row(
+                        children: [
+                          if (_hasEventEnded()) _buildEventEndedIndicator(),
+                          const SizedBox(width: 4),
+                          if (isHostOrAttending) _buildHostOrAttendingIndicator(),
+                        ],
+                      ),
+                    ),
+                  )
                 ],
               ),
-            ),
-          ],
-        ),
-      ],
-    ),
-  );
-}
-
-Future<void> getOriginalProfileInfo() async{
-  if(Navigator.canPop(context)) {
-    await ref.read(attendEventsProvider.notifier).deCodeData();
+              _buildEventImage(context),
+              Padding(
+                padding: const EdgeInsets.all(16),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    _buildEventTitle(context),
+                    const SizedBox(height: 8),
+                    _buildEventLocation(context),
+                    _buildDistanceInfo(context), // Add this line
+                    LayoutBuilder(
+                      builder: (context, constraints) {
+                        final isSmallScreen = constraints.maxWidth < 600;
+                        return Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              _buildDateTimeInfo(context, isSmallScreen),
+                              const SizedBox(height: 8),
+                              _buildAttendeeInfo(context, isSmallScreen),
+                              const SizedBox(height: 16),
+                              _buildActionButtons(context, isSmallScreen),
+                            ],
+                          ),
+                        );
+                      },
+                    ),
+                    const SizedBox(height: 12),
+                    _buildGetDetails(context, isHostOrAttending),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
   }
-}
+
+  Future<void> getOriginalProfileInfo() async {
+    if (Navigator.canPop(context)) {
+      await ref.read(attendEventsProvider.notifier).deCodeData();
+    }
+  }
 
   Widget _buildDistanceInfo(BuildContext context) {
     if (widget.eventData.distanceAway == null) {
@@ -157,7 +157,7 @@ Future<void> getOriginalProfileInfo() async{
         mainAxisSize: MainAxisSize.min,
         children: [
           Icon(
-            Icons.directions_run,  // Changed icon to a running person
+            Icons.directions_run, // Changed icon to a running person
             size: 18,
             color: Theme.of(context).colorScheme.secondary,
           ),
@@ -217,10 +217,10 @@ Widget _buildHostOrAttendingIndicator() {
   );
 }
 
-bool _hasEventEnded() {
-  final DateTime endDate = DateTime.parse(widget.eventData.edate);
-  return DateTime.now().isAfter(endDate);
-}
+  bool _hasEventEnded() {
+    final DateTime endDate = DateTime.parse(widget.eventData.edate);
+    return DateTime.now().isAfter(endDate);
+  }
 
 Widget _buildEventEndedIndicator() {
   return Container(
@@ -229,23 +229,23 @@ Widget _buildEventEndedIndicator() {
       color: Theme.of(context).colorScheme.error.withOpacity(0.2),
       borderRadius: BorderRadius.circular(16),
       border: Border.all(
-        color: Color.fromARGB(255, 214, 52, 52),
+        color: Theme.of(context).colorScheme.error,
         width: 1.5,
       ),
     ),
-    child: const Row(
+    child: Row(
       mainAxisSize: MainAxisSize.min,
       children: [
         Icon(
           Icons.event_busy,
           size: 14,
-          color: Color.fromARGB(255, 214, 52, 52),
+          color: Theme.of(context).colorScheme.error,
         ),
         const SizedBox(width: 4),
         Text(
           'Passed',
           style: TextStyle(
-            color: Color.fromARGB(255, 214, 52, 52),
+            color: Theme.of(context).colorScheme.error,
             fontWeight: FontWeight.bold,
             fontSize: 12,
           ),
@@ -262,15 +262,15 @@ Widget _buildEventEndedIndicator() {
         onTap: () async {
           String currentUser = await ref.read(profileProvider.notifier).getCurrentUserId();
           if (widget.eventData.host != currentUser) {
-            await Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => ProfileScreen(isUser: false, userId: widget.eventData.host),
-              ),
-            ).whenComplete(getOriginalProfileInfo);
+            await Navigator.of(context, rootNavigator: true)
+                .push(
+                  MaterialPageRoute(
+                    builder: (context) => ProfileScreen(isUser: false, userId: widget.eventData.host),
+                  ),
+                )
+                .whenComplete(getOriginalProfileInfo);
           } else {
-            await Navigator.push(
-              context,
+            await Navigator.of(context, rootNavigator: true).push(
               MaterialPageRoute(
                 builder: (context) => ProfileScreen(isUser: true, userId: widget.eventData.host),
               ),
@@ -324,9 +324,11 @@ Widget _buildEventEndedIndicator() {
 
   Widget _buildEventImage(BuildContext context) {
     return GestureDetector(
-      onTap: () => Navigator.of(context).push(MaterialPageRoute(
-        builder: (context) => DetailedEventScreen(eventData: widget.eventData),
-      )).whenComplete(newData),
+      onTap: () => Navigator.of(context)
+          .push(MaterialPageRoute(
+            builder: (context) => DetailedEventScreen(eventData: widget.eventData),
+          ))
+          .whenComplete(newData),
       child: AspectRatio(
         aspectRatio: 16 / 9,
         child: widget.preloadedImage != null
@@ -345,9 +347,11 @@ Widget _buildEventEndedIndicator() {
 
   Widget _buildEventTitle(BuildContext context) {
     return GestureDetector(
-        onTap: () => Navigator.of(context).push(MaterialPageRoute(
+        onTap: () => Navigator.of(context)
+            .push(MaterialPageRoute(
               builder: (context) => DetailedEventScreen(eventData: widget.eventData),
-            )).whenComplete(newData),
+            ))
+            .whenComplete(newData),
         child: Text(
           widget.eventData.title,
           style: Theme.of(context).textTheme.headlineLarge?.copyWith(
@@ -401,9 +405,11 @@ Widget _buildEventEndedIndicator() {
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
         GestureDetector(
-            onTap: () => Navigator.of(context).push(MaterialPageRoute(
+            onTap: () => Navigator.of(context)
+                .push(MaterialPageRoute(
                   builder: (context) => DetailedEventScreen(eventData: widget.eventData),
-                )).whenComplete(newData),
+                ))
+                .whenComplete(newData),
             child: Text(
               'View Details',
               style: Theme.of(context).textTheme.bodyLarge?.copyWith(
@@ -422,6 +428,7 @@ Widget _buildEventEndedIndicator() {
     final period = date.hour >= 12 ? 'P.M.' : 'A.M.';
     return '$hour $period';
   }
+
   Widget _buildDateTimeInfo(BuildContext context, bool isSmallScreen) {
     final startDate = DateTime.parse(widget.eventData.sdate);
     final endDate = DateTime.parse(widget.eventData.edate);
@@ -566,58 +573,58 @@ Widget _buildEventEndedIndicator() {
           onTap: () {
             if (!Navigator.of(context).canPop()) {
               showModalBottomSheet(
-  context: context,
-  isScrollControlled: true,
-  isDismissible: true,
-  backgroundColor: Colors.transparent,
-  builder: (context) {
-    return DraggableScrollableSheet(
-      initialChildSize: 0.6,
-      minChildSize: 0.2,
-      maxChildSize: 0.9,
-      expand: false,
-      builder: (context, scrollController) {
-        return Container(
-          decoration: BoxDecoration(
-            color: Theme.of(context).cardColor,
-            borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
-          ),
-          child: CustomScrollView(
-            controller: scrollController,
-            slivers: [
-              SliverToBoxAdapter(
-                child: Container(
-                  padding: const EdgeInsets.all(16),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      // Text(
-                      //   'Comments',
-                      //   style: TextStyle(
-                      //     color: Theme.of(context).primaryColor,
-                      //     fontWeight: FontWeight.bold,
-                      //     fontSize: 30,
-                      //   ),
-                      // ),
-                      // IconButton(
-                      //   icon: const Icon(Icons.close),
-                      //   onPressed: () => Navigator.of(context).pop(),
-                      // ),
-                    ],
-                  ),
-                ),
-              ),
-              SliverFillRemaining(
-                hasScrollBody: true,
-                child: CommentsSection(eventId: widget.eventData.eventId),
-              ),
-            ],
-          ),
-        );
-      },
-    );
-  },
-);
+                context: context,
+                isScrollControlled: true,
+                isDismissible: true,
+                backgroundColor: Colors.transparent,
+                builder: (context) {
+                  return DraggableScrollableSheet(
+                    initialChildSize: 0.6,
+                    minChildSize: 0.2,
+                    maxChildSize: 0.9,
+                    expand: false,
+                    builder: (context, scrollController) {
+                      return Container(
+                        decoration: BoxDecoration(
+                          color: Theme.of(context).cardColor,
+                          borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
+                        ),
+                        child: CustomScrollView(
+                          controller: scrollController,
+                          slivers: [
+                            SliverToBoxAdapter(
+                              child: Container(
+                                padding: const EdgeInsets.all(16),
+                                child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    // Text(
+                                    //   'Comments',
+                                    //   style: TextStyle(
+                                    //     color: Theme.of(context).primaryColor,
+                                    //     fontWeight: FontWeight.bold,
+                                    //     fontSize: 30,
+                                    //   ),
+                                    // ),
+                                    // IconButton(
+                                    //   icon: const Icon(Icons.close),
+                                    //   onPressed: () => Navigator.of(context).pop(),
+                                    // ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                            SliverFillRemaining(
+                              hasScrollBody: true,
+                              child: CommentsSection(eventId: widget.eventData.eventId),
+                            ),
+                          ],
+                        ),
+                      );
+                    },
+                  );
+                },
+              );
             }
           },
           child: _buildInfoItem(context, '${widget.eventData.numOfComments}', 'Comments', isSmallScreen),
@@ -712,7 +719,7 @@ Widget _buildEventEndedIndicator() {
     await ref.read(profileProvider.notifier).deleteBlockedTime(null, widget.eventData.eventId);
     var newEData = await ref.read(eventsProvider.notifier).deCodeLinkEvent(widget.eventData.eventId);
 
-    if(widget.eventData.otherHost != null) {
+    if (widget.eventData.otherHost != null) {
       newEData.otherAttend = widget.eventData.attending;
       newEData.otherHost = widget.eventData.otherHost;
       newEData.otherBookmark = widget.eventData.otherBookmark;
@@ -727,15 +734,16 @@ Widget _buildEventEndedIndicator() {
       SnackBar(content: Text("Left ${widget.eventData.title}")),
     );
   }
-  Future<void> newData() async{
+
+  Future<void> newData() async {
     Event newEventData = await ref.read(eventsProvider.notifier).deCodeLinkEvent(widget.eventData.eventId);
-    if(widget.eventData.otherHost != null) {
+    if (widget.eventData.otherHost != null) {
       newEventData.otherAttend = widget.eventData.attending;
       newEventData.otherHost = widget.eventData.otherHost;
       newEventData.otherBookmark = widget.eventData.otherBookmark;
     }
     setState(() {
-      widget.eventData= newEventData;
+      widget.eventData = newEventData;
     });
   }
 
@@ -750,22 +758,24 @@ Widget _buildEventEndedIndicator() {
         );
     await attendeeJoinEvent();
     var newEventData = await ref.read(eventsProvider.notifier).deCodeLinkEvent(widget.eventData.eventId);
-    if(widget.eventData.otherHost != null) {
+    if (widget.eventData.otherHost != null) {
       newEventData.otherAttend = widget.eventData.attending;
       newEventData.otherHost = widget.eventData.otherHost;
       newEventData.otherBookmark = widget.eventData.otherBookmark;
     }
 
-        setState(() {
+    setState(() {
       widget.eventData.attending = true;
       widget.eventData.attendees.remove(supabase.auth.currentUser!.id);
     });
 
-      Navigator.of(context).push(MaterialPageRoute(
-        builder: (context) => DetailedEventScreen(
-          eventData: widget.eventData,
-        ),
-      )).whenComplete(newData);
+    Navigator.of(context)
+        .push(MaterialPageRoute(
+          builder: (context) => DetailedEventScreen(
+            eventData: widget.eventData,
+          ),
+        ))
+        .whenComplete(newData);
     ScaffoldMessenger.of(context).hideCurrentSnackBar();
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(content: Text("Joined ${widget.eventData.title}")),
@@ -860,32 +870,32 @@ Widget _buildEventEndedIndicator() {
   }
 
   Future<String?> generateBranchLink() async {
-      BranchUniversalObject buo = BranchUniversalObject(
-        canonicalIdentifier: 'event/${widget.eventData.eventId}',
-        title: widget.eventData.title,
-        imageUrl: widget.eventData.imageUrl,
-        contentDescription: widget.eventData.description,
-        publiclyIndex: true,
-        locallyIndex: true,
-        contentMetadata: BranchContentMetaData()..addCustomMetadata("event_id", widget.eventData.eventId),
-      );
+    BranchUniversalObject buo = BranchUniversalObject(
+      canonicalIdentifier: 'event/${widget.eventData.eventId}',
+      title: widget.eventData.title,
+      imageUrl: widget.eventData.imageUrl,
+      contentDescription: widget.eventData.description,
+      publiclyIndex: true,
+      locallyIndex: true,
+      contentMetadata: BranchContentMetaData()..addCustomMetadata("event_id", widget.eventData.eventId),
+    );
 
-      BranchLinkProperties lp = BranchLinkProperties(
-        channel: 'sharing',
-        feature: 'sharing',
-        campaign: 'event_share',
-        stage: 'user_share',
-      )
-        ..addControlParam('\$fallback_url', 'https://example.com')
-        ..addControlParam('\$ios_url', 'https://apps.apple.com/app/id123456789')
-        ..addControlParam('\$android_url', 'https://play.google.com/store/apps/details?id=com.nomo.nomoapp');
+    BranchLinkProperties lp = BranchLinkProperties(
+      channel: 'sharing',
+      feature: 'sharing',
+      campaign: 'event_share',
+      stage: 'user_share',
+    )
+      ..addControlParam('\$fallback_url', 'https://example.com')
+      ..addControlParam('\$ios_url', 'https://apps.apple.com/app/id123456789')
+      ..addControlParam('\$android_url', 'https://play.google.com/store/apps/details?id=com.nomo.nomoapp');
 
-      BranchResponse response = await FlutterBranchSdk.getShortUrl(buo: buo, linkProperties: lp);
-      if (response.success) {
-        return response.result;
-      } else {
-        print('Error generating Branch link: ${response.errorMessage}');
-        return null;
-      }
+    BranchResponse response = await FlutterBranchSdk.getShortUrl(buo: buo, linkProperties: lp);
+    if (response.success) {
+      return response.result;
+    } else {
+      print('Error generating Branch link: ${response.errorMessage}');
+      return null;
+    }
   }
 }

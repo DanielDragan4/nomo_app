@@ -285,7 +285,8 @@ class DayButton extends ConsumerWidget {
 
     return GestureDetector(
       onTap: () {
-        if (currentDate.month == selectedMonth) {
+        if(currentDate.isAfter(DateTime.now())){
+          if (currentDate.month == selectedMonth) {
           Navigator.of(context)
               .push(MaterialPageRoute(
                   builder: ((context) => DayScreenPageView(
@@ -300,7 +301,7 @@ class DayButton extends ConsumerWidget {
                   .updateAvailability(ref.read(profileProvider.notifier).availabilityByMonth(year, selectedMonth));
             },
           );
-        }
+        }}
       },
       child: Container(
         decoration: BoxDecoration(
@@ -314,7 +315,7 @@ class DayButton extends ConsumerWidget {
               width: topBorderWidth,
             ),
           ),
-          color: isCurrentMonth ? cellColor : Color.fromARGB(120, 128, 128, 128),
+          color: (isCurrentMonth) ? (currentDate.isAfter(DateTime.now())) ? cellColor : const Color.fromARGB(255, 89, 57, 95) : Color.fromARGB(120, 128, 128, 128),
           //borderRadius: borderRadius,
         ),
         child: Stack(
@@ -332,7 +333,7 @@ class DayButton extends ConsumerWidget {
                 ),
               ),
             ),
-            if (hasTimeSelected || hasBlockedTime)
+            if ((currentDate.isAfter(DateTime.now())) && (hasTimeSelected || hasBlockedTime))
               Positioned(
                 left: 0,
                 top: 0,

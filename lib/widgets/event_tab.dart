@@ -74,24 +74,22 @@ class _EventTabState extends ConsumerState<EventTab> {
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  _buildHostInfo(context),
-                  Padding(
-                    padding: const EdgeInsets.fromLTRB(0, 0, 5, 0),
-                    child: Container(
-                      child: Row(
-                        children: [
-                          if (_hasEventEnded()) _buildEventEndedIndicator(),
-                          const SizedBox(width: 4),
-                          if (isHostOrAttending) _buildHostOrAttendingIndicator(),
-                        ],
-                      ),
-                    ),
-                  )
-                ],
-              ),
+               Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                _buildHostInfo(context),
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(0, 0, 5, 0),
+                  child: Row(
+                    children: [
+                      if (_hasEventEnded()) _buildEventEndedIndicator(),
+                      const SizedBox(width: 4),
+                      if (isHostOrAttending) _buildHostOrAttendingIndicator(),
+                    ],
+                  ),
+                )
+              ],
+            ),
               _buildEventImage(context),
               Padding(
                 padding: const EdgeInsets.all(16),
@@ -101,7 +99,18 @@ class _EventTabState extends ConsumerState<EventTab> {
                     _buildEventTitle(context),
                     const SizedBox(height: 8),
                     _buildEventLocation(context),
-                    _buildDistanceInfo(context), // Add this line
+                      ((widget.eventData.distanceAway != null) || (widget.eventData.isRecurring)) 
+                      ? 
+                      Row(
+                        children: [
+                          if(widget.eventData.distanceAway != null)
+                            _buildDistanceInfo(context), // Add this line
+                          SizedBox(width: 4),
+                          if (widget.eventData.isRecurring) 
+                            _buildRecurringIndicator(),
+                        ],
+                      ):
+                      SizedBox(),
                     LayoutBuilder(
                       builder: (context, constraints) {
                         final isSmallScreen = constraints.maxWidth < 600;
@@ -131,6 +140,30 @@ class _EventTabState extends ConsumerState<EventTab> {
       ),
     );
   }
+
+  Widget _buildRecurringIndicator() {
+  return Padding(
+    padding: const EdgeInsets.only(top: 4, bottom: 8),
+    child: Row(
+      children: [
+        Icon(
+          Icons.repeat,
+          size: 16,
+          color: Theme.of(context).colorScheme.secondary,
+        ),
+        const SizedBox(width: 4),
+        Text(
+          'Recurring Event',
+          style: TextStyle(
+            fontSize: 14,
+            color: Theme.of(context).colorScheme.secondary,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+      ],
+    ),
+  );
+}
 
   Future<void> getOriginalProfileInfo() async {
     if (Navigator.canPop(context)) {

@@ -32,6 +32,7 @@ void handleMessage(RemoteMessage message, BuildContext context, WidgetRef ref) a
 
   String? type = message.data['type'];
 
+  // Handles in-app notification for a joined event getting deleted
   if (type == 'DELETE' && eventDeletedSwitch) {
     print('DELETE notification handling');
     String eventTitle = message.data['eventTitle'];
@@ -46,7 +47,7 @@ void handleMessage(RemoteMessage message, BuildContext context, WidgetRef ref) a
       message.notification?.title ?? 'Notification',
     );
   }
-
+  // Handles in-app notification for a joined event getting updated
   if (type == 'UPDATE' && eventDeletedSwitch) {
     print('UPDATE notification handling');
     String eventTitle = message.data['eventTitle'];
@@ -62,11 +63,13 @@ void handleMessage(RemoteMessage message, BuildContext context, WidgetRef ref) a
       message.notification?.title ?? 'Notification',
     );
   }
+  // Handles in-app notification for another user joining current user's event
   if (type == 'JOIN' && joinedEventSwitch) {
     print('JOIN notification handling');
     String attendeeName = message.data['attendeeName'];
     String attendeeId = message.data['attendeeId'];
     String eventTitle = message.data['eventTitle'];
+    // If setting toggle for only notifying if a friend joins is enabled
     if (joinedEventFriendsOnlySwitch) {
       bool isFriend = await ref.read(profileProvider.notifier).isFriend(attendeeId);
       if (isFriend) {
@@ -80,6 +83,7 @@ void handleMessage(RemoteMessage message, BuildContext context, WidgetRef ref) a
           message.notification?.title ?? 'Notification',
         );
       }
+      // If setting toggle for only notifying if a friend joins is disabled (notify for all)
     } else {
       ref
           .read(unreadNotificationsProvider.notifier)
@@ -92,11 +96,11 @@ void handleMessage(RemoteMessage message, BuildContext context, WidgetRef ref) a
       );
     }
   }
+  // Handles in-app notification for user's friend creating an event
   if (type == 'CREATE' && newEventSwitch) {
     print('CREATE notification handling');
     String hostUsername = message.data['hostUsername'];
     String eventTitle = message.data['eventTitle'];
-    //String eventDescription = message.data['eventDescription'];
     ref.read(unreadNotificationsProvider.notifier).addNotification(
           "$hostUsername has created an event, '$eventTitle'",
         );
@@ -107,6 +111,7 @@ void handleMessage(RemoteMessage message, BuildContext context, WidgetRef ref) a
       message.notification?.title ?? 'Notification',
     );
   }
+  // Handles in-app notification for user recieving a friend request
   if (type == 'REQUEST') {
     print('REQUEST notification handling');
     String senderName = message.data['senderName'];
@@ -118,6 +123,7 @@ void handleMessage(RemoteMessage message, BuildContext context, WidgetRef ref) a
       message.notification?.title ?? 'Notification',
     );
   }
+  // Handles in-app notification for user's friend request getting accepted
   if (type == 'ACCEPT') {
     print('ACCEPT notification handling');
     String recieverName = message.data['senderName'];
@@ -129,6 +135,7 @@ void handleMessage(RemoteMessage message, BuildContext context, WidgetRef ref) a
       message.notification?.title ?? 'Notification',
     );
   }
+  // Handles in-app notification for user recieving a direct-message
   if (type == 'DM') {
     print('DM notification handling');
     String? senderId = message.data['sender_id'];
@@ -138,9 +145,11 @@ void handleMessage(RemoteMessage message, BuildContext context, WidgetRef ref) a
     print('active: $activeChatId');
     print('current: $chatId');
 
+    //Only displays if user is not currently in the chat where the recieved message is from
     if ((activeChatId != chatId || activeChatId == null) && messageSwitch) {
       if (messageFriendsOnlySwitch) {
         bool isFriend = await ref.read(profileProvider.notifier).isFriend(senderId);
+        // If setting for only notifying if a friend sends a DM is enabled
         if (isFriend) {
           showSimpleNotification(
             context,
@@ -148,6 +157,7 @@ void handleMessage(RemoteMessage message, BuildContext context, WidgetRef ref) a
             message.notification?.title ?? 'Notification',
           );
         }
+        // If setting toggle for only notifying if a friend sends a DM is disabled (all incoming messages)
       } else {
         showSimpleNotification(
           context,

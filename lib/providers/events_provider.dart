@@ -13,6 +13,7 @@ class EventProvider extends StateNotifier<List?> {
 
   Future<Supabase> supabase;
   List<Event> attendingEvents = [];
+  List<Event> allEvents = [];
 
   Future<List> readEvents() async {
     /*
@@ -112,7 +113,7 @@ class EventProvider extends StateNotifier<List?> {
 
       deCodedList.add(deCodedEvent);
     }
-
+    allEvents = deCodedList;
     state = deCodedList;
   }
 
@@ -381,6 +382,40 @@ class EventProvider extends StateNotifier<List?> {
       deCodedList.add(decodedAttendee);
     }
     return deCodedList;
+  }
+
+  void applyFilters({
+    DateTime? startDate,
+    DateTime? endDate,
+    List<bool>? selectedDays,
+    double? maxDistance,
+  }) {
+    if (allEvents.isEmpty) return;
+    final filteredEvents = allEvents.where((event) {
+      final eventStartDate = DateTime.parse(event.sdate);
+      final eventEndDate = DateTime.parse(event.edate);
+
+      // Check date range
+      if (startDate != null && eventStartDate.isBefore(startDate)) return false;
+      if (endDate != null && eventEndDate.isAfter(endDate)) return false;
+
+      // Check day of week
+      if (selectedDays != null && selectedDays.any((selected) => selected)) {
+        final eventDay = eventStartDate.weekday - 1; // 0 = Monday, 6 = Sunday
+        if (!selectedDays[eventDay]) return false;
+      }
+
+      // Check distance
+      if (maxDistance != null) {
+        if (event.isVirtual != true) {
+          if (event.distanceAway > maxDistance) return false;
+        }
+      }
+
+      return true;
+    }).toList();
+
+    state = filteredEvents;
   }
 }
 

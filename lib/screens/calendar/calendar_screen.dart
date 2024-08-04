@@ -361,12 +361,12 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
       ),
       DraggableScrollableSheet(
   initialChildSize: 0.37,
-  minChildSize: 0.1,
+  minChildSize: 0.25,
   maxChildSize: .8,
   builder: (BuildContext context, ScrollController scrollController) {
     return Container(
       decoration: BoxDecoration(
-        color: Theme.of(context).scaffoldBackgroundColor,
+        color: Theme.of(context).cardColor,
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
         boxShadow: [
           BoxShadow(
@@ -384,11 +384,9 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
             pinned: true,
             floating: false,
             automaticallyImplyLeading: false,
-            backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+            backgroundColor: Theme.of(context).cardColor,
             flexibleSpace: Column(
               children: [
-                // Drag handle
-                // Your fixed row
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 10),
                   child: Row(
@@ -407,7 +405,32 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
                       ),
                       IconButton(
                         onPressed: () {
-                          // Your existing onPressed logic
+                          showDialog(
+                                context: context,
+                                builder: (context) => AlertDialog(
+                                      backgroundColor: Theme.of(context).cardColor,
+                                      title: Text(
+                                        'What would you like to do?',
+                                        style: TextStyle(color: Theme.of(context).colorScheme.onPrimary),
+                                      ),
+                                      actions: [
+                                        TextButton(
+                                            onPressed: () {
+                                              Navigator.pop(context);
+                                              Navigator.of(context, rootNavigator: true).push(MaterialPageRoute(
+                                                  builder: ((context) => const NewEventScreen(event: null))));
+                                            },
+                                            child: const Text('CREATE EVENT')),
+                                        TextButton(
+                                            onPressed: () async {
+                                              selectedDate = await _showDatePickerDialog(context);
+                                              if (selectedDate != null) {
+                                                _showTimeRangePicker(context);
+                                              }
+                                            },
+                                            child: const Text('CREATE BLOCKED TIME')),
+                                      ],
+                                    ));
                         },
                         icon: Icon(Icons.add_box_rounded, size: 30, color: Theme.of(context).colorScheme.onSecondary),
                       ),

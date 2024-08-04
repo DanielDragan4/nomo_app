@@ -175,79 +175,85 @@ class _EventTabState extends ConsumerState<EventTab> {
     );
   }
 
-  Widget _buildHostOrAttendingIndicator() {
-    var host = widget.eventData.isHost;
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-      decoration: BoxDecoration(
-        color: host
-            ? Theme.of(context).colorScheme.tertiary.withOpacity(0.2)
-            : Theme.of(context).colorScheme.primary.withOpacity(0.2),
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(
-          color: host ? Theme.of(context).colorScheme.tertiary : Theme.of(context).colorScheme.primary,
-          width: 1.5,
+Widget _buildHostOrAttendingIndicator() {
+  var host = widget.eventData.isHost;
+  return Container(
+    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+    decoration: BoxDecoration(
+      color: host 
+        ? Theme.of(context).colorScheme.tertiary.withOpacity(0.2)
+        : Theme.of(context).colorScheme.primary.withOpacity(0.2),
+      borderRadius: BorderRadius.circular(16),
+      border: Border.all(
+        color: host 
+          ? Colors.green 
+          : Color.fromARGB(255, 60, 132, 255),
+        width: 1.5,
+      ),
+    ),
+    child: Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Icon(
+          host ? Icons.star : Icons.check_circle,
+          size: 14,
+          color: host 
+            ? Colors.green 
+            : Color.fromARGB(255, 60, 132, 255),
         ),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(
-            host ? Icons.star : Icons.check_circle,
-            size: 14,
-            color: host ? Theme.of(context).colorScheme.tertiary : Theme.of(context).colorScheme.primary,
+        const SizedBox(width: 4),
+        Text(
+          host ? 'Hosting' : 'Attending',
+          style: TextStyle(
+            color: host 
+              ? Colors.green 
+              : Color.fromARGB(255, 60, 132, 255),
+            fontWeight: FontWeight.bold,
+            fontSize: 12,
           ),
-          const SizedBox(width: 4),
-          Text(
-            host ? 'Hosting' : 'Attending',
-            style: TextStyle(
-              color: host ? Theme.of(context).colorScheme.tertiary : Theme.of(context).colorScheme.primary,
-              fontWeight: FontWeight.bold,
-              fontSize: 12,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
+        ),
+      ],
+    ),
+  );
+}
 
   bool _hasEventEnded() {
     final DateTime endDate = DateTime.parse(widget.eventData.edate);
     return DateTime.now().isAfter(endDate);
   }
 
-  Widget _buildEventEndedIndicator() {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-      decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.error.withOpacity(0.2),
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(
+Widget _buildEventEndedIndicator() {
+  return Container(
+    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+    decoration: BoxDecoration(
+      color: Theme.of(context).colorScheme.error.withOpacity(0.2),
+      borderRadius: BorderRadius.circular(16),
+      border: Border.all(
+        color: Theme.of(context).colorScheme.error,
+        width: 1.5,
+      ),
+    ),
+    child: Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Icon(
+          Icons.event_busy,
+          size: 14,
           color: Theme.of(context).colorScheme.error,
-          width: 1.5,
         ),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(
-            Icons.event_busy,
-            size: 14,
+        const SizedBox(width: 4),
+        Text(
+          'Passed',
+          style: TextStyle(
             color: Theme.of(context).colorScheme.error,
+            fontWeight: FontWeight.bold,
+            fontSize: 12,
           ),
-          const SizedBox(width: 4),
-          Text(
-            'Passed',
-            style: TextStyle(
-              color: Theme.of(context).colorScheme.error,
-              fontWeight: FontWeight.bold,
-              fontSize: 12,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
+        ),
+      ],
+    ),
+  );
+}
 
   Widget _buildHostInfo(BuildContext context) {
     return Padding(

@@ -52,12 +52,12 @@ class AttendEventProvider extends StateNotifier<List<Event>> {
       String profileUrl = supabaseClient.storage.from('Images').getPublicUrl(eventData['profile_path']);
       String eventUrl = supabaseClient.storage.from('Images').getPublicUrl(eventData['event_path']);
 
-
-
       var distance;
-      
-      if(eventData['lat'] != null) {
-        distance = Geolocator.distanceBetween(currentPosition.latitude, currentPosition.longitude, eventData['lat'], eventData['long']) * 0.000621371;
+
+      if (eventData['lat'] != null) {
+        distance = Geolocator.distanceBetween(
+                currentPosition.latitude, currentPosition.longitude, eventData['lat'], eventData['long']) *
+            0.000621371;
       }
 
       bool bookmarked = false;
@@ -69,30 +69,29 @@ class AttendEventProvider extends StateNotifier<List<Event>> {
       }
 
       final Event deCodedEvent = Event(
-        description: eventData['description'],
-        sdate: eventData['time_start'],
-        eventId: eventData['event_id'],
-        eventType: eventData['invitationType'],
-        host: eventData['host'],
-        imageId: eventData['image_id'],
-        imageUrl: eventUrl,
-        location: eventData['location'],
-        title: eventData['title'],
-        edate: eventData['time_end'],
-        attendees: eventData['Attendees'],
-        hostProfileUrl: profileUrl,
-        hostUsername: eventData['username'],
-        profileName: eventData['profile_name'],
-        bookmarked: bookmarked,
-        attending: false,
-        isHost: false,
-        friends: eventData['friends_attending'],
-        numOfComments: eventData['comments_num'].length,
-        isVirtual: eventData['is_virtual'],
-        isRecurring: eventData['recurring'],
-        categories: eventData['event_interests'],
-        distanceAway: distance
-      );
+          description: eventData['description'],
+          sdate: eventData['time_start'],
+          eventId: eventData['event_id'],
+          eventType: eventData['invitationType'],
+          host: eventData['host'],
+          imageId: eventData['image_id'],
+          imageUrl: eventUrl,
+          location: eventData['location'],
+          title: eventData['title'],
+          edate: eventData['time_end'],
+          attendees: eventData['Attendees'],
+          hostProfileUrl: profileUrl,
+          hostUsername: eventData['username'],
+          profileName: eventData['profile_name'],
+          bookmarked: bookmarked,
+          attending: false,
+          isHost: false,
+          friends: eventData['friends_attending'],
+          numOfComments: eventData['comments_num'].length,
+          isVirtual: eventData['is_virtual'],
+          isRecurring: eventData['recurring'],
+          categories: eventData['event_interests'],
+          distanceAway: distance);
 
       bool attending = false;
       for (var i = 0; i < deCodedEvent.attendees.length; i++) {
@@ -150,8 +149,10 @@ class AttendEventProvider extends StateNotifier<List<Event>> {
 
       var distance;
 
-      if(eventData['lat'] != null) {
-        distance = Geolocator.distanceBetween(currentPosition.latitude, currentPosition.longitude, eventData['lat'], eventData['long']) * 0.000621371;
+      if (eventData['lat'] != null) {
+        distance = Geolocator.distanceBetween(
+                currentPosition.latitude, currentPosition.longitude, eventData['lat'], eventData['long']) *
+            0.000621371;
       }
 
       bool bookmarked = false;

@@ -57,10 +57,12 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
 
 // Called from Event Tab to refresh data when leaving anothe profile view
   void refreshData() async {
-    if(mounted){setState(() {
-      _fetchData();
-      _futureBuilderKey = UniqueKey();
-    });}
+    if (mounted) {
+      setState(() {
+        _fetchData();
+        _futureBuilderKey = UniqueKey();
+      });
+    }
     await ref.read(attendEventsProvider.notifier).deCodeData();
     if (!widget.isUser) {
       ref.read(attendEventsProvider.notifier).deCodeDataWithId(widget.userId!);
@@ -76,9 +78,11 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
       await _fetchProfileInfo();
     }
     await _fetchEvents();
-    if(mounted){setState(() {
-      _isLoading = false;
-    });}
+    if (mounted) {
+      setState(() {
+        _isLoading = false;
+      });
+    }
   }
 
 // Gets all relevant profile information for profile being viewed
@@ -123,10 +127,12 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
 
 // Updates profile information after editing profile. Called from Create Account Screen when popping
   void updateProfileInfo() {
-    if(mounted){setState(() {
-      _fetchData();
-      _futureBuilderKey = UniqueKey();
-    });}
+    if (mounted) {
+      setState(() {
+        _fetchData();
+        _futureBuilderKey = UniqueKey();
+      });
+    }
   }
 
   Future<void> addFriend() async {
@@ -154,10 +160,12 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
   }
 
   void refreshEvents() {
-    if(mounted){setState(() {
-      _fetchEvents();
-      _futureBuilderKey = UniqueKey();
-    });}
+    if (mounted) {
+      setState(() {
+        _fetchEvents();
+        _futureBuilderKey = UniqueKey();
+      });
+    }
   }
 
   @override
@@ -180,14 +188,6 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
     } else {
       profile = profileInfo;
     }
-
-    //var imageUrl;
-
-    // if (ref.read(profileProvider.notifier).state == null) {
-    //   imageUrl = '';
-    // } else {
-    //   imageUrl = ref.read(profileProvider.notifier).state?.avatar;
-    // }
 
     return Scaffold(
       backgroundColor: Theme.of(context).colorScheme.surface,
@@ -624,8 +624,7 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
                             final hostingEvents = snapshot.data!.where((event) {
                               if (showHosting && event.otherHost) {
                                 return true;
-                              }
-                              else {
+                              } else {
                                 return false;
                               }
                             }).toList();
@@ -704,7 +703,7 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
                           ),
                         ),
                       )
-                  else if ((private == false)|| isFriend || widget.isUser)
+                  else if ((private == false) || isFriend || widget.isUser)
                     StreamBuilder(
                       stream: ref.watch(attendEventsProvider.notifier).stream,
                       builder: (context, snapshot) {

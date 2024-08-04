@@ -17,6 +17,11 @@ class RecommendedScreen extends ConsumerStatefulWidget {
 }
 
 class _RecommendedScreenState extends ConsumerState<RecommendedScreen> {
+  DateTime? startDate;
+  DateTime? endDate;
+  List<bool> selectedDays = List.generate(7, (_) => false);
+  double maxDistance = 50.0; // Default max distance in miles
+
   Future<void> _onRefresh(BuildContext context, WidgetRef ref) async {
     await ref.read(eventsProvider.notifier).deCodeData();
   }
@@ -26,6 +31,178 @@ class _RecommendedScreenState extends ConsumerState<RecommendedScreen> {
     // TODO: implement initState
     super.initState();
     ref.read(eventsProvider.notifier).deCodeData();
+  }
+
+  void _showFilterDialog() {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return StatefulBuilder(
+          builder: (BuildContext context, StateSetter setState) {
+            return AlertDialog(
+              title: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text("Filter Events", style: TextStyle(color: Theme.of(context).colorScheme.onSecondaryContainer)),
+                  IconButton(
+                    icon: Icon(Icons.close),
+                    onPressed: () {
+                      Navigator.of(context).pop();
+                    },
+                  ),
+                ],
+              ),
+              backgroundColor: Theme.of(context).cardColor,
+              content: SingleChildScrollView(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: <Widget>[
+                    _buildDateRangePicker(setState),
+                    SizedBox(height: 16),
+                    _buildDayOfWeekFilter(setState),
+                    SizedBox(height: 16),
+                    _buildDistanceSlider(setState),
+                  ],
+                ),
+              ),
+              actions: <Widget>[
+                TextButton(
+                  child: Text("Clear"),
+                  onPressed: () {
+                    setState(() {
+                      startDate = null;
+                      endDate = null;
+                      selectedDays = List.generate(7, (_) => false);
+                      maxDistance = 50.0;
+                    });
+                  },
+                ),
+                TextButton(
+                  child: Text("Apply"),
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                    _applyFilters();
+                  },
+                ),
+              ],
+            );
+          },
+        );
+      },
+    );
+  }
+
+  Widget _buildDateRangePicker(StateSetter setState) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text("Date Range"),
+        Row(
+          children: [
+            Expanded(
+              child: TextButton(
+                onPressed: () async {
+                  final picked = await showDatePicker(
+                    context: context,
+                    initialDate: startDate ?? DateTime.now(),
+                    firstDate: DateTime.now(),
+                    lastDate: DateTime.now().add(Duration(days: 365)),
+                  );
+                  if (picked != null) {
+                    setState(() {
+                      startDate = picked;
+                    });
+                  }
+                },
+                child: Text(
+                  startDate != null ? "${startDate!.toLocal()}".split(' ')[0] : "Start Date",
+                  style: TextStyle(color: Theme.of(context).colorScheme.onSecondary),
+                ),
+              ),
+            ),
+            Expanded(
+              child: TextButton(
+                onPressed: () async {
+                  final picked = await showDatePicker(
+                    context: context,
+                    initialDate: endDate ?? (startDate ?? DateTime.now()),
+                    firstDate: startDate ?? DateTime.now(),
+                    lastDate: DateTime.now().add(Duration(days: 365)),
+                  );
+                  if (picked != null) {
+                    setState(() {
+                      endDate = picked;
+                    });
+                  }
+                },
+                child: Text(
+                  endDate != null ? "${endDate!.toLocal()}".split(' ')[0] : "End Date",
+                  style: TextStyle(color: Theme.of(context).colorScheme.onSecondary),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ],
+    );
+  }
+
+  Widget _buildDayOfWeekFilter(StateSetter setState) {
+    final days = ['M', 'T', 'W', 'Th', 'F', 'S', 'Su'];
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text("Days of Week"),
+        Wrap(
+          spacing: 8,
+          children: List.generate(7, (index) {
+            return FilterChip(
+              label: Text(days[index]),
+              selected: selectedDays[index],
+              onSelected: (bool selected) {
+                setState(() {
+                  selectedDays[index] = selected;
+                });
+              },
+            );
+          }),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildDistanceSlider(StateSetter setState) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          "Maximum Distance (miles)",
+          style: TextStyle(color: Theme.of(context).colorScheme.onSecondary),
+        ),
+        Slider(
+          value: maxDistance,
+          min: 0,
+          max: 100,
+          divisions: 20,
+          label: maxDistance.round().toString(),
+          onChanged: (double value) {
+            setState(() {
+              maxDistance = value;
+            });
+          },
+        ),
+      ],
+    );
+  }
+
+  void _applyFilters() {
+    ref.read(eventsProvider.notifier).applyFilters(
+          startDate: startDate,
+          endDate: endDate,
+          selectedDays: selectedDays,
+          maxDistance: maxDistance,
+        );
+    //ref.read(eventsProvider.notifier).deCodeData();
   }
 
   @override
@@ -42,7 +219,7 @@ class _RecommendedScreenState extends ConsumerState<RecommendedScreen> {
           floatHeaderSlivers: true,
           headerSliverBuilder: (context, innerBoxIsScrolled) => [
             SliverAppBar(
-              toolbarHeight: kToolbarHeight + 30,
+              toolbarHeight: kToolbarHeight + 70,
               backgroundColor: Theme.of(context).colorScheme.surface,
               floating: true,
               snap: true,
@@ -54,30 +231,38 @@ class _RecommendedScreenState extends ConsumerState<RecommendedScreen> {
                     child: Center(
                       child: Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 25.0),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        child: Column(
                           children: [
-                            Image.asset('assets/images/logo.png', height: 40),
-                            IconButton(
-                              onPressed: () {
-                                Navigator.of(context).push(MaterialPageRoute(
-                                  builder: (context) => const NotificationsScreen(),
-                                ));
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Image.asset('assets/images/logo.png', height: 40),
+                                IconButton(
+                                  onPressed: () {
+                                    Navigator.of(context).push(MaterialPageRoute(
+                                      builder: (context) => const NotificationsScreen(),
+                                    ));
 
-                                // Mark notifications as read when notifications icon is tapped
-                                ref.read(notificationBellProvider.notifier).setBellState(false);
-                              },
-                              icon: hasUnreadNotifications
-                                  ? Icon(
-                                      Icons.notifications_active,
-                                      color: Theme.of(context).colorScheme.primary,
-                                    )
-                                  : Icon(
-                                      Icons.notifications_none,
-                                      color: Theme.of(context).colorScheme.onSecondary,
-                                    ),
-                              iconSize: MediaQuery.of(context).devicePixelRatio * 10,
-                              //padding: const EdgeInsets.only(top: 10, bottom: 10, left: 15),
+                                    // Mark notifications as read when notifications icon is tapped
+                                    ref.read(notificationBellProvider.notifier).setBellState(false);
+                                  },
+                                  icon: hasUnreadNotifications
+                                      ? Icon(
+                                          Icons.notifications_active,
+                                          color: Theme.of(context).colorScheme.primary,
+                                        )
+                                      : Icon(
+                                          Icons.notifications_none,
+                                          color: Theme.of(context).colorScheme.onSecondary,
+                                        ),
+                                  iconSize: MediaQuery.of(context).devicePixelRatio * 10,
+                                  //padding: const EdgeInsets.only(top: 10, bottom: 10, left: 15),
+                                ),
+                              ],
+                            ),
+                            ElevatedButton(
+                              onPressed: _showFilterDialog,
+                              child: Text("Filters"),
                             ),
                           ],
                         ),

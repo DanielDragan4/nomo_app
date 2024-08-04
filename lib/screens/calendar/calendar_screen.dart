@@ -360,105 +360,105 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
         ),
       ),
       DraggableScrollableSheet(
-  initialChildSize: 0.37,
-  minChildSize: 0.25,
-  maxChildSize: .8,
-  builder: (BuildContext context, ScrollController scrollController) {
-    return Container(
-      decoration: BoxDecoration(
-        color: Theme.of(context).cardColor,
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.grey.withOpacity(0.5),
-            spreadRadius: 5,
-            blurRadius: 7,
-            offset: Offset(0, 3),
-          ),
-        ],
-      ),
-      child: CustomScrollView(
-        controller: scrollController,
-        slivers: [
-          SliverAppBar(
-            pinned: true,
-            floating: false,
-            automaticallyImplyLeading: false,
-            backgroundColor: Theme.of(context).cardColor,
-            flexibleSpace: Column(
-              children: [
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 10),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Container(
-                        alignment: Alignment.topLeft,
-                        child: Text(
-                          "Attending Events",
-                          style: TextStyle(
-                            fontSize: 24,
-                            fontWeight: FontWeight.bold,
-                            color: Theme.of(context).primaryColor,
-                          ),
-                        ),
-                      ),
-                      IconButton(
-                        onPressed: () {
-                          showDialog(
-                                context: context,
-                                builder: (context) => AlertDialog(
-                                      backgroundColor: Theme.of(context).cardColor,
-                                      title: Text(
-                                        'What would you like to do?',
-                                        style: TextStyle(color: Theme.of(context).colorScheme.onPrimary),
-                                      ),
-                                      actions: [
-                                        TextButton(
-                                            onPressed: () {
-                                              Navigator.pop(context);
-                                              Navigator.of(context, rootNavigator: true).push(MaterialPageRoute(
-                                                  builder: ((context) => const NewEventScreen(event: null))));
-                                            },
-                                            child: const Text('CREATE EVENT')),
-                                        TextButton(
-                                            onPressed: () async {
-                                              selectedDate = await _showDatePickerDialog(context);
-                                              if (selectedDate != null) {
-                                                _showTimeRangePicker(context);
-                                              }
-                                            },
-                                            child: const Text('CREATE BLOCKED TIME')),
-                                      ],
-                                    ));
-                        },
-                        icon: Icon(Icons.add_box_rounded, size: 30, color: Theme.of(context).colorScheme.onSecondary),
-                      ),
-                    ],
-                  ),
+            initialChildSize: 0.37,
+            minChildSize: 0.25,
+            maxChildSize: .8,
+            builder: (BuildContext context, ScrollController scrollController) {
+              return Container(
+                decoration: BoxDecoration(
+                  color: Theme.of(context).cardColor,
+                  borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.grey.withOpacity(0.5),
+                      spreadRadius: 5,
+                      blurRadius: 7,
+                      offset: Offset(0, 3),
+                    ),
+                  ],
                 ),
-              ],
-            ),
-          ),
-          SliverToBoxAdapter(
-            child: Divider(),
-          ),
-          SliverList(
-            delegate: SliverChildBuilderDelegate(
-              (BuildContext context, int index) {
-                if (attendingEvents == null) {
-                  return CircularProgressIndicator();
-                }
-                return EventCalTab(eventData: attendingEvents[index]);
-              },
-              childCount: attendingEvents?.length ?? 1,
-            ),
-          ),
-        ],
-      ),
-    );
-  },
-)
+                child: CustomScrollView(
+                  controller: scrollController,
+                  slivers: [
+                    SliverAppBar(
+                      pinned: true,
+                      floating: false,
+                      automaticallyImplyLeading: false,
+                      backgroundColor: Theme.of(context).cardColor,
+                      flexibleSpace: Column(
+                        children: [
+                          Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 10),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Container(
+                                  alignment: Alignment.topLeft,
+                                  child: Text(
+                                    "Attending Events",
+                                    style: TextStyle(
+                                      fontSize: 24,
+                                      fontWeight: FontWeight.bold,
+                                      color: Theme.of(context).primaryColor,
+                                    ),
+                                  ),
+                                ),
+                                IconButton(
+                                  onPressed: () {
+                                    showDialog(
+                                          context: context,
+                                          builder: (context) => AlertDialog(
+                                                backgroundColor: Theme.of(context).cardColor,
+                                                title: Text(
+                                                  'What would you like to do?',
+                                                  style: TextStyle(color: Theme.of(context).colorScheme.onPrimary),
+                                                ),
+                                                actions: [
+                                                  TextButton(
+                                                      onPressed: () {
+                                                        Navigator.pop(context);
+                                                        Navigator.of(context, rootNavigator: true).push(MaterialPageRoute(
+                                                            builder: ((context) => const NewEventScreen(event: null))));
+                                                      },
+                                                      child: const Text('CREATE EVENT')),
+                                                  TextButton(
+                                                      onPressed: () async {
+                                                        selectedDate = await _showDatePickerDialog(context);
+                                                        if (selectedDate != null) {
+                                                          _showTimeRangePicker(context);
+                                                        }
+                                                      },
+                                                      child: const Text('CREATE BLOCKED TIME')),
+                                                ],
+                                              ));
+                                  },
+                                  icon: Icon(Icons.add_box_rounded, size: 30, color: Theme.of(context).colorScheme.onSecondary),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    SliverToBoxAdapter(
+                      child: Divider(),
+                    ),
+                    SliverList(
+                      delegate: SliverChildBuilderDelegate(
+                        (BuildContext context, int index) {
+                          if (attendingEvents == null) {
+                            return CircularProgressIndicator();
+                          }
+                          return EventCalTab(eventData: attendingEvents[index]);
+                        },
+                        childCount: attendingEvents?.length ?? 1,
+                      ),
+                    ),
+                  ],
+                ),
+              );
+            },
+          )
         ],
       ),
     );

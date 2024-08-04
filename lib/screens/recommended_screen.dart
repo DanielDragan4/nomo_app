@@ -1,6 +1,8 @@
+import 'package:calendar_view/calendar_view.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:intl/intl.dart';
 import 'package:nomo/models/events_model.dart';
 import 'package:nomo/providers/events_provider.dart';
 import 'package:nomo/providers/notification-bell_provider.dart';
@@ -115,7 +117,7 @@ class _RecommendedScreenState extends ConsumerState<RecommendedScreen> {
                   }
                 },
                 child: Text(
-                  startDate != null ? "${startDate!.toLocal()}".split(' ')[0] : "Start Date",
+                  startDate != null ? DateFormat.yMd().format(startDate!.toLocal()) : "Start Date",
                   style: TextStyle(color: Theme.of(context).colorScheme.onSecondary),
                 ),
               ),
@@ -136,7 +138,7 @@ class _RecommendedScreenState extends ConsumerState<RecommendedScreen> {
                   }
                 },
                 child: Text(
-                  endDate != null ? "${endDate!.toLocal()}".split(' ')[0] : "End Date",
+                  endDate != null ? DateFormat.yMd().format(endDate!.toLocal()) : "End Date",
                   style: TextStyle(color: Theme.of(context).colorScheme.onSecondary),
                 ),
               ),

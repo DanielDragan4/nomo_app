@@ -213,7 +213,7 @@ class _LocationScreenState extends State<LocationScreen> {
                     SizedBox(height: 8),
                     ElevatedButton.icon(
                       onPressed: () {
-                        _setLocationManually;
+                        _setLocationManually();
                         scrollController.animateTo(100, duration: Duration(milliseconds: 200), curve: Curves.easeIn);
                       },
                       icon: Icon(Icons.edit_location),

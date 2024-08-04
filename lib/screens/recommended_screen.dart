@@ -219,58 +219,60 @@ class _RecommendedScreenState extends ConsumerState<RecommendedScreen> {
           floatHeaderSlivers: true,
           headerSliverBuilder: (context, innerBoxIsScrolled) => [
             SliverAppBar(
-              toolbarHeight: kToolbarHeight + 70,
+              toolbarHeight: kToolbarHeight + 55,
               backgroundColor: Theme.of(context).colorScheme.surface,
               floating: true,
               snap: true,
               flexibleSpace: FlexibleSpaceBar(
-                background: Container(
-                  child: Padding(
-                    padding:
-                        EdgeInsets.only(top: MediaQuery.of(context).padding.top + 20), // Add padding above the title
-                    child: Center(
-                      child: Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 25.0),
-                        child: Column(
-                          children: [
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Image.asset('assets/images/logo.png', height: 40),
-                                IconButton(
-                                  onPressed: () {
-                                    Navigator.of(context).push(MaterialPageRoute(
-                                      builder: (context) => const NotificationsScreen(),
-                                    ));
-
-                                    // Mark notifications as read when notifications icon is tapped
-                                    ref.read(notificationBellProvider.notifier).setBellState(false);
-                                  },
-                                  icon: hasUnreadNotifications
-                                      ? Icon(
-                                          Icons.notifications_active,
-                                          color: Theme.of(context).colorScheme.primary,
-                                        )
-                                      : Icon(
-                                          Icons.notifications_none,
-                                          color: Theme.of(context).colorScheme.onSecondary,
-                                        ),
-                                  iconSize: MediaQuery.of(context).devicePixelRatio * 10,
-                                  //padding: const EdgeInsets.only(top: 10, bottom: 10, left: 15),
-                                ),
-                              ],
-                            ),
-                            ElevatedButton(
-                              onPressed: _showFilterDialog,
-                              child: Text("Filters"),
-                            ),
-                          ],
-                        ),
-                      ),
+  background: Container(
+    child: Padding(
+      padding: EdgeInsets.only(top: MediaQuery.of(context).padding.top + 20),
+      child: Center(
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 25.0),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Image.asset('assets/images/logo.png', height: 40),
+              Row(
+                children: [
+                  IconButton(
+                    onPressed: _showFilterDialog,
+                    icon: Icon(
+                      Icons.filter_list,
+                      color: Theme.of(context).colorScheme.onSecondary,
                     ),
+                    iconSize: MediaQuery.of(context).devicePixelRatio * 10,
+                    tooltip: 'Filters',
                   ),
-                ),
+                  SizedBox(width: 16), // Add some space between icons
+                  IconButton(
+                    onPressed: () {
+                      Navigator.of(context).push(MaterialPageRoute(
+                        builder: (context) => const NotificationsScreen(),
+                      ));
+                      ref.read(notificationBellProvider.notifier).setBellState(false);
+                    },
+                    icon: hasUnreadNotifications
+                        ? Icon(
+                            Icons.notifications_active,
+                            color: Theme.of(context).colorScheme.primary,
+                          )
+                        : Icon(
+                            Icons.notifications_none,
+                            color: Theme.of(context).colorScheme.onSecondary,
+                          ),
+                    iconSize: MediaQuery.of(context).devicePixelRatio * 10,
+                  ),
+                ],
               ),
+            ],
+          ),
+        ),
+      ),
+    ),
+  ),
+),
               centerTitle: true,
             ),
           ],

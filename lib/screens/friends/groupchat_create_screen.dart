@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:nomo/models/friend_model.dart';
-import 'package:nomo/providers/chats_provider.dart';
+import 'package:nomo/providers/chat-providers/chats_provider.dart';
 import 'package:nomo/providers/profile_provider.dart';
 import 'package:nomo/widgets/friend_tab.dart';
 
@@ -65,8 +65,7 @@ class _NewGroupChatScreenState extends ConsumerState<NewGroupChatScreen> {
               child: SearchBar(
                 controller: searchController,
                 hintText: 'Who are you looking for?',
-                padding: const WidgetStatePropertyAll<EdgeInsets>(
-                    EdgeInsets.symmetric(horizontal: 12.0)),
+                padding: const WidgetStatePropertyAll<EdgeInsets>(EdgeInsets.symmetric(horizontal: 12.0)),
                 leading: const Icon(Icons.search),
               ),
             ),
@@ -84,8 +83,7 @@ class _NewGroupChatScreenState extends ConsumerState<NewGroupChatScreen> {
                         FriendTab(
                           friendData: i,
                           isRequest: true,
-                          groupMemberToggle: (bool removeAdd, String userId) =>
-                              addToGroup(removeAdd, userId),
+                          groupMemberToggle: (bool removeAdd, String userId) => addToGroup(removeAdd, userId),
                           toggle: true,
                           isEventAttendee: false,
                         )
@@ -100,12 +98,10 @@ class _NewGroupChatScreenState extends ConsumerState<NewGroupChatScreen> {
                 constraints: BoxConstraints(
                     maxHeight: MediaQuery.of(context).size.height * .033,
                     maxWidth: MediaQuery.of(context).size.width * .75),
-                contentPadding:
-                    EdgeInsets.all(MediaQuery.of(context).size.height * .005),
+                contentPadding: EdgeInsets.all(MediaQuery.of(context).size.height * .005),
                 border: const UnderlineInputBorder(borderSide: BorderSide()),
                 hintText: 'Add a title',
-                hintStyle:
-                    TextStyle(color: Theme.of(context).colorScheme.onSecondary),
+                hintStyle: TextStyle(color: Theme.of(context).colorScheme.onSecondary),
                 focusColor: Theme.of(context).colorScheme.onSecondary),
             style: TextStyle(color: Theme.of(context).colorScheme.onSecondary),
           ),
@@ -115,9 +111,7 @@ class _NewGroupChatScreenState extends ConsumerState<NewGroupChatScreen> {
           createGroup
               ? ElevatedButton(
                   onPressed: () {
-                    ref
-                        .read(chatsProvider.notifier)
-                        .createNewGroup(titleController.text, members);
+                    ref.read(chatsProvider.notifier).createNewGroup(titleController.text, members);
                     Navigator.popUntil(
                       context,
                       ModalRoute.withName('/'),

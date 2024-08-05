@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:nomo/providers/profile_provider.dart';
 import 'package:nomo/screens/calendar/calendar_screen.dart';
-import 'package:nomo/screens/friends_screen.dart';
-import 'package:nomo/screens/profile_screen.dart';
+import 'package:nomo/screens/friends/friends_screen.dart';
+import 'package:nomo/screens/profile/profile_screen.dart';
 import 'package:nomo/screens/recommended_screen.dart';
 import 'package:nomo/screens/search_screen.dart';
 

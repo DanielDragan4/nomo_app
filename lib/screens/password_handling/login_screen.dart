@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:nomo/functions/make-fcm.dart';
-import 'package:nomo/providers/saved_session_provider.dart';
-import 'package:nomo/providers/supabase_provider.dart';
-import 'package:nomo/providers/user_signup_provider.dart';
+import 'package:nomo/providers/supabase-providers/saved_session_provider.dart';
+import 'package:nomo/providers/supabase-providers/supabase_provider.dart';
+import 'package:nomo/providers/supabase-providers/user_signup_provider.dart';
 import 'package:nomo/screens/password_handling/forgot_password_screen.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 

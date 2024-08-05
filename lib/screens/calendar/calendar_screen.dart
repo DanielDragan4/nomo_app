@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:nomo/models/events_model.dart';
-import 'package:nomo/providers/attending_events_provider.dart';
-import 'package:nomo/providers/availability_provider.dart';
-import 'package:nomo/providers/calendar_provider.dart';
+import 'package:nomo/providers/event-providers/attending_events_provider.dart';
+import 'package:nomo/providers/calendar-providers/availability_provider.dart';
+import 'package:nomo/providers/calendar-providers/calendar_provider.dart';
 import 'package:nomo/providers/profile_provider.dart';
 import 'package:nomo/screens/calendar/event_cal_tab.dart';
 import 'package:nomo/screens/calendar/month_widget.dart';
-import 'package:nomo/screens/new_event_screen.dart';
+import 'package:nomo/screens/events/new_event_screen.dart';
 import 'package:nomo/widgets/custom_time_picker.dart';
 
 class CalendarScreen extends ConsumerStatefulWidget {
@@ -33,11 +33,11 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
   var calendarState;
   var attendingEvents;
 
-  void initilizeAttendingEvents() async{
+  void initilizeAttendingEvents() async {
     await ref.read(attendEventsProvider.notifier).deCodeData();
     setState(() {
-    calendarState = ref.watch(calendarStateProvider);
-    attendingEvents = ref.read(attendEventsProvider.notifier).eventsAttendingByMonth(yearDisplayed, monthDisplayed);
+      calendarState = ref.watch(calendarStateProvider);
+      attendingEvents = ref.read(attendEventsProvider.notifier).eventsAttendingByMonth(yearDisplayed, monthDisplayed);
     });
   }
 
@@ -46,7 +46,7 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
     super.initState();
     initilizeAttendingEvents();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-    _updateAttendingEvents(yearDisplayed, monthDisplayed);
+      _updateAttendingEvents(yearDisplayed, monthDisplayed);
     });
   }
 
@@ -71,78 +71,104 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
   }
 
   void _showTimeRangePicker(BuildContext context) {
+    bool isAllDay = false;
+
     showModalBottomSheet(
       context: context,
       builder: (BuildContext context) {
-        return SingleChildScrollView(
-          padding: EdgeInsets.only(
-            bottom: MediaQuery.of(context).viewInsets.bottom,
-          ),
-          child: SizedBox(
-            height: 300,
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                const SizedBox(height: 10),
-                Text(
-                  'Select Time Range',
-                  style: TextStyle(
-                    color: Theme.of(context).colorScheme.onSecondary,
-                  ),
-                ),
-                const SizedBox(height: 20),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        return StatefulBuilder(
+          builder: (BuildContext context, StateSetter setState) {
+            return SingleChildScrollView(
+              padding: EdgeInsets.only(
+                bottom: MediaQuery.of(context).viewInsets.bottom,
+              ),
+              child: SizedBox(
+                height: 300,
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
                   children: [
-                    ElevatedButton(
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Theme.of(context).primaryColorDark,
+                    const SizedBox(height: 10),
+                    Text(
+                      'Select Time Range',
+                      style: TextStyle(
+                        color: Theme.of(context).colorScheme.onSecondary,
                       ),
-                      onPressed: () {
-                        _selectTime(context, true);
+                    ),
+                    const SizedBox(height: 20),
+                    CheckboxListTile(
+                      title: Text(
+                        'Block Entire Day',
+                        style: TextStyle(color: Theme.of(context).colorScheme.onSurface),
+                      ),
+                      value: isAllDay,
+                      onChanged: (bool? value) {
+                        setState(() {
+                          isAllDay = value ?? false;
+                          if (isAllDay) {
+                            startTime = TimeOfDay(hour: 0, minute: 0);
+                            endTime = TimeOfDay(hour: 23, minute: 59);
+                          } else {
+                            startTime = null;
+                            endTime = null;
+                          }
+                        });
                       },
-                      child: Text(
-                        startTime == null ? 'Start Time' : formatTimeOfDay(startTime!),
-                        style: const TextStyle(color: Colors.white),
+                    ),
+                    if (!isAllDay)
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                        children: [
+                          ElevatedButton(
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Theme.of(context).primaryColorDark,
+                            ),
+                            onPressed: () {
+                              _selectTime(context, true);
+                            },
+                            child: Text(
+                              startTime == null ? 'Start Time' : formatTimeOfDay(startTime!),
+                              style: const TextStyle(color: Colors.white),
+                            ),
+                          ),
+                          ElevatedButton(
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Theme.of(context).primaryColorDark,
+                            ),
+                            onPressed: () {
+                              _selectTime(context, false);
+                            },
+                            child: Text(
+                              endTime == null ? 'End Time' : formatTimeOfDay(endTime!),
+                              style: const TextStyle(color: Colors.white),
+                            ),
+                          ),
+                        ],
+                      ),
+                    Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: TextField(
+                        decoration: const InputDecoration(
+                          labelText: 'Title',
+                        ),
+                        style: TextStyle(
+                          color: Theme.of(context).colorScheme.onSurface,
+                        ),
+                        onChanged: (value) {
+                          blockTitle = value;
+                        },
                       ),
                     ),
                     ElevatedButton(
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Theme.of(context).primaryColorDark,
-                      ),
                       onPressed: () {
-                        _selectTime(context, false);
+                        _confirmTimeRange(context, selectedDate);
                       },
-                      child: Text(
-                        endTime == null ? 'End Time' : formatTimeOfDay(endTime!),
-                        style: const TextStyle(color: Colors.white),
-                      ),
+                      child: const Text('Confirm'),
                     ),
                   ],
                 ),
-                Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: TextField(
-                    decoration: const InputDecoration(
-                      labelText: 'Title',
-                    ),
-                    style: TextStyle(
-                      color: Theme.of(context).colorScheme.onSurface,
-                    ),
-                    onChanged: (value) {
-                      blockTitle = value;
-                    },
-                  ),
-                ),
-                ElevatedButton(
-                  onPressed: () {
-                    _confirmTimeRange(context, selectedDate);
-                  },
-                  child: const Text('Confirm'),
-                ),
-              ],
-            ),
-          ),
+              ),
+            );
+          },
         );
       },
     );
@@ -308,58 +334,57 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
         ),
       ),
       body: Stack(
-        children:[ 
+        children: [
           Positioned.fill(
-          child: 
-          Column(
-          children: [
-            // SizedBox(
-            //   height: MediaQuery.of(context).size.height * 0.02,
-            // ),
-        
-            Padding(
-              padding: EdgeInsets.symmetric(horizontal: MediaQuery.of(context).size.width * 0.03, vertical: 5),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceAround,
-                children: ['S', 'M', 'T', 'W', 'T', 'F', 'S']
-                    .map((day) => Text(day,
-                        style: TextStyle(
-                            fontSize: 24, fontWeight: FontWeight.bold, color: Theme.of(context).primaryColorLight)))
-                    .toList(),
-              ),
+            child: Column(
+              children: [
+                // SizedBox(
+                //   height: MediaQuery.of(context).size.height * 0.02,
+                // ),
+
+                Padding(
+                  padding: EdgeInsets.symmetric(horizontal: MediaQuery.of(context).size.width * 0.03, vertical: 5),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceAround,
+                    children: ['S', 'M', 'T', 'W', 'T', 'F', 'S']
+                        .map((day) => Text(day,
+                            style: TextStyle(
+                                fontSize: 24, fontWeight: FontWeight.bold, color: Theme.of(context).primaryColorLight)))
+                        .toList(),
+                  ),
+                ),
+                Flexible(
+                  //height: MediaQuery.of(context).size.height * 0.45,
+                  child: PageView.builder(
+                    controller: _pageController,
+                    onPageChanged: (int index) {
+                      final newMonth = (index % 12) + 1;
+                      final newYear = DateTime.now().year + (index ~/ 12);
+                      ref.read(calendarStateProvider.notifier).updateMonth(newMonth);
+                      ref.read(calendarStateProvider.notifier).updateYear(newYear);
+                      _updateAttendingEvents(newYear, newMonth);
+                    },
+                    itemBuilder: (context, index) {
+                      final currentMonth = (index % 12) + 1;
+                      final currentYear = DateTime.now().year + (index ~/ 12);
+                      final firstDayOfWeek = DateTime(currentYear, currentMonth, 1).weekday;
+                      final lastOfMonth = DateTime(currentYear, currentMonth + 1, 0).day;
+
+                      return Month(
+                        selectedMonth: currentMonth,
+                        eventsByDate: const [],
+                        firstDayOfWeek: firstDayOfWeek,
+                        lastOfMonth: lastOfMonth,
+                        yearDisplayed: currentYear,
+                        selectedDatesWithTime: selectedDatesWithTime,
+                      );
+                    },
+                  ),
+                ),
+              ],
             ),
-            Flexible(
-              //height: MediaQuery.of(context).size.height * 0.45,
-              child: PageView.builder(
-                controller: _pageController,
-                onPageChanged: (int index) {
-                  final newMonth = (index % 12) + 1;
-                  final newYear = DateTime.now().year + (index ~/ 12);
-                  ref.read(calendarStateProvider.notifier).updateMonth(newMonth);
-                  ref.read(calendarStateProvider.notifier).updateYear(newYear);
-                  _updateAttendingEvents(newYear, newMonth);
-                },
-                itemBuilder: (context, index) {
-                  final currentMonth = (index % 12) + 1;
-                  final currentYear = DateTime.now().year + (index ~/ 12);
-                  final firstDayOfWeek = DateTime(currentYear, currentMonth, 1).weekday;
-                  final lastOfMonth = DateTime(currentYear, currentMonth + 1, 0).day;
-        
-                  return Month(
-                    selectedMonth: currentMonth,
-                    eventsByDate: const [],
-                    firstDayOfWeek: firstDayOfWeek,
-                    lastOfMonth: lastOfMonth,
-                    yearDisplayed: currentYear,
-                    selectedDatesWithTime: selectedDatesWithTime,
-                  );
-                },
-              ),
-            ),
-          ],
-        ),
-      ),
-      DraggableScrollableSheet(
+          ),
+          DraggableScrollableSheet(
             initialChildSize: 0.37,
             minChildSize: 0.25,
             maxChildSize: .8,
@@ -406,33 +431,34 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
                                 IconButton(
                                   onPressed: () {
                                     showDialog(
-                                          context: context,
-                                          builder: (context) => AlertDialog(
-                                                backgroundColor: Theme.of(context).cardColor,
-                                                title: Text(
-                                                  'What would you like to do?',
-                                                  style: TextStyle(color: Theme.of(context).colorScheme.onPrimary),
-                                                ),
-                                                actions: [
-                                                  TextButton(
-                                                      onPressed: () {
-                                                        Navigator.pop(context);
-                                                        Navigator.of(context, rootNavigator: true).push(MaterialPageRoute(
-                                                            builder: ((context) => const NewEventScreen(event: null))));
-                                                      },
-                                                      child: const Text('CREATE EVENT')),
-                                                  TextButton(
-                                                      onPressed: () async {
-                                                        selectedDate = await _showDatePickerDialog(context);
-                                                        if (selectedDate != null) {
-                                                          _showTimeRangePicker(context);
-                                                        }
-                                                      },
-                                                      child: const Text('CREATE BLOCKED TIME')),
-                                                ],
-                                              ));
+                                        context: context,
+                                        builder: (context) => AlertDialog(
+                                              backgroundColor: Theme.of(context).cardColor,
+                                              title: Text(
+                                                'What would you like to do?',
+                                                style: TextStyle(color: Theme.of(context).colorScheme.onPrimary),
+                                              ),
+                                              actions: [
+                                                TextButton(
+                                                    onPressed: () {
+                                                      Navigator.pop(context);
+                                                      Navigator.of(context, rootNavigator: true).push(MaterialPageRoute(
+                                                          builder: ((context) => const NewEventScreen(event: null))));
+                                                    },
+                                                    child: const Text('CREATE EVENT')),
+                                                TextButton(
+                                                    onPressed: () async {
+                                                      selectedDate = await _showDatePickerDialog(context);
+                                                      if (selectedDate != null) {
+                                                        _showTimeRangePicker(context);
+                                                      }
+                                                    },
+                                                    child: const Text('CREATE BLOCKED TIME')),
+                                              ],
+                                            ));
                                   },
-                                  icon: Icon(Icons.add_box_rounded, size: 30, color: Theme.of(context).colorScheme.onSecondary),
+                                  icon: Icon(Icons.add_box_rounded,
+                                      size: 30, color: Theme.of(context).colorScheme.onSecondary),
                                 ),
                               ],
                             ),

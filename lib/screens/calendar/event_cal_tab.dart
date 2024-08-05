@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:nomo/models/events_model.dart';
-import 'package:nomo/screens/detailed_event_screen.dart';
+import 'package:nomo/screens/events/detailed_event_screen.dart';
 
 class EventCalTab extends StatelessWidget {
   const EventCalTab({super.key, required this.eventData});
@@ -12,8 +12,7 @@ class EventCalTab extends StatelessWidget {
     final DateTime sDate = DateTime.parse(eventData.sdate);
     final DateTime eDate = DateTime.parse(eventData.edate);
 
-    var formattedDate =
-        "${sDate.month}/${sDate.day}/${sDate.year} to ${eDate.month}/${eDate.day}/${eDate.year}";
+    var formattedDate = "${sDate.month}/${sDate.day}/${sDate.year} to ${eDate.month}/${eDate.day}/${eDate.year}";
 
     return Card(
       elevation: 2,
@@ -26,9 +25,8 @@ class EventCalTab extends StatelessWidget {
         subtitle: Text(formattedDate),
         trailing: Icon(Icons.chevron_right),
         onTap: () {
-          Navigator.of(context).push(MaterialPageRoute(
-              builder: ((context) =>
-                  DetailedEventScreen(eventData: eventData))));
+          Navigator.of(context)
+              .push(MaterialPageRoute(builder: ((context) => DetailedEventScreen(eventData: eventData))));
         },
       ),
     );

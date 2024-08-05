@@ -3,9 +3,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:nomo/models/friend_model.dart';
 import 'package:nomo/providers/profile_provider.dart';
 import 'package:nomo/providers/supabase_provider.dart';
-import 'package:nomo/screens/availability_screen.dart';
-import 'package:nomo/screens/chat_screen.dart';
-import 'package:nomo/screens/profile_screen.dart';
+import 'package:nomo/screens/friends/availability_screen.dart';
+import 'package:nomo/screens/friends/chat_screen.dart';
+import 'package:nomo/screens/profile/profile_screen.dart';
 
 // Widget displaying friend name and avatar in friends and requests lists
 //
@@ -278,10 +278,8 @@ class _FriendTabState extends ConsumerState<FriendTab> {
                             color: Colors.red,
                           ),
                           splashRadius: 15),
-                    ]
-                    ),
-      ]
-      ),
+                    ]),
+      ]),
     )
     :
     Container();

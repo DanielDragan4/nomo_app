@@ -6,17 +6,17 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:nomo/functions/make-fcm.dart';
 import 'package:nomo/functions/notification-utils.dart';
 import 'package:nomo/models/events_model.dart';
-import 'package:nomo/providers/events_provider.dart';
-import 'package:nomo/providers/location_on_reload_service.dart';
-import 'package:nomo/providers/notification-provider.dart';
-import 'package:nomo/providers/saved_session_provider.dart';
-import 'package:nomo/providers/supabase_provider.dart';
+import 'package:nomo/providers/event-providers/events_provider.dart';
+import 'package:nomo/providers/location-providers/location_on_reload_service.dart';
+import 'package:nomo/providers/notification-providers/notification-provider.dart';
+import 'package:nomo/providers/supabase-providers/saved_session_provider.dart';
+import 'package:nomo/providers/supabase-providers/supabase_provider.dart';
 import 'package:nomo/providers/theme_provider.dart';
-import 'package:nomo/providers/user_signup_provider.dart';
+import 'package:nomo/providers/supabase-providers/user_signup_provider.dart';
 import 'package:nomo/screens/NavBar.dart';
-import 'package:nomo/screens/create_account_screen.dart';
+import 'package:nomo/screens/profile/create_account_screen.dart';
 import 'package:nomo/screens/password_handling/login_screen.dart';
-import 'package:nomo/screens/detailed_event_screen.dart';
+import 'package:nomo/screens/events/detailed_event_screen.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:nomo/firebase_options.dart';
@@ -80,10 +80,9 @@ class _AppState extends ConsumerState<App> {
 
   void initBranch() async {
     await FlutterBranchSdk.init(
-      useTestKey: true, // Use this for beta testing
-      enableLogging: true,
-      disableTracking: false
-    );
+        useTestKey: true, // Use this for beta testing
+        enableLogging: true,
+        disableTracking: false);
   }
 
   @override

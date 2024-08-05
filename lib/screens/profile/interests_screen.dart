@@ -3,9 +3,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:nomo/screens/NavBar.dart';
 import 'package:nomo/providers/profile_provider.dart';
 import 'package:nomo/models/interests_enum.dart';
-import 'package:nomo/providers/saved_session_provider.dart';
-import 'package:nomo/providers/user_signup_provider.dart';
-import 'package:nomo/screens/location_screen.dart';
+import 'package:nomo/providers/supabase-providers/saved_session_provider.dart';
+import 'package:nomo/providers/supabase-providers/user_signup_provider.dart';
+import 'package:nomo/screens/location/location_screen.dart';
 
 class InterestsScreen extends ConsumerStatefulWidget {
   InterestsScreen(

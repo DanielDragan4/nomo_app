@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:nomo/models/friend_model.dart';
 import 'package:nomo/providers/profile_provider.dart';
-import 'package:nomo/providers/supabase_provider.dart';
+import 'package:nomo/providers/supabase-providers/supabase_provider.dart';
 import 'package:nomo/screens/friends/availability_screen.dart';
 import 'package:nomo/screens/friends/chat_screen.dart';
 import 'package:nomo/screens/profile/profile_screen.dart';

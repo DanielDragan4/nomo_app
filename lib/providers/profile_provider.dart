@@ -313,7 +313,7 @@ class ProfileProvider extends StateNotifier<Profile?> {
   //    - If incoming request (accepting == true), add friend instantly
   //    - If no incoming request (accepting == false), send a friend request and set to pending
 
-  Future<void> addFriend(friendId, accepting) async {
+  Future<String> addFriend(friendId, accepting) async {
     final supabaseClient = (await supabase).client;
     final currentUserId = supabaseClient.auth.currentUser!.id;
     final newFriendMapCurrent = {'current': currentUserId, 'friend': friendId};
@@ -329,6 +329,9 @@ class ProfileProvider extends StateNotifier<Profile?> {
       await supabaseClient.from('Friends').insert(newFriendMapFriend);
       await supabaseClient.from('New_Friend').delete().eq('id', response[0]['id']);
     }
+
+    // Return the friendId so we can use it to update notifications
+    return friendId;
   }
 
   // Removes friend of specified user
@@ -337,20 +340,25 @@ class ProfileProvider extends StateNotifier<Profile?> {
   // - 'currentUserId': profile_id of the current user removing their friend
   // - 'friendId': profile_id of user who is being removed
 
-  Future<void> removeFriend(currentUserId, friendId) async {
+  Future<String> removeFriend(currentUserId, friendId) async {
     final supabaseClient = (await supabase).client;
     await supabaseClient.from('Friends').delete().eq('current', currentUserId).eq('friend', friendId);
     await supabaseClient.from('Friends').delete().eq('friend', currentUserId).eq('current', friendId);
+
+    // Return the friendId so we can use it to update notifications
+    return friendId;
   }
 
   // Removes incoming friend request sent by a specified user
   // Parameters:
   // - 'friendId': profile_id of user who sent the friend request
 
-  Future<void> removeRequest(friendId) async {
+  Future<String> removeRequest(friendId) async {
     final supabaseClient = (await supabase).client;
     final currentUserId = supabaseClient.auth.currentUser!.id;
     await supabaseClient.from('New_Friend').delete().eq('reciever_id', currentUserId).eq('sender_id', friendId);
+
+    return friendId;
   }
 
   // Returns if current user is friends with a specified user

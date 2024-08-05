@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:nomo/models/friend_model.dart';
 import 'package:nomo/providers/chat-providers/chats_provider.dart';
+import 'package:nomo/providers/notification-providers/notification-bell-provider.dart';
+import 'package:nomo/providers/notification-providers/notification-provider.dart';
 import 'package:nomo/providers/profile_provider.dart';
 import 'package:nomo/screens/friends/groupchat_create_screen.dart';
 import 'package:nomo/screens/search_screen.dart';

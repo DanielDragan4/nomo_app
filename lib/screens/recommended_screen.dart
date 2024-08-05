@@ -5,7 +5,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 import 'package:nomo/models/events_model.dart';
 import 'package:nomo/providers/event-providers/events_provider.dart';
-import 'package:nomo/providers/notification-providers/notification-bell_provider.dart';
+import 'package:nomo/providers/notification-providers/notification-bell-provider.dart';
 import 'package:nomo/screens/notifications_screen.dart';
 import 'package:nomo/screens/search_screen.dart';
 import 'package:nomo/widgets/event_tab.dart';

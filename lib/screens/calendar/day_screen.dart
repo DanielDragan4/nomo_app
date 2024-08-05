@@ -161,33 +161,26 @@ class _DayScreenState extends ConsumerState<DayScreen> {
   // Parameters:
   // - 'availID': availability_id of the time block being edited
   void _updateTimeRange(BuildContext context, String availID) {
-    if (startTime != null && endTime != null && blockTitle != null && blockTitle!.isNotEmpty) {
-      DateTime supabaseSTime =
-          DateTime(widget.day.year, widget.day.month, widget.day.day, startTime!.hour, startTime!.minute);
-      DateTime supabaseETime =
-          DateTime(widget.day.year, widget.day.month, widget.day.day, endTime!.hour, endTime!.minute);
-      String profileId = ref.read(profileProvider.notifier).state!.profile_id;
+    DateTime supabaseSTime =
+        DateTime(widget.day.year, widget.day.month, widget.day.day, startTime!.hour, startTime!.minute);
+    DateTime supabaseETime =
+        DateTime(widget.day.year, widget.day.month, widget.day.day, endTime!.hour, endTime!.minute);
+    String profileId = ref.read(profileProvider.notifier).state!.profile_id;
 
-      setState(() {
-        print('setting the updated state');
-        int startMinutes = startTime!.hour * 60 + startTime!.minute;
-        int endMinutes = endTime!.hour * 60 + endTime!.minute;
+    setState(() {
+      print('setting the updated state');
+      int startMinutes = startTime!.hour * 60 + startTime!.minute;
+      int endMinutes = endTime!.hour * 60 + endTime!.minute;
 
-        for (int i = startMinutes; i <= endMinutes; i++) {
-          blockedHours[i] = {'blocked': true, 'title': blockTitle, 'start': startTime, 'end': endTime, 'id': availID};
-        }
-      });
-      ref
-          .read(profileProvider.notifier)
-          .updateBlockedTime(profileId, supabaseSTime.toString(), supabaseETime.toString(), blockTitle, availID);
+      for (int i = startMinutes; i <= endMinutes; i++) {
+        blockedHours[i] = {'blocked': true, 'title': blockTitle, 'start': startTime, 'end': endTime, 'id': availID};
+      }
+    });
+    ref
+        .read(profileProvider.notifier)
+        .updateBlockedTime(profileId, supabaseSTime.toString(), supabaseETime.toString(), blockTitle, availID);
 
-      Navigator.of(context).pop();
-    } else {
-      // Show a message if the title is empty
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please enter a title for the time block')),
-      );
-    }
+    Navigator.of(context).pop();
   }
 
   // Formats TimeOfDay value into a more readable String. Returns in the format HH:MM AM/PM
@@ -203,6 +196,8 @@ class _DayScreenState extends ConsumerState<DayScreen> {
 
   // Displays a bottom sheet for the creation of a new time block
   void _showTimeRangePicker(BuildContext context) {
+    bool isAllDay = false;
+
     showModalBottomSheet(
       context: context,
       builder: (BuildContext context) {
@@ -224,37 +219,58 @@ class _DayScreenState extends ConsumerState<DayScreen> {
                     ),
                   ),
                   const SizedBox(height: 20),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                    children: [
-                      ElevatedButton(
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Theme.of(context).primaryColorDark,
-                        ),
-                        onPressed: () async {
-                          await _selectTime(context, true);
-                          setModalState(() {});
-                        },
-                        child: Text(
-                          startTime == null ? 'Start Time' : formatTimeOfDay(startTime!),
-                          style: const TextStyle(color: Colors.white),
-                        ),
-                      ),
-                      ElevatedButton(
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Theme.of(context).primaryColorDark,
-                        ),
-                        onPressed: () async {
-                          await _selectTime(context, false);
-                          setModalState(() {});
-                        },
-                        child: Text(
-                          endTime == null ? 'End Time' : formatTimeOfDay(endTime!),
-                          style: const TextStyle(color: Colors.white),
-                        ),
-                      ),
-                    ],
+                  CheckboxListTile(
+                    title: Text(
+                      'Block Entire Day',
+                      style: TextStyle(color: Theme.of(context).colorScheme.onSurface),
+                    ),
+                    value: isAllDay,
+                    onChanged: (bool? value) {
+                      setState(() {
+                        isAllDay = value ?? false;
+                        if (isAllDay) {
+                          startTime = TimeOfDay(hour: 0, minute: 0);
+                          endTime = TimeOfDay(hour: 23, minute: 59);
+                        } else {
+                          startTime = null;
+                          endTime = null;
+                        }
+                      });
+                      setModalState(() {});
+                    },
                   ),
+                  if (!isAllDay)
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children: [
+                        ElevatedButton(
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Theme.of(context).primaryColorDark,
+                          ),
+                          onPressed: () async {
+                            await _selectTime(context, true);
+                            setModalState(() {});
+                          },
+                          child: Text(
+                            startTime == null ? 'Start Time' : formatTimeOfDay(startTime!),
+                            style: const TextStyle(color: Colors.white),
+                          ),
+                        ),
+                        ElevatedButton(
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Theme.of(context).primaryColorDark,
+                          ),
+                          onPressed: () async {
+                            await _selectTime(context, false);
+                            setModalState(() {});
+                          },
+                          child: Text(
+                            endTime == null ? 'End Time' : formatTimeOfDay(endTime!),
+                            style: const TextStyle(color: Colors.white),
+                          ),
+                        ),
+                      ],
+                    ),
                   Padding(
                     padding: const EdgeInsets.all(8.0),
                     child: TextField(

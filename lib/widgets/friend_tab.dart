@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:nomo/models/friend_model.dart';
+import 'package:nomo/providers/notification-providers/friend-notif-manager.dart';
 import 'package:nomo/providers/profile_provider.dart';
 import 'package:nomo/screens/friends/availability_screen.dart';
 import 'package:nomo/screens/friends/chat_screen.dart';
@@ -62,6 +63,7 @@ class _FriendTabState extends ConsumerState<FriendTab> {
     final avatar = widget.friendData.avatar;
     final currentUser = ref.read(profileProvider.notifier).state!.profile_id;
     final List<String> users = [currentUser, widget.friendData.friendProfileId];
+    final hasNewMessage = ref.watch(friendNotificationProvider)[widget.friendData.friendProfileId] ?? false;
 
     if (widget.isEventAttendee) {
       // Simplified view for event attendees
@@ -143,20 +145,40 @@ class _FriendTabState extends ConsumerState<FriendTab> {
                     : widget.isRequest
                         ? Row(
                             children: [
-                              IconButton(
-                                onPressed: () async {
-                                  ref.read(profileProvider.notifier).decodeData();
-                                  Navigator.of(context).push(MaterialPageRoute(
-                                    builder: (context) => ChatScreen(
-                                      chatterUser: widget.friendData,
-                                      currentUser: ref.read(profileProvider.notifier).state!.profile_id,
+                              Stack(
+                                children: [
+                                  IconButton(
+                                    onPressed: () async {
+                                      ref.read(profileProvider.notifier).decodeData();
+                                      Navigator.of(context).push(MaterialPageRoute(
+                                        builder: (context) => ChatScreen(
+                                          chatterUser: widget.friendData,
+                                          currentUser: ref.read(profileProvider.notifier).state!.profile_id,
+                                        ),
+                                      ));
+                                    },
+                                    icon: Icon(
+                                      Icons.messenger_outline,
+                                      color: Theme.of(context).colorScheme.onSecondary,
                                     ),
-                                  ));
-                                },
-                                icon: Icon(
-                                  Icons.messenger_outline,
-                                  color: Theme.of(context).colorScheme.onSecondary,
-                                ),
+                                  ),
+                                  if (hasNewMessage)
+                                    Positioned(
+                                      right: 7,
+                                      top: 7,
+                                      child: Container(
+                                        padding: EdgeInsets.all(1),
+                                        decoration: BoxDecoration(
+                                          color: Colors.red,
+                                          borderRadius: BorderRadius.circular(6),
+                                        ),
+                                        constraints: BoxConstraints(
+                                          minWidth: 8,
+                                          minHeight: 8,
+                                        ),
+                                      ),
+                                    ),
+                                ],
                               ),
                               IconButton(
                                 onPressed: () {
@@ -175,8 +197,11 @@ class _FriendTabState extends ConsumerState<FriendTab> {
                           )
                         : Row(children: [
                             IconButton(
-                                onPressed: () {
-                                  ref.read(profileProvider.notifier).addFriend(widget.friendData.friendProfileId, true);
+                                onPressed: () async {
+                                  String friendId = await ref
+                                      .read(profileProvider.notifier)
+                                      .addFriend(widget.friendData.friendProfileId, true);
+                                  await FriendNotificationManager.handleAddFriend(ref, friendId);
                                   ScaffoldMessenger.of(context).clearSnackBars();
                                   ScaffoldMessenger.of(context)
                                       .showSnackBar(SnackBar(content: Text('Added $username to friends list')));
@@ -191,8 +216,11 @@ class _FriendTabState extends ConsumerState<FriendTab> {
                                 splashRadius: 15),
                             const SizedBox(width: 10),
                             IconButton(
-                                onPressed: () {
-                                  ref.read(profileProvider.notifier).removeRequest(widget.friendData.friendProfileId);
+                                onPressed: () async {
+                                  String friendId = await ref
+                                      .read(profileProvider.notifier)
+                                      .removeRequest(widget.friendData.friendProfileId);
+                                  await FriendNotificationManager.handleRemoveFriend(ref, friendId);
                                   ScaffoldMessenger.of(context).clearSnackBars();
                                   ScaffoldMessenger.of(context)
                                       .showSnackBar(SnackBar(content: Text("Rejected $username's friend request")));

@@ -3,7 +3,8 @@ import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:nomo/providers/chat-providers/chat_id_provider.dart';
-import 'package:nomo/providers/notification-providers/notification-bell_provider.dart';
+import 'package:nomo/providers/notification-providers/friend-notif-manager.dart';
+import 'package:nomo/providers/notification-providers/notification-bell-provider.dart';
 import 'package:nomo/providers/notification-providers/notification-provider.dart';
 import 'package:nomo/providers/profile_provider.dart';
 import 'package:overlay_support/overlay_support.dart';
@@ -138,7 +139,7 @@ void handleMessage(RemoteMessage message, BuildContext context, WidgetRef ref) a
   // Handles in-app notification for user recieving a direct-message
   if (type == 'DM') {
     print('DM notification handling');
-    String? senderId = message.data['sender_id'];
+    String? senderId = message.data['senderId'];
     String? chatId = message.data['chat_id'];
     String? activeChatId = ref.read(activeChatIdProvider);
 
@@ -156,6 +157,7 @@ void handleMessage(RemoteMessage message, BuildContext context, WidgetRef ref) a
             message.notification?.body ?? 'New Message',
             message.notification?.title ?? 'Notification',
           );
+          ref.read(friendNotificationProvider.notifier).setNotification(senderId!, true);
         }
         // If setting toggle for only notifying if a friend sends a DM is disabled (all incoming messages)
       } else {
@@ -164,6 +166,7 @@ void handleMessage(RemoteMessage message, BuildContext context, WidgetRef ref) a
           message.notification?.body ?? 'New Message',
           message.notification?.title ?? 'Notification',
         );
+        ref.read(friendNotificationProvider.notifier).setNotification(senderId!, true);
       }
     } else {
       print("Missing data in notification");

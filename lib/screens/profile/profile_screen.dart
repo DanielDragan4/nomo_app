@@ -5,6 +5,7 @@ import 'package:nomo/models/events_model.dart';
 import 'package:nomo/models/friend_model.dart';
 import 'package:nomo/models/profile_model.dart';
 import 'package:nomo/providers/event-providers/attending_events_provider.dart';
+import 'package:nomo/providers/notification-providers/friend-notif-manager.dart';
 import 'package:nomo/providers/profile_provider.dart';
 import 'package:nomo/providers/supabase-providers/supabase_provider.dart';
 import 'package:nomo/screens/friends/chat_screen.dart';
@@ -136,7 +137,8 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
   }
 
   Future<void> addFriend() async {
-    await ref.read(profileProvider.notifier).addFriend(widget.userId, false);
+    String friendId = await ref.read(profileProvider.notifier).addFriend(widget.userId, false);
+    await FriendNotificationManager.handleAddFriend(ref, friendId);
     await checkPendingRequest();
   }
 
@@ -156,7 +158,9 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
 
   Future<void> removeFriend() async {
     final supabase = (await ref.read(supabaseInstance)).client;
-    await ref.read(profileProvider.notifier).removeFriend(supabase.auth.currentUser!.id, widget.userId);
+    String friendId =
+        await ref.read(profileProvider.notifier).removeFriend(supabase.auth.currentUser!.id, widget.userId);
+    await FriendNotificationManager.handleRemoveFriend(ref, friendId);
   }
 
   void refreshEvents() {

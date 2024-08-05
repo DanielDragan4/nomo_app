@@ -235,7 +235,21 @@ class _RecommendedScreenState extends ConsumerState<RecommendedScreen> {
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            Image.asset('assets/images/logo.png', height: 40),
+                            Row(
+                              children: [
+                                Image.asset('assets/images/logo.png', height: 40),
+                                SizedBox(width: 8,),
+                                Text(
+                                  'nomo',
+                                  style: TextStyle(
+                                    color: Theme.of(context).primaryColor,
+                                    fontSize: MediaQuery.of(context).devicePixelRatio *14,
+                                    fontFamily: 'fff',
+                                    fontWeight: FontWeight.bold
+                                  ),
+                                )
+                              ],
+                            ),
                             Row(
                               children: [
                                 IconButton(

@@ -243,7 +243,7 @@ class _RecommendedScreenState extends ConsumerState<RecommendedScreen> {
                                   'nomo',
                                   style: TextStyle(
                                     color: Theme.of(context).primaryColor,
-                                    fontSize: MediaQuery.of(context).devicePixelRatio *14,
+                                    fontSize: MediaQuery.of(context).devicePixelRatio *10,
                                     fontFamily: 'fff',
                                     fontWeight: FontWeight.bold
                                   ),
@@ -258,7 +258,7 @@ class _RecommendedScreenState extends ConsumerState<RecommendedScreen> {
                                     Icons.filter_list,
                                     color: Theme.of(context).colorScheme.onSecondary,
                                   ),
-                                  iconSize: MediaQuery.of(context).devicePixelRatio * 10,
+                                  iconSize: MediaQuery.of(context).devicePixelRatio * 8,
                                   tooltip: 'Filters',
                                 ),
                                 SizedBox(width: 16), // Add some space between icons
@@ -278,7 +278,7 @@ class _RecommendedScreenState extends ConsumerState<RecommendedScreen> {
                                           Icons.notifications_none,
                                           color: Theme.of(context).colorScheme.onSecondary,
                                         ),
-                                  iconSize: MediaQuery.of(context).devicePixelRatio * 10,
+                                  iconSize: MediaQuery.of(context).devicePixelRatio * 8,
                                 ),
                               ],
                             ),

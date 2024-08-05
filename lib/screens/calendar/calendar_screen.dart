@@ -311,17 +311,18 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
               top: 20,
               bottom: 5,
             ),
-            alignment: Alignment.bottomLeft,
+            alignment: Alignment.center,
             child: Padding(
               padding: const EdgeInsets.only(left: 15, bottom: 8),
-              child: Text(
-                "${_getMonthName(calendarState.monthDisplayed)} ${calendarState.yearDisplayed}",
-                style: TextStyle(
-                  fontSize: 24,
-                  fontWeight: FontWeight.bold,
-                  color: Theme.of(context).primaryColorLight,
-                ),
-              ),
+              child:
+                  Text(
+                    "${_getMonthName(calendarState.monthDisplayed)} ${calendarState.yearDisplayed}",
+                    style: TextStyle(
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold,
+                      color: Theme.of(context).primaryColorLight,
+                    ),
+                  ),
             ),
           ),
         ),

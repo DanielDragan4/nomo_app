@@ -2,11 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:nomo/models/friend_model.dart';
 import 'package:nomo/providers/chat-providers/chats_provider.dart';
-import 'package:nomo/providers/notification-providers/notification-bell_provider.dart';
-import 'package:nomo/providers/notification-providers/notification-provider.dart';
 import 'package:nomo/providers/profile_provider.dart';
 import 'package:nomo/screens/friends/groupchat_create_screen.dart';
-import 'package:nomo/screens/notifications_screen.dart';
 import 'package:nomo/screens/search_screen.dart';
 import 'package:nomo/widgets/friend_tab.dart';
 import 'package:nomo/widgets/group_tab.dart';
@@ -50,7 +47,7 @@ class _FriendsScreenState extends ConsumerState<FriendsScreen> {
                   ),
                   alignment: Alignment.bottomCenter,
                   child: Row(
-                    mainAxisAlignment: widget.isGroupChats ? MainAxisAlignment.center : MainAxisAlignment.start,
+                    mainAxisAlignment: widget.isGroupChats ? MainAxisAlignment.center : MainAxisAlignment.spaceBetween,
                     children: [
                       Padding(
                         padding: widget.isGroupChats ? EdgeInsets.all(0) : EdgeInsets.only(left: 10.0),
@@ -61,6 +58,22 @@ class _FriendsScreenState extends ConsumerState<FriendsScreen> {
                               fontSize: widget.isGroupChats ? 25 : 20,
                             )),
                       ),
+                      IconButton(
+                              onPressed: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => SearchScreen(
+                                      searchingPeople: true,
+                                    ),
+                                  ),
+                                );
+                              },
+                              icon: Icon(
+                                Icons.search,
+                                color: Theme.of(context).colorScheme.onSecondary,
+                              ),
+                            ),
                     ],
                   ),
                 ),
@@ -112,22 +125,6 @@ class _FriendsScreenState extends ConsumerState<FriendsScreen> {
                                   ),
                                 ),
                               ],
-                            ),
-                            IconButton(
-                              onPressed: () {
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) => SearchScreen(
-                                      searchingPeople: true,
-                                    ),
-                                  ),
-                                );
-                              },
-                              icon: Icon(
-                                Icons.search,
-                                color: Theme.of(context).colorScheme.onSecondary,
-                              ),
                             ),
                           ],
                   ),

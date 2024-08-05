@@ -7,13 +7,12 @@ import 'package:nomo/models/profile_model.dart';
 import 'package:nomo/providers/event-providers/attending_events_provider.dart';
 import 'package:nomo/providers/profile_provider.dart';
 import 'package:nomo/providers/supabase-providers/supabase_provider.dart';
+import 'package:nomo/screens/calendar/calendar_screen.dart';
 import 'package:nomo/screens/friends/chat_screen.dart';
 import 'package:nomo/screens/profile/create_account_screen.dart';
 import 'package:nomo/screens/events/new_event_screen.dart';
-import 'package:nomo/screens/password_handling/login_screen.dart';
 import 'package:nomo/widgets/event_tab.dart';
 import 'package:nomo/widgets/profile_dropdown.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
 
 class ProfileScreen extends ConsumerStatefulWidget {
   ProfileScreen({super.key, required this.isUser, this.userId});
@@ -482,16 +481,13 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
                                   Row(children: [
                                     IconButton(
                                       onPressed: () {
-                                        Navigator.of(context, rootNavigator: true).push(
+                                        Navigator.of(context).push(
                                           MaterialPageRoute(
-                                            builder: (context) => NewEventScreen(
-                                              event: null,
-                                              onEventCreated: refreshEvents,
-                                            ),
+                                            builder: (context) => const CalendarScreen(),
                                           ),
                                         );
                                       },
-                                      icon: const Icon(Icons.add),
+                                      icon: const Icon(Icons.calendar_month_outlined),
                                       color: Theme.of(context).colorScheme.onSecondary,
                                     ),
                                     ProfileDropdown(

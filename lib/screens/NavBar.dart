@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:nomo/providers/profile_provider.dart';
 import 'package:nomo/screens/calendar/calendar_screen.dart';
+import 'package:nomo/screens/events/new_event_screen.dart';
 import 'package:nomo/screens/friends/friends_screen.dart';
 import 'package:nomo/screens/profile/profile_screen.dart';
 import 'package:nomo/screens/recommended_screen.dart';
@@ -78,9 +79,9 @@ class _NavBarState extends ConsumerState<NavBar> {
               label: 'Search',
             ),
             BottomNavigationBarItem(
-              icon: Icon(Icons.calendar_month_outlined, color: navBarTheme.unselectedItemColor),
-              activeIcon: Icon(Icons.calendar_month, color: navBarTheme.selectedItemColor),
-              label: "Calendar",
+              icon: Icon(Icons.add_circle_outline_sharp, color: navBarTheme.unselectedItemColor),
+              activeIcon: Icon(Icons.add_circle_sharp, color: navBarTheme.selectedItemColor),
+              label: "New Event",
             ),
             BottomNavigationBarItem(
               icon: Icon(Icons.people_alt_outlined, color: navBarTheme.unselectedItemColor),
@@ -126,7 +127,7 @@ class _NavBarState extends ConsumerState<NavBar> {
           searchingPeople: false,
         );
       case 2:
-        return CalendarScreen();
+        return NewEventScreen();
       case 3:
         return FriendsScreen(isGroupChats: false);
       case 4:

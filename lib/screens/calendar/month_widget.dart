@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:nomo/models/availability_model.dart';
 import 'package:nomo/models/events_model.dart';
-import 'package:nomo/providers/attending_events_provider.dart';
-import 'package:nomo/providers/availability_provider.dart';
+import 'package:nomo/providers/event-providers/attending_events_provider.dart';
+import 'package:nomo/providers/calendar-providers/availability_provider.dart';
 import 'package:nomo/providers/profile_provider.dart';
 import 'package:nomo/screens/calendar/event_cal_tab.dart';
 import 'package:nomo/screens/calendar/day_screen.dart';
@@ -170,9 +170,11 @@ class Month extends ConsumerWidget {
     ref.read(profileProvider.notifier).decodeData();
     List<Event> calEvents =
         ref.read(attendEventsProvider.notifier).eventsAttendingByMonth(yearDisplayed, selectedMonth);
-    Future((){ref
-        .read(availabilityProvider.notifier)
-        .updateAvailability(ref.watch(profileProvider.notifier).availabilityByMonth(yearDisplayed, selectedMonth));});
+    Future(() {
+      ref
+          .read(availabilityProvider.notifier)
+          .updateAvailability(ref.watch(profileProvider.notifier).availabilityByMonth(yearDisplayed, selectedMonth));
+    });
 
     return Container(
       alignment: Alignment.center,
@@ -285,23 +287,24 @@ class DayButton extends ConsumerWidget {
 
     return GestureDetector(
       onTap: () {
-        if(currentDate.isAfter(DateTime.now())){
+        if (currentDate.isAfter(DateTime.now())) {
           if (currentDate.month == selectedMonth) {
-          Navigator.of(context)
-              .push(MaterialPageRoute(
-                  builder: ((context) => DayScreenPageView(
-                        initialDay: currentDate,
-                        blockedTime: availabilityByMonth,
-                      ))))
-              .whenComplete(
-            () async {
-              await ref.read(profileProvider.notifier).decodeData();
-              ref
-                  .read(availabilityProvider.notifier)
-                  .updateAvailability(ref.read(profileProvider.notifier).availabilityByMonth(year, selectedMonth));
-            },
-          );
-        }}
+            Navigator.of(context)
+                .push(MaterialPageRoute(
+                    builder: ((context) => DayScreenPageView(
+                          initialDay: currentDate,
+                          blockedTime: availabilityByMonth,
+                        ))))
+                .whenComplete(
+              () async {
+                await ref.read(profileProvider.notifier).decodeData();
+                ref
+                    .read(availabilityProvider.notifier)
+                    .updateAvailability(ref.read(profileProvider.notifier).availabilityByMonth(year, selectedMonth));
+              },
+            );
+          }
+        }
       },
       child: Container(
         decoration: BoxDecoration(
@@ -315,7 +318,11 @@ class DayButton extends ConsumerWidget {
               width: topBorderWidth,
             ),
           ),
-          color: (isCurrentMonth) ? (currentDate.isAfter(DateTime.now())) ? cellColor : const Color.fromARGB(255, 89, 57, 95) : Color.fromARGB(120, 128, 128, 128),
+          color: (isCurrentMonth)
+              ? (currentDate.isAfter(DateTime.now()))
+                  ? cellColor
+                  : const Color.fromARGB(255, 89, 57, 95)
+              : Color.fromARGB(120, 128, 128, 128),
           //borderRadius: borderRadius,
         ),
         child: Stack(

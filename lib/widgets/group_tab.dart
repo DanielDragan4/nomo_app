@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:nomo/providers/chats_provider.dart';
+import 'package:nomo/providers/chat-providers/chats_provider.dart';
 import 'package:nomo/providers/profile_provider.dart';
-import 'package:nomo/screens/availability_screen.dart';
-import 'package:nomo/screens/chat_screen.dart';
+import 'package:nomo/screens/friends/availability_screen.dart';
+import 'package:nomo/screens/friends/chat_screen.dart';
 
 // Widget displaying group name and avatar in group chats list
 //

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:nomo/models/friend_model.dart';
-import 'package:nomo/providers/events_provider.dart';
+import 'package:nomo/providers/event-providers/events_provider.dart';
 import 'package:nomo/widgets/friend_tab.dart';
 
 // Bottom sheet used to display event attendee profiles

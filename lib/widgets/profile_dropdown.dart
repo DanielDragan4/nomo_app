@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:nomo/models/profile_model.dart';
-import 'package:nomo/providers/saved_session_provider.dart';
-import 'package:nomo/providers/supabase_provider.dart';
-import 'package:nomo/screens/create_account_screen.dart';
-import 'package:nomo/screens/interests_screen.dart';
-import 'package:nomo/screens/location_screen.dart';
+import 'package:nomo/providers/supabase-providers/saved_session_provider.dart';
+import 'package:nomo/providers/supabase-providers/supabase_provider.dart';
+import 'package:nomo/screens/profile/create_account_screen.dart';
+import 'package:nomo/screens/profile/interests_screen.dart';
+import 'package:nomo/screens/location/location_screen.dart';
 import 'package:nomo/screens/password_handling/login_screen.dart';
 import 'package:nomo/screens/settings/setting_screen.dart';
 

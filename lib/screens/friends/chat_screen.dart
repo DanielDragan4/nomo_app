@@ -2,10 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:nomo/main.dart';
 import 'package:nomo/models/friend_model.dart';
-import 'package:nomo/providers/chats_provider.dart';
+import 'package:nomo/providers/chat-providers/chats_provider.dart';
 import 'package:nomo/widgets/message_widget.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import 'package:nomo/providers/chat_id_provider.dart';
+import 'package:nomo/providers/chat-providers/chat_id_provider.dart';
 
 class ChatScreen extends ConsumerStatefulWidget {
   ChatScreen({super.key, this.chatterUser, required this.currentUser, this.groupInfo});

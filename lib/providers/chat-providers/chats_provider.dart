@@ -1,5 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:nomo/providers/supabase_provider.dart';
+import 'package:nomo/providers/supabase-providers/supabase_provider.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 class ChatsProvider extends StateNotifier<List?> {
@@ -37,11 +37,8 @@ class ChatsProvider extends StateNotifier<List?> {
   Future<void> getChatStream(user1Id, user2Id) async {
     final supabaseClient = (await supabase).client;
     chatID = await readChatId(user1Id, user2Id);
-    var stream = await supabaseClient
-        .from('Messages')
-        .select()
-        .eq('chat_id', chatID)
-        .order('created_at', ascending: true);
+    var stream =
+        await supabaseClient.from('Messages').select().eq('chat_id', chatID).order('created_at', ascending: true);
 
     state = stream;
   }
@@ -62,8 +59,7 @@ class ChatsProvider extends StateNotifier<List?> {
     await supabaseClient.from('Chats').insert(newChat);
   }
 
-  Future<void> sendMessage(
-      String user1Id, String user2Id, String message) async {
+  Future<void> sendMessage(String user1Id, String user2Id, String message) async {
     /*
      sends a new message to associated chat
 
@@ -73,11 +69,7 @@ class ChatsProvider extends StateNotifier<List?> {
     */
     final supabaseClient = (await supabase).client;
     chatID = await readChatId(user1Id, user2Id);
-    var newMessage = {
-      'sender_id': user1Id,
-      'chat_id': chatID,
-      'message': message
-    };
+    var newMessage = {'sender_id': user1Id, 'chat_id': chatID, 'message': message};
 
     await supabaseClient.from('Messages').insert(newMessage);
   }
@@ -92,10 +84,8 @@ class ChatsProvider extends StateNotifier<List?> {
     */
     final supabaseClient = (await supabase).client;
     List groupChatIds = [];
-    final List codedGroup = await supabaseClient
-        .from('Group_Members')
-        .select()
-        .eq('profile_id', supabaseClient.auth.currentUser!.id);
+    final List codedGroup =
+        await supabaseClient.from('Group_Members').select().eq('profile_id', supabaseClient.auth.currentUser!.id);
     for (var member in codedGroup) {
       groupChatIds.add(member['group_id']);
     }
@@ -112,10 +102,7 @@ class ChatsProvider extends StateNotifier<List?> {
     */
     final supabaseClient = (await supabase).client;
     List<String> groupMemberIds = [];
-    final List codedGroup = await supabaseClient
-        .from('Group_Members')
-        .select()
-        .eq('group_id', groupId);
+    final List codedGroup = await supabaseClient.from('Group_Members').select().eq('group_id', groupId);
     for (var member in codedGroup) {
       groupMemberIds.add(member['profile_id']);
     }
@@ -133,15 +120,10 @@ class ChatsProvider extends StateNotifier<List?> {
     */
     final supabaseClient = (await supabase).client;
     List<Map> groupMemberIds = [];
-    final List codedGroup = await supabaseClient
-        .from('group_view')
-        .select()
-        .eq('group_id', groupId);
+    final List codedGroup = await supabaseClient.from('group_view').select().eq('group_id', groupId);
     for (var member in codedGroup) {
       var id = member['profile_id'];
-      String avatarURL = supabaseClient.storage
-          .from('Images')
-          .getPublicUrl(member['profile_path']);
+      String avatarURL = supabaseClient.storage.from('Images').getPublicUrl(member['profile_path']);
       groupMemberIds.add({'id': id, 'avatar': avatarURL});
     }
     return groupMemberIds;
@@ -180,11 +162,7 @@ class ChatsProvider extends StateNotifier<List?> {
       Returns: None
     */
     final supabaseClient = (await supabase).client;
-    var newMessage = {
-      'sender_id': supabaseClient.auth.currentUser!.id,
-      'group_id': groupID,
-      'message': message
-    };
+    var newMessage = {'sender_id': supabaseClient.auth.currentUser!.id, 'group_id': groupID, 'message': message};
 
     await supabaseClient.from('Group_Messages').insert(newMessage);
   }
@@ -202,8 +180,7 @@ class ChatsProvider extends StateNotifier<List?> {
     var newChat = {
       'name': title,
     };
-    var newGroup =
-        await supabaseClient.from('Groups').insert(newChat).select().single();
+    var newGroup = await supabaseClient.from('Groups').insert(newChat).select().single();
 
     for (var user in users) {
       var newMember = {

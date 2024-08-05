@@ -4,12 +4,12 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:maps_launcher/maps_launcher.dart';
 import 'package:nomo/models/events_model.dart';
-import 'package:nomo/providers/attending_events_provider.dart';
-import 'package:nomo/providers/events_provider.dart';
+import 'package:nomo/providers/event-providers/attending_events_provider.dart';
+import 'package:nomo/providers/event-providers/events_provider.dart';
 import 'package:nomo/providers/profile_provider.dart';
-import 'package:nomo/providers/supabase_provider.dart';
-import 'package:nomo/screens/new_event_screen.dart';
-import 'package:nomo/screens/profile_screen.dart';
+import 'package:nomo/providers/supabase-providers/supabase_provider.dart';
+import 'package:nomo/screens/events/new_event_screen.dart';
+import 'package:nomo/screens/profile/profile_screen.dart';
 import 'package:nomo/widgets/comments_section_widget.dart';
 import 'package:nomo/widgets/event_attendees_widget.dart';
 import 'package:share_plus/share_plus.dart';
@@ -69,50 +69,50 @@ class _DetailedEventScreenState extends ConsumerState<DetailedEventScreen> {
       ),
       body: SingleChildScrollView(
         child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              _buildEventImage(),
-              const SizedBox(height: 16),
-              _buildEventHost(),
-              const SizedBox(height: 6),
-              _buildDistanceInfo(context),
-              const SizedBox(height: 6),
-              _buildEventLocation(context),
-              LayoutBuilder(
-                builder: (context, constraints) {
-                  final isSmallScreen = constraints.maxWidth < 600;
-                  return Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        _buildDateTimeInfo(context, isSmallScreen),
-                        const SizedBox(height: 8),
-                        _buildAttendeeInfo(context, isSmallScreen),
-                        const SizedBox(height: 16),
-                        _buildActionButtons(context, isSmallScreen),
-                      ],
-                    ),
-                  );
-                },
-              ),
-              const SizedBox(height: 16),
-              _buildEventDescription(),
-              const SizedBox(height: 24),
-              _buildCommentsSection(),
-            ],
-          )
-        ),
+            padding: const EdgeInsets.all(16.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                _buildEventImage(),
+                const SizedBox(height: 16),
+                _buildEventHost(),
+                const SizedBox(height: 6),
+                _buildDistanceInfo(context),
+                const SizedBox(height: 6),
+                _buildEventLocation(context),
+                LayoutBuilder(
+                  builder: (context, constraints) {
+                    final isSmallScreen = constraints.maxWidth < 600;
+                    return Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          _buildDateTimeInfo(context, isSmallScreen),
+                          const SizedBox(height: 8),
+                          _buildAttendeeInfo(context, isSmallScreen),
+                          const SizedBox(height: 16),
+                          _buildActionButtons(context, isSmallScreen),
+                        ],
+                      ),
+                    );
+                  },
+                ),
+                const SizedBox(height: 16),
+                _buildEventDescription(),
+                const SizedBox(height: 24),
+                _buildCommentsSection(),
+              ],
+            )),
       ),
     );
   }
-  Future<void> getOriginalProfileInfo() async{
-  if(Navigator.canPop(context)) {
-    await ref.read(attendEventsProvider.notifier).deCodeData();
+
+  Future<void> getOriginalProfileInfo() async {
+    if (Navigator.canPop(context)) {
+      await ref.read(attendEventsProvider.notifier).deCodeData();
+    }
   }
-}
 
   Widget _buildEventImage() {
     return ClipRRect(
@@ -137,9 +137,11 @@ class _DetailedEventScreenState extends ConsumerState<DetailedEventScreen> {
     return Row(
       children: [
         GestureDetector(
-          onTap: () => Navigator.of(context).push(MaterialPageRoute(
-            builder: (context) => ProfileScreen(isUser: false, userId: widget.eventData?.host),
-          )).whenComplete(getOriginalProfileInfo),
+          onTap: () => Navigator.of(context)
+              .push(MaterialPageRoute(
+                builder: (context) => ProfileScreen(isUser: false, userId: widget.eventData?.host),
+              ))
+              .whenComplete(getOriginalProfileInfo),
           child: Row(children: [
             CircleAvatar(
               radius: MediaQuery.of(context).devicePixelRatio * 7,
@@ -170,42 +172,44 @@ class _DetailedEventScreenState extends ConsumerState<DetailedEventScreen> {
       ],
     );
   }
+
   Widget _buildDistanceInfo(BuildContext context) {
-  if (widget.eventData.distanceAway == null) {
-    return const SizedBox.shrink();
-  }
+    if (widget.eventData.distanceAway == null) {
+      return const SizedBox.shrink();
+    }
 
-  final double distance = widget.eventData.distanceAway!;
-  final String distanceText = '${distance.toStringAsFixed(1)} miles away';
+    final double distance = widget.eventData.distanceAway!;
+    final String distanceText = '${distance.toStringAsFixed(1)} miles away';
 
-  return Container(
-    margin: const EdgeInsets.only(top: 8),
-    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-    decoration: BoxDecoration(
-      color: Theme.of(context).colorScheme.secondaryContainer,
-      borderRadius: BorderRadius.circular(16),
-    ),
-    child: Row(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Icon(
-          Icons.directions_run,  // Changed icon to a running person
-          size: 18,
-          color: Theme.of(context).colorScheme.secondary,
-        ),
-        const SizedBox(width: 6),
-        Text(
-          distanceText,
-          style: TextStyle(
-            fontSize: 14,
-            fontWeight: FontWeight.bold,
+    return Container(
+      margin: const EdgeInsets.only(top: 8),
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+      decoration: BoxDecoration(
+        color: Theme.of(context).colorScheme.secondaryContainer,
+        borderRadius: BorderRadius.circular(16),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(
+            Icons.directions_run, // Changed icon to a running person
+            size: 18,
             color: Theme.of(context).colorScheme.secondary,
           ),
-        ),
-      ],
-    ),
-  );
-}
+          const SizedBox(width: 6),
+          Text(
+            distanceText,
+            style: TextStyle(
+              fontSize: 14,
+              fontWeight: FontWeight.bold,
+              color: Theme.of(context).colorScheme.secondary,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   Widget _buildEventLocation(BuildContext context) {
     return (widget.eventData!.isVirtual)
         ? Row(

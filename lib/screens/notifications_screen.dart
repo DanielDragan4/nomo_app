@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:nomo/providers/notification-provider.dart';
+import 'package:nomo/providers/notification-providers/notification-provider.dart';
 import 'package:nomo/widgets/fade_out_dismissable.dart';
 import 'package:nomo/widgets/notification.dart';
 

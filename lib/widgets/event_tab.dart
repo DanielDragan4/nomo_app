@@ -6,13 +6,13 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:maps_launcher/maps_launcher.dart';
 import 'package:nomo/models/events_model.dart';
-import 'package:nomo/providers/attending_events_provider.dart';
-import 'package:nomo/providers/events_provider.dart';
+import 'package:nomo/providers/event-providers/attending_events_provider.dart';
+import 'package:nomo/providers/event-providers/events_provider.dart';
 import 'package:nomo/providers/profile_provider.dart';
-import 'package:nomo/providers/supabase_provider.dart';
-import 'package:nomo/screens/detailed_event_screen.dart';
-import 'package:nomo/screens/new_event_screen.dart';
-import 'package:nomo/screens/profile_screen.dart';
+import 'package:nomo/providers/supabase-providers/supabase_provider.dart';
+import 'package:nomo/screens/events/detailed_event_screen.dart';
+import 'package:nomo/screens/events/new_event_screen.dart';
+import 'package:nomo/screens/profile/profile_screen.dart';
 import 'package:nomo/widgets/comments_section_widget.dart';
 import 'package:nomo/widgets/event_attendees_widget.dart';
 import 'package:share_plus/share_plus.dart';
@@ -74,22 +74,22 @@ class _EventTabState extends ConsumerState<EventTab> {
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-               Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                _buildHostInfo(context),
-                Padding(
-                  padding: const EdgeInsets.fromLTRB(0, 0, 5, 0),
-                  child: Row(
-                    children: [
-                      if (_hasEventEnded()) _buildEventEndedIndicator(),
-                      const SizedBox(width: 4),
-                      if (isHostOrAttending) _buildHostOrAttendingIndicator(),
-                    ],
-                  ),
-                )
-              ],
-            ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  _buildHostInfo(context),
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(0, 0, 5, 0),
+                    child: Row(
+                      children: [
+                        if (_hasEventEnded()) _buildEventEndedIndicator(),
+                        const SizedBox(width: 4),
+                        if (isHostOrAttending) _buildHostOrAttendingIndicator(),
+                      ],
+                    ),
+                  )
+                ],
+              ),
               _buildEventImage(context),
               Padding(
                 padding: const EdgeInsets.all(16),
@@ -99,18 +99,15 @@ class _EventTabState extends ConsumerState<EventTab> {
                     _buildEventTitle(context),
                     const SizedBox(height: 8),
                     _buildEventLocation(context),
-                      ((widget.eventData.distanceAway != null) || (widget.eventData.isRecurring)) 
-                      ? 
-                      Row(
-                        children: [
-                          if(widget.eventData.distanceAway != null)
-                            _buildDistanceInfo(context), // Add this line
-                          SizedBox(width: 4),
-                          if (widget.eventData.isRecurring) 
-                            _buildRecurringIndicator(),
-                        ],
-                      ):
-                      SizedBox(),
+                    ((widget.eventData.distanceAway != null) || (widget.eventData.isRecurring))
+                        ? Row(
+                            children: [
+                              if (widget.eventData.distanceAway != null) _buildDistanceInfo(context), // Add this line
+                              SizedBox(width: 4),
+                              if (widget.eventData.isRecurring) _buildRecurringIndicator(),
+                            ],
+                          )
+                        : SizedBox(),
                     LayoutBuilder(
                       builder: (context, constraints) {
                         final isSmallScreen = constraints.maxWidth < 600;
@@ -142,28 +139,28 @@ class _EventTabState extends ConsumerState<EventTab> {
   }
 
   Widget _buildRecurringIndicator() {
-  return Padding(
-    padding: const EdgeInsets.only(top: 4, bottom: 8),
-    child: Row(
-      children: [
-        Icon(
-          Icons.repeat,
-          size: 16,
-          color: Theme.of(context).colorScheme.secondary,
-        ),
-        const SizedBox(width: 4),
-        Text(
-          'Recurring Event',
-          style: TextStyle(
-            fontSize: 14,
+    return Padding(
+      padding: const EdgeInsets.only(top: 4, bottom: 8),
+      child: Row(
+        children: [
+          Icon(
+            Icons.repeat,
+            size: 16,
             color: Theme.of(context).colorScheme.secondary,
-            fontWeight: FontWeight.bold,
           ),
-        ),
-      ],
-    ),
-  );
-}
+          const SizedBox(width: 4),
+          Text(
+            'Recurring Event',
+            style: TextStyle(
+              fontSize: 14,
+              color: Theme.of(context).colorScheme.secondary,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
 
   Future<void> getOriginalProfileInfo() async {
     if (Navigator.canPop(context)) {
@@ -208,85 +205,79 @@ class _EventTabState extends ConsumerState<EventTab> {
     );
   }
 
-Widget _buildHostOrAttendingIndicator() {
-  var host = widget.eventData.isHost;
-  return Container(
-    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-    decoration: BoxDecoration(
-      color: host 
-        ? Theme.of(context).colorScheme.tertiary.withOpacity(0.2)
-        : Theme.of(context).colorScheme.primary.withOpacity(0.2),
-      borderRadius: BorderRadius.circular(16),
-      border: Border.all(
-        color: host 
-          ? Colors.green 
-          : Color.fromARGB(255, 60, 132, 255),
-        width: 1.5,
+  Widget _buildHostOrAttendingIndicator() {
+    var host = widget.eventData.isHost;
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      decoration: BoxDecoration(
+        color: host
+            ? Theme.of(context).colorScheme.tertiary.withOpacity(0.2)
+            : Theme.of(context).colorScheme.primary.withOpacity(0.2),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(
+          color: host ? Colors.green : Color.fromARGB(255, 60, 132, 255),
+          width: 1.5,
+        ),
       ),
-    ),
-    child: Row(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Icon(
-          host ? Icons.star : Icons.check_circle,
-          size: 14,
-          color: host 
-            ? Colors.green 
-            : Color.fromARGB(255, 60, 132, 255),
-        ),
-        const SizedBox(width: 4),
-        Text(
-          host ? 'Hosting' : 'Attending',
-          style: TextStyle(
-            color: host 
-              ? Colors.green 
-              : Color.fromARGB(255, 60, 132, 255),
-            fontWeight: FontWeight.bold,
-            fontSize: 12,
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(
+            host ? Icons.star : Icons.check_circle,
+            size: 14,
+            color: host ? Colors.green : Color.fromARGB(255, 60, 132, 255),
           ),
-        ),
-      ],
-    ),
-  );
-}
+          const SizedBox(width: 4),
+          Text(
+            host ? 'Hosting' : 'Attending',
+            style: TextStyle(
+              color: host ? Colors.green : Color.fromARGB(255, 60, 132, 255),
+              fontWeight: FontWeight.bold,
+              fontSize: 12,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
 
   bool _hasEventEnded() {
     final DateTime endDate = DateTime.parse(widget.eventData.edate);
     return DateTime.now().isAfter(endDate);
   }
 
-Widget _buildEventEndedIndicator() {
-  return Container(
-    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-    decoration: BoxDecoration(
-      color: Theme.of(context).colorScheme.error.withOpacity(0.2),
-      borderRadius: BorderRadius.circular(16),
-      border: Border.all(
-        color: Theme.of(context).colorScheme.error,
-        width: 1.5,
-      ),
-    ),
-    child: Row(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Icon(
-          Icons.event_busy,
-          size: 14,
+  Widget _buildEventEndedIndicator() {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      decoration: BoxDecoration(
+        color: Theme.of(context).colorScheme.error.withOpacity(0.2),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(
           color: Theme.of(context).colorScheme.error,
+          width: 1.5,
         ),
-        const SizedBox(width: 4),
-        Text(
-          'Passed',
-          style: TextStyle(
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(
+            Icons.event_busy,
+            size: 14,
             color: Theme.of(context).colorScheme.error,
-            fontWeight: FontWeight.bold,
-            fontSize: 12,
           ),
-        ),
-      ],
-    ),
-  );
-}
+          const SizedBox(width: 4),
+          Text(
+            'Passed',
+            style: TextStyle(
+              color: Theme.of(context).colorScheme.error,
+              fontWeight: FontWeight.bold,
+              fontSize: 12,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
 
   Widget _buildHostInfo(BuildContext context) {
     return Padding(

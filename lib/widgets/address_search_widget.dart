@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:nomo/providers/nominatim_service.dart';
+import 'package:nomo/providers/location-providers/nominatim_service.dart';
 
 class AddressSearchField extends StatefulWidget {
   final TextEditingController controller;

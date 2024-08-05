@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:jiffy/jiffy.dart';
 import 'package:nomo/models/comments_model.dart';
-import 'package:nomo/providers/supabase_provider.dart';
+import 'package:nomo/providers/supabase-providers/supabase_provider.dart';
 
 // Builds a widget for each individual comment in the Comments Section list, including sender avatar and name
 //

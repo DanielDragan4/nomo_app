@@ -4,7 +4,7 @@ import 'package:geolocator/geolocator.dart';
 import 'package:nomo/models/events_model.dart';
 import 'package:nomo/models/comments_model.dart';
 import 'package:nomo/models/friend_model.dart';
-import 'package:nomo/providers/supabase_provider.dart';
+import 'package:nomo/providers/supabase-providers/supabase_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 

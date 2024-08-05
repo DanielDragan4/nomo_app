@@ -1,5 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:nomo/providers/notification-bell_provider.dart';
+import 'package:nomo/providers/notification-providers/notification-bell_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
 

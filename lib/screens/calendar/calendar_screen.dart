@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:nomo/models/events_model.dart';
-import 'package:nomo/providers/attending_events_provider.dart';
-import 'package:nomo/providers/availability_provider.dart';
-import 'package:nomo/providers/calendar_provider.dart';
+import 'package:nomo/providers/event-providers/attending_events_provider.dart';
+import 'package:nomo/providers/calendar-providers/availability_provider.dart';
+import 'package:nomo/providers/calendar-providers/calendar_provider.dart';
 import 'package:nomo/providers/profile_provider.dart';
 import 'package:nomo/screens/calendar/event_cal_tab.dart';
 import 'package:nomo/screens/calendar/month_widget.dart';
-import 'package:nomo/screens/new_event_screen.dart';
+import 'package:nomo/screens/events/new_event_screen.dart';
 import 'package:nomo/widgets/custom_time_picker.dart';
 
 class CalendarScreen extends ConsumerStatefulWidget {

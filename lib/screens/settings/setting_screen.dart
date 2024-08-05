@@ -8,8 +8,8 @@ import 'package:nomo/providers/profile_provider.dart';
 import 'package:nomo/screens/password_handling/login_screen.dart';
 import 'package:nomo/screens/settings/setting_template.dart';
 import 'package:nomo/widgets/setting_button.dart';
-import 'package:nomo/providers/saved_session_provider.dart';
-import 'package:nomo/providers/supabase_provider.dart';
+import 'package:nomo/providers/supabase-providers/saved_session_provider.dart';
+import 'package:nomo/providers/supabase-providers/supabase_provider.dart';
 
 class SettingScreen extends ConsumerStatefulWidget {
   SettingScreen({super.key, this.isCorp});

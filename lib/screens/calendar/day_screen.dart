@@ -2,10 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:nomo/models/availability_model.dart';
 import 'package:nomo/models/events_model.dart';
-import 'package:nomo/providers/events_provider.dart';
+import 'package:nomo/providers/event-providers/events_provider.dart';
 import 'package:nomo/providers/profile_provider.dart';
 import 'package:nomo/screens/calendar/time_block.dart';
-import 'package:nomo/screens/detailed_event_screen.dart';
+import 'package:nomo/screens/events/detailed_event_screen.dart';
 import 'package:nomo/widgets/custom_time_picker.dart';
 
 class DayScreen extends ConsumerStatefulWidget {

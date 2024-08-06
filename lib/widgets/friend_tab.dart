@@ -221,6 +221,9 @@ class _FriendTabState extends ConsumerState<FriendTab> {
                                   IconButton(
                                     onPressed: () async {
                                       ref.read(profileProvider.notifier).decodeData();
+                                      ref
+                                          .read(friendNotificationProvider.notifier)
+                                          .resetNotification(widget.friendData.friendProfileId);
                                       Navigator.of(context).push(MaterialPageRoute(
                                         builder: (context) => ChatScreen(
                                           chatterUser: widget.friendData,

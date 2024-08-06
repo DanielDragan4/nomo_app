@@ -177,15 +177,27 @@ class _RecommendedScreenState extends ConsumerState<RecommendedScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          "Maximum Distance (miles)",
-          style: TextStyle(color: Theme.of(context).colorScheme.onSecondary),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(
+              "Maximum Distance",
+              style: TextStyle(color: Theme.of(context).colorScheme.onSecondary),
+            ),
+            Text(
+              "${maxDistance.round()} miles",
+              style: TextStyle(
+                color: Theme.of(context).colorScheme.primary,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ],
         ),
         Slider(
           value: maxDistance,
           min: 0,
           max: 100,
-          divisions: 20,
+          divisions: 100,
           label: maxDistance.round().toString(),
           onChanged: (double value) {
             setState(() {
@@ -238,15 +250,16 @@ class _RecommendedScreenState extends ConsumerState<RecommendedScreen> {
                             Row(
                               children: [
                                 Image.asset('assets/images/logo.png', height: 40),
-                                SizedBox(width: 8,),
+                                SizedBox(
+                                  width: 8,
+                                ),
                                 Text(
                                   'nomo',
                                   style: TextStyle(
-                                    color: Theme.of(context).primaryColor,
-                                    fontSize: MediaQuery.of(context).devicePixelRatio *10,
-                                    fontFamily: 'fff',
-                                    fontWeight: FontWeight.bold
-                                  ),
+                                      color: Theme.of(context).primaryColor,
+                                      fontSize: MediaQuery.of(context).devicePixelRatio * 10,
+                                      fontFamily: 'fff',
+                                      fontWeight: FontWeight.bold),
                                 )
                               ],
                             ),

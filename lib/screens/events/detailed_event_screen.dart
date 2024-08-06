@@ -341,7 +341,7 @@ class _DetailedEventScreenState extends ConsumerState<DetailedEventScreen> {
                 isDismissible: true,
                 builder: (context) {
                   return Container(
-                    height: MediaQuery.of(context).size.height * .6,
+                    height: MediaQuery.of(context).size.height * .7,
                     padding: const EdgeInsets.all(16),
                     decoration: BoxDecoration(
                       color: Theme.of(context).cardColor,
@@ -391,7 +391,7 @@ class _DetailedEventScreenState extends ConsumerState<DetailedEventScreen> {
                 context: context,
                 builder: (context) {
                   return Container(
-                    height: MediaQuery.of(context).size.height * .6,
+                    height: MediaQuery.of(context).size.height * .7,
                     padding: const EdgeInsets.all(16),
                     decoration: BoxDecoration(
                       color: Theme.of(context).cardColor,

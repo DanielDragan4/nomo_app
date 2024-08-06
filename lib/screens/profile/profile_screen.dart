@@ -207,7 +207,7 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
                     toolbarHeight: kToolbarHeight + toolbar,
                     backgroundColor: Theme.of(context).colorScheme.surface,
                     expandedHeight: appBarHeight,
-                    floating: true,
+                    floating: false,
                     pinned: false,
                     snap: false,
                     flexibleSpace: FlexibleSpaceBar(

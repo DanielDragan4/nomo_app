@@ -188,28 +188,31 @@ class _DetailedEventScreenState extends ConsumerState<DetailedEventScreen> {
         color: Theme.of(context).colorScheme.secondaryContainer,
         borderRadius: BorderRadius.circular(16),
       ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(
-            Icons.directions_run, // Changed icon to a running person
-            size: 18,
-            color: Theme.of(context).colorScheme.secondary,
-          ),
-          const SizedBox(width: 6),
-          Text(
-            distanceText,
-            style: TextStyle(
-              fontSize: 14,
-              fontWeight: FontWeight.bold,
+      child: GestureDetector(
+        onTap: () => MapsLauncher.launchQuery(widget.eventData.location),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(
+              Icons.directions_run, // Changed icon to a running person
+              size: 18,
               color: Theme.of(context).colorScheme.secondary,
             ),
-          ),
-        ],
+            const SizedBox(width: 6),
+            Text(
+              distanceText,
+              style: TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.bold,
+                color: Theme.of(context).colorScheme.secondary,
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
-
+  
   Widget _buildEventLocation(BuildContext context) {
     return (widget.eventData!.isVirtual)
         ? Row(
@@ -521,7 +524,7 @@ class _DetailedEventScreenState extends ConsumerState<DetailedEventScreen> {
     );
   }
 
-  Widget _buildJoinLeaveButton(BuildContext context, bool isSmallScreen) {
+Widget _buildJoinLeaveButton(BuildContext context, bool isSmallScreen) {
     return FutureBuilder(
       future: ref.read(supabaseInstance),
       builder: (context, snapshot) {
@@ -536,9 +539,10 @@ class _DetailedEventScreenState extends ConsumerState<DetailedEventScreen> {
           return ElevatedButton(
             onPressed: () => _handleJoinLeaveAction(context, isHost, isAttending, currentUser),
             style: ElevatedButton.styleFrom(
+              backgroundColor: Theme.of(context).colorScheme.secondaryContainer,
               padding: EdgeInsets.symmetric(vertical: isSmallScreen ? 8 : 12),
             ),
-            child: Text(buttonText, style: TextStyle(fontSize: isSmallScreen ? 14 : 16)),
+            child: Text(buttonText, style: TextStyle(fontSize: isSmallScreen ? 14 : 16, color: Theme.of(context).colorScheme.onSecondary)),
           );
         }
         return const SizedBox.shrink();

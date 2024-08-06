@@ -29,6 +29,7 @@ enum Interests {
   cinematography('Cinematography'),
   art('Art'),
   writing('Writing'),
+  music('Music'),
   makingMusic('Making-Music'),
   painting('Painting'),
   sculpting('Sculpting'),

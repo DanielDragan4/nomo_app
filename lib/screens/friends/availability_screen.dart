@@ -111,20 +111,34 @@ class _AvailableTimesScreenState extends ConsumerState<AvailableTimesScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              Card(
-                elevation: 4,
-                child: Padding(
+               Padding(
                   padding: const EdgeInsets.all(16.0),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      _buildDateSelectionRow(context),
-                      const SizedBox(height: 16),
-                      _buildDurationAndSubmitRow(context),
+                      Card(
+                        elevation: 4,
+                        child: Padding(
+                          padding: const EdgeInsets.all(16.0),
+                          child: Text('The Following Allows you to find Available times between you and the person you have selecte. Enter A range of days you would like to meet, A number of hours you would like to meet for, and then hit enter To see the available times'
+                                                ,style: TextStyle(fontSize: 16, color: Theme.of(context).colorScheme.onSecondary),),
+                        ),),
+                      Card(
+                        elevation: 4,
+                        child:Padding(
+                          padding: const EdgeInsets.all(16.0),
+                          child: _buildDateSelectionRow(context),
+                        ),),
+                      Card(
+                        elevation: 4,
+                        child:
+                      Padding(
+                        padding: const EdgeInsets.all(16.0),
+                        child: _buildDurationAndSubmitRow(context),
+                      ),)
                     ],
                   ),
                 ),
-              ),
               const SizedBox(height: 16),
               Expanded(
                 child: _buildFreeTimesList(context),
@@ -267,7 +281,7 @@ class _AvailableTimesScreenState extends ConsumerState<AvailableTimesScreen> {
           flex: 2,
           child: TextFormField(
             decoration: InputDecoration(
-              labelText: 'Duration (hours)',
+              labelText: 'Duration',
               border: OutlineInputBorder(),
               errorText: _durationError ? 'Please enter a valid duration' : null,
               errorStyle: TextStyle(color: Colors.red),

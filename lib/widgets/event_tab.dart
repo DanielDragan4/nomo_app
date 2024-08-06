@@ -183,24 +183,27 @@ class _EventTabState extends ConsumerState<EventTab> {
         color: Theme.of(context).colorScheme.secondaryContainer,
         borderRadius: BorderRadius.circular(16),
       ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(
-            Icons.directions_run, // Changed icon to a running person
-            size: 18,
-            color: Theme.of(context).colorScheme.secondary,
-          ),
-          const SizedBox(width: 6),
-          Text(
-            distanceText,
-            style: TextStyle(
-              fontSize: 14,
-              fontWeight: FontWeight.bold,
+      child: GestureDetector(
+        onTap: () => MapsLauncher.launchQuery(widget.eventData.location),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(
+              Icons.directions_run, // Changed icon to a running person
+              size: 18,
               color: Theme.of(context).colorScheme.secondary,
             ),
-          ),
-        ],
+            const SizedBox(width: 6),
+            Text(
+              distanceText,
+              style: TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.bold,
+                color: Theme.of(context).colorScheme.secondary,
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -491,6 +494,7 @@ class _EventTabState extends ConsumerState<EventTab> {
   }
 
   Widget _buildAttendeeInfo(BuildContext context, bool isSmallScreen) {
+    var numAttendees = widget.eventData.attendees.length;
     return Row(
       children: [
         GestureDetector(
@@ -501,7 +505,7 @@ class _EventTabState extends ConsumerState<EventTab> {
                 isDismissible: true,
                 builder: (context) {
                   return Container(
-                    height: MediaQuery.of(context).size.height * .6,
+                    height: MediaQuery.of(context).size.height * .7,
                     padding: const EdgeInsets.all(16),
                     decoration: BoxDecoration(
                       color: Theme.of(context).cardColor,
@@ -540,7 +544,7 @@ class _EventTabState extends ConsumerState<EventTab> {
                   );
                 });
           },
-          child: _buildInfoItem(context, '${widget.eventData.attendees.length}', 'Attending', isSmallScreen),
+          child: _buildInfoItem(context, '$numAttendees', 'Attending', isSmallScreen),
         ),
         SizedBox(width: MediaQuery.of(context).size.width * .04),
         GestureDetector(
@@ -551,7 +555,7 @@ class _EventTabState extends ConsumerState<EventTab> {
                 context: context,
                 builder: (context) {
                   return Container(
-                    height: MediaQuery.of(context).size.height * .6,
+                    height: MediaQuery.of(context).size.height * .7,
                     padding: const EdgeInsets.all(16),
                     decoration: BoxDecoration(
                       color: Theme.of(context).cardColor,
@@ -708,9 +712,10 @@ class _EventTabState extends ConsumerState<EventTab> {
           return ElevatedButton(
             onPressed: () => _handleJoinLeaveAction(context, isHost, isAttending, currentUser),
             style: ElevatedButton.styleFrom(
+              backgroundColor: Theme.of(context).colorScheme.secondaryContainer,
               padding: EdgeInsets.symmetric(vertical: isSmallScreen ? 8 : 12),
             ),
-            child: Text(buttonText, style: TextStyle(fontSize: isSmallScreen ? 14 : 16)),
+            child: Text(buttonText, style: TextStyle(fontSize: isSmallScreen ? 14 : 16, color: Theme.of(context).colorScheme.onSecondary)),
           );
         }
         return const SizedBox.shrink();
@@ -738,7 +743,6 @@ class _EventTabState extends ConsumerState<EventTab> {
   }
 
   void _showLeaveEventDialog(BuildContext context) async {
-    final supabase = (await ref.read(supabaseInstance)).client;
     await attendeeLeaveEvent();
     await ref.read(profileProvider.notifier).deleteBlockedTime(null, widget.eventData.eventId);
     var newEData = await ref.read(eventsProvider.notifier).deCodeLinkEvent(widget.eventData.eventId);
@@ -750,8 +754,9 @@ class _EventTabState extends ConsumerState<EventTab> {
     }
     setState(() {
       widget.eventData.attending = false;
-      widget.eventData.attendees.remove(supabase.auth.currentUser!.id);
+      widget.eventData.attendees.removeLast();
     });
+    newData;
 
     ScaffoldMessenger.of(context).hideCurrentSnackBar();
     ScaffoldMessenger.of(context).showSnackBar(
@@ -790,7 +795,7 @@ class _EventTabState extends ConsumerState<EventTab> {
 
     setState(() {
       widget.eventData.attending = true;
-      widget.eventData.attendees.remove(supabase.auth.currentUser!.id);
+      widget.eventData.attendees.add(supabase.auth.currentUser!.id);
     });
 
     Navigator.of(context)

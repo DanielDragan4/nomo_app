@@ -47,7 +47,7 @@ class _RecommendedScreenState extends ConsumerState<RecommendedScreen> {
                 children: [
                   Text("Filter Events", style: TextStyle(color: Theme.of(context).colorScheme.onSecondaryContainer)),
                   IconButton(
-                    icon: Icon(Icons.close),
+                    icon: Icon(Icons.close, color: Theme.of(context).colorScheme.onSecondaryContainer),
                     onPressed: () {
                       Navigator.of(context).pop();
                     },

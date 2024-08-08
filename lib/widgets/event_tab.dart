@@ -173,7 +173,7 @@ class _EventTabState extends ConsumerState<EventTab> {
       return const SizedBox.shrink();
     }
 
-    final double distance = widget.eventData.distanceAway!;
+    final distance = widget.eventData.distanceAway!;
     final String distanceText = '${distance.toStringAsFixed(1)} miles away';
 
     return Container(
@@ -715,7 +715,8 @@ class _EventTabState extends ConsumerState<EventTab> {
               backgroundColor: Theme.of(context).colorScheme.secondaryContainer,
               padding: EdgeInsets.symmetric(vertical: isSmallScreen ? 8 : 12),
             ),
-            child: Text(buttonText, style: TextStyle(fontSize: isSmallScreen ? 14 : 16, color: Theme.of(context).colorScheme.onSecondary)),
+            child: Text(buttonText,
+                style: TextStyle(fontSize: isSmallScreen ? 14 : 16, color: Theme.of(context).colorScheme.onSecondary)),
           );
         }
         return const SizedBox.shrink();

@@ -7,9 +7,11 @@ import 'package:nomo/models/events_model.dart';
 import 'package:nomo/providers/event-providers/events_provider.dart';
 import 'package:nomo/providers/notification-providers/notification-bell-provider.dart';
 import 'package:nomo/screens/notifications_screen.dart';
+import 'package:nomo/screens/password_handling/login_screen.dart';
 import 'package:nomo/screens/search_screen.dart';
 import 'package:nomo/widgets/event_tab.dart';
 import 'package:nomo/functions/image-handling.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class RecommendedScreen extends ConsumerStatefulWidget {
   const RecommendedScreen({super.key});
@@ -23,17 +25,37 @@ class _RecommendedScreenState extends ConsumerState<RecommendedScreen> {
   DateTime? endDate;
   List<bool> selectedDays = List.generate(7, (_) => false);
   double maxDistance = 50.0; // Default max distance in miles
+  bool filtersSet = false;
 
   Future<void> _onRefresh(BuildContext context, WidgetRef ref) async {
-    await ref.read(eventsProvider.notifier).deCodeData();
+    if (!filtersSet) {
+      await ref.read(eventsProvider.notifier).deCodeData();
+    } else {
+      ref.read(eventsProvider.notifier).applyFilters(
+            startDate: startDate,
+            endDate: endDate,
+            selectedDays: selectedDays,
+            maxDistance: maxDistance,
+          );
+    }
   }
 
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
-    ref.read(eventsProvider.notifier).deCodeData();
+    if (!filtersSet) {
+      ref.read(eventsProvider.notifier).deCodeData();
+    }
+    //setFilterDistance();
   }
+
+  // Future<void> setFilterDistance() async {
+  //   final getLocation = await SharedPreferences.getInstance();
+  //   final setRadius = getLocation.getStringList('savedRadius');
+  //   final _preferredRadius = double.parse(setRadius!.first);
+  //   if (_preferredRadius != null) maxDistance = _preferredRadius;
+  // }
 
   void _showFilterDialog() {
     showDialog(
@@ -76,12 +98,16 @@ class _RecommendedScreenState extends ConsumerState<RecommendedScreen> {
                       endDate = null;
                       selectedDays = List.generate(7, (_) => false);
                       maxDistance = 50.0;
+                      filtersSet = false;
                     });
                   },
                 ),
                 TextButton(
                   child: Text("Apply"),
                   onPressed: () {
+                    setState(() {
+                      filtersSet = true;
+                    });
                     Navigator.of(context).pop();
                     _applyFilters();
                   },

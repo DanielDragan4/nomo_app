@@ -438,7 +438,7 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
                                                     isFriend = !isFriend;
                                                   });
                                                 },
-                                                child: const Text("Remove"),
+                                                child: const Text("Unfriend"),
                                               )
                                             : ElevatedButton(
                                                 onPressed: friendPending

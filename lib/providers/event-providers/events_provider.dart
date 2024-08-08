@@ -15,14 +15,15 @@ class EventProvider extends StateNotifier<List?> {
   List<Event> attendingEvents = [];
   List<Event> allEvents = [];
 
-  Future<List> readEvents() async {
+  Future<List> readEvents({double? overrideRadius}) async {
     /*
       Read events Gets the users selected/current location along with their radius which is saved on device.
       The Location and radius is then passed into a supabase function which returns specificlly filtered events
       for the current user
 
+
       Params: None
-      
+     
       Returns: List of User Reccomended Events
     */
     final supabaseClient = (await supabase).client;
@@ -31,29 +32,37 @@ class EventProvider extends StateNotifier<List?> {
     final setRadius = getLocation.getStringList('savedRadius');
     final _currentPosition = Position.fromMap(json.decode(exsistingLocation![0]));
     final _preferredRadius = double.parse(setRadius!.first);
+    final _finalRadius;
+    _finalRadius = overrideRadius != null
+        ? overrideRadius > _preferredRadius
+            ? overrideRadius
+            : _preferredRadius
+        : _preferredRadius;
+
     var events = await supabaseClient.rpc('get_recommended_events', params: {
       'user_lon': _currentPosition.longitude,
       'user_lat': _currentPosition.latitude,
-      'radius': _preferredRadius
+      'radius': _finalRadius
     });
     return events.toList();
   }
 
-  Future<void> deCodeData() async {
+  Future<void> deCodeData({double? overrideRadius}) async {
     /*
       Receives a list of events from readEvents in the form of a List<Map>. This list is then decoded
       and each object in the list is converted to an Event Data type. During this process the Events image
       url is received from the database for the event and the host of the event. The event is also checked
-      to see if it is bookmarked and wether the current user is attending the event. Along with this the 
-      Current user is checked to see if their the host of the event. This List of Events is then stored in 
+      to see if it is bookmarked and wether the current user is attending the event. Along with this the
+      Current user is checked to see if their the host of the event. This List of Events is then stored in
       the providers state.
 
+
       Params: None
-      
+     
       Returns: None, Provider state is set
     */
 
-    final codedList = await readEvents();
+    final codedList = overrideRadius != null ? await readEvents(overrideRadius: overrideRadius) : await readEvents();
 
     List<Event> deCodedList = [];
     final supabaseClient = (await supabase).client;
@@ -389,8 +398,14 @@ class EventProvider extends StateNotifier<List?> {
     DateTime? endDate,
     List<bool>? selectedDays,
     double? maxDistance,
-  }) {
+  }) async {
     if (allEvents.isEmpty) return;
+    print("before: ${state!.length}");
+
+    if (maxDistance != null) {
+      await deCodeData(overrideRadius: maxDistance); // You'll need to implement this method
+    }
+
     final filteredEvents = allEvents.where((event) {
       final eventStartDate = DateTime.parse(event.sdate);
       final eventEndDate = DateTime.parse(event.edate);
@@ -416,6 +431,7 @@ class EventProvider extends StateNotifier<List?> {
     }).toList();
 
     state = filteredEvents;
+    print("after: ${state!.length}");
   }
 }
 

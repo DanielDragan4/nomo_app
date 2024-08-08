@@ -178,7 +178,7 @@ class _DetailedEventScreenState extends ConsumerState<DetailedEventScreen> {
       return const SizedBox.shrink();
     }
 
-    final double distance = widget.eventData.distanceAway!;
+    final distance = widget.eventData.distanceAway!;
     final String distanceText = '${distance.toStringAsFixed(1)} miles away';
 
     return Container(
@@ -212,7 +212,7 @@ class _DetailedEventScreenState extends ConsumerState<DetailedEventScreen> {
       ),
     );
   }
-  
+
   Widget _buildEventLocation(BuildContext context) {
     return (widget.eventData!.isVirtual)
         ? Row(
@@ -524,7 +524,7 @@ class _DetailedEventScreenState extends ConsumerState<DetailedEventScreen> {
     );
   }
 
-Widget _buildJoinLeaveButton(BuildContext context, bool isSmallScreen) {
+  Widget _buildJoinLeaveButton(BuildContext context, bool isSmallScreen) {
     return FutureBuilder(
       future: ref.read(supabaseInstance),
       builder: (context, snapshot) {
@@ -542,7 +542,8 @@ Widget _buildJoinLeaveButton(BuildContext context, bool isSmallScreen) {
               backgroundColor: Theme.of(context).colorScheme.secondaryContainer,
               padding: EdgeInsets.symmetric(vertical: isSmallScreen ? 8 : 12),
             ),
-            child: Text(buttonText, style: TextStyle(fontSize: isSmallScreen ? 14 : 16, color: Theme.of(context).colorScheme.onSecondary)),
+            child: Text(buttonText,
+                style: TextStyle(fontSize: isSmallScreen ? 14 : 16, color: Theme.of(context).colorScheme.onSecondary)),
           );
         }
         return const SizedBox.shrink();

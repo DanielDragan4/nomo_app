@@ -400,8 +400,7 @@ class EventProvider extends StateNotifier<List?> {
     double? maxDistance,
   }) async {
     if (allEvents.isEmpty) return;
-    print("before: ${state!.length}");
-
+    
     if (maxDistance != null) {
       await deCodeData(overrideRadius: maxDistance); // You'll need to implement this method
     }
@@ -431,7 +430,6 @@ class EventProvider extends StateNotifier<List?> {
     }).toList();
 
     state = filteredEvents;
-    print("after: ${state!.length}");
   }
 }
 

@@ -137,11 +137,35 @@ class _FriendTabState extends ConsumerState<FriendTab> {
                           ? ElevatedButton(
                               onPressed: () {
                                 setState(() {
-                                  removeFriend();
-                                  widget.isFriend = !widget.isFriend;
+                                  FocusManager.instance.primaryFocus?.unfocus();
+                                  showDialog(
+                                      context: context,
+                                      builder: (context) => AlertDialog(
+                                            title: Text(
+                                              'Are you sure you unfriend this user?',
+                                              style: TextStyle(color: Theme.of(context).primaryColorDark),
+                                            ),
+                                            actions: [
+                                              TextButton(
+                                                  onPressed: () async {
+                                                    removeFriend();
+                                                    widget.isFriend = !widget.isFriend;
+                                                    Navigator.pop(context);
+                                                    ScaffoldMessenger.of(context).hideCurrentSnackBar();
+                                                    ScaffoldMessenger.of(context).showSnackBar(
+                                                      const SnackBar(
+                                                        content: Text("Event Deleted"),
+                                                      ),
+                                                    );
+                                                  },
+                                                  child: const Text('YES')),
+                                              TextButton(
+                                                  onPressed: () => Navigator.pop(context), child: const Text('CANCEL')),
+                                            ],
+                                          ));
                                 });
                               },
-                              child: const Text("Remove"),
+                              child: const Text("Unfriend"),
                             )
                           : ElevatedButton(
                               onPressed: widget.isPending

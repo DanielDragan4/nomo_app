@@ -157,7 +157,7 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
       backgroundColor: Theme.of(context).colorScheme.surface,
       appBar: AppBar(
         backgroundColor: Theme.of(context).colorScheme.surface,
-        toolbarHeight: MediaQuery.of(context).padding.top,
+        toolbarHeight: MediaQuery.of(context).padding.top + 5,
         titleTextStyle: Theme.of(context).appBarTheme.titleTextStyle,
       ),
       body: Column(
@@ -175,7 +175,7 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
                       : _isSelected[1] == true
                           ? 'Who are you looking for?'
                           : 'What are you looking for?',
-                  hintStyle: TextStyle(color: Theme.of(context).primaryColorLight.withOpacity(0.75)),
+                  hintStyle: TextStyle(color: Theme.of(context).primaryColorLight.withOpacity(0.9)),
                   prefixIcon: Icon(Icons.search),
                   suffixIcon: _searchController.text.isNotEmpty && !_isSelected[2]
                       ? IconButton(
@@ -251,7 +251,10 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
                   _searchInterests(_searchController.text);
                 }
               },
-              child: const Text('Search'),
+              child: Text(
+                'Search',
+                style: TextStyle(color: Theme.of(context).primaryColorLight.withOpacity(0.9)),
+              ),
             ),
           ),
           Expanded(

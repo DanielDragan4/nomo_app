@@ -716,7 +716,8 @@ class _EventTabState extends ConsumerState<EventTab> {
               padding: EdgeInsets.symmetric(vertical: isSmallScreen ? 8 : 12),
             ),
             child: Text(buttonText,
-                style: TextStyle(fontSize: isSmallScreen ? 14 : 16, color: Theme.of(context).colorScheme.onSecondary)),
+                style: TextStyle(
+                    fontSize: isSmallScreen ? 14 : 16, color: Theme.of(context).colorScheme.onSecondaryContainer)),
           );
         }
         return const SizedBox.shrink();

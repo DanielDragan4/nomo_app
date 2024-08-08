@@ -63,6 +63,7 @@ class _NewEventScreenState extends ConsumerState<NewEventScreen> {
   bool _dateError = false;
   bool _timeError = false;
   bool _isRecurring = false;
+  bool _isTicketed = false;
 
   @override
   void initState() {
@@ -88,6 +89,8 @@ class _NewEventScreenState extends ConsumerState<NewEventScreen> {
       _formattedSDate = DateFormat.yMd().format(DateTime.parse(widget.event!.sdate));
       enableButton = true;
       virtualEvent = widget.event!.isVirtual;
+      _isRecurring = widget.event!.isRecurring;
+      _isTicketed = widget.event!.isTicketed;
       categories = convertCategoriesToMap(widget.event!.categories);
 
       for (int i = 0; i < list.length; i++) {
@@ -401,7 +404,8 @@ class _NewEventScreenState extends ConsumerState<NewEventScreen> {
       var location,
       String title,
       String description,
-      bool isRecurring) async {
+      bool isRecurring,
+      bool isTicketed) async {
     _showLoadingOverlay();
     try {
       DateTime start = DateTime(selectedStartDate.year, selectedStartDate.month, selectedStartDate.day,
@@ -430,7 +434,8 @@ class _NewEventScreenState extends ConsumerState<NewEventScreen> {
         'title': title,
         'is_virtual': virtualEvent,
         'point': point,
-        'recurring': isRecurring
+        'recurring': isRecurring,
+        'ticketed': isTicketed
       };
       if (categories.isNotEmpty) {
         final List<String> interestStrings = categories.entries
@@ -467,7 +472,8 @@ class _NewEventScreenState extends ConsumerState<NewEventScreen> {
       var location,
       String title,
       String description,
-      bool isRecurring) async {
+      bool isRecurring,
+      bool isTicketed) async {
     DateTime start = DateTime(selectedStartDate.year, selectedStartDate.month, selectedStartDate.day,
         selectedStart.hour, selectedStart.minute);
     DateTime end = DateTime(
@@ -497,7 +503,8 @@ class _NewEventScreenState extends ConsumerState<NewEventScreen> {
         'image_id': imageId,
         'title': title,
         'point': point,
-        'recurring': isRecurring
+        'recurring': isRecurring,
+        'ticketed': isTicketed
       };
     } else {
       newEventRowMap = {
@@ -793,7 +800,7 @@ class _NewEventScreenState extends ConsumerState<NewEventScreen> {
                             ),
                           ),
                           Checkbox(
-                            value: _isRecurring, // Add a variable to hold this state
+                            value: _isRecurring,
                             onChanged: (bool? value) {
                               setState(() {
                                 _isRecurring = value ?? false;
@@ -1042,6 +1049,28 @@ class _NewEventScreenState extends ConsumerState<NewEventScreen> {
                         style: TextStyle(color: Theme.of(context).colorScheme.onSecondary),
                       ),
                     ),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 12.0),
+                      child: Row(
+                        children: [
+                          Text(
+                            "Ticketed",
+                            style: TextStyle(
+                              fontSize: 15,
+                              color: Theme.of(context).colorScheme.onSecondary,
+                            ),
+                          ),
+                          Checkbox(
+                            value: _isTicketed,
+                            onChanged: (bool? value) {
+                              setState(() {
+                                _isTicketed = value ?? false;
+                              });
+                            },
+                          ),
+                        ],
+                      ),
+                    ),
                     ElevatedButton(
                         onPressed: () async {
                           FocusManager.instance.primaryFocus?.unfocus();
@@ -1104,7 +1133,8 @@ class _NewEventScreenState extends ConsumerState<NewEventScreen> {
                                         _locationController.text,
                                         _title.text,
                                         _description.text,
-                                        _isRecurring);
+                                        _isRecurring,
+                                        _isTicketed);
                                     if (widget.onEventCreated != null) {
                                       widget.onEventCreated!();
                                     }
@@ -1140,7 +1170,8 @@ class _NewEventScreenState extends ConsumerState<NewEventScreen> {
                                                   _locationController.text,
                                                   _title.text,
                                                   _description.text,
-                                                  _isRecurring);
+                                                  _isRecurring,
+                                                  _isTicketed);
                                               Navigator.of(context)
                                                   .pushAndRemoveUntil(
                                                       MaterialPageRoute(builder: ((context) => const NavBar())),

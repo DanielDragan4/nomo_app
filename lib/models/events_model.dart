@@ -21,6 +21,7 @@ class Event {
     required this.numOfComments,
     required this.isVirtual,
     required this.isRecurring,
+    required this.isTicketed,
     this.distanceAway,
     this.categories,
     this.otherHost,
@@ -49,6 +50,7 @@ class Event {
   final int numOfComments;
   final bool isVirtual;
   final bool isRecurring;
+  final bool isTicketed;
   var distanceAway;
   var categories;
   var otherHost;

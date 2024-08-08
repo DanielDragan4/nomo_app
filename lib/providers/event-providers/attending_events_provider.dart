@@ -90,6 +90,7 @@ class AttendEventProvider extends StateNotifier<List<Event>> {
           numOfComments: eventData['comments_num'].length,
           isVirtual: eventData['is_virtual'],
           isRecurring: eventData['recurring'],
+          isTicketed: eventData['ticketed'],
           categories: eventData['event_interests'],
           distanceAway: distance);
 
@@ -188,6 +189,7 @@ class AttendEventProvider extends StateNotifier<List<Event>> {
           numOfComments: eventData['comments_num'].length,
           isVirtual: eventData['is_virtual'],
           isRecurring: eventData['recurring'],
+          isTicketed: eventData['ticketed'],
           categories: eventData['event_interests'],
           otherBookmark: otherBookmark,
           otherAttend: false,

@@ -94,6 +94,7 @@ class SearchProvider extends StateNotifier<List<dynamic>> {
         numOfComments: eventData['comments_num'].length,
         isVirtual: eventData['is_virtual'],
         isRecurring: eventData['recurring'],
+        isTicketed: eventData['ticketed'],
       );
 
       // Set attending and isHost flags
@@ -155,6 +156,7 @@ class SearchProvider extends StateNotifier<List<dynamic>> {
         numOfComments: eventData['comments_num'].length,
         isVirtual: eventData['is_virtual'],
         isRecurring: eventData['recurring'],
+        isTicketed: eventData['ticketed'],
       );
 
       // Set attending and isHost flags

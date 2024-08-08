@@ -101,6 +101,7 @@ class EventProvider extends StateNotifier<List?> {
           numOfComments: eventData['comments_num'].length,
           isVirtual: eventData['is_virtual'],
           isRecurring: eventData['recurring'],
+          isTicketed: eventData['ticketed'],
           attending: false,
           categories: eventData['event_interests'],
           distanceAway: eventData['distance_away']);
@@ -303,6 +304,7 @@ class EventProvider extends StateNotifier<List?> {
         numOfComments: codedEvent['comments_num'].length,
         isVirtual: codedEvent['is_virtual'],
         isRecurring: codedEvent['recurring'],
+        isTicketed: codedEvent['ticketed'],
         categories: codedEvent['event_interests']);
 
     for (var i = 0; i < deCodedEvent.attendees.length; i++) {
@@ -400,7 +402,7 @@ class EventProvider extends StateNotifier<List?> {
     double? maxDistance,
   }) async {
     if (allEvents.isEmpty) return;
-    
+
     if (maxDistance != null) {
       await deCodeData(overrideRadius: maxDistance); // You'll need to implement this method
     }

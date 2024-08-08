@@ -15,15 +15,50 @@ class NewGroupChatScreen extends ConsumerStatefulWidget {
 class _NewGroupChatScreenState extends ConsumerState<NewGroupChatScreen> {
   final TextEditingController searchController = TextEditingController();
   final TextEditingController titleController = TextEditingController();
-  var friends;
-  List members = [];
+  final ScrollController _scrollController = ScrollController();
+  late Future<List<Friend>> _friendsFuture;
+  bool _isLoading = false;
+  List<Friend> _friends = [];
+  List<String> members = [];
   bool createGroup = false;
 
-  Future<void> getFriends() async {
-    friends = await ref.read(profileProvider.notifier).decodeFriends();
+  @override
+  void initState() {
+    super.initState();
+    _friendsFuture = _getFriends();
+    _scrollController.addListener(_onScrolled);
   }
 
-  void addToGroup(bool removeAdd, String userId) {
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
+  }
+
+  Future<List<Friend>> _getFriends() async {
+    final friends = await ref.read(profileProvider.notifier).decodeFriends();
+    return friends;
+  }
+
+  void _onScrolled() {
+    if (_scrollController.position.pixels == _scrollController.position.maxScrollExtent && !_isLoading) {
+      _loadMoreFriends();
+    }
+  }
+
+  Future<void> _loadMoreFriends() async {
+    setState(() {
+      _isLoading = true;
+    });
+
+    final newFriends = await _getFriends();
+    setState(() {
+      _friends.addAll(newFriends);
+      _isLoading = false;
+    });
+  }
+
+  void _addToGroup(bool removeAdd, String userId) {
     /*
       Adds a user to a group chat based on their userId based on wether they should be removed or added
 
@@ -41,86 +76,86 @@ class _NewGroupChatScreenState extends ConsumerState<NewGroupChatScreen> {
   }
 
   @override
-  void initState() {
-    getFriends();
-    super.initState();
-  }
-
-  @override
   Widget build(BuildContext context) {
     if (titleController.text.isNotEmpty && members.isNotEmpty) {
       createGroup = true;
     }
+
     return Scaffold(
       backgroundColor: Theme.of(context).colorScheme.surface,
       appBar: AppBar(
         toolbarHeight: MediaQuery.of(context).size.height * .1,
         title: const Text('New Group'),
-        actions: [
-          SizedBox(
-            height: MediaQuery.of(context).size.height * .07,
-            width: MediaQuery.of(context).size.width * .75,
-            child: Padding(
-              padding: const EdgeInsets.fromLTRB(5, 10, 10, 10),
-              child: SearchBar(
-                controller: searchController,
-                hintText: 'Who are you looking for?',
-                padding: const WidgetStatePropertyAll<EdgeInsets>(EdgeInsets.symmetric(horizontal: 12.0)),
-                leading: const Icon(Icons.search),
-              ),
-            ),
-          ),
-        ],
       ),
-      body: Column(
-        children: [
-          Expanded(
-            child: ListView(
-              key: const PageStorageKey('page'),
-              children: (friends != null)
-                  ? [
-                      for (Friend i in friends)
-                        FriendTab(
-                          friendData: i,
-                          isRequest: true,
-                          groupMemberToggle: (bool removeAdd, String userId) => addToGroup(removeAdd, userId),
-                          toggle: true,
-                          isEventAttendee: false,
-                        )
-                    ]
-                  : [const Text('friends are loading')],
-            ),
-          ),
-          TextField(
-            autofocus: false,
-            controller: titleController,
-            decoration: InputDecoration(
-                constraints: BoxConstraints(
-                    maxHeight: MediaQuery.of(context).size.height * .033,
-                    maxWidth: MediaQuery.of(context).size.width * .75),
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          children: [
+            TextField(
+              autofocus: false,
+              controller: titleController,
+              decoration: InputDecoration(
                 contentPadding: EdgeInsets.all(MediaQuery.of(context).size.height * .005),
                 border: const UnderlineInputBorder(borderSide: BorderSide()),
                 hintText: 'Add a title',
                 hintStyle: TextStyle(color: Theme.of(context).colorScheme.onSecondary),
-                focusColor: Theme.of(context).colorScheme.onSecondary),
-            style: TextStyle(color: Theme.of(context).colorScheme.onSecondary),
-          ),
-          SizedBox(
-            height: MediaQuery.of(context).size.height * .02,
-          ),
-          createGroup
-              ? ElevatedButton(
-                  onPressed: () {
-                    ref.read(chatsProvider.notifier).createNewGroup(titleController.text, members);
-                    Navigator.popUntil(
-                      context,
-                      ModalRoute.withName('/'),
+                focusColor: Theme.of(context).colorScheme.onSecondary,
+              ),
+              style: TextStyle(color: Theme.of(context).colorScheme.onSecondary),
+            ),
+            SizedBox(height: 16.0),
+            Expanded(
+              child: FutureBuilder<List<Friend>>(
+                future: _friendsFuture,
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return const Center(
+                      child: CircularProgressIndicator(),
                     );
-                  },
-                  child: const Text('Create'),
-                )
-              : Container()
-        ],
+                  } else if (snapshot.hasError) {
+                    return Center(
+                      child: Text('Error: ${snapshot.error}'),
+                    );
+                  } else {
+                    _friends = snapshot.data ?? [];
+                    return ListView.builder(
+                      controller: _scrollController,
+                      itemCount: _friends.length + (_isLoading ? 1 : 0),
+                      itemBuilder: (context, index) {
+                        if (index < _friends.length) {
+                          return FriendTab(
+                            friendData: _friends[index],
+                            isRequest: true,
+                            groupMemberToggle: _addToGroup,
+                            toggle: true,
+                            isEventAttendee: false,
+                          );
+                        } else {
+                          return const Center(
+                            child: CircularProgressIndicator(),
+                          );
+                        }
+                      },
+                    );
+                  }
+                },
+              ),
+            ),
+            SizedBox(height: 16.0),
+            ElevatedButton(
+              onPressed: createGroup
+                  ? () {
+                      ref.read(chatsProvider.notifier).createNewGroup(titleController.text, members);
+                      Navigator.popUntil(
+                        context,
+                        ModalRoute.withName('/'),
+                      );
+                    }
+                  : null,
+              child: const Text('Create'),
+            )
+          ],
+        ),
       ),
     );
   }

@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:nomo/models/friend_model.dart';
 import 'package:nomo/providers/chat-providers/chats_provider.dart';
 import 'package:nomo/providers/profile_provider.dart';
+import 'package:nomo/screens/search_screen.dart';
 import 'package:nomo/widgets/friend_tab.dart';
 
 class NewGroupChatScreen extends ConsumerStatefulWidget {
@@ -68,11 +69,29 @@ class _NewGroupChatScreenState extends ConsumerState<NewGroupChatScreen> {
     */
     setState(() {
       if (removeAdd) {
-        members.add(userId);
+        if (!members.contains(userId)) {
+          members.add(userId);
+          // If the user is not already in _friends, add them
+          if (!_friends.any((friend) => friend.friendProfileId == userId)) {
+            _getFriendById(userId).then((friend) {
+              if (friend != null) {
+                setState(() {
+                  _friends.add(friend);
+                });
+              }
+            });
+          }
+        }
       } else {
         members.remove(userId);
       }
     });
+  }
+
+  Future<Friend?> _getFriendById(String userId) async {
+    // Implement this method to fetch a friend by their ID
+    // You might need to add this method to your profile provider
+    return await ref.read(profileProvider.notifier).getFriendById(userId);
   }
 
   @override
@@ -105,40 +124,59 @@ class _NewGroupChatScreenState extends ConsumerState<NewGroupChatScreen> {
             ),
             SizedBox(height: 16.0),
             Expanded(
-              child: FutureBuilder<List<Friend>>(
-                future: _friendsFuture,
-                builder: (context, snapshot) {
-                  if (snapshot.connectionState == ConnectionState.waiting) {
-                    return const Center(
-                      child: CircularProgressIndicator(),
-                    );
-                  } else if (snapshot.hasError) {
-                    return Center(
-                      child: Text('Error: ${snapshot.error}'),
-                    );
-                  } else {
-                    _friends = snapshot.data ?? [];
-                    return ListView.builder(
-                      controller: _scrollController,
-                      itemCount: _friends.length + (_isLoading ? 1 : 0),
-                      itemBuilder: (context, index) {
-                        if (index < _friends.length) {
-                          return FriendTab(
-                            friendData: _friends[index],
-                            isRequest: true,
-                            groupMemberToggle: _addToGroup,
-                            toggle: true,
-                            isEventAttendee: false,
-                          );
-                        } else {
+              child: Column(
+                children: [
+                  Expanded(
+                    child: FutureBuilder<List<Friend>>(
+                      future: _friendsFuture,
+                      builder: (context, snapshot) {
+                        if (snapshot.connectionState == ConnectionState.waiting) {
                           return const Center(
                             child: CircularProgressIndicator(),
                           );
+                        } else if (snapshot.hasError) {
+                          return Center(
+                            child: Text('Error: ${snapshot.error}'),
+                          );
+                        } else {
+                          _friends = snapshot.data ?? [];
+                          return ListView.builder(
+                            controller: _scrollController,
+                            itemCount: _friends.length + (_isLoading ? 1 : 0),
+                            itemBuilder: (context, index) {
+                              if (index < _friends.length) {
+                                return FriendTab(
+                                  friendData: _friends[index],
+                                  isRequest: true,
+                                  groupMemberToggle: _addToGroup,
+                                  toggle: true,
+                                  isEventAttendee: false,
+                                );
+                              } else {
+                                return const Center(
+                                  child: CircularProgressIndicator(),
+                                );
+                              }
+                            },
+                          );
                         }
                       },
-                    );
-                  }
-                },
+                    ),
+                  ),
+                  TextButton(
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => SearchScreen(
+                              searchingPeople: true,
+                              addToGroup: _addToGroup,
+                            ),
+                          ),
+                        );
+                      },
+                      child: Text('Add others')),
+                ],
               ),
             ),
             SizedBox(height: 16.0),

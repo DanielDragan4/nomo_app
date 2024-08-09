@@ -377,6 +377,29 @@ class ProfileProvider extends StateNotifier<Profile?> {
     return friends.isNotEmpty;
   }
 
+  Future<Friend> getFriendById(String userId) async {
+    final userProfile = await readProfileById(userId);
+    final supabaseClient = (await supabase).client;
+
+    // Ensure profile_path is not null
+    String profilePath = userProfile['profile_path'] ?? '';
+    String profileUrl = '';
+    if (profilePath.isNotEmpty) {
+      profileUrl = supabaseClient.storage.from('Images').getPublicUrl(profilePath);
+    } else {
+      profileUrl = 'default_avatar_url'; // Use a default avatar URL if profile_path is null
+    }
+
+    Friend friend = Friend(
+      friendProfileId: userProfile['profile_id'] ?? '',
+      avatar: profileUrl,
+      friendUsername: userProfile['username'] ?? 'Unknown',
+      friendProfileName: userProfile['profile_name'] ?? 'No Name',
+    );
+
+    return friend;
+  }
+
   // Creates a new time-block for a specified user, requested in DayScreen
   //
   // Parameters:

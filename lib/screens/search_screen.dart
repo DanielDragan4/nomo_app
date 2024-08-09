@@ -12,9 +12,11 @@ class SearchScreen extends ConsumerStatefulWidget {
   SearchScreen({
     Key? key,
     required this.searchingPeople,
+    this.addToGroup,
   }) : super(key: key);
 
   final bool searchingPeople;
+  final Function(bool, String)? addToGroup;
 
   @override
   _SearchScreenState createState() => _SearchScreenState();
@@ -36,18 +38,30 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
   Future<void> _searchProfiles(String query) async {
     try {
       final List<Friend> profiles = await ref.read(searchProvider.notifier).decodeProfileSearch(query);
-      print(profiles);
-      setState(() {
+      if (widget.addToGroup == null) {
+        setState(() {
+          _searchResults = profiles
+              .map((profile) => FriendTab(
+                    friendData: profile,
+                    isRequest: false,
+                    isSearch: true,
+                    toggle: true,
+                    isEventAttendee: false,
+                    groupMemberToggle: widget.addToGroup,
+                  ))
+              .toList();
+        });
+      } else {
         _searchResults = profiles
             .map((profile) => FriendTab(
                   friendData: profile,
                   isRequest: false,
-                  isSearch: true,
-                  toggle: false,
-                  isEventAttendee: true,
+                  groupMemberToggle: widget.addToGroup,
+                  toggle: true,
+                  isEventAttendee: false,
                 ))
             .toList();
-      });
+      }
     } catch (e) {
       print('Error during search: $e');
     }

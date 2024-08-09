@@ -260,17 +260,20 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
                                         Text(
                                           profile?.profile_name ?? 'Loading...',
                                           style: TextStyle(
-                                            fontSize: 24,
+                                            fontSize: 18,
                                             fontWeight: FontWeight.bold,
                                             color: Theme.of(context).colorScheme.onSecondary,
                                           ),
                                         ),
                                         const SizedBox(height: 5),
-                                        Text(
-                                          '@${profile?.username ?? 'username'}',
-                                          style: TextStyle(
-                                            fontSize: 16,
-                                            color: Theme.of(context).colorScheme.onSecondary,
+                                        Padding(
+                                          padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                                          child: Text(
+                                            '@${profile?.username ?? 'username'}',
+                                            style: TextStyle(
+                                              fontSize: 12,
+                                              color: Theme.of(context).colorScheme.onSecondary,
+                                            ),
                                           ),
                                         ),
                                       ],
@@ -530,53 +533,56 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
                             ),
                             const SizedBox(height: 20),
                             Center(
-                              child: ToggleButtons(
-                                constraints: BoxConstraints(
-                                  minHeight: 40,
-                                  minWidth: MediaQuery.of(context).size.width * 0.44,
+                              child: Padding(
+                                padding: const EdgeInsets.only(bottom: 8.0),
+                                child: ToggleButtons(
+                                  constraints: BoxConstraints(
+                                    minHeight: 40,
+                                    minWidth: MediaQuery.of(context).size.width * 0.44,
+                                  ),
+                                  borderRadius: BorderRadius.circular(8),
+                                  selectedBorderColor: Theme.of(context).primaryColor,
+                                  selectedColor: Theme.of(context).primaryColor,
+                                  fillColor: Theme.of(context).primaryColor.withOpacity(0.1),
+                                  color: Colors.grey,
+                                  onPressed: (int index) {
+                                    setState(() {
+                                      for (int i = 0; i < isSelected.length; i++) {
+                                        isSelected[i] = (i == index);
+                                      }
+                                    });
+                                  },
+                                  isSelected: isSelected,
+                                  children: [
+                                    Padding(
+                                        padding: const EdgeInsets.symmetric(vertical: 3),
+                                        child: widget.isUser
+                                            ? const Text(
+                                                'Joined Events',
+                                                style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700),
+                                              )
+                                            : const Text(
+                                                "Attending Events",
+                                                style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700),
+                                              )),
+                                    Padding(
+                                        padding: const EdgeInsets.symmetric(vertical: 3),
+                                        child: widget.isUser
+                                            ? const Text(
+                                                'Bookmarked',
+                                                style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700),
+                                              )
+                                            : const Text(
+                                                "Hosting Events",
+                                                style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700),
+                                              )),
+                                  ],
                                 ),
-                                borderRadius: BorderRadius.circular(8),
-                                selectedBorderColor: Theme.of(context).primaryColor,
-                                selectedColor: Theme.of(context).primaryColor,
-                                fillColor: Theme.of(context).primaryColor.withOpacity(0.1),
-                                color: Colors.grey,
-                                onPressed: (int index) {
-                                  setState(() {
-                                    for (int i = 0; i < isSelected.length; i++) {
-                                      isSelected[i] = (i == index);
-                                    }
-                                  });
-                                },
-                                isSelected: isSelected,
-                                children: [
-                                  Padding(
-                                      padding: const EdgeInsets.symmetric(vertical: 3),
-                                      child: widget.isUser
-                                          ? const Text(
-                                              'Joined Events',
-                                              style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700),
-                                            )
-                                          : const Text(
-                                              "Attending Events",
-                                              style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700),
-                                            )),
-                                  Padding(
-                                      padding: const EdgeInsets.symmetric(vertical: 3),
-                                      child: widget.isUser
-                                          ? const Text(
-                                              'Bookmarked',
-                                              style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700),
-                                            )
-                                          : const Text(
-                                              "Hosting Events",
-                                              style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700),
-                                            )),
-                                ],
                               ),
                             ),
                             if (widget.isUser && isSelected[0])
                               Row(
-                                mainAxisAlignment: MainAxisAlignment.end,
+                                mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
                                   ElevatedButton(
                                     onPressed: () {

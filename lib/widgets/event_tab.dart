@@ -77,10 +77,13 @@ class _EventTabState extends ConsumerState<EventTab> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  _buildHostInfo(context),
+                  Expanded(
+                    child: _buildHostInfo(context),
+                  ),
                   Padding(
                     padding: const EdgeInsets.fromLTRB(0, 0, 5, 0),
                     child: Row(
+                      mainAxisSize: MainAxisSize.min,
                       children: [
                         if (_hasEventEnded()) _buildEventEndedIndicator(),
                         const SizedBox(width: 4),
@@ -311,15 +314,19 @@ class _EventTabState extends ConsumerState<EventTab> {
           }
         },
         child: Row(
+          mainAxisSize: MainAxisSize.min,
           children: [
             _buildHostAvatar(context),
-            SizedBox(width: MediaQuery.of(context).size.height * .012),
-            Text(
-              '@${widget.eventData.hostUsername}',
-              style: TextStyle(
-                fontWeight: FontWeight.bold,
-                fontSize: 14,
-                color: Theme.of(context).colorScheme.onSurface,
+            SizedBox(width: MediaQuery.of(context).size.width * 0.01),
+            Flexible(
+              child: Text(
+                '@${widget.eventData.hostUsername}',
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 12,
+                  color: Theme.of(context).colorScheme.onSurface,
+                ),
+                overflow: TextOverflow.ellipsis,
               ),
             ),
           ],
@@ -334,7 +341,7 @@ class _EventTabState extends ConsumerState<EventTab> {
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.done) {
           return CircleAvatar(
-            radius: MediaQuery.of(context).devicePixelRatio * 7,
+            radius: MediaQuery.of(context).devicePixelRatio * 6,
             backgroundColor: Colors.grey[200],
             backgroundImage: NetworkImage(widget.eventData.hostProfileUrl),
           );

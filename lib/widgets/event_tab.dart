@@ -366,14 +366,19 @@ class _EventTabState extends ConsumerState<EventTab> {
       child: AspectRatio(
         aspectRatio: 16 / 9,
         child: widget.preloadedImage != null
-            ? Image(image: widget.preloadedImage!, fit: BoxFit.cover)
-            : CachedNetworkImage(
-                imageUrl: widget.eventData.imageUrl,
-                fit: BoxFit.cover,
-                placeholder: (context, url) => Center(
-                  child: CircularProgressIndicator(),
+            ? Container(
+                decoration: BoxDecoration(color: Colors.black),
+                child: Image(image: widget.preloadedImage!, fit: BoxFit.contain))
+            : Container(
+                decoration: BoxDecoration(color: Colors.black),
+                child: CachedNetworkImage(
+                  imageUrl: widget.eventData.imageUrl,
+                  fit: BoxFit.cover,
+                  placeholder: (context, url) => Center(
+                    child: CircularProgressIndicator(),
+                  ),
+                  errorWidget: (context, url, error) => Icon(Icons.error),
                 ),
-                errorWidget: (context, url, error) => Icon(Icons.error),
               ),
       ),
     );

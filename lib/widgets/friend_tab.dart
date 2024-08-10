@@ -107,6 +107,126 @@ class _FriendTabState extends ConsumerState<FriendTab> {
     final List<String> users = [currentUser, widget.friendData.friendProfileId];
     final hasNewMessage = ref.watch(friendNotificationProvider)[widget.friendData.friendProfileId] ?? false;
 
+    Widget buildRightSideWidgets() {
+      if (widget.isSearch == null) {
+        if (widget.toggle) {
+          return IconButton(
+            iconSize: 30.0,
+            padding: const EdgeInsets.only(left: 4, right: 4, top: 0),
+            icon: Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Icon(
+                selectedUser ? Icons.circle : Icons.circle_outlined,
+                color: Theme.of(context).colorScheme.onSecondary,
+              ),
+            ),
+            onPressed: () {
+              setState(() {
+                selectedUser = !selectedUser;
+              });
+              widget.groupMemberToggle!(selectedUser, widget.friendData.friendProfileId);
+            },
+          );
+        } else if (widget.isRequest) {
+          return Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Stack(
+                children: [
+                  IconButton(
+                    onPressed: () async {
+                      ref.read(profileProvider.notifier).decodeData();
+                      ref
+                          .read(friendNotificationProvider.notifier)
+                          .resetNotification(widget.friendData.friendProfileId);
+                      Navigator.of(context).push(MaterialPageRoute(
+                        builder: (context) => ChatScreen(
+                          chatterUser: widget.friendData,
+                          currentUser: ref.read(profileProvider.notifier).state!.profile_id,
+                        ),
+                      ));
+                    },
+                    icon: Icon(
+                      Icons.messenger_outline,
+                      color: Theme.of(context).colorScheme.onSecondary,
+                    ),
+                  ),
+                  if (hasNewMessage)
+                    Positioned(
+                      right: 7,
+                      top: 7,
+                      child: Container(
+                        padding: EdgeInsets.all(1),
+                        decoration: BoxDecoration(
+                          color: Colors.red,
+                          borderRadius: BorderRadius.circular(6),
+                        ),
+                        constraints: BoxConstraints(
+                          minWidth: 8,
+                          minHeight: 8,
+                        ),
+                      ),
+                    ),
+                ],
+              ),
+              IconButton(
+                onPressed: () {
+                  Navigator.of(context).push(MaterialPageRoute(
+                    builder: (context) => AvailableTimesScreen(
+                      users: users,
+                    ),
+                  ));
+                },
+                icon: Icon(
+                  Icons.calendar_month_outlined,
+                  color: Theme.of(context).colorScheme.onSecondary,
+                ),
+              )
+            ],
+          );
+        } else {
+          return Row(mainAxisSize: MainAxisSize.min, children: [
+            IconButton(
+                onPressed: () async {
+                  String friendId =
+                      await ref.read(profileProvider.notifier).addFriend(widget.friendData.friendProfileId, true);
+                  await FriendNotificationManager.handleAddFriend(ref, friendId);
+                  ScaffoldMessenger.of(context).clearSnackBars();
+                  ScaffoldMessenger.of(context)
+                      .showSnackBar(SnackBar(content: Text('Added $username to friends list')));
+                  setState(() {
+                    currentFriend = false;
+                  });
+                },
+                icon: const Icon(
+                  Icons.check,
+                  color: Colors.green,
+                ),
+                splashRadius: 15),
+            const SizedBox(width: 10),
+            IconButton(
+                onPressed: () async {
+                  String friendId =
+                      await ref.read(profileProvider.notifier).removeRequest(widget.friendData.friendProfileId);
+                  await FriendNotificationManager.handleRemoveFriend(ref, friendId);
+                  ScaffoldMessenger.of(context).clearSnackBars();
+                  ScaffoldMessenger.of(context)
+                      .showSnackBar(SnackBar(content: Text("Rejected $username's friend request")));
+                  setState(() {
+                    currentFriend = false;
+                  });
+                },
+                icon: const Icon(
+                  Icons.close,
+                  color: Colors.red,
+                ),
+                splashRadius: 15),
+          ]);
+        }
+      }
+      return SizedBox.shrink();
+    }
+
     if (widget.isEventAttendee) {
       // Simplified view for event attendees
       return GestureDetector(
@@ -185,155 +305,36 @@ class _FriendTabState extends ConsumerState<FriendTab> {
     }
 
     // Original FriendTab layout
-    return currentFriend
-        ? Container(
-            height: 60,
-            padding: const EdgeInsets.symmetric(vertical: 5),
-            child: Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-              GestureDetector(
-                onTap: () async {
-                  String currentId = await getCurrentUser();
-                  Navigator.of(context).push(MaterialPageRoute(
-                      builder: ((context) => ProfileScreen(
-                            isUser: widget.friendData.friendProfileId != currentId ? false : true,
-                            userId: widget.friendData.friendProfileId,
-                          ))));
-                },
-                child: Row(
-                  children: [
-                    CircleAvatar(
-                      radius: MediaQuery.of(context).size.width * .1,
-                      backgroundImage: NetworkImage(avatar),
-                    ),
-                    const SizedBox(width: 10),
-                    Text(
-                      username,
-                      style: TextStyle(color: Theme.of(context).colorScheme.onSecondary),
-                    ),
-                  ],
+    return Container(
+      height: 60,
+      padding: const EdgeInsets.symmetric(vertical: 5),
+      child: Row(
+        children: [
+          Expanded(
+            child: Row(
+              children: [
+                CircleAvatar(
+                  radius: MediaQuery.of(context).size.width * .1,
+                  backgroundImage: NetworkImage(avatar),
                 ),
-              ),
-              const Spacer(),
-              if (widget.isSearch == null)
-                widget.toggle
-                    ? IconButton(
-                        iconSize: 30.0,
-                        padding: const EdgeInsets.only(left: 4, right: 4, top: 0),
-                        icon: Padding(
-                            padding: const EdgeInsets.all(8.0),
-                            child: selectedUser == true
-                                ? Icon(
-                                    Icons.circle,
-                                    color: Theme.of(context).colorScheme.onSecondary,
-                                  )
-                                : Icon(
-                                    Icons.circle_outlined,
-                                    color: Theme.of(context).colorScheme.onSecondary,
-                                  )),
-                        onPressed: () {
-                          setState(() {
-                            selectedUser = !selectedUser;
-                          });
-                          widget.groupMemberToggle!(selectedUser, widget.friendData.friendProfileId);
-                        },
-                      )
-                    : widget.isRequest
-                        ? Row(
-                            children: [
-                              Stack(
-                                children: [
-                                  IconButton(
-                                    onPressed: () async {
-                                      ref.read(profileProvider.notifier).decodeData();
-                                      ref
-                                          .read(friendNotificationProvider.notifier)
-                                          .resetNotification(widget.friendData.friendProfileId);
-                                      Navigator.of(context).push(MaterialPageRoute(
-                                        builder: (context) => ChatScreen(
-                                          chatterUser: widget.friendData,
-                                          currentUser: ref.read(profileProvider.notifier).state!.profile_id,
-                                        ),
-                                      ));
-                                    },
-                                    icon: Icon(
-                                      Icons.messenger_outline,
-                                      color: Theme.of(context).colorScheme.onSecondary,
-                                    ),
-                                  ),
-                                  if (hasNewMessage)
-                                    Positioned(
-                                      right: 7,
-                                      top: 7,
-                                      child: Container(
-                                        padding: EdgeInsets.all(1),
-                                        decoration: BoxDecoration(
-                                          color: Colors.red,
-                                          borderRadius: BorderRadius.circular(6),
-                                        ),
-                                        constraints: BoxConstraints(
-                                          minWidth: 8,
-                                          minHeight: 8,
-                                        ),
-                                      ),
-                                    ),
-                                ],
-                              ),
-                              IconButton(
-                                onPressed: () {
-                                  Navigator.of(context).push(MaterialPageRoute(
-                                    builder: (context) => AvailableTimesScreen(
-                                      users: users,
-                                    ),
-                                  ));
-                                },
-                                icon: Icon(
-                                  Icons.calendar_month_outlined,
-                                  color: Theme.of(context).colorScheme.onSecondary,
-                                ),
-                              )
-                            ],
-                          )
-                        : Row(children: [
-                            IconButton(
-                                onPressed: () async {
-                                  String friendId = await ref
-                                      .read(profileProvider.notifier)
-                                      .addFriend(widget.friendData.friendProfileId, true);
-                                  await FriendNotificationManager.handleAddFriend(ref, friendId);
-                                  ScaffoldMessenger.of(context).clearSnackBars();
-                                  ScaffoldMessenger.of(context)
-                                      .showSnackBar(SnackBar(content: Text('Added $username to friends list')));
-                                  setState(() {
-                                    currentFriend = false;
-                                  });
-                                },
-                                icon: const Icon(
-                                  Icons.check,
-                                  color: Colors.green,
-                                ),
-                                splashRadius: 15),
-                            const SizedBox(width: 10),
-                            IconButton(
-                                onPressed: () async {
-                                  String friendId = await ref
-                                      .read(profileProvider.notifier)
-                                      .removeRequest(widget.friendData.friendProfileId);
-                                  await FriendNotificationManager.handleRemoveFriend(ref, friendId);
-                                  ScaffoldMessenger.of(context).clearSnackBars();
-                                  ScaffoldMessenger.of(context)
-                                      .showSnackBar(SnackBar(content: Text("Rejected $username's friend request")));
-                                  setState(() {
-                                    currentFriend = false;
-                                  });
-                                },
-                                icon: const Icon(
-                                  Icons.close,
-                                  color: Colors.red,
-                                ),
-                                splashRadius: 15),
-                          ]),
-            ]),
-          )
-        : Container();
+                const SizedBox(width: 10),
+                Flexible(
+                  fit: FlexFit.tight,
+                  child: Text(
+                    username,
+                    style: TextStyle(color: Theme.of(context).colorScheme.onSecondary),
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          Container(
+            width: 100, // Adjust this width as needed
+            child: buildRightSideWidgets(),
+          ),
+        ],
+      ),
+    );
   }
 }

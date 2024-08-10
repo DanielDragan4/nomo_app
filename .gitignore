@@ -44,4 +44,4 @@ app.*.map.json
 /android/app/release
 
 /supabase/functions/service-account.json
-/providers/supabase-providers/supabase-provider.dart
+/lib/providers/supabase-providers/supabase-provider.dart

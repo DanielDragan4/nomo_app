@@ -146,34 +146,39 @@ class _CreateAccountScreenState extends ConsumerState<CreateAccountScreen> {
     }
   }
 
-  //TODO: delete previous avatar to save space
   Future<void> _updateProfile() async {
     final supabase = (await ref.read(supabaseInstance)).client;
-    var avatarId = _selectedImage != null
-        ? await uploadAvatar(_selectedImage)
-        : await supabase.storage.from('Images').remove(['${supabase.auth.currentUser!.id}/avatar/$avatar']);
-    var user = _userName.text;
-    final userId = supabase.auth.currentUser!.id.toString();
+    String? avatarId;
 
     if (_selectedImage != null) {
-      await supabase.storage.from('Images').remove(['$userId/avatar/$avatar']);
+      avatarId = await uploadAvatar(_selectedImage);
+      await supabase.storage.from('Images').remove(['${supabase.auth.currentUser!.id}/avatar/$avatar']);
     }
+
+    var user = _userName.text;
+    final userId = supabase.auth.currentUser!.id.toString();
 
     if (user.replaceAll(' ', '') == '') {
       user = 'User-${supabase.auth.currentUser!.id.replaceAll('-', '').substring(0, 10)}';
     }
-    final updateProfileRowMap = {'avatar_id': avatarId, 'username': user, 'profile_name': _profileName.text};
+
+    final updateProfileRowMap = {
+      'username': user,
+      'profile_name': _profileName.text,
+    };
+
+    if (avatarId != null) {
+      updateProfileRowMap['avatar_id'] = avatarId;
+    }
 
     await supabase.from('Profiles').update(updateProfileRowMap).eq('profile_id', supabase.auth.currentUser!.id);
 
-    // Update local state
     await ref.read(profileProvider.notifier).updateProfileLocally(
           _userName.text,
           _profileName.text,
           avatarId,
         );
     widget.onUpdateProfile?.call();
-    //if (mounted) Navigator.of(context).pop();
   }
 
   @override

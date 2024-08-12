@@ -36,6 +36,7 @@ class _CreateAccountScreenState extends ConsumerState<CreateAccountScreen> {
   final _userName = TextEditingController();
   final _phoneNum = TextEditingController();
   String? avatar;
+  bool _isLoading = false;
 
   @override
   void initState() {
@@ -198,205 +199,238 @@ class _CreateAccountScreenState extends ConsumerState<CreateAccountScreen> {
           ),
         ),
       ),
-      body: SingleChildScrollView(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            widget.isNew
-                ? const Padding(
-                    padding: EdgeInsets.only(left: 12.0),
-                    child: Text(
-                      "Create Account",
-                      style: TextStyle(fontSize: 20),
-                    ),
-                  )
-                : SizedBox(height: 20),
-            Center(
-              child: GestureDetector(
-                onTap: () {
-                  showModalBottomSheet(
-                    context: context,
-                    isScrollControlled: true,
-                    shape: const RoundedRectangleBorder(
-                      borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-                    ),
-                    builder: (BuildContext context) {
-                      // Get screen size
-                      final screenSize = MediaQuery.of(context).size;
-                      final double fontSize = screenSize.width * 0.04; // 4% of screen width for font size
+      body: Stack(
+        children: [
+          SingleChildScrollView(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                widget.isNew
+                    ? const Padding(
+                        padding: EdgeInsets.only(left: 12.0),
+                        child: Text(
+                          "Create Account",
+                          style: TextStyle(fontSize: 20),
+                        ),
+                      )
+                    : SizedBox(height: 20),
+                Center(
+                  child: GestureDetector(
+                    onTap: () {
+                      showModalBottomSheet(
+                        context: context,
+                        isScrollControlled: true,
+                        shape: const RoundedRectangleBorder(
+                          borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+                        ),
+                        builder: (BuildContext context) {
+                          // Get screen size
+                          final screenSize = MediaQuery.of(context).size;
+                          final double fontSize = screenSize.width * 0.04; // 4% of screen width for font size
 
-                      return Container(
-                        width: double.infinity, // Ensures full width
-                        padding: EdgeInsets.only(
-                          bottom: MediaQuery.of(context).viewInsets.bottom,
-                        ),
-                        child: SingleChildScrollView(
-                          child: Padding(
-                            padding: EdgeInsets.symmetric(
-                              horizontal: screenSize.width * 0.05,
-                              vertical: screenSize.height * 0.03,
+                          return Container(
+                            width: double.infinity, // Ensures full width
+                            padding: EdgeInsets.only(
+                              bottom: MediaQuery.of(context).viewInsets.bottom,
                             ),
-                            child: Column(
-                              mainAxisSize: MainAxisSize.min,
-                              crossAxisAlignment: CrossAxisAlignment.stretch, // Stretches buttons to full width
-                              children: [
-                                TextButton(
-                                  child: Row(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    children: [
-                                      Text(
-                                        "Select from Gallery",
+                            child: SingleChildScrollView(
+                              child: Padding(
+                                padding: EdgeInsets.symmetric(
+                                  horizontal: screenSize.width * 0.05,
+                                  vertical: screenSize.height * 0.03,
+                                ),
+                                child: Column(
+                                  mainAxisSize: MainAxisSize.min,
+                                  crossAxisAlignment: CrossAxisAlignment.stretch, // Stretches buttons to full width
+                                  children: [
+                                    TextButton(
+                                      child: Row(
+                                        mainAxisAlignment: MainAxisAlignment.center,
+                                        children: [
+                                          Text(
+                                            "Select from Gallery",
+                                            style: TextStyle(fontSize: fontSize),
+                                          ),
+                                          SizedBox(width: screenSize.width * 0.01),
+                                          const Icon(Icons.photo_library_rounded)
+                                        ],
+                                      ),
+                                      onPressed: () {
+                                        _pickImageFromGallery();
+                                        Navigator.pop(context);
+                                      },
+                                    ),
+                                    const Divider(),
+                                    SizedBox(height: screenSize.height * 0.01),
+                                    TextButton(
+                                      child: Row(
+                                        mainAxisAlignment: MainAxisAlignment.center,
+                                        children: [
+                                          Text(
+                                            "Take a Picture",
+                                            style: TextStyle(fontSize: fontSize),
+                                          ),
+                                          SizedBox(width: screenSize.width * 0.01),
+                                          const Icon(Icons.camera_alt_rounded)
+                                        ],
+                                      ),
+                                      onPressed: () {
+                                        _pickImageFromCamera();
+                                        Navigator.pop(context);
+                                      },
+                                    ),
+                                    const Divider(),
+                                    SizedBox(height: screenSize.height * 0.005),
+                                    TextButton(
+                                      child: Text(
+                                        "Close",
                                         style: TextStyle(fontSize: fontSize),
                                       ),
-                                      SizedBox(width: screenSize.width * 0.01),
-                                      const Icon(Icons.photo_library_rounded)
-                                    ],
-                                  ),
-                                  onPressed: () {
-                                    _pickImageFromGallery();
-                                    Navigator.pop(context);
-                                  },
+                                      onPressed: () {
+                                        Navigator.pop(context);
+                                      },
+                                    ),
+                                  ],
                                 ),
-                                const Divider(),
-                                SizedBox(height: screenSize.height * 0.01),
-                                TextButton(
-                                  child: Row(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    children: [
-                                      Text(
-                                        "Take a Picture",
-                                        style: TextStyle(fontSize: fontSize),
-                                      ),
-                                      SizedBox(width: screenSize.width * 0.01),
-                                      const Icon(Icons.camera_alt_rounded)
-                                    ],
-                                  ),
-                                  onPressed: () {
-                                    _pickImageFromCamera();
-                                    Navigator.pop(context);
-                                  },
-                                ),
-                                const Divider(),
-                                SizedBox(height: screenSize.height * 0.005),
-                                TextButton(
-                                  child: Text(
-                                    "Close",
-                                    style: TextStyle(fontSize: fontSize),
-                                  ),
-                                  onPressed: () {
-                                    Navigator.pop(context);
-                                  },
-                                ),
-                              ],
+                              ),
                             ),
-                          ),
-                        ),
+                          );
+                        },
                       );
                     },
-                  );
-                },
-                child: CircleAvatar(
-                  backgroundColor: const Color.fromARGB(255, 0, 0, 0),
-                  radius: radius,
-                  child: CircleAvatar(
-                    radius: radius - 2,
-                    backgroundImage: _selectedImage != null
-                        ? FileImage(_selectedImage!)
-                        : (avatar != null ? NetworkImage(avatar!) as ImageProvider : null),
-                    child: _selectedImage == null && avatar == null
-                        ? Container(
-                            decoration: BoxDecoration(
-                                gradient: const LinearGradient(colors: [
-                                  Color.fromARGB(255, 63, 53, 78),
-                                  Color.fromARGB(255, 112, 9, 167),
-                                ], begin: Alignment.topLeft, end: Alignment.bottomRight),
-                                borderRadius: BorderRadius.circular(radius - 2)),
-                          )
-                        : null,
+                    child: CircleAvatar(
+                      backgroundColor: const Color.fromARGB(255, 0, 0, 0),
+                      radius: radius,
+                      child: CircleAvatar(
+                        radius: radius - 2,
+                        backgroundImage: _selectedImage != null
+                            ? FileImage(_selectedImage!)
+                            : (avatar != null ? NetworkImage(avatar!) as ImageProvider : null),
+                        child: _selectedImage == null && avatar == null
+                            ? Container(
+                                decoration: BoxDecoration(
+                                    gradient: const LinearGradient(colors: [
+                                      Color.fromARGB(255, 63, 53, 78),
+                                      Color.fromARGB(255, 112, 9, 167),
+                                    ], begin: Alignment.topLeft, end: Alignment.bottomRight),
+                                    borderRadius: BorderRadius.circular(radius - 2)),
+                              )
+                            : null,
+                      ),
+                    ),
                   ),
                 ),
-              ),
-            ),
-            SizedBox(height: MediaQuery.of(context).size.height / 15),
-            Padding(
-              padding: const EdgeInsets.all(7.0),
-              child: TextField(
-                maxLength: 25,
-                controller: _profileName,
-                style: TextStyle(color: Theme.of(context).colorScheme.onSecondary),
-                decoration: const InputDecoration(
-                  border: OutlineInputBorder(),
-                  labelText: "Name",
-                  contentPadding: EdgeInsets.all(5),
+                SizedBox(height: MediaQuery.of(context).size.height / 15),
+                Padding(
+                  padding: const EdgeInsets.all(7.0),
+                  child: TextField(
+                    maxLength: 25,
+                    controller: _profileName,
+                    style: TextStyle(color: Theme.of(context).colorScheme.onSecondary),
+                    decoration: const InputDecoration(
+                      border: OutlineInputBorder(),
+                      labelText: "Name",
+                      contentPadding: EdgeInsets.all(5),
+                    ),
+                  ),
                 ),
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsets.all(7.0),
-              child: TextField(
-                maxLength: 25,
-                style: TextStyle(color: Theme.of(context).colorScheme.onSecondary),
-                controller: _userName,
-                decoration: const InputDecoration(
-                  border: OutlineInputBorder(),
-                  labelText: "Username",
-                  contentPadding: EdgeInsets.all(5),
+                Padding(
+                  padding: const EdgeInsets.all(7.0),
+                  child: TextField(
+                    maxLength: 25,
+                    style: TextStyle(color: Theme.of(context).colorScheme.onSecondary),
+                    controller: _userName,
+                    decoration: const InputDecoration(
+                      border: OutlineInputBorder(),
+                      labelText: "Username",
+                      contentPadding: EdgeInsets.all(5),
+                    ),
+                  ),
                 ),
-              ),
-            ),
-            // Use to implement User Phone Number in future
-            // Padding(
-            //   padding: const EdgeInsets.all(7.0),
-            //   child: TextField(
-            //     maxLength: 11,
-            //     style: TextStyle(color: Theme.of(context).colorScheme.onSecondary),
-            //     controller: _phoneNum,
-            //     decoration: const InputDecoration(
-            //       border: OutlineInputBorder(),
-            //       labelText: "Phone Number",
-            //       contentPadding: EdgeInsets.all(5),
-            //     ),
-            //     keyboardType: TextInputType.phone,
-            //   ),
-            // ),
-            Padding(
-              padding: const EdgeInsets.symmetric(vertical: 30),
-              child: ElevatedButton(
-                child: widget.isNew ? const Text("Create Account") : const Text("Update"),
-                onPressed: () async {
-                  if (widget.isNew) {
-                    await _createProfile(_userName.text, _selectedImage);
-                    Navigator.of(context)
-                        .pushReplacement(MaterialPageRoute(builder: (context) => InterestsScreen(isEditing: false)));
-                  } else {
-                    await _updateProfile();
-                    widget.onUpdateProfile!.call();
-                    if (context.mounted) Navigator.of(context).pop();
-                  }
-                },
-              ),
-            ),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: widget.isNew
-                  ? [
-                      TextButton(
-                        onPressed: () async {
-                          await _createProfile(_userName.text, null);
+                // Use to implement User Phone Number in future
+                // Padding(
+                //   padding: const EdgeInsets.all(7.0),
+                //   child: TextField(
+                //     maxLength: 11,
+                //     style: TextStyle(color: Theme.of(context).colorScheme.onSecondary),
+                //     controller: _phoneNum,
+                //     decoration: const InputDecoration(
+                //       border: OutlineInputBorder(),
+                //       labelText: "Phone Number",
+                //       contentPadding: EdgeInsets.all(5),
+                //     ),
+                //     keyboardType: TextInputType.phone,
+                //   ),
+                // ),
+                Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 30),
+                  child: ElevatedButton(
+                    child: widget.isNew ? const Text("Create Account") : const Text("Update"),
+                    onPressed: () async {
+                      setState(() {
+                        _isLoading = true;
+                      });
+                      try {
+                        if (widget.isNew) {
+                          await _createProfile(_userName.text, _selectedImage);
                           Navigator.of(context).pushReplacement(
                               MaterialPageRoute(builder: (context) => InterestsScreen(isEditing: false)));
-                        },
-                        child: const Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [Text("Skip"), Icon(Icons.arrow_forward_rounded)],
-                        ),
-                      ),
-                    ]
-                  : [],
+                        } else {
+                          await _updateProfile();
+                          widget.onUpdateProfile!.call();
+                          if (context.mounted) Navigator.of(context).pop();
+                        }
+                      } finally {
+                        if (mounted) {
+                          setState(() {
+                            _isLoading = false;
+                          });
+                        }
+                      }
+                    },
+                  ),
+                ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: widget.isNew
+                      ? [
+                          TextButton(
+                            onPressed: () async {
+                              setState(() {
+                                _isLoading = true;
+                              });
+                              try {
+                                await _createProfile(_userName.text, null);
+                                Navigator.of(context).pushReplacement(
+                                    MaterialPageRoute(builder: (context) => InterestsScreen(isEditing: false)));
+                              } finally {
+                                if (mounted) {
+                                  setState(() {
+                                    _isLoading = false;
+                                  });
+                                }
+                              }
+                            },
+                            child: const Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [Text("Skip"), Icon(Icons.arrow_forward_rounded)],
+                            ),
+                          ),
+                        ]
+                      : [],
+                ),
+              ],
             ),
-          ],
-        ),
+          ),
+          if (_isLoading)
+            Container(
+              color: Colors.black.withOpacity(0.5),
+              child: Center(
+                child: CircularProgressIndicator(),
+              ),
+            ),
+        ],
       ),
     );
   }

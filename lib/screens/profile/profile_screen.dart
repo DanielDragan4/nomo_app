@@ -274,6 +274,7 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
                                               fontSize: 12,
                                               color: Theme.of(context).colorScheme.onSecondary,
                                             ),
+                                            overflow: TextOverflow.ellipsis,
                                           ),
                                         ),
                                       ],

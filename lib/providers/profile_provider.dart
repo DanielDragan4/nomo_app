@@ -557,7 +557,15 @@ class ProfileProvider extends StateNotifier<Profile?> {
       final supabaseClient = (await supabase).client;
       String? newAvatarUrl;
       if (newAvatarId != null) {
-        newAvatarUrl = supabaseClient.storage.from('Images').getPublicUrl(newAvatarId);
+        final userId = supabaseClient.auth.currentUser!.id;
+        final response = await supabaseClient
+            .from('Images')
+            .select('image_url')
+            .eq('images_id', newAvatarId)
+            .single(); // use single() to get a single record
+
+        final avatarPath = response['image_url'] as String;
+        newAvatarUrl = supabaseClient.storage.from('Images').getPublicUrl(avatarPath);
       }
       state = state!.copyWith(
         username: newUsername,

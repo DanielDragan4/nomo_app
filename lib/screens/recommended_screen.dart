@@ -275,7 +275,11 @@ class _RecommendedScreenState extends ConsumerState<RecommendedScreen> {
                           children: [
                             Row(
                               children: [
-                                Image.asset('assets/images/logo.png', height: 40),
+                                GestureDetector(
+                                    onTap: () {
+                                      _onRefresh(context, ref);
+                                    },
+                                    child: Image.asset('assets/images/logo.png', height: 40)),
                                 SizedBox(
                                   width: 8,
                                 ),

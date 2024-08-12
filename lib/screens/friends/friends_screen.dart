@@ -51,31 +51,36 @@ class _FriendsScreenState extends ConsumerState<FriendsScreen> {
                   child: Row(
                     mainAxisAlignment: widget.isGroupChats ? MainAxisAlignment.center : MainAxisAlignment.spaceBetween,
                     children: [
-                      Padding(
-                        padding: widget.isGroupChats ? EdgeInsets.all(0) : EdgeInsets.only(left: 10.0),
-                        child: Text(widget.isGroupChats ? 'Groups' : '@${currentUser}',
+                      Expanded(
+                        child: Padding(
+                          padding: widget.isGroupChats ? EdgeInsets.all(0) : EdgeInsets.only(left: 10.0),
+                          child: Text(
+                            widget.isGroupChats ? 'Groups' : '@${currentUser}',
                             style: TextStyle(
                               color: Theme.of(context).primaryColor,
                               fontWeight: FontWeight.w800,
                               fontSize: widget.isGroupChats ? 25 : 20,
-                            )),
+                            ),
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
                       ),
                       IconButton(
-                              onPressed: () {
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) => SearchScreen(
-                                      searchingPeople: true,
-                                    ),
-                                  ),
-                                );
-                              },
-                              icon: Icon(
-                                Icons.search,
-                                color: Theme.of(context).colorScheme.onSecondary,
+                        onPressed: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => SearchScreen(
+                                searchingPeople: true,
                               ),
                             ),
+                          );
+                        },
+                        icon: Icon(
+                          Icons.search,
+                          color: Theme.of(context).colorScheme.onSecondary,
+                        ),
+                      ),
                     ],
                   ),
                 ),

@@ -150,12 +150,7 @@ class _CreateAccountScreenState extends ConsumerState<CreateAccountScreen> {
     final supabase = (await ref.read(supabaseInstance)).client;
     var avatarId = _selectedImage != null
         ? await uploadAvatar(_selectedImage)
-        : await supabase
-            .from('Profiles')
-            .select('avatar_id')
-            .eq('profile_id', supabase.auth.currentUser!.id)
-            .single()
-            .then((response) => response['avatar_id'] as String?);
+        : await supabase.storage.from('Images').remove(['${supabase.auth.currentUser!.id}/avatar/$avatar']);
     var user = _userName.text;
     final userId = supabase.auth.currentUser!.id.toString();
 
@@ -327,7 +322,7 @@ class _CreateAccountScreenState extends ConsumerState<CreateAccountScreen> {
             Padding(
               padding: const EdgeInsets.all(7.0),
               child: TextField(
-                maxLength: 30,
+                maxLength: 25,
                 controller: _profileName,
                 style: TextStyle(color: Theme.of(context).colorScheme.onSecondary),
                 decoration: const InputDecoration(
@@ -340,7 +335,7 @@ class _CreateAccountScreenState extends ConsumerState<CreateAccountScreen> {
             Padding(
               padding: const EdgeInsets.all(7.0),
               child: TextField(
-                maxLength: 30,
+                maxLength: 25,
                 style: TextStyle(color: Theme.of(context).colorScheme.onSecondary),
                 controller: _userName,
                 decoration: const InputDecoration(

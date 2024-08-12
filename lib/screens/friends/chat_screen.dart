@@ -171,6 +171,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> with RouteAware {
                           fontWeight: FontWeight.bold,
                           fontSize: 18,
                         ),
+                        overflow: TextOverflow.ellipsis,
                       ),
                       if (widget.groupInfo == null)
                         Text(
@@ -179,6 +180,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> with RouteAware {
                             fontWeight: FontWeight.normal,
                             fontSize: 12,
                           ),
+                          overflow: TextOverflow.ellipsis,
                         ),
                     ],
                   ),

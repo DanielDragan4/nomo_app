@@ -145,8 +145,12 @@ class _ChatScreenState extends ConsumerState<ChatScreen> with RouteAware {
       appBar: (widget.groupInfo != null)
           ? AppBar(
               backgroundColor: Theme.of(context).colorScheme.surface,
-              title:
-                  Text((widget.groupInfo == null) ? widget.chatterUser!.friendProfileName : widget.groupInfo!['title']),
+              title: Expanded(
+                child: Text(
+                  (widget.groupInfo == null) ? widget.chatterUser!.friendProfileName : widget.groupInfo!['title'],
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
             )
           : AppBar(
               elevation: 0,

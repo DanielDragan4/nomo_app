@@ -785,6 +785,9 @@ class _EventTabState extends ConsumerState<EventTab> {
       newEventData.otherHost = widget.eventData.otherHost;
       newEventData.otherBookmark = widget.eventData.otherBookmark;
     }
+    if(widget.eventData.distanceAway != null) {
+      newEventData.distanceAway = widget.eventData.distanceAway;
+    }
     setState(() {
       widget.eventData = newEventData;
     });

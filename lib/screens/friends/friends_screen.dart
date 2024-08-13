@@ -9,6 +9,7 @@ import 'package:nomo/screens/friends/groupchat_create_screen.dart';
 import 'package:nomo/screens/search_screen.dart';
 import 'package:nomo/widgets/friend_tab.dart';
 import 'package:nomo/widgets/group_tab.dart';
+import 'package:nomo/widgets/toggle_buttons.dart';
 
 class FriendsScreen extends ConsumerStatefulWidget {
   const FriendsScreen({super.key, required this.isGroupChats});
@@ -101,38 +102,20 @@ class _FriendsScreenState extends ConsumerState<FriendsScreen> {
                     children: widget.isGroupChats
                         ? []
                         : [
-                            ToggleButtons(
-                              constraints: const BoxConstraints(maxHeight: 250, minWidth: 150, maxWidth: 200),
-                              borderColor: Colors.black,
-                              fillColor: Theme.of(context).primaryColor,
-                              borderWidth: 1,
-                              selectedBorderColor: Colors.black,
-                              selectedColor: Colors.grey,
-                              borderRadius: BorderRadius.circular(5),
-                              onPressed: (int index) {
-                                setState(() {
-                                  for (int i = 0; i < isSelected.length; i++) {
-                                    isSelected[i] = (i == index);
-                                  }
-                                });
-                              },
-                              isSelected: isSelected,
-                              children: const [
-                                Padding(
-                                    padding: EdgeInsets.fromLTRB(3, 3, 3, 3),
-                                    child: Text(
-                                      'Friends',
-                                      style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700),
-                                    )),
-                                Padding(
-                                  padding: EdgeInsets.fromLTRB(3, 3, 3, 3),
-                                  child: Text(
-                                    'Requests',
-                                    style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700),
-                                  ),
-                                ),
-                              ],
-                            ),
+                            TabStyleToggleButtons(
+      options: const [
+        ToggleOption(label: 'Friends', icon: Icons.people),
+        ToggleOption(label: 'Requests', icon: Icons.person_add),
+      ],
+      isSelected: isSelected,
+      onPressed: (index) {
+        setState(() {
+          for (int i = 0; i < isSelected.length; i++) {
+            isSelected[i] = i == index;
+          }
+        });
+      },
+    )
                           ],
                   ),
                   Expanded(

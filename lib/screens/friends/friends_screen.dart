@@ -107,6 +107,7 @@ class _FriendsScreenState extends ConsumerState<FriendsScreen> {
         ToggleOption(label: 'Friends', icon: Icons.people),
         ToggleOption(label: 'Requests', icon: Icons.person_add),
       ],
+      textColor: Theme.of(context).colorScheme.onSecondary.withOpacity(0.75),
       isSelected: isSelected,
       onPressed: (index) {
         setState(() {

@@ -223,8 +223,55 @@ class _FriendTabState extends ConsumerState<FriendTab> {
                 splashRadius: 15),
           ]);
         }
+      } else {
+        return (currentUser != widget.friendData.friendProfileId)
+            ? Container(
+                child: widget.isFriend //If profile is private, make this a request instead of instant
+                    ? ElevatedButton(
+                        onPressed: () {
+                          setState(() {
+                            FocusManager.instance.primaryFocus?.unfocus();
+                            showDialog(
+                                context: context,
+                                builder: (context) => AlertDialog(
+                                      title: Text(
+                                        'Are you sure you unfriend this user?',
+                                        style: TextStyle(color: Theme.of(context).primaryColorDark),
+                                      ),
+                                      actions: [
+                                        TextButton(
+                                            onPressed: () async {
+                                              removeFriend();
+                                              widget.isFriend = !widget.isFriend;
+                                              Navigator.pop(context);
+                                              ScaffoldMessenger.of(context).hideCurrentSnackBar();
+                                              ScaffoldMessenger.of(context).showSnackBar(
+                                                const SnackBar(
+                                                  content: Text("User Unfriended"),
+                                                ),
+                                              );
+                                            },
+                                            child: const Text('YES')),
+                                        TextButton(
+                                            onPressed: () => Navigator.pop(context), child: const Text('CANCEL')),
+                                      ],
+                                    ));
+                          });
+                        },
+                        child: const Text("Unfriend"),
+                      )
+                    : ElevatedButton(
+                        onPressed: widget.isPending
+                            ? null
+                            : () {
+                                setState(() {
+                                  addFriend();
+                                });
+                              },
+                        child: widget.isPending ? const Text("Pending") : const Text("Friend")),
+              )
+            : SizedBox();
       }
-      return SizedBox.shrink();
     }
 
     if (widget.isEventAttendee) {
@@ -238,18 +285,24 @@ class _FriendTabState extends ConsumerState<FriendTab> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Container(
-                  child: Row(
-                children: [
-                  CircleAvatar(
-                    radius: MediaQuery.of(context).size.width * .1,
-                    backgroundImage: NetworkImage(avatar),
-                  ),
-                  const SizedBox(width: 10),
-                  Text(
-                    username,
-                    style: TextStyle(color: Theme.of(context).colorScheme.onSecondary),
-                  ),
-                ],
+                  child: Expanded(
+                child: Row(
+                  children: [
+                    CircleAvatar(
+                      radius: MediaQuery.of(context).size.width * .1,
+                      backgroundImage: NetworkImage(avatar),
+                    ),
+                    const SizedBox(width: 10),
+                    Flexible(
+                      fit: FlexFit.tight,
+                      child: Text(
+                        username,
+                        style: TextStyle(color: Theme.of(context).colorScheme.onSecondary),
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                  ],
+                ),
               )),
               (currentUser != widget.friendData.friendProfileId)
                   ? Container(
@@ -274,7 +327,7 @@ class _FriendTabState extends ConsumerState<FriendTab> {
                                                     ScaffoldMessenger.of(context).hideCurrentSnackBar();
                                                     ScaffoldMessenger.of(context).showSnackBar(
                                                       const SnackBar(
-                                                        content: Text("Event Deleted"),
+                                                        content: Text("User Unfriended"),
                                                       ),
                                                     );
                                                   },
@@ -308,32 +361,44 @@ class _FriendTabState extends ConsumerState<FriendTab> {
     return Container(
       height: 60,
       padding: const EdgeInsets.symmetric(vertical: 5),
-      child: Row(
-        children: [
-          Expanded(
-            child: Row(
-              children: [
-                CircleAvatar(
-                  radius: MediaQuery.of(context).size.width * .1,
-                  backgroundImage: NetworkImage(avatar),
+      child: GestureDetector(
+        onTap: () async {
+          String currentId = await getCurrentUser();
+          Navigator.of(context).push(MaterialPageRoute(
+              builder: ((context) => ProfileScreen(
+                    isUser: widget.friendData.friendProfileId != currentId ? false : true,
+                    userId: widget.friendData.friendProfileId,
+                  ))));
+        },
+        child: Row(
+          children: [
+            Container(
+              child: Expanded(
+                child: Row(
+                  children: [
+                    CircleAvatar(
+                      radius: MediaQuery.of(context).size.width * .1,
+                      backgroundImage: NetworkImage(avatar),
+                    ),
+                    const SizedBox(width: 10),
+                    Flexible(
+                      fit: FlexFit.tight,
+                      child: Text(
+                        username,
+                        style: TextStyle(color: Theme.of(context).colorScheme.onSecondary),
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                  ],
                 ),
-                const SizedBox(width: 10),
-                Flexible(
-                  fit: FlexFit.tight,
-                  child: Text(
-                    username,
-                    style: TextStyle(color: Theme.of(context).colorScheme.onSecondary),
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                ),
-              ],
+              ),
             ),
-          ),
-          Container(
-            width: 100, // Adjust this width as needed
-            child: buildRightSideWidgets(),
-          ),
-        ],
+            Container(
+              padding: EdgeInsets.symmetric(horizontal: 5),
+              child: buildRightSideWidgets(),
+            ),
+          ],
+        ),
       ),
     );
   }

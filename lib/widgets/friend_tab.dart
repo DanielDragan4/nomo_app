@@ -241,7 +241,9 @@ class _FriendTabState extends ConsumerState<FriendTab> {
                                       actions: [
                                         TextButton(
                                             onPressed: () async {
-                                              removeFriend();
+                                              setState(() {
+                                                removeFriend();
+                                              });
                                               widget.isFriend = !widget.isFriend;
                                               Navigator.pop(context);
                                               ScaffoldMessenger.of(context).hideCurrentSnackBar();

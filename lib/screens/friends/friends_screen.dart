@@ -23,11 +23,16 @@ class _FriendsScreenState extends ConsumerState<FriendsScreen> {
   var friends = true;
   late List<bool> isSelected;
   var currentUser;
+  bool _isLoading = false;
 
   @override
   void initState() {
     isSelected = [true, false];
     super.initState();
+  }
+
+  Widget _buildLoadingIndicator() {
+    return Center(child: CircularProgressIndicator());
   }
 
   @override
@@ -103,20 +108,31 @@ class _FriendsScreenState extends ConsumerState<FriendsScreen> {
                         ? []
                         : [
                             TabStyleToggleButtons(
-      options: const [
-        ToggleOption(label: 'Friends', icon: Icons.people),
-        ToggleOption(label: 'Requests', icon: Icons.person_add),
-      ],
-      textColor: Theme.of(context).colorScheme.onSecondary.withOpacity(0.75),
-      isSelected: isSelected,
-      onPressed: (index) {
-        setState(() {
-          for (int i = 0; i < isSelected.length; i++) {
-            isSelected[i] = i == index;
-          }
-        });
-      },
-    )
+                              options: const [
+                                ToggleOption(label: 'Friends', icon: Icons.people),
+                                ToggleOption(label: 'Requests', icon: Icons.person_add),
+                              ],
+                              textColor: Theme.of(context).colorScheme.onSecondary.withOpacity(0.75),
+                              isSelected: isSelected,
+                              onPressed: (index) {
+                                setState(() {
+                                  for (int i = 0; i < isSelected.length; i++) {
+                                    isSelected[i] = i == index;
+                                  }
+                                  _isLoading = true; // Set loading state to true
+                                });
+                                // Use a microtask to allow the UI to update before fetching data
+                                Future.microtask(() async {
+                                  // Simulate a short delay for the loading indicator to be visible
+                                  await Future.delayed(Duration(milliseconds: 300));
+                                  if (mounted) {
+                                    setState(() {
+                                      _isLoading = false; // Set loading state back to false
+                                    });
+                                  }
+                                });
+                              },
+                            ),
                           ],
                   ),
                   Expanded(
@@ -135,55 +151,64 @@ class _FriendsScreenState extends ConsumerState<FriendsScreen> {
                                 );
                               },
                             )
-                          : isSelected.first
-                              ? StreamBuilder(
-                                  stream: ref.read(profileProvider.notifier).decodeFriends().asStream(),
-                                  builder: (context, snapshot) {
-                                    if (snapshot.data != null) {
-                                      return ListView(key: const PageStorageKey('page'), children: [
-                                        for (Friend i in snapshot.data!)
-                                          FriendTab(
-                                            friendData: i,
-                                            isRequest: true,
-                                            toggle: false,
-                                            isEventAttendee: false,
-                                          ),
-                                      ]);
-                                    } else {
-                                      return Center(
-                                        child: Text(
-                                          'No Friends Were Found. Add Some',
-                                          style: TextStyle(color: Theme.of(context).colorScheme.onSecondary),
-                                        ),
-                                      );
-                                    }
-                                  })
-                              : StreamBuilder(
-                                  stream: ref.read(profileProvider.notifier).decodeRequests().asStream(),
-                                  builder: (context, snapshot) {
-                                    print(snapshot.data);
-                                    if (snapshot.data != null) {
-                                      return ListView(
-                                        key: const PageStorageKey('page'),
-                                        children: [
-                                          for (Friend i in snapshot.data!)
-                                            FriendTab(
-                                              friendData: i,
-                                              isRequest: false,
-                                              toggle: false,
-                                              isEventAttendee: false,
-                                            )
-                                        ],
-                                      );
-                                    } else {
-                                      return Center(
-                                        child: Text(
-                                          'No New Friends Were Found. Add Some',
-                                          style: TextStyle(color: Theme.of(context).colorScheme.onSecondary),
-                                        ),
-                                      );
-                                    }
-                                  })),
+                          : _isLoading
+                              ? _buildLoadingIndicator()
+                              : isSelected.first
+                                  ? StreamBuilder(
+                                      stream: ref.read(profileProvider.notifier).decodeFriends().asStream(),
+                                      builder: (context, snapshot) {
+                                        if (snapshot.connectionState == ConnectionState.waiting) {
+                                          return _buildLoadingIndicator();
+                                        } else if (snapshot.hasData && snapshot.data!.isNotEmpty) {
+                                          return ListView(
+                                            key: const PageStorageKey('page'),
+                                            children: [
+                                              for (Friend i in snapshot.data!)
+                                                FriendTab(
+                                                  friendData: i,
+                                                  isRequest: true,
+                                                  toggle: false,
+                                                  isEventAttendee: false,
+                                                ),
+                                            ],
+                                          );
+                                        } else {
+                                          return Center(
+                                            child: Text(
+                                              'No Friends Were Found. Add Some',
+                                              style: TextStyle(color: Theme.of(context).colorScheme.onSecondary),
+                                            ),
+                                          );
+                                        }
+                                      })
+                                  : StreamBuilder(
+                                      stream: ref.read(profileProvider.notifier).decodeRequests().asStream(),
+                                      builder: (context, snapshot) {
+                                        print(snapshot.data);
+                                        if (snapshot.connectionState == ConnectionState.waiting) {
+                                          return _buildLoadingIndicator();
+                                        } else if (snapshot.hasData && snapshot.data!.isNotEmpty) {
+                                          return ListView(
+                                            key: const PageStorageKey('page'),
+                                            children: [
+                                              for (Friend i in snapshot.data!)
+                                                FriendTab(
+                                                  friendData: i,
+                                                  isRequest: false,
+                                                  toggle: false,
+                                                  isEventAttendee: false,
+                                                ),
+                                            ],
+                                          );
+                                        } else {
+                                          return Center(
+                                            child: Text(
+                                              'No New Friends Were Found. Add Some',
+                                              style: TextStyle(color: Theme.of(context).colorScheme.onSecondary),
+                                            ),
+                                          );
+                                        }
+                                      })),
                 ],
               ),
               Positioned(

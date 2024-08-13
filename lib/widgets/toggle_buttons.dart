@@ -23,11 +23,11 @@ class TabStyleToggleButtons extends StatelessWidget {
     final actualTextColor = textColor ?? theme.textTheme.bodyLarge?.color ?? Colors.black;
 
     return Container(
-      decoration: BoxDecoration(
-        border: Border(
-          bottom: BorderSide(color: theme.dividerColor, width: 2),
-        ),
-      ),
+      // decoration: BoxDecoration(
+      //   border: Border(
+      //     bottom: BorderSide(color: theme.dividerColor, width: 2),
+      //   ),
+      // ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: List.generate(options.length, (index) {

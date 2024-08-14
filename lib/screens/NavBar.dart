@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:nomo/providers/profile_provider.dart';
 import 'package:nomo/screens/calendar/calendar_screen.dart';
+import 'package:nomo/screens/events/event_creation.dart';
 import 'package:nomo/screens/events/new_event_screen.dart';
 import 'package:nomo/screens/friends/friends_screen.dart';
 import 'package:nomo/screens/profile/profile_screen.dart';
@@ -127,7 +128,7 @@ class _NavBarState extends ConsumerState<NavBar> {
           searchingPeople: false,
         );
       case 2:
-        return NewEventScreen();
+        return EventCreateScreen();
       case 3:
         return FriendsScreen(isGroupChats: false);
       case 4:

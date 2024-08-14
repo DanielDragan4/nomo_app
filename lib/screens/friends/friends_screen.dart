@@ -46,29 +46,22 @@ class _FriendsScreenState extends ConsumerState<FriendsScreen> {
             backgroundColor: Theme.of(context).colorScheme.surface,
             appBar: AppBar(
               backgroundColor: Theme.of(context).colorScheme.surface,
-              flexibleSpace: PreferredSize(
+              title: PreferredSize(
                 preferredSize: const Size.fromHeight(10),
                 child: Container(
-                  padding: const EdgeInsets.only(
-                    //top: 20,
-                    bottom: 5,
-                  ),
                   alignment: Alignment.bottomCenter,
                   child: Row(
                     mainAxisAlignment: widget.isGroupChats ? MainAxisAlignment.center : MainAxisAlignment.spaceBetween,
                     children: [
                       Expanded(
-                        child: Padding(
-                          padding: widget.isGroupChats ? EdgeInsets.all(0) : EdgeInsets.only(left: 10.0),
-                          child: Text(
-                            widget.isGroupChats ? 'Groups' : '@${currentUser}',
-                            style: TextStyle(
-                              color: Theme.of(context).primaryColor,
-                              fontWeight: FontWeight.w800,
-                              fontSize: widget.isGroupChats ? 25 : 20,
-                            ),
-                            overflow: TextOverflow.ellipsis,
+                        child: Text(
+                          widget.isGroupChats ? 'Groups' : '@${currentUser}',
+                          style: TextStyle(
+                            color: Theme.of(context).primaryColor,
+                            fontWeight: FontWeight.w800,
+                            fontSize: widget.isGroupChats ? 25 : 20,
                           ),
+                          overflow: TextOverflow.ellipsis,
                         ),
                       ),
                       IconButton(

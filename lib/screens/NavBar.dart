@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:nomo/providers/profile_provider.dart';
 import 'package:nomo/screens/calendar/calendar_screen.dart';
 import 'package:nomo/screens/events/event_creation.dart';
+import 'package:nomo/screens/events/event_creation.dart';
 import 'package:nomo/screens/events/new_event_screen.dart';
 import 'package:nomo/screens/friends/friends_screen.dart';
 import 'package:nomo/screens/profile/profile_screen.dart';

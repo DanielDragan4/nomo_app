@@ -175,10 +175,7 @@ class _InterestsScreenState extends ConsumerState<InterestsScreen> {
           onPressed: () => _handleInterestSelection(option),
           child: Text(
             option.value,
-            style: TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.w500,
-            ),
+            style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500, color: colorScheme.onSecondary),
           ),
         ),
       ),
@@ -200,7 +197,8 @@ class _InterestsScreenState extends ConsumerState<InterestsScreen> {
             onPressed: _handleContinueButton,
             child: Text(
               _getContinueButtonText(),
-              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
+              style: TextStyle(
+                  fontSize: 18, fontWeight: FontWeight.w600, color: Theme.of(context).colorScheme.onSecondary),
             ),
           ),
         ),

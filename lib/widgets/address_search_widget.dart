@@ -6,6 +6,7 @@ class AddressSearchField extends StatefulWidget {
   final bool isEvent;
   final bool hasError;
   final bool isVirtual;
+  final ValueChanged<String>? onChanged;
 
   const AddressSearchField({
     Key? key,
@@ -13,6 +14,7 @@ class AddressSearchField extends StatefulWidget {
     required this.isEvent,
     this.hasError = false,
     this.isVirtual = false,
+    this.onChanged,
   }) : super(key: key);
 
   @override
@@ -57,6 +59,7 @@ class _AddressSearchFieldState extends State<AddressSearchField> {
             errorText: widget.hasError ? "Location is required" : null,
           ),
           onChanged: (value) {
+            widget.onChanged?.call(value);
             if (value.length > 3) {
               _searchLocation(value);
             } else {
@@ -81,6 +84,7 @@ class _AddressSearchFieldState extends State<AddressSearchField> {
                   widget.controller.text = result['display_name'];
                   _searchResults = [];
                 });
+                widget.onChanged?.call(result['display_name']);
               },
             );
           },

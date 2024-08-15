@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:nomo/providers/profile_provider.dart';
 import 'package:nomo/screens/calendar/calendar_screen.dart';
 import 'package:nomo/screens/events/event_creation.dart';
+import 'package:nomo/screens/events/event_creation.dart';
 import 'package:nomo/screens/events/new_event_screen.dart';
 import 'package:nomo/screens/friends/friends_screen.dart';
 import 'package:nomo/screens/profile/profile_screen.dart';
@@ -124,11 +125,9 @@ class _NavBarState extends ConsumerState<NavBar> {
       case 0:
         return RecommendedScreen();
       case 1:
-        return SearchScreen(
-          searchingPeople: false,
-        );
+        return SearchScreen(searchingPeople: false);
       case 2:
-        return EventCreateScreen();
+        return EventCreateScreen(); //NewEventScreen();
       case 3:
         return FriendsScreen(isGroupChats: false);
       case 4:

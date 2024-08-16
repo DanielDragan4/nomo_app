@@ -108,12 +108,25 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                                 labelText: "Email Address",
                                 errorText: _emailError ? _emailErrorText : null,
                                 errorStyle: TextStyle(color: Colors.red),
+                                border: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
                                 enabledBorder: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(8),
                                   borderSide: BorderSide(color: _emailError ? Colors.red : Colors.grey),
                                 ),
                                 focusedBorder: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(8),
                                   borderSide:
                                       BorderSide(color: _emailError ? Colors.red : Theme.of(context).primaryColor),
+                                ),
+                                errorBorder: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(8),
+                                  borderSide: BorderSide(color: Colors.red),
+                                ),
+                                focusedErrorBorder: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(8),
+                                  borderSide: BorderSide(color: Colors.red),
                                 ),
                               ),
                               keyboardType: TextInputType.emailAddress,
@@ -136,12 +149,25 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                                 labelText: "Password",
                                 errorText: _passwordError ? _passwordErrorText : null,
                                 errorStyle: TextStyle(color: Colors.red),
+                                border: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
                                 enabledBorder: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(8),
                                   borderSide: BorderSide(color: _passwordError ? Colors.red : Colors.grey),
                                 ),
                                 focusedBorder: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(8),
                                   borderSide:
                                       BorderSide(color: _passwordError ? Colors.red : Theme.of(context).primaryColor),
+                                ),
+                                errorBorder: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(8),
+                                  borderSide: BorderSide(color: Colors.red),
+                                ),
+                                focusedErrorBorder: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(8),
+                                  borderSide: BorderSide(color: Colors.red),
                                 ),
                                 suffixIcon: IconButton(
                                   onPressed: () {
@@ -168,6 +194,28 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                             TextFormField(
                               decoration: InputDecoration(
                                 labelText: "Confirm Password",
+                                errorText: _passwordError ? _passwordErrorText : null,
+                                errorStyle: TextStyle(color: Colors.red),
+                                border: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                                enabledBorder: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(8),
+                                  borderSide: BorderSide(color: _passwordError ? Colors.red : Colors.grey),
+                                ),
+                                focusedBorder: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(8),
+                                  borderSide:
+                                      BorderSide(color: _passwordError ? Colors.red : Theme.of(context).primaryColor),
+                                ),
+                                errorBorder: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(8),
+                                  borderSide: BorderSide(color: Colors.red),
+                                ),
+                                focusedErrorBorder: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(8),
+                                  borderSide: BorderSide(color: Colors.red),
+                                ),
                                 suffixIcon: IconButton(
                                   onPressed: () {
                                     _obscurePassConfirm = !_obscurePassConfirm;
@@ -212,7 +260,8 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                               style: ElevatedButton.styleFrom(
                                 backgroundColor: Theme.of(context).colorScheme.primaryContainer,
                               ),
-                              child: Text(isLogin ? 'Login' : 'Signup'),
+                              child: Text(isLogin ? 'Login' : 'Signup',
+                                  style: TextStyle(color: Theme.of(context).colorScheme.onPrimaryContainer)),
                             ),
                           if (!isAuthenticating)
                             TextButton(

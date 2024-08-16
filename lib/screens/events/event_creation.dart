@@ -1,6 +1,5 @@
 import 'dart:typed_data';
 import 'package:image_cropper/image_cropper.dart';
-import 'package:calendar_view/calendar_view.dart';
 import 'package:flutter/material.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:nomo/models/events_model.dart';
@@ -458,8 +457,6 @@ class _EventCreateScreenState extends ConsumerState<EventCreateScreen> {
         point = await getCords(location);
       }
       final newEventRowMap = {
-        'time_start': DateFormat('yyyy-MM-dd HH:mm:ss').format(start),
-        'time_end': DateFormat('yyyy-MM-dd HH:mm:ss').format(end),
         'location': location,
         'description': description,
         'host': supabase.auth.currentUser!.id,
@@ -481,6 +478,12 @@ class _EventCreateScreenState extends ConsumerState<EventCreateScreen> {
       }
 
       final responseId = await supabase.from('Event').insert(newEventRowMap).select('event_id').single();
+      final newDateRowMap = {
+        'event_id' : responseId['event_id'],
+        'time_start': DateFormat('yyyy-MM-dd HH:mm:ss').format(start),
+        'time_end': DateFormat('yyyy-MM-dd HH:mm:ss').format(end),
+      };
+      await supabase.from('Dates').insert(newDateRowMap);
 
       eventData = await ref.read(eventsProvider.notifier).deCodeLinkEvent(responseId['event_id']);
 
@@ -529,8 +532,6 @@ class _EventCreateScreenState extends ConsumerState<EventCreateScreen> {
       var imageId = await uploadImage(selectedImage);
 
       newEventRowMap = {
-        'time_start': DateFormat('yyyy-MM-dd HH:mm:ss').format(start),
-        'time_end': DateFormat('yyyy-MM-dd HH:mm:ss').format(end),
         'location': location,
         'description': description,
         'invitationType': inviteType,
@@ -542,8 +543,6 @@ class _EventCreateScreenState extends ConsumerState<EventCreateScreen> {
       };
     } else {
       newEventRowMap = {
-        'time_start': DateFormat('yyyy-MM-dd HH:mm:ss').format(start),
-        'time_end': DateFormat('yyyy-MM-dd HH:mm:ss').format(end),
         'location': location,
         'description': description,
         'invitationType': inviteType,
@@ -562,6 +561,12 @@ class _EventCreateScreenState extends ConsumerState<EventCreateScreen> {
 
     await supabase.from('Event').update(newEventRowMap).eq('event_id', widget.event?.eventId);
     ref.read(attendEventsProvider.notifier).deCodeData();
+    final newDateRowMap = {
+        'event_id' : widget.event?.eventId,
+        'time_start': DateFormat('yyyy-MM-dd HH:mm:ss').format(start),
+        'time_end': DateFormat('yyyy-MM-dd HH:mm:ss').format(end),
+      };
+      await supabase.from('Dates').update(newDateRowMap).eq('event_id',  widget.event?.eventId);
   }
 
   Widget _buildInvitationTypeItem(BuildContext context, String title, String description) {

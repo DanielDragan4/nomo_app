@@ -424,8 +424,6 @@ class _NewEventScreenState extends ConsumerState<NewEventScreen> {
         point = await getCords(location);
       }
       final newEventRowMap = {
-        'time_start': DateFormat('yyyy-MM-dd HH:mm:ss').format(start),
-        'time_end': DateFormat('yyyy-MM-dd HH:mm:ss').format(end),
         'location': location,
         'description': description,
         'host': supabase.auth.currentUser!.id,
@@ -447,6 +445,13 @@ class _NewEventScreenState extends ConsumerState<NewEventScreen> {
       }
 
       final responseId = await supabase.from('Event').insert(newEventRowMap).select('event_id').single();
+
+      final newDateRowMap = {
+        'event_id' : responseId['event_id'],
+        'time_start': DateFormat('yyyy-MM-dd HH:mm:ss').format(start),
+        'time_end': DateFormat('yyyy-MM-dd HH:mm:ss').format(end),
+      };
+      await supabase.from('Dates').insert(newDateRowMap);
 
       eventData = await ref.read(eventsProvider.notifier).deCodeLinkEvent(responseId['event_id']);
 
@@ -495,8 +500,6 @@ class _NewEventScreenState extends ConsumerState<NewEventScreen> {
       var imageId = await uploadImage(selectedImage);
 
       newEventRowMap = {
-        'time_start': DateFormat('yyyy-MM-dd HH:mm:ss').format(start),
-        'time_end': DateFormat('yyyy-MM-dd HH:mm:ss').format(end),
         'location': location,
         'description': description,
         'invitationType': inviteType,
@@ -508,8 +511,6 @@ class _NewEventScreenState extends ConsumerState<NewEventScreen> {
       };
     } else {
       newEventRowMap = {
-        'time_start': DateFormat('yyyy-MM-dd HH:mm:ss').format(start),
-        'time_end': DateFormat('yyyy-MM-dd HH:mm:ss').format(end),
         'location': location,
         'description': description,
         'invitationType': inviteType,
@@ -527,6 +528,12 @@ class _NewEventScreenState extends ConsumerState<NewEventScreen> {
     }
 
     await supabase.from('Event').update(newEventRowMap).eq('event_id', widget.event?.eventId);
+    final newDateRowMap = {
+        'event_id' : widget.event?.eventId,
+        'time_start': DateFormat('yyyy-MM-dd HH:mm:ss').format(start),
+        'time_end': DateFormat('yyyy-MM-dd HH:mm:ss').format(end),
+      };
+      await supabase.from('Dates').update(newDateRowMap).eq('event_id',  widget.event?.eventId);
     ref.read(attendEventsProvider.notifier).deCodeData();
   }
 

@@ -193,7 +193,7 @@ class _FriendTabState extends ConsumerState<FriendTab> {
                   await FriendNotificationManager.handleAddFriend(ref, friendId);
                   ScaffoldMessenger.of(context).clearSnackBars();
                   ScaffoldMessenger.of(context)
-                      .showSnackBar(SnackBar(content: Text('Added $username to friends list')));
+                      .showSnackBar(SnackBar(content: Text('Added @$username to friends list')));
                   setState(() {
                     currentFriend = false;
                   });
@@ -211,7 +211,7 @@ class _FriendTabState extends ConsumerState<FriendTab> {
                   await FriendNotificationManager.handleRemoveFriend(ref, friendId);
                   ScaffoldMessenger.of(context).clearSnackBars();
                   ScaffoldMessenger.of(context)
-                      .showSnackBar(SnackBar(content: Text("Rejected $username's friend request")));
+                      .showSnackBar(SnackBar(content: Text("Rejected @$username's friend request")));
                   setState(() {
                     currentFriend = false;
                   });
@@ -298,7 +298,7 @@ class _FriendTabState extends ConsumerState<FriendTab> {
                     Flexible(
                       fit: FlexFit.tight,
                       child: Text(
-                        username,
+                        '@$username',
                         style: TextStyle(color: Theme.of(context).colorScheme.onSecondary),
                         overflow: TextOverflow.ellipsis,
                       ),
@@ -388,7 +388,7 @@ class _FriendTabState extends ConsumerState<FriendTab> {
                     Flexible(
                       fit: FlexFit.tight,
                       child: Text(
-                        username,
+                        '@$username',
                         style: TextStyle(color: Theme.of(context).colorScheme.onSecondary),
                         overflow: TextOverflow.ellipsis,
                       ),

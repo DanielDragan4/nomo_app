@@ -33,9 +33,13 @@ class EventCreateScreen extends ConsumerStatefulWidget {
   ConsumerState<EventCreateScreen> createState() => _EventCreateScreenState();
 }
 
+//TO-DO
+// Show loading indicator while event is being created
+// Reset screen after event is created
+
 class _EventCreateScreenState extends ConsumerState<EventCreateScreen> {
   int _currentStep = 0;
-  final _formKey = GlobalKey<FormState>();
+  final List<String> _steps = ['Basics', 'Date & Time', 'Details', 'Review'];
 
   TimeOfDay? _selectedStartTime;
   bool stime = false;
@@ -134,15 +138,17 @@ class _EventCreateScreenState extends ConsumerState<EventCreateScreen> {
       _step2Valid = _selectedStartDate != null &&
           _selectedEndDate != null &&
           _selectedStartTime != null &&
-          _selectedEndTime != null;
+          _selectedEndTime != null &&
+          // Secondary measure to make sure end time is after start time
+          ((_selectedEndTime!.hour > _selectedStartTime!.hour) ||
+              ((_selectedEndTime!.hour == _selectedStartTime!.hour) &&
+                  (_selectedEndTime!.minute > _selectedStartTime!.minute)));
     });
   }
 
   void _validateStep3() {
     setState(() {
-      _step3Valid = _description.text.isNotEmpty &&
-          (_locationController.text.isNotEmpty || virtualEvent) &&
-          categories.isNotEmpty;
+      _step3Valid = _description.text.isNotEmpty && (_locationController.text.isNotEmpty || virtualEvent);
     });
   }
 
@@ -239,17 +245,6 @@ class _EventCreateScreenState extends ConsumerState<EventCreateScreen> {
     );
 
     if (picked != null) {
-      setState(() {
-        if (isStartTime) {
-          _selectedStartTime = picked;
-          stime = true;
-        } else {
-          _selectedEndTime = picked;
-          etime = true;
-        }
-        _validateStep2();
-      });
-
       if (isStartTime && _selectedEndTime != null && _selectedStartDate!.isAtSameMomentAs(_selectedEndDate!)) {
         if (!checkTime(picked, _selectedEndTime!)) {
           setState(() {
@@ -261,6 +256,7 @@ class _EventCreateScreenState extends ConsumerState<EventCreateScreen> {
               content: Text('End time must be after start time.'),
             ),
           );
+          return;
         }
       } else if (!isStartTime &&
           _selectedStartTime != null &&
@@ -275,8 +271,19 @@ class _EventCreateScreenState extends ConsumerState<EventCreateScreen> {
               content: Text('End time must be after start time.'),
             ),
           );
+          return;
         }
       }
+      setState(() {
+        if (isStartTime) {
+          _selectedStartTime = picked;
+          stime = true;
+        } else {
+          _selectedEndTime = picked;
+          etime = true;
+        }
+        _validateStep2();
+      });
     }
   }
 
@@ -594,99 +601,126 @@ class _EventCreateScreenState extends ConsumerState<EventCreateScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Theme.of(context).colorScheme.surface,
-      appBar: AppBar(
-        title: Text(widget.isEdit == true ? 'Edit Event' : 'Create Event'),
-      ),
-      body: Form(
-        key: _formKey,
-        child: Stepper(
-          type: StepperType.horizontal,
-          currentStep: _currentStep,
-          onStepContinue: () {
-            if (_currentStep < 3) {
-              setState(() {
-                _currentStep += 1;
-              });
-            } else {
-              _showConfirmationScreen();
-            }
-          },
-          onStepCancel: () {
-            if (_currentStep > 0) {
-              setState(() {
-                _currentStep -= 1;
-              });
-            }
-          },
-          controlsBuilder: (context, details) {
-            final bool isLastStep = _currentStep == 3;
-            final bool isStepValid = _isStepValid(_currentStep);
-            return Padding(
-              padding: const EdgeInsets.only(top: 20),
-              child: Row(
-                children: [
-                  ElevatedButton(
-                    onPressed: isStepValid ? details.onStepContinue : null,
-                    child: Text(
-                      isLastStep ? 'Confirm' : 'Continue',
-                      style: TextStyle(
-                          color: isStepValid ? Theme.of(context).colorScheme.onPrimary : Colors.grey.shade500),
-                    ),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: isStepValid ? Theme.of(context).colorScheme.primary : Colors.grey,
-                    ),
-                  ),
-                  if (_currentStep > 0)
-                    TextButton(
-                      onPressed: details.onStepCancel,
-                      child: const Text('Back'),
-                    ),
-                ],
+    return Stack(
+      children: [
+        Scaffold(
+          backgroundColor: Theme.of(context).colorScheme.surface,
+          appBar: AppBar(
+            title: Text(widget.isEdit == true ? 'Edit Event' : 'Create Event'),
+            backgroundColor: Theme.of(context).colorScheme.surface,
+          ),
+          body: Column(
+            children: [
+              _buildCustomStepper(),
+              Expanded(
+                child: SingleChildScrollView(
+                  child: _buildStepContent(),
+                ),
               ),
-            );
-          },
-          steps: [
-            Step(
-              title: Text(
-                'Basics',
-                style: TextStyle(color: Theme.of(context).colorScheme.onSurface),
-              ),
-              content: _buildStep1Content(),
-              isActive: _currentStep >= 0,
-              state: _step1Valid ? StepState.complete : StepState.indexed,
-            ),
-            Step(
-              title: Text(
-                'Date & Time',
-                style: TextStyle(color: Theme.of(context).colorScheme.onSurface),
-              ),
-              content: _buildStep2Content(),
-              isActive: _currentStep >= 1,
-              state: _step2Valid ? StepState.complete : StepState.indexed,
-            ),
-            Step(
-              title: Text(
-                'Details',
-                style: TextStyle(color: Theme.of(context).colorScheme.onSurface),
-              ),
-              content: _buildStep3Content(),
-              isActive: _currentStep >= 2,
-              state: _step3Valid ? StepState.complete : StepState.indexed,
-            ),
-            Step(
-              title: Text(
-                'Review',
-                style: TextStyle(color: Theme.of(context).colorScheme.onSurface),
-              ),
-              content: _buildStep4Content(),
-              isActive: _currentStep >= 3,
-            ),
-          ],
+              _buildNavigationButtons(),
+            ],
+          ),
         ),
+        if (_isLoading)
+          Container(
+            color: Colors.black.withOpacity(0.5),
+            child: Center(
+              child: CircularProgressIndicator(),
+            ),
+          ),
+      ],
+    );
+  }
+
+  Widget _buildCustomStepper() {
+    return Container(
+      height: 70,
+      child: ListView.builder(
+        scrollDirection: Axis.horizontal,
+        itemCount: _steps.length,
+        itemBuilder: (context, index) {
+          return Container(
+            width: MediaQuery.of(context).size.width / _steps.length,
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                CircleAvatar(
+                  radius: 12,
+                  backgroundColor: _currentStep >= index
+                      ? Theme.of(context).colorScheme.primary
+                      : Theme.of(context).colorScheme.onSurface.withOpacity(0.5),
+                  child: _currentStep > index
+                      ? Icon(Icons.check, size: 16, color: Colors.white)
+                      : Text('${index + 1}', style: TextStyle(color: Colors.white, fontSize: 12)),
+                ),
+                SizedBox(height: 4),
+                Text(
+                  _steps[index],
+                  style: TextStyle(fontSize: 12, color: Theme.of(context).colorScheme.onSurface),
+                  textAlign: TextAlign.center,
+                ),
+              ],
+            ),
+          );
+        },
       ),
     );
+  }
+
+  Widget _buildStepContent() {
+    switch (_currentStep) {
+      case 0:
+        return _buildStep1Content();
+      case 1:
+        return _buildStep2Content();
+      case 2:
+        return _buildStep3Content();
+      case 3:
+        return _buildStep4Content();
+      default:
+        return Container();
+    }
+  }
+
+  Widget _buildNavigationButtons() {
+    return Padding(
+      padding: const EdgeInsets.all(16.0),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          if (_currentStep > 0)
+            ElevatedButton(
+              onPressed: _onStepCancel,
+              child: Text('Back'),
+            ),
+          ElevatedButton(
+            onPressed: _isStepValid(_currentStep) ? _onStepContinue : null,
+            child: Text(_currentStep == 3 ? 'Confirm' : 'Continue'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _onStepContinue() {
+    if (_currentStep < _steps.length - 1 && _isStepValid(_currentStep)) {
+      setState(() {
+        _currentStep += 1;
+      });
+    } else if (_currentStep == _steps.length - 1) {
+      _showConfirmationScreen();
+      _enableButton();
+    }
+  }
+
+  void _onStepCancel() {
+    if (_currentStep > 0) {
+      setState(() {
+        _currentStep -= 1;
+      });
+    } else {
+      Navigator.of(context).pop();
+    }
   }
 
   bool _isStepValid(int step) {
@@ -807,6 +841,7 @@ class _EventCreateScreenState extends ConsumerState<EventCreateScreen> {
           padding: const EdgeInsets.symmetric(vertical: 12.0),
           child: TextField(
             controller: _title,
+            style: TextStyle(color: Theme.of(context).colorScheme.onSurface),
             decoration: InputDecoration(
               border: OutlineInputBorder(
                 borderSide: BorderSide(color: _titleError ? Colors.red : Colors.grey),
@@ -869,12 +904,40 @@ class _EventCreateScreenState extends ConsumerState<EventCreateScreen> {
   Widget _buildStep3Content() {
     return Column(
       children: [
-        TextFormField(
-          controller: _description,
-          decoration: const InputDecoration(labelText: 'Event Description'),
-          maxLines: 3,
-          onChanged: (value) => _validateStep3(),
+        Padding(
+          padding: const EdgeInsets.only(top: 12.0),
+          child: TextField(
+            controller: _description,
+            decoration: InputDecoration(
+              border: OutlineInputBorder(
+                borderSide: BorderSide(color: _descriptionError ? Colors.red : Colors.grey),
+              ),
+              enabledBorder: OutlineInputBorder(
+                borderSide: BorderSide(color: _descriptionError ? Colors.red : Colors.grey),
+              ),
+              focusedBorder: OutlineInputBorder(
+                borderSide: BorderSide(color: _descriptionError ? Colors.red : Theme.of(context).colorScheme.primary),
+              ),
+              labelText: "Enter Your Event Description",
+              labelStyle: TextStyle(color: Theme.of(context).colorScheme.onSecondary),
+              contentPadding: const EdgeInsets.all(5),
+              errorText: _descriptionError ? "Please enter a description for your event" : null,
+            ),
+            keyboardType: TextInputType.multiline,
+            textInputAction: TextInputAction.done,
+            maxLines: null,
+            textAlign: TextAlign.start,
+            textCapitalization: TextCapitalization.sentences,
+            maxLength: 1500,
+            style: TextStyle(color: Theme.of(context).colorScheme.onSecondary),
+            onChanged: (value) {
+              setState(() {
+                _validateStep3();
+              });
+            },
+          ),
         ),
+        SizedBox(height: 16),
         SwitchListTile(
           title: const Text('Virtual Event'),
           value: virtualEvent,
@@ -890,18 +953,26 @@ class _EventCreateScreenState extends ConsumerState<EventCreateScreen> {
             });
           },
         ),
-        AddressSearchField(
-          controller: _locationController,
-          isEvent: true,
-          hasError: false,
-          isVirtual: virtualEvent,
-        ),
+        SizedBox(height: 16),
+        if (!virtualEvent)
+          AddressSearchField(
+            controller: _locationController,
+            isEvent: true,
+            hasError: false,
+            isVirtual: virtualEvent,
+            onChanged: (value) {
+              setState(() {
+                _validateStep3();
+              });
+            },
+          ),
         DropdownButtonFormField<String>(
           value: dropDownValue,
           decoration: const InputDecoration(labelText: 'Invitation Type'),
           items: ['Public', 'Private', 'Selective']
               .map((type) => DropdownMenuItem(value: type, child: Text(type)))
               .toList(),
+          style: TextStyle(color: Theme.of(context).colorScheme.onSurface),
           onChanged: (String? newValue) {
             if (newValue != null) {
               setState(() {
@@ -910,6 +981,7 @@ class _EventCreateScreenState extends ConsumerState<EventCreateScreen> {
             }
           },
         ),
+        SizedBox(height: 16),
         ElevatedButton(
           onPressed: () async {
             FocusManager.instance.primaryFocus?.unfocus();
@@ -931,6 +1003,7 @@ class _EventCreateScreenState extends ConsumerState<EventCreateScreen> {
           },
           child: const Text('Select Categories'),
         ),
+        SizedBox(height: 16),
         SwitchListTile(
           title: const Text('Ticketed Event'),
           value: _isTicketed,
@@ -945,20 +1018,54 @@ class _EventCreateScreenState extends ConsumerState<EventCreateScreen> {
   }
 
   Widget _buildStep4Content() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text('Title: ${_title.text}'),
-        Text('Start: ${_formatDateTime(_selectedStartDate, _selectedStartTime)}'),
-        Text('End: ${_formatDateTime(_selectedEndDate, _selectedEndTime)}'),
-        Text('Description: ${_description.text}'),
-        Text('Location: ${_locationController.text}'),
-        Text('Invitation Type: $dropDownValue'),
-        Text('Recurring: ${_isRecurring ? 'Yes' : 'No'}'),
-        Text('Ticketed: ${_isTicketed ? 'Yes' : 'No'}'),
-        Text(
-            'Categories: ${categories.entries.where((entry) => entry.value).map((entry) => ref.read(profileProvider.notifier).enumToString(entry.key)).toList()}'),
-      ],
+    return Padding(
+      padding: const EdgeInsets.all(8.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          AspectRatio(
+            aspectRatio: 16 / 9,
+            child: Container(
+                width: double.infinity, color: Colors.grey[300], child: Image.file(_selectedImage!, fit: BoxFit.cover)),
+          ),
+          Text(
+            'Title: ${_title.text}',
+            style: TextStyle(color: Theme.of(context).colorScheme.onSurface),
+          ),
+          Text(
+            'Start: ${_formatDateTime(_selectedStartDate, _selectedStartTime)}',
+            style: TextStyle(color: Theme.of(context).colorScheme.onSurface),
+          ),
+          Text(
+            'End: ${_formatDateTime(_selectedEndDate, _selectedEndTime)}',
+            style: TextStyle(color: Theme.of(context).colorScheme.onSurface),
+          ),
+          Text(
+            'Description: ${_description.text}',
+            style: TextStyle(color: Theme.of(context).colorScheme.onSurface),
+          ),
+          Text(
+            'Location: ${_locationController.text}',
+            style: TextStyle(color: Theme.of(context).colorScheme.onSurface),
+          ),
+          Text(
+            'Invitation Type: $dropDownValue',
+            style: TextStyle(color: Theme.of(context).colorScheme.onSurface),
+          ),
+          Text(
+            'Recurring: ${_isRecurring ? 'Yes' : 'No'}',
+            style: TextStyle(color: Theme.of(context).colorScheme.onSurface),
+          ),
+          Text(
+            'Ticketed: ${_isTicketed ? 'Yes' : 'No'}',
+            style: TextStyle(color: Theme.of(context).colorScheme.onSurface),
+          ),
+          Text(
+            'Categories: ${categories.entries.where((entry) => entry.value).map((entry) => ref.read(profileProvider.notifier).enumToString(entry.key)).join(', ')}',
+            style: TextStyle(color: Theme.of(context).colorScheme.onSurface),
+          ),
+        ],
+      ),
     );
   }
 
@@ -977,14 +1084,44 @@ class _EventCreateScreenState extends ConsumerState<EventCreateScreen> {
     return DateFormat('MMM d, yyyy - h:mm a').format(dateTime);
   }
 
+  void _resetScreen() {
+    setState(() {
+      _currentStep = 0;
+      _selectedImage = null;
+      _title.clear();
+      _selectedStartDate = null;
+      _selectedEndDate = null;
+      _selectedStartTime = null;
+      _selectedEndTime = null;
+      _isRecurring = false;
+      _description.clear();
+      _locationController.clear();
+      virtualEvent = false;
+      dropDownValue = list.first;
+      categories = {for (var interest in Interests.values) interest: false};
+      _isTicketed = false;
+      _step1Valid = false;
+      _step2Valid = false;
+      _step3Valid = false;
+    });
+  }
+
   void _showConfirmationScreen() {
     showDialog(
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
           title: const Text('Confirm Event Details'),
+          backgroundColor: Theme.of(context).cardColor,
           content: SingleChildScrollView(
-            child: _buildStep4Content(),
+            child: _isLoading
+                ? Container(
+                    color: Colors.black.withOpacity(0.5),
+                    child: Center(
+                      child: CircularProgressIndicator(),
+                    ),
+                  )
+                : _buildStep4Content(),
           ),
           actions: <Widget>[
             TextButton(
@@ -1023,30 +1160,34 @@ class _EventCreateScreenState extends ConsumerState<EventCreateScreen> {
                 onPressed: enableButton
                     ? isNewEvent
                         ? () async {
-                            FocusManager.instance.primaryFocus?.unfocus();
-                            await createEvent(
-                                _selectedStartTime!,
-                                _selectedEndTime!,
-                                _selectedStartDate!,
-                                _selectedEndDate!,
-                                _selectedImage!,
-                                dropDownValue,
-                                _locationController.text,
-                                _title.text,
-                                _description.text,
-                                _isRecurring,
-                                _isTicketed);
-                            if (widget.onEventCreated != null) {
-                              widget.onEventCreated!();
+                            try {
+                              FocusManager.instance.primaryFocus?.unfocus();
+                              await createEvent(
+                                  _selectedStartTime!,
+                                  _selectedEndTime!,
+                                  _selectedStartDate!,
+                                  _selectedEndDate!,
+                                  _selectedImage!,
+                                  dropDownValue,
+                                  _locationController.text,
+                                  _title.text,
+                                  _description.text,
+                                  _isRecurring,
+                                  _isTicketed);
+                              if (widget.onEventCreated != null) {
+                                widget.onEventCreated!();
+                              }
+                              Navigator.of(context).pushReplacement(
+                                  MaterialPageRoute(builder: ((context) => DetailedEventScreen(eventData: eventData))));
+                              ScaffoldMessenger.of(context).hideCurrentSnackBar();
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(
+                                  content: Text('Event Created'),
+                                ),
+                              );
+                            } finally {
+                              _resetScreen();
                             }
-                            Navigator.of(context).pushReplacement(
-                                MaterialPageRoute(builder: ((context) => DetailedEventScreen(eventData: eventData))));
-                            ScaffoldMessenger.of(context).hideCurrentSnackBar();
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(
-                                content: Text('Event Created'),
-                              ),
-                            );
                           }
                         : () {
                             print(widget.event!.imageId);

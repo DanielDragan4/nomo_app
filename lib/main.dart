@@ -141,7 +141,7 @@ class _AppState extends ConsumerState<App> {
                 onPrimary: Color.fromARGB(255, 230, 230, 230),
               ),
               bottomNavigationBarTheme: const BottomNavigationBarThemeData(
-                selectedItemColor: Color.fromARGB(255, 80, 12, 122),
+                selectedItemColor: Color.fromARGB(255, 106, 13, 173),
                 unselectedItemColor: Color.fromARGB(255, 158, 158, 158),
               ),
               textTheme: GoogleFonts.nunitoTextTheme(),
@@ -150,7 +150,7 @@ class _AppState extends ConsumerState<App> {
               canvasColor: Colors.white,
             ),
             darkTheme: ThemeData().copyWith(
-              cardColor: Color.fromARGB(255, 27, 27, 27),
+              cardColor: Color.fromARGB(255, 36, 36, 45),
               bottomNavigationBarTheme: const BottomNavigationBarThemeData(
                 selectedItemColor: Color.fromARGB(255, 109, 51, 146),
                 unselectedItemColor: Color.fromARGB(255, 206, 206, 206),
@@ -158,11 +158,11 @@ class _AppState extends ConsumerState<App> {
               ),
               primaryColor: const Color.fromARGB(255, 109, 51, 146),
               primaryColorLight: Color.fromARGB(255, 202, 141, 237),
-              canvasColor: Colors.black,
+              canvasColor: Color.fromARGB(255, 24, 24, 26),
               brightness: Brightness.dark,
               colorScheme: ColorScheme.fromSeed(
                 onSecondary: const Color.fromARGB(255, 206, 206, 206),
-                surface: Colors.black,
+                surface: Color.fromARGB(255, 27, 27, 31),
                 brightness: Brightness.dark,
                 seedColor: const Color.fromARGB(255, 109, 51, 146),
                 onPrimaryContainer: Color.fromARGB(255, 237, 208, 255),

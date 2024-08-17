@@ -56,7 +56,6 @@ class _NavBarState extends ConsumerState<NavBar> {
 
   @override
   Widget build(BuildContext context) {
-    var navBarTheme = Theme.of(context).bottomNavigationBarTheme;
     ref.read(profileProvider.notifier).decodeData();
 
     return PopScope(
@@ -66,41 +65,82 @@ class _NavBarState extends ConsumerState<NavBar> {
         _handlePopScope();
       },
       child: Scaffold(
-        bottomNavigationBar: BottomNavigationBar(
-          currentIndex: _index,
-          onTap: _onItemTapped,
-          items: [
-            BottomNavigationBarItem(
-              icon: Icon(Icons.event_available_outlined, color: navBarTheme.unselectedItemColor),
-              activeIcon: Icon(Icons.event_available, color: navBarTheme.selectedItemColor),
-              label: "Events",
-            ),
-            BottomNavigationBarItem(
-              icon: Icon(Icons.search_rounded, color: navBarTheme.unselectedItemColor),
-              activeIcon: Icon(Icons.search_rounded, color: navBarTheme.selectedItemColor),
-              label: 'Search',
-            ),
-            BottomNavigationBarItem(
-              icon: Icon(Icons.add_circle_outline_sharp, color: navBarTheme.unselectedItemColor),
-              activeIcon: Icon(Icons.add_circle_sharp, color: navBarTheme.selectedItemColor),
-              label: "New Event",
-            ),
-            BottomNavigationBarItem(
-              icon: Icon(Icons.people_alt_outlined, color: navBarTheme.unselectedItemColor),
-              activeIcon: Icon(Icons.people, color: navBarTheme.selectedItemColor),
-              label: "Friends",
-            ),
-            BottomNavigationBarItem(
-              icon: Icon(Icons.person_2_outlined, color: navBarTheme.unselectedItemColor),
-              activeIcon: Icon(Icons.person_2, color: navBarTheme.selectedItemColor),
-              label: "Profile",
-            ),
-          ],
+        bottomNavigationBar: Container(
+          height: 70, // Reduce the overall height
+          color: Theme.of(context).canvasColor,
+          child: Stack(
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                children: [
+                  _buildNavItem(0, Icons.event_available_outlined, Icons.event_available, 'Events'),
+                  _buildNavItem(1, Icons.search_rounded, Icons.search_rounded, 'Search'),
+                  SizedBox(width: 60), // Space for the center button
+                  _buildNavItem(3, Icons.people_alt_outlined, Icons.people, 'Friends'),
+                  _buildNavItem(4, Icons.person_2_outlined, Icons.person_2, 'Profile'),
+                ],
+              ),
+              Positioned(
+                top: 5, // Adjust this value to raise the button
+                left: 0,
+                right: 0,
+                child: _buildCenterButton(),
+              ),
+            ],
+          ),
         ),
         body: Stack(
           children: List.generate(_navigatorKeys.length, (index) {
             return _buildOffstageNavigator(index);
           }),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildNavItem(int index, IconData icon, IconData activeIcon, String label) {
+    bool isSelected = _index == index;
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        IconButton(
+          icon: Icon(
+            isSelected ? activeIcon : icon,
+            color: isSelected ? Theme.of(context).bottomNavigationBarTheme.selectedItemColor : Colors.grey,
+            size: 24,
+          ),
+          onPressed: () => _onItemTapped(index),
+          padding: EdgeInsets.zero, // Remove default padding
+          constraints: BoxConstraints(), // Remove constraints
+        ),
+        Text(
+          label,
+          style: TextStyle(
+            color: isSelected ? Theme.of(context).bottomNavigationBarTheme.selectedItemColor : Colors.grey,
+            fontSize: 12, // Smaller font size
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildCenterButton() {
+    return Container(
+      width: 55,
+      height: 55,
+      decoration: BoxDecoration(
+        shape: BoxShape.circle,
+        color: Theme.of(context).bottomNavigationBarTheme.selectedItemColor,
+      ),
+      child: Center(
+        child: IconButton(
+          icon: Icon(
+            Icons.add_circle_outline_outlined,
+            color: Colors.white,
+            size: 30,
+          ),
+          onPressed: () => _onItemTapped(2),
         ),
       ),
     );

@@ -128,6 +128,7 @@ class _AppState extends ConsumerState<App> {
         return GestureDetector(
           onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
           child: MaterialApp(
+            debugShowCheckedModeBanner: false,
             navigatorKey: navigatorKey,
             navigatorObservers: [routeObserver],
             themeMode: ref.read(themeModeProvider),

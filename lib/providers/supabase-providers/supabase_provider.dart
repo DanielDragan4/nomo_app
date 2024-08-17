@@ -133,7 +133,32 @@ class AuthProvider extends StateNotifier<Session?> {
       }
     }
   }
+  void deleteAccount() async {
+    /*
+      signs the user out by ending the session and removing the session data off of the phone
+
+      Params: none
+      
+      Returns: none
+    */
+    try {
+      String userId = (await supabase).client.auth.currentUser!.id;
+      await (await supabase).client.from('Profile').delete().eq('profile_id', userId);
+      await (await supabase).client.auth.admin.deleteUser(userId);
+
+      state = null;
+    } on AuthException {
+      return;
+    } catch (error) {
+      return;
+    } finally {
+      if (mounted) {
+        session = null;
+      }
+    }
+  }
 }
+
 
 Future<void> checkProfile() async {
   /*

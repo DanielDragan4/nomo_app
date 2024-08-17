@@ -45,15 +45,15 @@
 		<true/>
 	</dict>
 	<key>NSCameraUsageDescription</key>
-	<string>Allow camera access.</string>
+	<string>Allow camera access to add images to your events or your profile</string>
 	<key>NSLocationAlwaysUsageDescription</key>
-	<string>This app needs access to location when in the background.</string>
+	<string>This app needs access to location when in the background to update events shown based on their distance away.</string>
 	<key>NSLocationWhenInUseUsageDescription</key>
-	<string>This app needs access to location when open.</string>
+	<string>This app needs access to location when open to show events near you.</string>
 	<key>NSPhotoLibraryAddUsageDescription</key>
-	<string>Allow saving images to your photo library.</string>
+	<string>Allow saving images to your photo library for your own record of the images.</string>
 	<key>NSPhotoLibraryUsageDescription</key>
-	<string>Allow access to photo library.</string>
+	<string>Allow access to photo library to upload images for events or your profile.</string>
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
 	<key>UIBackgroundModes</key>

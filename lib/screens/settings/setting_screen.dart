@@ -522,6 +522,40 @@ class _SettingScreenState extends ConsumerState<SettingScreen> {
             },
             child: const Text(
               'Log Out',
+              style: TextStyle(color: Colors.red, fontSize: 18),
+            ),
+          ),
+          TextButton(
+            onPressed: () {
+              showDialog(
+                    context: context,
+                    builder: (context) => AlertDialog(
+                          title: Text(
+                            'Are you sure you want to delete your account, all data will be deleted?',
+                            style: TextStyle(color: Theme.of(context).primaryColorDark),
+                          ),
+                          actions: [
+                            TextButton(
+                                onPressed: () async {
+                                  ref.watch(currentUserProvider.notifier).signOut();
+              ref.read(savedSessionProvider.notifier).changeSessionDataList();
+              ref.read(currentUserProvider.notifier).deleteAccount();
+              Navigator.of(context).push(MaterialPageRoute(builder: ((context) => const LoginScreen())));
+                                  ScaffoldMessenger.of(context).hideCurrentSnackBar();
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    const SnackBar(
+                                      content: Text("Account Deleted"),
+                                    ),
+                                  );
+                                },
+                                child: const Text('DELETE')),
+                            TextButton(onPressed: () => Navigator.pop(context), child: const Text('CANCEL')),
+                          ],
+                        ));
+              
+            },
+            child: const Text(
+              'Delete Account',
               style: TextStyle(color: Colors.red, fontSize: 15),
             ),
           ),

@@ -66,12 +66,13 @@ class _NavBarState extends ConsumerState<NavBar> {
       },
       child: Scaffold(
         bottomNavigationBar: Container(
-          height: 70, // Reduce the overall height
+          height: 60, // Reduce the overall height
           color: Theme.of(context).canvasColor,
           child: Stack(
             children: [
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceAround,
+                crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   _buildNavItem(0, Icons.event_available_outlined, Icons.event_available, 'Events'),
                   _buildNavItem(1, Icons.search_rounded, Icons.search_rounded, 'Search'),
@@ -102,23 +103,28 @@ class _NavBarState extends ConsumerState<NavBar> {
     bool isSelected = _index == index;
     return Column(
       mainAxisSize: MainAxisSize.min,
-      mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        IconButton(
-          icon: Icon(
-            isSelected ? activeIcon : icon,
-            color: isSelected ? Theme.of(context).bottomNavigationBarTheme.selectedItemColor : Colors.grey,
-            size: 24,
+        Padding(
+          padding: const EdgeInsets.only(top: 8),
+          child: Container(
+            height: 24,
+            child: IconButton(
+              icon: Icon(
+                isSelected ? activeIcon : icon,
+                color: isSelected ? Theme.of(context).bottomNavigationBarTheme.selectedItemColor : Colors.grey,
+                size: 24,
+              ),
+              onPressed: () => _onItemTapped(index),
+              padding: EdgeInsets.zero,
+              constraints: BoxConstraints(), // Remove constraints
+            ),
           ),
-          onPressed: () => _onItemTapped(index),
-          padding: EdgeInsets.zero, // Remove default padding
-          constraints: BoxConstraints(), // Remove constraints
         ),
         Text(
           label,
           style: TextStyle(
             color: isSelected ? Theme.of(context).bottomNavigationBarTheme.selectedItemColor : Colors.grey,
-            fontSize: 12, // Smaller font size
+            fontSize: 14, // Smaller font size
           ),
         ),
       ],
@@ -127,8 +133,8 @@ class _NavBarState extends ConsumerState<NavBar> {
 
   Widget _buildCenterButton() {
     return Container(
-      width: 55,
-      height: 55,
+      width: 50,
+      height: 50,
       decoration: BoxDecoration(
         shape: BoxShape.circle,
         color: Theme.of(context).bottomNavigationBarTheme.selectedItemColor,

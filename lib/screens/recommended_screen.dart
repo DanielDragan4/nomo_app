@@ -345,31 +345,35 @@ class _RecommendedScreenState extends ConsumerState<RecommendedScreen> {
                   // Preload the first few images
                   preloadImages(context, events, 0, 5);
 
-                  if(events.isNotEmpty) {
+                  if (events.isNotEmpty) {
                     return ListView.builder(
-                    shrinkWrap: true,
-                    physics: const BouncingScrollPhysics(),
-                    key: const PageStorageKey<String>('page'),
-                    itemCount: events.length,
-                    itemBuilder: (context, index) {
-                      // Preload next few images when nearing the end of the list
-                      if (index % 5 == 0) {
-                        preloadImages(context, events, index + 1, 5);
-                      }
+                      shrinkWrap: true,
+                      physics: const BouncingScrollPhysics(),
+                      key: const PageStorageKey<String>('page'),
+                      itemCount: events.length,
+                      itemBuilder: (context, index) {
+                        // Preload next few images when nearing the end of the list
+                        if (index % 5 == 0) {
+                          preloadImages(context, events, index + 1, 5);
+                        }
 
-                      return EventTab(
-                        eventData: events[index],
-                        preloadedImage: NetworkImage(events[index].imageUrl),
-                      );
-                    },
-                  );
-                  }
-                  else {
+                        return EventTab(
+                          eventData: events[index],
+                          preloadedImage: NetworkImage(events[index].imageUrl),
+                        );
+                      },
+                    );
+                  } else {
                     return Center(
                       child: Padding(
                         padding: const EdgeInsets.all(20),
-                        child: Text('There do not seem to be any events in your are. Try updating your location in the profile page!',
-                        style: TextStyle(fontSize: MediaQuery.of(context).devicePixelRatio * 7, fontWeight: FontWeight.w500,color: Theme.of(context).colorScheme.onSecondary),),
+                        child: Text(
+                          'There do not seem to be any events in your area. Try updating your location in the profile page!',
+                          style: TextStyle(
+                              fontSize: MediaQuery.of(context).devicePixelRatio * 7,
+                              fontWeight: FontWeight.w500,
+                              color: Theme.of(context).colorScheme.onSecondary),
+                        ),
                       ),
                     );
                   }

@@ -46,7 +46,12 @@ class AttendEventProvider extends StateNotifier<List<Event>> {
     final supabaseClient = (await supabase).client;
     final getLocation = await SharedPreferences.getInstance();
     final exsistingLocation = getLocation.getStringList('savedLocation');
-    final currentPosition = Position.fromMap(json.decode(exsistingLocation![0]));
+    final currentPosition ;
+    if(exsistingLocation != null) {
+      currentPosition = Position.fromMap(json.decode(exsistingLocation[0]));
+    } else {
+      currentPosition = null;
+    }
 
     for (var eventData in codedList) {
       String profileUrl = supabaseClient.storage.from('Images').getPublicUrl(eventData['profile_path']);
@@ -54,7 +59,7 @@ class AttendEventProvider extends StateNotifier<List<Event>> {
 
       var distance;
 
-      if (eventData['lat'] != null) {
+      if ((eventData['lat'] != null) && (currentPosition != null)) {
         distance = Geolocator.distanceBetween(
                 currentPosition.latitude, currentPosition.longitude, eventData['lat'], eventData['long']) *
             0.000621371;

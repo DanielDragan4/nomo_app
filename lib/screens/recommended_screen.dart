@@ -345,7 +345,8 @@ class _RecommendedScreenState extends ConsumerState<RecommendedScreen> {
                   // Preload the first few images
                   preloadImages(context, events, 0, 5);
 
-                  return ListView.builder(
+                  if(events.isNotEmpty) {
+                    return ListView.builder(
                     shrinkWrap: true,
                     physics: const BouncingScrollPhysics(),
                     key: const PageStorageKey<String>('page'),
@@ -362,6 +363,16 @@ class _RecommendedScreenState extends ConsumerState<RecommendedScreen> {
                       );
                     },
                   );
+                  }
+                  else {
+                    return Center(
+                      child: Padding(
+                        padding: const EdgeInsets.all(20),
+                        child: Text('There do not seem to be any events in your are. Try updating your location in the profile page!',
+                        style: TextStyle(fontSize: MediaQuery.of(context).devicePixelRatio * 7, fontWeight: FontWeight.w500,color: Theme.of(context).colorScheme.onSecondary),),
+                      ),
+                    );
+                  }
                 } else if (snapshot.hasError) {
                   return Text("Error: ${snapshot.error}");
                 } else {

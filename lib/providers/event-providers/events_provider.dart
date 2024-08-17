@@ -30,20 +30,42 @@ class EventProvider extends StateNotifier<List?> {
     final getLocation = await SharedPreferences.getInstance();
     final exsistingLocation = getLocation.getStringList('savedLocation');
     final setRadius = getLocation.getStringList('savedRadius');
-    final _currentPosition = Position.fromMap(json.decode(exsistingLocation![0]));
-    final _preferredRadius = double.parse(setRadius!.first);
-    final _finalRadius;
+    final _currentPosition;
+    var _preferredRadius;
+
+    if(setRadius != null){
+    String radStr = setRadius.first.trim();
+    print("radStr after trim: '$radStr'");
+    _preferredRadius = double.tryParse(radStr);
+    if (_preferredRadius == null) {
+        print("Failed to parse '$radStr' as a double");
+        // You could set a default value here
+        _preferredRadius = 10.0;
+    }
+    } else {
+        _preferredRadius = null;
+    }
+    final _finalRadius; 
     _finalRadius = overrideRadius != null
         ? overrideRadius > _preferredRadius
             ? overrideRadius
             : _preferredRadius
         : _preferredRadius;
+    if(exsistingLocation != null) {
+      _currentPosition = Position.fromMap(json.decode(exsistingLocation[0]));
+    } else {
+      _currentPosition = null;
+    }
+    var events = [];
 
-    var events = await supabaseClient.rpc('get_recommended_events', params: {
-      'user_lon': _currentPosition.longitude,
-      'user_lat': _currentPosition.latitude,
-      'radius': _finalRadius
-    });
+    if(_currentPosition != null) {
+      events = await supabaseClient.rpc('get_recommended_events', params: {
+        'user_lon': _currentPosition.longitude,
+        'user_lat': _currentPosition.latitude,
+        'radius': _finalRadius
+      });
+    }
+
     return events.toList();
   }
 
@@ -62,7 +84,7 @@ class EventProvider extends StateNotifier<List?> {
       Returns: None, Provider state is set
     */
 
-    final codedList = overrideRadius != null ? await readEvents(overrideRadius: overrideRadius) : await readEvents();
+    final codedList = (overrideRadius != null) ? await readEvents(overrideRadius: overrideRadius) : await readEvents();
 
     List<Event> deCodedList = [];
     final supabaseClient = (await supabase).client;

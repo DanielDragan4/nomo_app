@@ -39,11 +39,19 @@ class EventTab extends ConsumerStatefulWidget {
 
 class _EventTabState extends ConsumerState<EventTab> {
   late bool bookmarkBool;
+  bool _isMounted = false;
 
   @override
   void initState() {
     super.initState();
+    _isMounted = true;
     bookmarkBool = widget.eventData.bookmarked;
+  }
+
+  @override
+  void dispose() {
+    _isMounted = false;
+    super.dispose();
   }
 
   @override
@@ -761,6 +769,8 @@ class _EventTabState extends ConsumerState<EventTab> {
     await ref.read(profileProvider.notifier).deleteBlockedTime(null, widget.eventData.eventId);
     var newEData = await ref.read(eventsProvider.notifier).deCodeLinkEvent(widget.eventData.eventId);
 
+    if (!_isMounted) return;
+
     if (widget.eventData.otherHost != null) {
       newEData.otherAttend = widget.eventData.attending;
       newEData.otherHost = widget.eventData.otherHost;
@@ -779,13 +789,15 @@ class _EventTabState extends ConsumerState<EventTab> {
   }
 
   Future<void> newData() async {
+    if (!_isMounted) return;
+
     Event newEventData = await ref.read(eventsProvider.notifier).deCodeLinkEvent(widget.eventData.eventId);
     if (widget.eventData.otherHost != null) {
       newEventData.otherAttend = widget.eventData.attending;
       newEventData.otherHost = widget.eventData.otherHost;
       newEventData.otherBookmark = widget.eventData.otherBookmark;
     }
-    if(widget.eventData.distanceAway != null) {
+    if (widget.eventData.distanceAway != null) {
       newEventData.distanceAway = widget.eventData.distanceAway;
     }
     setState(() {
@@ -809,6 +821,8 @@ class _EventTabState extends ConsumerState<EventTab> {
       newEventData.otherHost = widget.eventData.otherHost;
       newEventData.otherBookmark = widget.eventData.otherBookmark;
     }
+
+    if (!_isMounted) return;
 
     setState(() {
       widget.eventData.attending = true;

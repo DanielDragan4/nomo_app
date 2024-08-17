@@ -139,7 +139,7 @@ class _DetailedEventScreenState extends ConsumerState<DetailedEventScreen> {
         GestureDetector(
           onTap: () => Navigator.of(context)
               .push(MaterialPageRoute(
-                builder: (context) => ProfileScreen(isUser: false, userId: widget.eventData?.host),
+                builder: (context) => ProfileScreen(isUser: false, userId: widget.eventData.host),
               ))
               .whenComplete(getOriginalProfileInfo),
           child: Row(children: [

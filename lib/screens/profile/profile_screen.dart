@@ -656,7 +656,7 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
                         builder: (context, snapshot) {
                           if (snapshot.data != null) {
                             final hostingEvents = snapshot.data!.where((event) {
-                              if (showHosting && event.otherHost) {
+                              if (showHosting && event.otherHost != null) {
                                 return true;
                               } else {
                                 return false;
@@ -666,9 +666,10 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
                               final now = DateTime.now();
                               final startDate = event.sdate;
                               final endDate = event.edate;
-                              if (showUpcoming && event.otherAttend && startDate.compareTo(now.toString()) > 0)
+                              if (showUpcoming && event.otherAttend != null && startDate.compareTo(now.toString()) > 0)
                                 return true;
-                              if (showPassed && event.otherAttend && endDate.compareTo(now.toString()) < 0) return true;
+                              if (showPassed && event.otherAttend != null && endDate.compareTo(now.toString()) < 0)
+                                return true;
                               return false;
                             }).toList();
                             if (attendingEvents.isEmpty && isSelected.first) {

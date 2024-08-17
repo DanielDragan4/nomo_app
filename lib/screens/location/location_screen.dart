@@ -1,21 +1,23 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:nomo/providers/event-providers/events_provider.dart';
 import 'package:nomo/screens/NavBar.dart';
 import 'package:nomo/widgets/address_search_widget.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-class LocationScreen extends StatefulWidget {
+class LocationScreen extends ConsumerStatefulWidget {
   const LocationScreen({super.key, required this.isCreation});
 
   final bool isCreation;
 
   @override
-  State<LocationScreen> createState() => _LocationScreenState();
+  ConsumerState<LocationScreen> createState() => _LocationScreenState();
 }
 
-class _LocationScreenState extends State<LocationScreen> {
+class _LocationScreenState extends ConsumerState<LocationScreen> {
   String? _currentAddress;
   Position? _currentPosition;
   double _preferredRadius = 10.0;
@@ -319,6 +321,7 @@ class _LocationScreenState extends State<LocationScreen> {
                   ? () async {
                       final saveRadius = await SharedPreferences.getInstance();
                       saveRadius.setStringList('savedRadius', [_preferredRadius.toString()]);
+                      ref.read(eventsProvider.notifier).deCodeData();
                       if (widget.isCreation) {
                         Navigator.of(context).pushReplacement(
                           MaterialPageRoute(builder: (context) => const NavBar()),

@@ -17,7 +17,6 @@ class ActiveChatIdNotifier extends StateNotifier<String?> {
 }
 
 // StateNotifierProvider to expose the ActiveChatIdNotifier
-final activeChatIdProvider =
-    StateNotifierProvider<ActiveChatIdNotifier, String?>((ref) {
+final activeChatIdProvider = StateNotifierProvider<ActiveChatIdNotifier, String?>((ref) {
   return ActiveChatIdNotifier();
 });

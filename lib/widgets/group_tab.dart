@@ -36,6 +36,8 @@ class _FriendTabState extends ConsumerState<GroupTab> {
 
   @override
   Widget build(BuildContext context) {
+    final avatar = widget.groupData['avatar'];
+
     return GestureDetector(
       onTap: () {
         Navigator.of(context).push(MaterialPageRoute(
@@ -53,7 +55,7 @@ class _FriendTabState extends ConsumerState<GroupTab> {
             children: [
               CircleAvatar(
                 radius: MediaQuery.of(context).size.width * .1,
-                backgroundColor: Theme.of(context).colorScheme.onSecondary,
+                backgroundImage: NetworkImage(avatar),
               ),
               const SizedBox(width: 10),
               Text(

@@ -108,8 +108,9 @@ class _CreateAccountScreenState extends ConsumerState<CreateAccountScreen> {
         throw Exception('Unable to decode image');
       }
     } else {
-      imgId =
-          await supabase.client.from('Images').insert({'image_url': 'default/avatar/sadboi.png'}).select('images_id');
+      imgId = await supabase.client
+          .from('Images')
+          .insert({'image_url': 'default/avatar/nomo_logo_2.jpg'}).select('images_id');
     }
     return imgId[0]["images_id"];
   }

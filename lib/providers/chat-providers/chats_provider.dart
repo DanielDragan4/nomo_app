@@ -146,7 +146,25 @@ class ChatsProvider extends StateNotifier<List?> {
     for (var group in codedGroupInfo) {
       for (var chatId in chatIds) {
         if (chatId == group['group_id']) {
-          groupInfo.add({'group_id': chatId, 'title': group['name']});
+          var groupAvatarUrl;
+          if (group['group_avatar'] != null) {
+            final response = await supabaseClient
+                .from('Images')
+                .select('image_url')
+                .eq('images_id', group['group_avatar'])
+                .single(); // use single() to get a single record
+
+            final avatarPath = response['image_url'] as String;
+
+            groupAvatarUrl = supabaseClient.storage.from('Images').getPublicUrl(avatarPath);
+          } else {
+            groupAvatarUrl = supabaseClient.storage.from('Images').getPublicUrl('default/avatar/nomo_logo_2.jpg');
+          }
+          groupInfo.add({
+            'group_id': chatId,
+            'title': group['name'],
+            'avatar': groupAvatarUrl,
+          });
         }
       }
     }
@@ -167,7 +185,7 @@ class ChatsProvider extends StateNotifier<List?> {
     await supabaseClient.from('Group_Messages').insert(newMessage);
   }
 
-  Future<void> createNewGroup(String title, List users) async {
+  Future<void> createNewGroup(String title, List users, String? avatarPath) async {
     /*
       Creates a new groupchat based on the tile and list of users provided
 
@@ -179,6 +197,7 @@ class ChatsProvider extends StateNotifier<List?> {
     users.add(supabaseClient.auth.currentUser!.id);
     var newChat = {
       'name': title,
+      'group_avatar': avatarPath ?? 'default/avatar/nomo_logo_2.jpg',
     };
     var newGroup = await supabaseClient.from('Groups').insert(newChat).select().single();
 

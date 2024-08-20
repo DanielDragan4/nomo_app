@@ -149,6 +149,11 @@ class _ChatScreenState extends ConsumerState<ChatScreen> with RouteAware {
 
   @override
   Widget build(BuildContext context) {
+    var avatar;
+    if (widget.groupInfo != null) {
+      avatar = widget.groupInfo!['avatar'];
+    }
+
     return Scaffold(
       backgroundColor: Theme.of(context).colorScheme.surface,
       appBar: AppBar(
@@ -162,6 +167,11 @@ class _ChatScreenState extends ConsumerState<ChatScreen> with RouteAware {
                 },
                 child: Row(
                   children: [
+                    CircleAvatar(
+                      backgroundImage: NetworkImage(avatar ?? ''),
+                      radius: 20,
+                    ),
+                    SizedBox(width: 12),
                     Expanded(
                       child: Text(
                         widget.groupInfo?['title'] ?? 'Unknown',

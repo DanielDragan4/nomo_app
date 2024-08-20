@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -6,9 +7,13 @@ import 'package:image_picker/image_picker.dart';
 import 'package:nomo/models/friend_model.dart';
 import 'package:nomo/providers/chat-providers/chats_provider.dart';
 import 'package:nomo/providers/profile_provider.dart';
+import 'package:nomo/providers/supabase-providers/supabase_provider.dart';
 import 'package:nomo/screens/search_screen.dart';
 import 'package:nomo/widgets/friend_tab.dart';
 import 'package:share_plus/share_plus.dart';
+import 'package:image/image.dart' as img;
+import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:uuid/uuid.dart';
 
 class NewGroupChatScreen extends ConsumerStatefulWidget {
   const NewGroupChatScreen({super.key});
@@ -117,6 +122,55 @@ class _NewGroupChatScreenState extends ConsumerState<NewGroupChatScreen> {
     setState(() {
       _selectedImage = File(pickedFile.path);
     });
+  }
+
+  dynamic uploadGroupAvatar(File? imageFile) async {
+    final supabase = (await ref.read(supabaseInstance));
+    final userId = supabase.client.auth.currentUser!.id.toString();
+    PostgrestList imgId;
+
+    var uuid = const Uuid();
+    final currentImageName = uuid.v4();
+
+    if (imageFile != null) {
+      // Read the file
+      Uint8List imageBytes = await imageFile.readAsBytes();
+
+      // Decode the image
+      img.Image? originalImage = img.decodeImage(imageBytes);
+
+      if (originalImage != null) {
+        // Resize the image
+        img.Image resizedImage =
+            img.copyResize(originalImage, width: 150, height: 150, interpolation: img.Interpolation.linear);
+
+        // Encode the image to PNG
+        List<int> resizedImageBytes = img.encodePng(resizedImage);
+
+        // Create a temporary file with the resized image
+        File tempFile = await File('${Directory.systemTemp.path}/resized_$currentImageName.png').create();
+        await tempFile.writeAsBytes(resizedImageBytes);
+
+        // Upload the resized image
+        final response =
+            await supabase.client.storage.from('Images').upload('$userId/groups/$currentImageName', tempFile);
+
+        // Delete the temporary file
+        await tempFile.delete();
+
+        imgId = await supabase.client
+            .from('Images')
+            .insert({'image_url': '$userId/groups/$currentImageName'}).select('images_id');
+      } else {
+        // Handle error: unable to decode image
+        throw Exception('Unable to decode image');
+      }
+    } else {
+      imgId = await supabase.client
+          .from('Images')
+          .insert({'image_url': 'default/avatar/nomo_logo_2.jgp'}).select('images_id');
+    }
+    return imgId[0]["images_id"];
   }
 
   @override
@@ -314,8 +368,13 @@ class _NewGroupChatScreenState extends ConsumerState<NewGroupChatScreen> {
             SizedBox(height: 16.0),
             ElevatedButton(
               onPressed: createGroup
-                  ? () {
-                      ref.read(chatsProvider.notifier).createNewGroup(titleController.text, members);
+                  ? () async {
+                      String? avatarPath = await uploadGroupAvatar(_selectedImage);
+                      ref.read(chatsProvider.notifier).createNewGroup(
+                            titleController.text,
+                            members,
+                            avatarPath,
+                          );
                       Navigator.popUntil(
                         context,
                         ModalRoute.withName('/'),

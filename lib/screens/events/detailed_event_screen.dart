@@ -37,8 +37,8 @@ class _DetailedEventScreenState extends ConsumerState<DetailedEventScreen> {
     super.initState();
     bookmarkBool = widget.eventData.bookmarked;
     setState(() {
-    _selectedStartDate = DateTime.parse(widget.eventData.sdate.first);
-    _selectedEndDate = DateTime.parse(widget.eventData.edate.first);
+      _selectedStartDate = DateTime.parse(widget.eventData.sdate.first);
+      _selectedEndDate = DateTime.parse(widget.eventData.edate.first);
     });
   }
 
@@ -309,122 +309,125 @@ class _DetailedEventScreenState extends ConsumerState<DetailedEventScreen> {
     List<DateTime> parsedEndDates = [];
     for (var event in widget.eventData.sdate) {
       parsedStartDates.add(DateTime.parse(event));
-      }
+    }
     for (var event in widget.eventData.edate) {
       parsedEndDates.add(DateTime.parse(event));
-      }
+    }
     int? _selectedIndex = 0;
     showDialog(
-  context: context,
-  builder: (BuildContext context) {
-    return Dialog(
-      backgroundColor: Theme.of(context).cardColor,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(16),
-      ),
-      child: Container(
-        width: 320,
-        height: 480,
-        padding: EdgeInsets.all(24),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              'Select a Date and Time',
-              style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                fontWeight: FontWeight.bold,
-                color: Theme.of(context).colorScheme.onSecondary
-              ),
-            ),
-            SizedBox(height: 24),
-            Expanded(
-              child: ListView.separated(
-                itemCount: parsedStartDates.length,
-                separatorBuilder: (context, index) => Divider(height: 1),
-                itemBuilder: (context, index) {
-                  final startDate = parsedStartDates[index];
-                  final endDate = parsedEndDates[index];
-                  final isSelected = (_selectedIndex == index);
+      context: context,
+      builder: (BuildContext context) {
+        return Dialog(
+          backgroundColor: Theme.of(context).cardColor,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+          ),
+          child: Container(
+            width: 320,
+            height: 480,
+            padding: EdgeInsets.all(24),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Select a Date and Time',
+                  style: Theme.of(context)
+                      .textTheme
+                      .headlineSmall
+                      ?.copyWith(fontWeight: FontWeight.bold, color: Theme.of(context).colorScheme.onSecondary),
+                ),
+                SizedBox(height: 24),
+                Expanded(
+                    child: ListView.separated(
+                  itemCount: parsedStartDates.length,
+                  separatorBuilder: (context, index) => Divider(height: 1),
+                  itemBuilder: (context, index) {
+                    final startDate = parsedStartDates[index];
+                    final endDate = parsedEndDates[index];
+                    final isSelected = (_selectedIndex == index);
 
-                  return InkWell(
-                    onTap: () {
-                      setState(() {
-                        _selectedIndex = index;
-                        _selectedStartDate = parsedStartDates[_selectedIndex!];
-                        _selectedEndDate = parsedEndDates[_selectedIndex!];
-                      });
-                    },
-                    child: Container(
-                      padding: EdgeInsets.symmetric(vertical: 12, horizontal: 16),
-                      decoration: BoxDecoration(
-                        color: isSelected ? Theme.of(context).primaryColor.withOpacity(0.1) : null,
-                        borderRadius: BorderRadius.circular(8),
+                    return InkWell(
+                      onTap: () {
+                        setState(() {
+                          _selectedIndex = index;
+                          _selectedStartDate = parsedStartDates[_selectedIndex!];
+                          _selectedEndDate = parsedEndDates[_selectedIndex!];
+                        });
+                      },
+                      child: Container(
+                        padding: EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+                        decoration: BoxDecoration(
+                          color: isSelected ? Theme.of(context).primaryColor.withOpacity(0.1) : null,
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              ((_formatDate(startDate)).compareTo((_formatDate(endDate))) == 0)
+                                  ? '${_formatDate(startDate)}'
+                                  : '${_formatDate(startDate)} - ${_formatDate(endDate)}',
+                              style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                color: isSelected
+                                    ? Theme.of(context).primaryColor
+                                    : Theme.of(context).colorScheme.onSecondary,
+                              ),
+                            ),
+                            SizedBox(height: 4),
+                            Text(
+                              '${_formatTime(startDate)} - ${_formatTime(endDate)}',
+                              style: TextStyle(
+                                color: isSelected
+                                    ? Theme.of(context).primaryColor
+                                    : Theme.of(context).colorScheme.onSecondary,
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            ((_formatDate(startDate)).compareTo((_formatDate(endDate))) == 0) ?
-                              '${_formatDate(startDate)}'
-                            :
-                            '${_formatDate(startDate)} - ${_formatDate(endDate)}',
-                            style: TextStyle(
-                              fontWeight: FontWeight.bold,
-                              color: isSelected ? Theme.of(context).primaryColor : Theme.of(context).colorScheme.onSecondary,
-                            ),
-                          ),
-                          SizedBox(height: 4),
-                          Text(
-                            '${_formatTime(startDate)} - ${_formatTime(endDate)}',
-                            style: TextStyle(
-                              color: isSelected ? Theme.of(context).primaryColor :Theme.of(context).colorScheme.onSecondary,
-                            ),
-                          ),
-                        ],
+                    );
+                  },
+                )),
+                SizedBox(height: 24),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    TextButton(
+                      onPressed: () => Navigator.of(context).pop(),
+                      child: Text('Cancel'),
+                      style: TextButton.styleFrom(
+                        padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                       ),
                     ),
-                  );
-                },
-              )
-            ),
-            SizedBox(height: 24),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: [
-                TextButton(
-                  onPressed: () => Navigator.of(context).pop(),
-                  child: Text('Cancel'),
-                  style: TextButton.styleFrom(
-                    padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                  ),
-                ),
-                SizedBox(width: 16),
-                ElevatedButton(
-                  onPressed: _selectedIndex != null
-                    ? () {
-                        // Handle setting the date
-                        Navigator.of(context).pop({
-                          'startDate': _selectedStartDate,
-                          'endDate': _selectedEndDate,
-                        });
-                      }
-                    : null,
-                  child: Text('Set Date'),
-                  style: ElevatedButton.styleFrom(
-                    padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                  ),
+                    SizedBox(width: 16),
+                    ElevatedButton(
+                      onPressed: _selectedIndex != null
+                          ? () {
+                              // Handle setting the date
+                              Navigator.of(context).pop({
+                                'startDate': _selectedStartDate,
+                                'endDate': _selectedEndDate,
+                              });
+                            }
+                          : null,
+                      child: Text('Set Date'),
+                      style: ElevatedButton.styleFrom(
+                        padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                      ),
+                    ),
+                  ],
                 ),
               ],
             ),
-          ],
-        ),
-      ),
+          ),
+        );
+      },
     );
-  },
-);
   }
-   String _formatDate(DateTime date) {
+
+  String _formatDate(DateTime date) {
     return DateFormat('MMM d, yyyy').format(date);
   }
 
@@ -432,98 +435,89 @@ class _DetailedEventScreenState extends ConsumerState<DetailedEventScreen> {
     return DateFormat('h:mm a').format(date);
   }
 
-
   Widget _buildDateTimeInfo(BuildContext context, bool isSmallScreen) {
-  final startDate = _selectedStartDate;
-  final endDate = _selectedEndDate;
-  final dateFormat = DateFormat('MMM d, yyyy');
-  final timeFormat = DateFormat('h:mm a');
+    final startDate = _selectedStartDate;
+    final endDate = _selectedEndDate;
+    final dateFormat = DateFormat('MMM d, yyyy');
+    final timeFormat = DateFormat('h:mm a');
 
-  var displayedDates;
+    var displayedDates;
 
-  if (dateFormat.format(startDate) == dateFormat.format(endDate)) {
-    displayedDates = "${dateFormat.format(startDate)}";
-  } else {
-    displayedDates = "${dateFormat.format(startDate)} - ${dateFormat.format(endDate)}";
+    if (dateFormat.format(startDate) == dateFormat.format(endDate)) {
+      displayedDates = "${dateFormat.format(startDate)}";
+    } else {
+      displayedDates = "${dateFormat.format(startDate)} - ${dateFormat.format(endDate)}";
+    }
+
+    return GestureDetector(
+      onTap: () => _showDateTimeSelectorDialog(context),
+      child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+          decoration: BoxDecoration(
+            color: Theme.of(context).colorScheme.surface,
+            borderRadius: BorderRadius.circular(8),
+          ),
+          child: (dateFormat.format(startDate) == dateFormat.format(endDate))
+              ? Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
+                  Container(
+                      child: Row(children: [
+                    Icon(Icons.calendar_today, size: 18, color: Theme.of(context).colorScheme.onSurface),
+                    const SizedBox(width: 8),
+                    Text(
+                      displayedDates,
+                      style: TextStyle(
+                        fontSize: isSmallScreen ? 14 : 16,
+                        fontWeight: FontWeight.bold,
+                        color: Theme.of(context).colorScheme.onSurface,
+                      ),
+                    ),
+                  ])),
+                  Container(
+                      child: Row(
+                    children: [
+                      Icon(Icons.access_time, size: 18, color: Theme.of(context).colorScheme.onSurface),
+                      const SizedBox(width: 8),
+                      Text(
+                        '${timeFormat.format(startDate)} - ${timeFormat.format(endDate)}',
+                        style: TextStyle(
+                          fontSize: isSmallScreen ? 14 : 16,
+                          color: Theme.of(context).colorScheme.onSurface,
+                        ),
+                      ),
+                    ],
+                  ))
+                ])
+              : Column(
+                  children: [
+                    Row(mainAxisAlignment: MainAxisAlignment.start, children: [
+                      Icon(Icons.calendar_today, size: 18, color: Theme.of(context).colorScheme.onSurface),
+                      const SizedBox(width: 8),
+                      Text(
+                        displayedDates,
+                        style: TextStyle(
+                          fontSize: isSmallScreen ? 14 : 16,
+                          fontWeight: FontWeight.bold,
+                          color: Theme.of(context).colorScheme.onSurface,
+                        ),
+                      ),
+                    ]),
+                    Row(
+                      children: [
+                        Icon(Icons.access_time, size: 18, color: Theme.of(context).colorScheme.onSurface),
+                        const SizedBox(width: 8),
+                        Text(
+                          '${timeFormat.format(startDate)} - ${timeFormat.format(endDate)}',
+                          style: TextStyle(
+                            fontSize: isSmallScreen ? 14 : 16,
+                            color: Theme.of(context).colorScheme.onSurface,
+                          ),
+                        ),
+                      ],
+                    )
+                  ],
+                )),
+    );
   }
-
-  return GestureDetector(
-    onTap: () => _showDateTimeSelectorDialog(context),
-    child: Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-      decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.surface,
-        borderRadius: BorderRadius.circular(8),
-      ),
-      child: (dateFormat.format(startDate) == dateFormat.format(endDate)) 
-      ? 
-      Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Container ( 
-            child: 
-            Row(
-              children:
-              [
-                Icon(Icons.calendar_today, size: 18, color: Theme.of(context).colorScheme.onSurface),
-          const SizedBox(width: 8),
-          Text(
-            displayedDates,
-            style: TextStyle(
-              fontSize: isSmallScreen ? 14 : 16,
-              fontWeight: FontWeight.bold,
-              color: Theme.of(context).colorScheme.onSurface,
-            ),
-          ),])),
-          Container ( 
-            child: 
-            Row(
-              children:
-              [Icon(Icons.access_time, size: 18, color: Theme.of(context).colorScheme.onSurface),
-          const SizedBox(width: 8),
-          Text(
-            '${timeFormat.format(startDate)} - ${timeFormat.format(endDate)}',
-            style: TextStyle(
-              fontSize: isSmallScreen ? 14 : 16,
-              color: Theme.of(context).colorScheme.onSurface,
-            ),
-          ),
-        ],
-      ))])
-      : Column(
-        children: [Row(
-        mainAxisAlignment: MainAxisAlignment.start,
-        children: [
-          Icon(Icons.calendar_today, size: 18, color: Theme.of(context).colorScheme.onSurface),
-          const SizedBox(width: 8),
-          Text(
-            displayedDates,
-            style: TextStyle(
-              fontSize: isSmallScreen ? 14 : 16,
-              fontWeight: FontWeight.bold,
-              color: Theme.of(context).colorScheme.onSurface,
-            ),
-          ),
-          ]
-          ),
-          Row(
-            children: [
-              Icon(Icons.access_time, size: 18, color: Theme.of(context).colorScheme.onSurface),
-          const SizedBox(width: 8),
-          Text(
-            '${timeFormat.format(startDate)} - ${timeFormat.format(endDate)}',
-            style: TextStyle(
-              fontSize: isSmallScreen ? 14 : 16,
-              color: Theme.of(context).colorScheme.onSurface,
-            ),
-          ),
-            ],
-          )
-          ],
-      )
-    ),
-  );
-}
 
   Widget _buildAttendeeInfo(BuildContext context, bool isSmallScreen) {
     return Row(
@@ -755,7 +749,7 @@ class _DetailedEventScreenState extends ConsumerState<DetailedEventScreen> {
 
   void _showEditEventDialog(BuildContext context) {
     Navigator.of(context).push(MaterialPageRoute(
-      builder: ((context) => EventCreateScreen(
+      builder: ((context) => NewEventScreen(
             event: widget.eventData,
             isEdit: true,
           )),
@@ -844,20 +838,28 @@ class _DetailedEventScreenState extends ConsumerState<DetailedEventScreen> {
   Widget _buildMoreOptionsButton(BuildContext context) {
     return PopupMenuButton<Options>(
       iconColor: Theme.of(context).colorScheme.onSecondary,
+      color: Theme.of(context).colorScheme.secondary,
       onSelected: (Options item) {
         if (item == Options.itemOne) {
           _shareEventLink();
         }
       },
       itemBuilder: (context) => <PopupMenuEntry<Options>>[
-        const PopupMenuItem(value: Options.itemOne, child: Text("Share Link")),
+        PopupMenuItem(
+            value: Options.itemOne,
+            child: Text(
+              "Share Link",
+              style: TextStyle(color: Theme.of(context).colorScheme.onSecondary),
+            )),
       ],
     );
   }
 
   Future<void> attendeeJoinEvent() async {
     final supabase = (await ref.read(supabaseInstance)).client;
-    await ref.read(eventsProvider.notifier).joinEvent(supabase.auth.currentUser!.id, widget.eventData.eventId, _selectedStartDate, _selectedEndDate);
+    await ref
+        .read(eventsProvider.notifier)
+        .joinEvent(supabase.auth.currentUser!.id, widget.eventData.eventId, _selectedStartDate, _selectedEndDate);
   }
 
   Future<void> attendeeLeaveEvent() async {

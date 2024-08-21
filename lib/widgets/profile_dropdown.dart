@@ -38,7 +38,7 @@ class _ProfileDropdownState extends ConsumerState<ProfileDropdown> {
     options? selectedOption;
 
     return PopupMenuButton<options>(
-        iconColor: Theme.of(context).colorScheme.onSecondary,
+        iconColor: Theme.of(context).colorScheme.onPrimary,
         onSelected: (options item) {
           setState(
             () {

@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:nomo/main.dart';
 import 'package:nomo/models/friend_model.dart';
+import 'package:nomo/models/profile_model.dart';
 import 'package:nomo/providers/chat-providers/chats_provider.dart';
+import 'package:nomo/providers/profile_provider.dart';
 import 'package:nomo/widgets/message_widget.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:nomo/providers/chat-providers/chat_id_provider.dart';
@@ -23,15 +25,22 @@ class _ChatScreenState extends ConsumerState<ChatScreen> with RouteAware {
   List? userIdAndAvatar;
   Stream<List<Map<String, dynamic>>>? _chatStream;
   String? chatID;
+  bool _showMemberList = false;
 
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _initializeChat();
+    });
+  }
+
+  void _initializeChat() async {
     if (widget.groupInfo == null) {
-      _initializeChatStream();
-      _fetchChatID();
+      await _initializeChatStream();
+      await _fetchChatID();
     } else {
-      _initializeGroupChatStream();
+      await _initializeGroupChatStream();
       // Update activeChatId in App state
       ref.read(activeChatIdProvider.notifier).setActiveChatId(widget.groupInfo!['group_id']);
     }
@@ -140,22 +149,40 @@ class _ChatScreenState extends ConsumerState<ChatScreen> with RouteAware {
 
   @override
   Widget build(BuildContext context) {
+    var avatar;
+    if (widget.groupInfo != null) {
+      avatar = widget.groupInfo!['avatar'];
+    }
+
     return Scaffold(
       backgroundColor: Theme.of(context).colorScheme.surface,
-      appBar: (widget.groupInfo != null)
-          ? AppBar(
-              backgroundColor: Theme.of(context).colorScheme.surface,
-              title: Expanded(
-                child: Text(
-                  (widget.groupInfo == null) ? widget.chatterUser!.friendProfileName : widget.groupInfo!['title'],
-                  overflow: TextOverflow.ellipsis,
+      appBar: AppBar(
+        backgroundColor: Theme.of(context).colorScheme.surface,
+        title: widget.groupInfo != null
+            ? GestureDetector(
+                onTap: () {
+                  setState(() {
+                    _showMemberList = !_showMemberList;
+                  });
+                },
+                child: Row(
+                  children: [
+                    CircleAvatar(
+                      backgroundImage: NetworkImage(avatar ?? ''),
+                      radius: 20,
+                    ),
+                    SizedBox(width: 12),
+                    Expanded(
+                      child: Text(
+                        widget.groupInfo?['title'] ?? 'Unknown',
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                    Icon(_showMemberList ? Icons.expand_less : Icons.expand_more),
+                  ],
                 ),
-              ),
-            )
-          : AppBar(
-              elevation: 0,
-              backgroundColor: Theme.of(context).colorScheme.surface,
-              title: Row(
+              )
+            : Row(
                 children: [
                   CircleAvatar(
                     backgroundImage: NetworkImage(widget.chatterUser?.avatar ?? ''),
@@ -166,29 +193,29 @@ class _ChatScreenState extends ConsumerState<ChatScreen> with RouteAware {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        (widget.groupInfo == null) ? widget.chatterUser!.friendProfileName : widget.groupInfo!['title'],
+                        widget.chatterUser!.friendProfileName,
                         style: const TextStyle(
                           fontWeight: FontWeight.bold,
                           fontSize: 18,
                         ),
                         overflow: TextOverflow.ellipsis,
                       ),
-                      if (widget.groupInfo == null)
-                        Text(
-                          "@${widget.chatterUser!.friendUsername}",
-                          style: const TextStyle(
-                            fontWeight: FontWeight.normal,
-                            fontSize: 12,
-                          ),
-                          overflow: TextOverflow.ellipsis,
+                      Text(
+                        "@${widget.chatterUser!.friendUsername}",
+                        style: const TextStyle(
+                          fontWeight: FontWeight.normal,
+                          fontSize: 12,
                         ),
+                        overflow: TextOverflow.ellipsis,
+                      ),
                     ],
                   ),
                 ],
               ),
-            ),
+      ),
       body: Column(
         children: [
+          if (widget.groupInfo != null && _showMemberList) GroupMembersList(members: userIdAndAvatar ?? []),
           Expanded(
             child: _chatStream != null
                 ? StreamBuilder<List<Map<String, dynamic>>>(
@@ -264,6 +291,64 @@ class _ChatScreenState extends ConsumerState<ChatScreen> with RouteAware {
               ],
             ),
           )
+        ],
+      ),
+    );
+  }
+}
+
+class GroupMembersList extends ConsumerWidget {
+  final List<dynamic> members;
+
+  const GroupMembersList({Key? key, required this.members}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    Future<String> getUsername(String id) async {
+      var profile = await ref.read(profileProvider.notifier).fetchProfileById(id);
+      return profile.username;
+    }
+
+    return Container(
+      color: Theme.of(context).cardColor,
+      child: Column(
+        children: [
+          Padding(
+            padding: const EdgeInsets.only(top: 8.0),
+            child: Text(
+              'Group Chat Members',
+              style: TextStyle(fontSize: 16, color: Theme.of(context).colorScheme.onPrimary),
+            ),
+          ),
+          SizedBox(
+            height: 125, // Adjust as needed
+            child: ListView.builder(
+              itemCount: members.length,
+              itemBuilder: (context, index) {
+                final member = members[index];
+                return ListTile(
+                  leading: CircleAvatar(
+                    backgroundImage: NetworkImage(member['avatar']),
+                  ),
+                  title: FutureBuilder<String>(
+                    future: getUsername(member['id']),
+                    builder: (context, snapshot) {
+                      if (snapshot.connectionState == ConnectionState.waiting) {
+                        return Text('Loading...'); // or a CircularProgressIndicator
+                      } else if (snapshot.hasError) {
+                        return Text('Error: ${snapshot.error}');
+                      } else {
+                        return Text(
+                          snapshot.data ?? 'Unknown',
+                          overflow: TextOverflow.ellipsis,
+                        );
+                      }
+                    },
+                  ),
+                );
+              },
+            ),
+          ),
         ],
       ),
     );

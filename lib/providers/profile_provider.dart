@@ -557,7 +557,6 @@ class ProfileProvider extends StateNotifier<Profile?> {
       final supabaseClient = (await supabase).client;
       String? newAvatarUrl;
       if (newAvatarId != null) {
-        final userId = supabaseClient.auth.currentUser!.id;
         final response = await supabaseClient
             .from('Images')
             .select('image_url')

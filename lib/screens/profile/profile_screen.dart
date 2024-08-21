@@ -262,7 +262,7 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
                                           style: TextStyle(
                                             fontSize: 18,
                                             fontWeight: FontWeight.bold,
-                                            color: Theme.of(context).colorScheme.onSecondary,
+                                            color: Theme.of(context).colorScheme.onPrimary,
                                           ),
                                         ),
                                         const SizedBox(height: 5),
@@ -272,7 +272,7 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
                                             '@${profile?.username ?? 'username'}',
                                             style: TextStyle(
                                               fontSize: 12,
-                                              color: Theme.of(context).colorScheme.onSecondary,
+                                              color: Theme.of(context).colorScheme.onPrimary,
                                             ),
                                             overflow: TextOverflow.ellipsis,
                                           ),
@@ -297,7 +297,7 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
                                                 style: TextStyle(
                                                   fontSize: 24,
                                                   fontWeight: FontWeight.bold,
-                                                  color: Theme.of(context).colorScheme.onSecondary,
+                                                  color: Theme.of(context).colorScheme.onPrimary,
                                                 ),
                                               ),
                                               const SizedBox(height: 5),
@@ -305,7 +305,7 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
                                                 '@username',
                                                 style: TextStyle(
                                                   fontSize: 16,
-                                                  color: Theme.of(context).colorScheme.onSecondary,
+                                                  color: Theme.of(context).colorScheme.onPrimary,
                                                 ),
                                               ),
                                             ],
@@ -359,7 +359,7 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
                                                 style: TextStyle(
                                                   fontSize: 24,
                                                   fontWeight: FontWeight.bold,
-                                                  color: Theme.of(context).colorScheme.onSecondary,
+                                                  color: Theme.of(context).colorScheme.onPrimary,
                                                 ),
                                               ),
                                               const SizedBox(height: 5),
@@ -367,7 +367,7 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
                                                 '@${profile.username}',
                                                 style: TextStyle(
                                                   fontSize: 16,
-                                                  color: Theme.of(context).colorScheme.onSecondary,
+                                                  color: Theme.of(context).colorScheme.onPrimary,
                                                 ),
                                               ),
                                             ],
@@ -391,7 +391,7 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
                                               style: TextStyle(
                                                   fontSize: 18,
                                                   fontWeight: FontWeight.bold,
-                                                  color: Theme.of(context).colorScheme.onSecondary),
+                                                  color: Theme.of(context).colorScheme.onPrimary),
                                             ),
                                             StreamBuilder(
                                               stream: ref.watch(attendEventsProvider.notifier).stream,
@@ -411,13 +411,13 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
                                                   return Text(
                                                     attendingEventCount.toString(),
                                                     style: TextStyle(
-                                                        fontSize: 18, color: Theme.of(context).colorScheme.onSecondary),
+                                                        fontSize: 18, color: Theme.of(context).colorScheme.onPrimary),
                                                   );
                                                 } else {
                                                   return Text(
                                                     "0",
                                                     style: TextStyle(
-                                                        fontSize: 18, color: Theme.of(context).colorScheme.onSecondary),
+                                                        fontSize: 18, color: Theme.of(context).colorScheme.onPrimary),
                                                   );
                                                 }
                                               },
@@ -523,7 +523,7 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
                                         );
                                       },
                                       icon: const Icon(Icons.calendar_month_outlined),
-                                      color: Theme.of(context).colorScheme.onSecondary,
+                                      color: Theme.of(context).colorScheme.onPrimary,
                                     ),
                                     ProfileDropdown(
                                       updateProfileInfo: updateProfileInfo,
@@ -558,24 +558,36 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
                                     Padding(
                                         padding: const EdgeInsets.symmetric(vertical: 3),
                                         child: widget.isUser
-                                            ? const Text(
+                                            ? Text(
                                                 'Joined Events',
-                                                style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700),
+                                                style: TextStyle(
+                                                    fontSize: 14,
+                                                    fontWeight: FontWeight.w700,
+                                                    color: Theme.of(context).colorScheme.onPrimary),
                                               )
-                                            : const Text(
+                                            : Text(
                                                 "Attending Events",
-                                                style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700),
+                                                style: TextStyle(
+                                                    fontSize: 14,
+                                                    fontWeight: FontWeight.w700,
+                                                    color: Theme.of(context).colorScheme.onPrimary),
                                               )),
                                     Padding(
                                         padding: const EdgeInsets.symmetric(vertical: 3),
                                         child: widget.isUser
-                                            ? const Text(
+                                            ? Text(
                                                 'Bookmarked',
-                                                style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700),
+                                                style: TextStyle(
+                                                    fontSize: 14,
+                                                    fontWeight: FontWeight.w700,
+                                                    color: Theme.of(context).colorScheme.onPrimary),
                                               )
-                                            : const Text(
+                                            : Text(
                                                 "Hosting Events",
-                                                style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700),
+                                                style: TextStyle(
+                                                    fontSize: 14,
+                                                    fontWeight: FontWeight.w700,
+                                                    color: Theme.of(context).colorScheme.onPrimary),
                                               )),
                                   ],
                                 ),
@@ -589,7 +601,13 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
                                     onPressed: () {
                                       _showFilterDialog();
                                     },
-                                    child: Text("Filters"),
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor: Theme.of(context).colorScheme.primary,
+                                    ),
+                                    child: Text(
+                                      "Filters",
+                                      style: TextStyle(color: Theme.of(context).colorScheme.onPrimary),
+                                    ),
                                   ),
                                   SizedBox(width: 16), // Add some padding
                                 ],

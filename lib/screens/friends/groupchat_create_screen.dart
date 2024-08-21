@@ -1,10 +1,19 @@
+import 'dart:io';
+import 'dart:typed_data';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:nomo/models/friend_model.dart';
 import 'package:nomo/providers/chat-providers/chats_provider.dart';
 import 'package:nomo/providers/profile_provider.dart';
+import 'package:nomo/providers/supabase-providers/supabase_provider.dart';
 import 'package:nomo/screens/search_screen.dart';
 import 'package:nomo/widgets/friend_tab.dart';
+import 'package:share_plus/share_plus.dart';
+import 'package:image/image.dart' as img;
+import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:uuid/uuid.dart';
 
 class NewGroupChatScreen extends ConsumerStatefulWidget {
   const NewGroupChatScreen({super.key});
@@ -22,6 +31,9 @@ class _NewGroupChatScreenState extends ConsumerState<NewGroupChatScreen> {
   List<Friend> _friends = [];
   List<String> members = [];
   bool createGroup = false;
+  double radius = 75;
+  String? avatar;
+  File? _selectedImage;
 
   @override
   void initState() {
@@ -94,6 +106,73 @@ class _NewGroupChatScreenState extends ConsumerState<NewGroupChatScreen> {
     return await ref.read(profileProvider.notifier).getFriendById(userId);
   }
 
+  Future<void> _pickImageFromGallery() async {
+    final XFile? pickedFile = await ImagePicker().pickImage(source: ImageSource.gallery);
+    if (pickedFile == null) return;
+
+    setState(() {
+      _selectedImage = File(pickedFile.path);
+    });
+  }
+
+  Future<void> _pickImageFromCamera() async {
+    final XFile? pickedFile = await ImagePicker().pickImage(source: ImageSource.camera);
+    if (pickedFile == null) return;
+
+    setState(() {
+      _selectedImage = File(pickedFile.path);
+    });
+  }
+
+  dynamic uploadGroupAvatar(File? imageFile) async {
+    final supabase = (await ref.read(supabaseInstance));
+    final userId = supabase.client.auth.currentUser!.id.toString();
+    PostgrestList imgId;
+
+    var uuid = const Uuid();
+    final currentImageName = uuid.v4();
+
+    if (imageFile != null) {
+      // Read the file
+      Uint8List imageBytes = await imageFile.readAsBytes();
+
+      // Decode the image
+      img.Image? originalImage = img.decodeImage(imageBytes);
+
+      if (originalImage != null) {
+        // Resize the image
+        img.Image resizedImage =
+            img.copyResize(originalImage, width: 150, height: 150, interpolation: img.Interpolation.linear);
+
+        // Encode the image to PNG
+        List<int> resizedImageBytes = img.encodePng(resizedImage);
+
+        // Create a temporary file with the resized image
+        File tempFile = await File('${Directory.systemTemp.path}/resized_$currentImageName.png').create();
+        await tempFile.writeAsBytes(resizedImageBytes);
+
+        // Upload the resized image
+        final response =
+            await supabase.client.storage.from('Images').upload('$userId/groups/$currentImageName', tempFile);
+
+        // Delete the temporary file
+        await tempFile.delete();
+
+        imgId = await supabase.client
+            .from('Images')
+            .insert({'image_url': '$userId/groups/$currentImageName'}).select('images_id');
+      } else {
+        // Handle error: unable to decode image
+        throw Exception('Unable to decode image');
+      }
+    } else {
+      imgId = await supabase.client
+          .from('Images')
+          .insert({'image_url': 'default/avatar/nomo_logo_2.jgp'}).select('images_id');
+    }
+    return imgId[0]["images_id"];
+  }
+
   @override
   Widget build(BuildContext context) {
     if (titleController.text.isNotEmpty && members.isNotEmpty) {
@@ -110,6 +189,113 @@ class _NewGroupChatScreenState extends ConsumerState<NewGroupChatScreen> {
         padding: const EdgeInsets.all(16.0),
         child: Column(
           children: [
+            Center(
+              child: GestureDetector(
+                onTap: () {
+                  showModalBottomSheet(
+                    context: context,
+                    isScrollControlled: true,
+                    shape: const RoundedRectangleBorder(
+                      borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+                    ),
+                    builder: (BuildContext context) {
+                      // Get screen size
+                      final screenSize = MediaQuery.of(context).size;
+                      final double fontSize = screenSize.width * 0.04; // 4% of screen width for font size
+
+                      return Container(
+                        width: double.infinity, // Ensures full width
+                        padding: EdgeInsets.only(
+                          bottom: MediaQuery.of(context).viewInsets.bottom,
+                        ),
+                        child: SingleChildScrollView(
+                          child: Padding(
+                            padding: EdgeInsets.symmetric(
+                              horizontal: screenSize.width * 0.05,
+                              vertical: screenSize.height * 0.03,
+                            ),
+                            child: Column(
+                              mainAxisSize: MainAxisSize.min,
+                              crossAxisAlignment: CrossAxisAlignment.stretch, // Stretches buttons to full width
+                              children: [
+                                TextButton(
+                                  child: Row(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      Text(
+                                        "Select from Gallery",
+                                        style: TextStyle(fontSize: fontSize),
+                                      ),
+                                      SizedBox(width: screenSize.width * 0.01),
+                                      const Icon(Icons.photo_library_rounded)
+                                    ],
+                                  ),
+                                  onPressed: () {
+                                    _pickImageFromGallery();
+                                    Navigator.pop(context);
+                                  },
+                                ),
+                                const Divider(),
+                                SizedBox(height: screenSize.height * 0.01),
+                                TextButton(
+                                  child: Row(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      Text(
+                                        "Take a Picture",
+                                        style: TextStyle(fontSize: fontSize),
+                                      ),
+                                      SizedBox(width: screenSize.width * 0.01),
+                                      const Icon(Icons.camera_alt_rounded)
+                                    ],
+                                  ),
+                                  onPressed: () {
+                                    _pickImageFromCamera();
+                                    Navigator.pop(context);
+                                  },
+                                ),
+                                const Divider(),
+                                SizedBox(height: screenSize.height * 0.005),
+                                TextButton(
+                                  child: Text(
+                                    "Close",
+                                    style: TextStyle(fontSize: fontSize),
+                                  ),
+                                  onPressed: () {
+                                    Navigator.pop(context);
+                                  },
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      );
+                    },
+                  );
+                },
+                child: CircleAvatar(
+                  backgroundColor: const Color.fromARGB(255, 0, 0, 0),
+                  radius: radius,
+                  child: CircleAvatar(
+                    radius: radius - 2,
+                    backgroundImage: _selectedImage != null
+                        ? FileImage(_selectedImage!)
+                        : (avatar != null ? NetworkImage(avatar!) as ImageProvider : null),
+                    child: _selectedImage == null && avatar == null
+                        ? Container(
+                            decoration: BoxDecoration(
+                                gradient: const LinearGradient(colors: [
+                                  Color.fromARGB(255, 63, 53, 78),
+                                  Color.fromARGB(255, 112, 9, 167),
+                                ], begin: Alignment.topLeft, end: Alignment.bottomRight),
+                                borderRadius: BorderRadius.circular(radius - 2)),
+                          )
+                        : null,
+                  ),
+                ),
+              ),
+            ),
+            SizedBox(height: MediaQuery.of(context).size.height / 15),
             TextField(
               autofocus: false,
               controller: titleController,
@@ -182,8 +368,13 @@ class _NewGroupChatScreenState extends ConsumerState<NewGroupChatScreen> {
             SizedBox(height: 16.0),
             ElevatedButton(
               onPressed: createGroup
-                  ? () {
-                      ref.read(chatsProvider.notifier).createNewGroup(titleController.text, members);
+                  ? () async {
+                      String? avatarPath = await uploadGroupAvatar(_selectedImage);
+                      ref.read(chatsProvider.notifier).createNewGroup(
+                            titleController.text,
+                            members,
+                            avatarPath,
+                          );
                       Navigator.popUntil(
                         context,
                         ModalRoute.withName('/'),

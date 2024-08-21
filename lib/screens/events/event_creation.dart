@@ -41,14 +41,16 @@ class _EventCreateScreenState extends ConsumerState<EventCreateScreen> {
   int _currentStep = 0;
   final List<String> _steps = ['Basics', 'Date & Time', 'Details', 'Review'];
 
-  List<TimeOfDay>? _selectedStartTime;
+  TimeOfDay? _selectedStartTime;
   bool stime = false;
-  List<TimeOfDay>? _selectedEndTime;
+  TimeOfDay? _selectedEndTime;
   bool etime = false;
-  List<DateTime>? _selectedStartDate;
+  DateTime? _selectedStartDate;
   bool sdate = false;
-  List<DateTime>? _selectedEndDate;
+  DateTime? _selectedEndDate;
   bool edate = false;
+  String? _formattedSDate;
+  String? _formattedEDate;
   File? _selectedImage;
   String dropDownValue = list.first;
   bool enableButton = false;
@@ -90,16 +92,12 @@ class _EventCreateScreenState extends ConsumerState<EventCreateScreen> {
       etime = true;
       sdate = true;
       edate = true;
-
-      for(var i = 0; i < widget.event!.sdate.length; i++) {
-        _selectedStartTime?.add(TimeOfDay.fromDateTime(DateTime.parse(widget.event!.sdate[i])));
-        _selectedEndTime?.add(TimeOfDay.fromDateTime(DateTime.parse(widget.event!.edate[i])));
-      }
-
-      for(var i = 0; i < widget.event!.sdate.length; i++) {
-        _selectedStartDate?.add(DateTime.parse(widget.event!.sdate[i]));
-        _selectedEndDate?.add(DateTime.parse(widget.event!.edate[i]));
-      }
+      _selectedStartTime = TimeOfDay.fromDateTime(DateTime.parse(widget.event!.sdate.first));
+      _selectedEndTime = TimeOfDay.fromDateTime(DateTime.parse(widget.event!.edate.first));
+      _selectedStartDate = DateTime.parse(widget.event!.sdate.first);
+      _selectedEndDate = DateTime.parse(widget.event!.edate.first);
+      _formattedEDate = DateFormat.yMd().format(DateTime.parse(widget.event!.edate.first));
+      _formattedSDate = DateFormat.yMd().format(DateTime.parse(widget.event!.sdate.first));
       enableButton = true;
       virtualEvent = widget.event!.isVirtual;
       _isRecurring = widget.event!.isRecurring;
@@ -542,10 +540,6 @@ class _EventCreateScreenState extends ConsumerState<EventCreateScreen> {
   }
 
   Future<void> createEvent(
-      List<TimeOfDay> selectedStart,
-      List<TimeOfDay> selectedEnd,
-      List<DateTime> selectedStartDate,
-      List<DateTime> selectedEndDate,
       File selectedImage,
       String inviteType,
       var location,
@@ -557,16 +551,13 @@ class _EventCreateScreenState extends ConsumerState<EventCreateScreen> {
     try {
       List<String> start = [];
       List<String> end = [];
-
-      for(var i = 0; i< selectedStartDate.length; i++) {
-        start.add(DateFormat('yyyy-MM-dd HH:mm:ss').format(DateTime(selectedStartDate[i].year, selectedStartDate[i].month, selectedStartDate[i].day,
-          selectedStart[i].hour, selectedStart[i].minute)));
-        
+      for(var dates in eventDates) {
+        start.add(DateFormat('yyyy-MM-dd HH:mm:ss').format(DateTime(dates.startDate!.year, dates.startDate!.month, dates.startDate!.day,
+          dates.startTime!.hour, dates.startTime!.minute)));
         end.add(DateFormat('yyyy-MM-dd HH:mm:ss').format(DateTime(
-          selectedEndDate[i].year, selectedEndDate[i].month, selectedEndDate[i].day, selectedEnd[i].hour, selectedEnd[i].minute))
-          );
+          dates.endDate!.year, dates.endDate!.month, dates.endDate!.day, dates.endTime!.hour, dates.endTime!.minute)));
       }
-
+      
       var imageId = await uploadImage(selectedImage);
       final supabase = (await ref.read(supabaseInstance)).client;
 
@@ -599,7 +590,6 @@ class _EventCreateScreenState extends ConsumerState<EventCreateScreen> {
       }
 
       final responseId = await supabase.from('Event').insert(newEventRowMap).select('event_id').single();
-
       for(var i = 0; i < start.length; i++) {
         final newDateRowMap = {
           'event_id': responseId['event_id'],
@@ -616,19 +606,19 @@ class _EventCreateScreenState extends ConsumerState<EventCreateScreen> {
             responseId['event_id'],
           );
       }
+
       eventData = await ref.read(eventsProvider.notifier).deCodeLinkEvent(responseId['event_id']);
 
-      
     } finally {
       _hideLoadingOverlay();
     }
   }
 
   Future<void> updateEvent(
-      List<TimeOfDay> selectedStart,
-      List<TimeOfDay> selectedEnd,
-      List<DateTime> selectedStartDate,
-      List<DateTime> selectedEndDate,
+      TimeOfDay selectedStart,
+      TimeOfDay selectedEnd,
+      DateTime selectedStartDate,
+      DateTime selectedEndDate,
       File? selectedImage,
       String inviteType,
       var location,
@@ -636,17 +626,11 @@ class _EventCreateScreenState extends ConsumerState<EventCreateScreen> {
       String description,
       bool isRecurring,
       bool isTicketed) async {
-    List<String> start = [];
-    List<String> end = [];
+    DateTime start = DateTime(selectedStartDate.year, selectedStartDate.month, selectedStartDate.day,
+        selectedStart.hour, selectedStart.minute);
+    DateTime end = DateTime(
+        selectedEndDate.year, selectedEndDate.month, selectedEndDate.day, selectedEnd.hour, selectedEnd.minute);
 
-    for(var i = 0; i< selectedStartDate.length; i++) {
-        start.add(DateFormat('yyyy-MM-dd HH:mm:ss').format(DateTime(selectedStartDate[i].year, selectedStartDate[i].month, selectedStartDate[i].day,
-          selectedStart[i].hour, selectedStart[i].minute)));
-        
-        end.add(DateFormat('yyyy-MM-dd HH:mm:ss').format(DateTime(
-          selectedEndDate[i].year, selectedEndDate[i].month, selectedEndDate[i].day, selectedEnd[i].hour, selectedEnd[i].minute))
-          );
-      }
     final Map newEventRowMap;
     final supabase = (await ref.watch(supabaseInstance)).client;
     var point;
@@ -692,14 +676,12 @@ class _EventCreateScreenState extends ConsumerState<EventCreateScreen> {
 
     await supabase.from('Event').update(newEventRowMap).eq('event_id', widget.event?.eventId);
     ref.read(attendEventsProvider.notifier).deCodeData();
-    for(var i = 0; i < start.length; i++) {
     final newDateRowMap = {
       'event_id': widget.event?.eventId,
-      'time_start': start[i],
-      'time_end': end[i],
+      'time_start': DateFormat('yyyy-MM-dd HH:mm:ss').format(start),
+      'time_end': DateFormat('yyyy-MM-dd HH:mm:ss').format(end),
     };
-    await supabase.from('Dates').update(newDateRowMap).eq('event_id', widget.event?.eventId).eq('time_start', start[i]);
-    }
+    await supabase.from('Dates').update(newDateRowMap).eq('event_id', widget.event?.eventId);
   }
 
   Widget _buildInvitationTypeItem(BuildContext context, String title, String description) {
@@ -1419,16 +1401,12 @@ class _EventCreateScreenState extends ConsumerState<EventCreateScreen> {
                   textStyle: TextStyle(
                       color: Theme.of(context).colorScheme.primary, fontSize: 15, fontWeight: FontWeight.w500),
                 ),
-                onPressed: enableButton
+                onPressed: _step3Valid
                     ? isNewEvent
                         ? () async {
                             try {
                               FocusManager.instance.primaryFocus?.unfocus();
                               await createEvent(
-                                  _selectedStartTime!,
-                                  _selectedEndTime!,
-                                  _selectedStartDate!,
-                                  _selectedEndDate!,
                                   _selectedImage!,
                                   dropDownValue,
                                   _locationController.text,

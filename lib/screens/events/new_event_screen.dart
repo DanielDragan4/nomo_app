@@ -79,6 +79,20 @@ class _NewEventScreenState extends ConsumerState<NewEventScreen> {
       } else {
         _locationController.text = widget.event!.location;
       }
+      stime = true;
+      etime = true;
+      sdate = true;
+      edate = true;
+      for (var i = 0; i < widget.event!.sdate.length; i++) {
+        EventDate d = EventDate();
+        d.startTime = TimeOfDay.fromDateTime(DateTime.parse(widget.event!.sdate[i]));
+        d.endTime = TimeOfDay.fromDateTime(DateTime.parse(widget.event!.edate[i]));
+        d.startDate = DateTime.parse(widget.event!.sdate[i]);
+        d.endDate = DateTime.parse(widget.event!.edate[i]);
+
+        eventDates.add(d);
+      }
+
       enableButton = true;
       virtualEvent = widget.event!.isVirtual;
       _isRecurring = widget.event!.isRecurring;
@@ -91,40 +105,10 @@ class _NewEventScreenState extends ConsumerState<NewEventScreen> {
           break;
         }
       }
-      _loadExistingDates();
     } else {
       categories = {for (var interest in Interests.values) interest: false};
     }
-    eventDates.add(EventDate());
     super.initState();
-  }
-
-  Future<void> _loadExistingDates() async {
-    final supabase = (await ref.read(supabaseInstance)).client;
-    final eventId = widget.event!.eventId;
-
-    final response = await supabase
-        .from('Dates')
-        .select('time_start, time_end')
-        .eq('event_id', eventId)
-        .order('time_start', ascending: true);
-
-    final dates = response as List<Map<String, dynamic>>;
-    setState(() {
-      eventDates.clear();
-      for (final dateMap in dates) {
-        final startDateTime = DateTime.parse(dateMap['time_start'] as String);
-        final endDateTime = DateTime.parse(dateMap['time_end'] as String);
-        eventDates.add(
-          EventDate(
-            startDate: DateTime(startDateTime.year, startDateTime.month, startDateTime.day),
-            startTime: TimeOfDay(hour: startDateTime.hour, minute: startDateTime.minute),
-            endDate: DateTime(endDateTime.year, endDateTime.month, endDateTime.day),
-            endTime: TimeOfDay(hour: endDateTime.hour, minute: endDateTime.minute),
-          ),
-        );
-      }
-    });
   }
 
   @override

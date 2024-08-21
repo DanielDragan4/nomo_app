@@ -235,19 +235,17 @@ class _AppState extends ConsumerState<App> {
             home: StreamBuilder(
               stream: ref.watch(currentUserProvider.notifier).stream,
               builder: (context, snapshot) {
+                setSystemOverlay(Theme.of(context).bottomNavigationBarTheme.backgroundColor!);
                 if (ref.watch(onSignUp.notifier).state == 1) {
-                  setSystemOverlay(Theme.of(context).bottomNavigationBarTheme.backgroundColor!);
                   return CreateAccountScreen(
                     isNew: true,
                   );
                 } else if (snapshot.data != null ||
                     (ref.watch(savedSessionProvider) != null && ref.watch(savedSessionProvider)!.isNotEmpty)) {
-                  setSystemOverlay(Theme.of(context).bottomNavigationBarTheme.backgroundColor!);
                   loadData();
                   makeFcm(client);
                   return const NavBar();
                 } else {
-                  setSystemOverlay(Theme.of(context).bottomNavigationBarTheme.backgroundColor!);
                   loadData();
                   return const LoginScreen();
                 }

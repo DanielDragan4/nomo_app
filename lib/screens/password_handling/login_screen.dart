@@ -75,7 +75,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Theme.of(context).colorScheme.primary,
+      backgroundColor: Theme.of(context).colorScheme.onSecondary,
       body: Center(
         child: SingleChildScrollView(
           child: Column(
@@ -272,6 +272,28 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                               },
                               child: Text(isLogin ? 'Create an Account' : 'I already have an account.'),
                             ),
+                          ElevatedButton(
+                              onPressed: () async {
+                                
+                              },
+                              child: Padding(
+                                padding: EdgeInsets.symmetric(horizontal: MediaQuery.of(context).size.width * 0.1),
+                                child: Container(
+                                  //width: MediaQuery.of(context).size.width * .40,
+                                  child: Row(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      Image.asset(
+                                        'assets/images/apple.png',
+                                        fit: BoxFit.cover,
+                                        scale: MediaQuery.of(context).size.aspectRatio * 75,
+                                      ),
+                                      SizedBox(width: MediaQuery.of(context).size.width *.01,),
+                                      Text('Sign in with Apple')
+                                    ],
+                                  ),
+                                ),
+                              )),
                           ElevatedButton(
                               onPressed: () async {
                                 const webClientId =

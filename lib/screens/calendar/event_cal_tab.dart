@@ -9,8 +9,8 @@ class EventCalTab extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final DateTime sDate = DateTime.parse(eventData.sdate);
-    final DateTime eDate = DateTime.parse(eventData.edate);
+    final DateTime sDate = DateTime.parse(eventData.attendeeDates['time_start']);
+    final DateTime eDate = DateTime.parse(eventData.attendeeDates['time_end']);
 
     var formattedDate = "${sDate.month}/${sDate.day}/${sDate.year} to ${eDate.month}/${eDate.day}/${eDate.year}";
 

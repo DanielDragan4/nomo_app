@@ -149,7 +149,7 @@ class EventProvider extends StateNotifier<List?> {
     state = deCodedList;
   }
 
-  Future<void> joinEvent(currentUser, eventToJoin) async {
+  Future<void> joinEvent(currentUser, eventToJoin, selectedStart, selectedEnd) async {
     /*
       Takes is the current user and the event id in order to have the user join the event by
       creating a new record in Atendees table. Forces a reload of state
@@ -159,7 +159,8 @@ class EventProvider extends StateNotifier<List?> {
       Returns: none
     */
     final supabaseClient = (await supabase).client;
-    final newAttendeeMap = {'event_id': eventToJoin, 'user_id': currentUser};
+    final dateId = await supabaseClient.from('Dates').select('date_id').eq('event_id', eventToJoin).eq('time_start', selectedStart.toString()).single();
+    final newAttendeeMap = {'event_id': eventToJoin, 'user_id': currentUser, 'date_id' : dateId['date_id']};
     await supabaseClient.from('Attendees').insert(newAttendeeMap);
   }
 
@@ -275,7 +276,7 @@ class EventProvider extends StateNotifier<List?> {
     final supabaseClient = (await supabase).client;
     var events = await supabaseClient
         .from('link_events')
-        .select('*, Attendees(user_id), Bookmarked(user_id)')
+        .select('*, Attendees!public_Attendees_event_id_fkey(user_id), Bookmarked(user_id)')
         .eq('event_id', eventId)
         .single();
     return events;
@@ -430,8 +431,8 @@ class EventProvider extends StateNotifier<List?> {
     }
 
     final filteredEvents = allEvents.where((event) {
-      final eventStartDate = DateTime.parse(event.sdate);
-      final eventEndDate = DateTime.parse(event.edate);
+      final eventStartDate = DateTime.parse(event.sdate.first);
+      final eventEndDate = DateTime.parse(event.edate.first);
 
       // Check date range
       if (startDate != null && eventStartDate.isBefore(startDate)) return false;

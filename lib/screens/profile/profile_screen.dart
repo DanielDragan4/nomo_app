@@ -404,7 +404,7 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
                                                       .toList();
                                                   var attendingEventCount = attendingEvents.length;
                                                   for (Event event in attendingEvents) {
-                                                    if (event.sdate.compareTo(DateTime.now().toString()) < 0) {
+                                                    if (event.sdate.last.compareTo(DateTime.now().toString()) < 0) {
                                                       attendingEventCount--;
                                                     }
                                                   }
@@ -607,12 +607,10 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
                           if (snapshot.data != null) {
                             final relevantEvents = snapshot.data!.where((event) {
                               final now = DateTime.now();
-                              final startDate = event.sdate;
-                              final endDate = event.edate;
                               if (showHosting && event.isHost) return true;
-                              if (showUpcoming && event.attending && startDate.compareTo(now.toString()) > 0)
+                              if (showUpcoming && event.attending && event.attendeeDates['time_start'].compareTo(now.toString()) > 0)
                                 return true;
-                              if (showPassed && event.attending && endDate.compareTo(now.toString()) < 0) return true;
+                              if (showPassed && event.attending && event.attendeeDates['time_end'].compareTo(now.toString()) < 0) return true;
                               return false;
                             }).toList();
                             if (relevantEvents.isEmpty) {
@@ -664,11 +662,9 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
                             }).toList();
                             final attendingEvents = snapshot.data!.where((event) {
                               final now = DateTime.now();
-                              final startDate = event.sdate;
-                              final endDate = event.edate;
-                              if (showUpcoming && event.otherAttend != null && startDate.compareTo(now.toString()) > 0)
+                              if (showUpcoming && event.otherAttend != null && event.sdate.last.compareTo(now.toString()) > 0)
                                 return true;
-                              if (showPassed && event.otherAttend != null && endDate.compareTo(now.toString()) < 0)
+                              if (showPassed && event.otherAttend != null && event.edate.last.compareTo(now.toString()) < 0)
                                 return true;
                               return false;
                             }).toList();

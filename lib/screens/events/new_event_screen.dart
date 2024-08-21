@@ -1,1231 +1,1231 @@
-import 'dart:typed_data';
-import 'package:image_cropper/image_cropper.dart';
-import 'package:calendar_view/calendar_view.dart';
-import 'package:flutter/material.dart';
-import 'package:geocoding/geocoding.dart';
-import 'package:nomo/models/events_model.dart';
-import 'package:nomo/models/interests_enum.dart';
-import 'package:nomo/providers/event-providers/events_provider.dart';
-import 'package:nomo/providers/profile_provider.dart';
-import 'package:nomo/screens/NavBar.dart';
-import 'package:nomo/providers/event-providers/attending_events_provider.dart';
-import 'package:nomo/screens/events/detailed_event_screen.dart';
-import 'package:nomo/screens/profile/interests_screen.dart';
-import 'dart:io';
-import 'package:intl/intl.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:nomo/providers/supabase-providers/supabase_provider.dart';
-import 'package:nomo/widgets/address_search_widget.dart';
-import 'package:nomo/widgets/custom_time_picker.dart';
-import 'package:uuid/uuid.dart';
-import 'package:image_picker/image_picker.dart';
-import 'package:image/image.dart' as img;
-import 'package:path_provider/path_provider.dart';
+// import 'dart:typed_data';
+// import 'package:image_cropper/image_cropper.dart';
+// import 'package:calendar_view/calendar_view.dart';
+// import 'package:flutter/material.dart';
+// import 'package:geocoding/geocoding.dart';
+// import 'package:nomo/models/events_model.dart';
+// import 'package:nomo/models/interests_enum.dart';
+// import 'package:nomo/providers/event-providers/events_provider.dart';
+// import 'package:nomo/providers/profile_provider.dart';
+// import 'package:nomo/screens/NavBar.dart';
+// import 'package:nomo/providers/event-providers/attending_events_provider.dart';
+// import 'package:nomo/screens/events/detailed_event_screen.dart';
+// import 'package:nomo/screens/profile/interests_screen.dart';
+// import 'dart:io';
+// import 'package:intl/intl.dart';
+// import 'package:flutter_riverpod/flutter_riverpod.dart';
+// import 'package:nomo/providers/supabase-providers/supabase_provider.dart';
+// import 'package:nomo/widgets/address_search_widget.dart';
+// import 'package:nomo/widgets/custom_time_picker.dart';
+// import 'package:uuid/uuid.dart';
+// import 'package:image_picker/image_picker.dart';
+// import 'package:image/image.dart' as img;
+// import 'package:path_provider/path_provider.dart';
 
-const List<String> list = <String>['Public', 'Selective', 'Private'];
+// const List<String> list = <String>['Public', 'Selective', 'Private'];
 
-class NewEventScreen extends ConsumerStatefulWidget {
-  const NewEventScreen({super.key, this.event, this.isEdit, this.onEventCreated});
-  final Event? event;
-  final bool? isEdit;
-  final VoidCallback? onEventCreated;
+// class NewEventScreen extends ConsumerStatefulWidget {
+//   const NewEventScreen({super.key, this.event, this.isEdit, this.onEventCreated});
+//   final Event? event;
+//   final bool? isEdit;
+//   final VoidCallback? onEventCreated;
 
-  @override
-  ConsumerState<NewEventScreen> createState() => _NewEventScreenState();
-}
+//   @override
+//   ConsumerState<NewEventScreen> createState() => _NewEventScreenState();
+// }
 
-class _NewEventScreenState extends ConsumerState<NewEventScreen> {
-  TimeOfDay? _selectedStartTime;
-  bool stime = false;
-  TimeOfDay? _selectedEndTime;
-  bool etime = false;
-  DateTime? _selectedStartDate;
-  bool sdate = false;
-  DateTime? _selectedEndDate;
-  bool edate = false;
-  String? _formattedSDate;
-  String? _formattedEDate;
-  File? _selectedImage;
-  String dropDownValue = list.first;
-  bool enableButton = false;
-  final _title = TextEditingController();
-  final _description = TextEditingController();
-  final _locationController = TextEditingController();
-  bool virtualEvent = false;
-  Map<Interests, bool> categories = {};
-  late bool isNewEvent;
-  late Event eventData;
-  bool _isImageProcessing = false;
-  bool _isLoading = false;
-  bool _titleError = false;
-  bool _descriptionError = false;
-  bool _locationError = false;
-  bool _dateError = false;
-  bool _timeError = false;
-  bool _isRecurring = false;
-  bool _isTicketed = false;
+// class _NewEventScreenState extends ConsumerState<NewEventScreen> {
+//   TimeOfDay? _selectedStartTime;
+//   bool stime = false;
+//   TimeOfDay? _selectedEndTime;
+//   bool etime = false;
+//   DateTime? _selectedStartDate;
+//   bool sdate = false;
+//   DateTime? _selectedEndDate;
+//   bool edate = false;
+//   String? _formattedSDate;
+//   String? _formattedEDate;
+//   File? _selectedImage;
+//   String dropDownValue = list.first;
+//   bool enableButton = false;
+//   final _title = TextEditingController();
+//   final _description = TextEditingController();
+//   final _locationController = TextEditingController();
+//   bool virtualEvent = false;
+//   Map<Interests, bool> categories = {};
+//   late bool isNewEvent;
+//   late Event eventData;
+//   bool _isImageProcessing = false;
+//   bool _isLoading = false;
+//   bool _titleError = false;
+//   bool _descriptionError = false;
+//   bool _locationError = false;
+//   bool _dateError = false;
+//   bool _timeError = false;
+//   bool _isRecurring = false;
+//   bool _isTicketed = false;
 
-  @override
-  void initState() {
-    isNewEvent = (widget.event == null);
-    if (!isNewEvent) {
-      _title.text = widget.event!.title;
-      _description.text = widget.event!.description;
+//   @override
+//   void initState() {
+//     isNewEvent = (widget.event == null);
+//     if (!isNewEvent) {
+//       _title.text = widget.event!.title;
+//       _description.text = widget.event!.description;
 
-      if (widget.event!.isVirtual) {
-        _locationController.text = "Virtual";
-      } else {
-        _locationController.text = widget.event!.location;
-      }
-      stime = true;
-      etime = true;
-      sdate = true;
-      edate = true;
-      _selectedStartTime = TimeOfDay.fromDateTime(DateTime.parse(widget.event!.sdate));
-      _selectedEndTime = TimeOfDay.fromDateTime(DateTime.parse(widget.event!.edate));
-      _selectedStartDate = DateTime.parse(widget.event!.sdate);
-      _selectedEndDate = DateTime.parse(widget.event!.edate);
-      _formattedEDate = DateFormat.yMd().format(DateTime.parse(widget.event!.edate));
-      _formattedSDate = DateFormat.yMd().format(DateTime.parse(widget.event!.sdate));
-      enableButton = true;
-      virtualEvent = widget.event!.isVirtual;
-      _isRecurring = widget.event!.isRecurring;
-      _isTicketed = widget.event!.isTicketed;
-      categories = convertCategoriesToMap(widget.event!.categories);
+//       if (widget.event!.isVirtual) {
+//         _locationController.text = "Virtual";
+//       } else {
+//         _locationController.text = widget.event!.location;
+//       }
+//       stime = true;
+//       etime = true;
+//       sdate = true;
+//       edate = true;
+//       _selectedStartTime = TimeOfDay.fromDateTime(DateTime.parse(widget.event!.sdate));
+//       _selectedEndTime = TimeOfDay.fromDateTime(DateTime.parse(widget.event!.edate));
+//       _selectedStartDate = DateTime.parse(widget.event!.sdate);
+//       _selectedEndDate = DateTime.parse(widget.event!.edate);
+//       _formattedEDate = DateFormat.yMd().format(DateTime.parse(widget.event!.edate));
+//       _formattedSDate = DateFormat.yMd().format(DateTime.parse(widget.event!.sdate));
+//       enableButton = true;
+//       virtualEvent = widget.event!.isVirtual;
+//       _isRecurring = widget.event!.isRecurring;
+//       _isTicketed = widget.event!.isTicketed;
+//       categories = convertCategoriesToMap(widget.event!.categories);
 
-      for (int i = 0; i < list.length; i++) {
-        if (list[i] == widget.event!.eventType) {
-          dropDownValue = list[i];
-          break;
-        }
-      }
-    } else {
-      categories = {for (var interest in Interests.values) interest: false};
-    }
-    super.initState();
-  }
+//       for (int i = 0; i < list.length; i++) {
+//         if (list[i] == widget.event!.eventType) {
+//           dropDownValue = list[i];
+//           break;
+//         }
+//       }
+//     } else {
+//       categories = {for (var interest in Interests.values) interest: false};
+//     }
+//     super.initState();
+//   }
 
-  @override
-  void dispose() {
-    _locationController.dispose();
-    _description.dispose();
-    _title.dispose();
-    super.dispose();
-  }
+//   @override
+//   void dispose() {
+//     _locationController.dispose();
+//     _description.dispose();
+//     _title.dispose();
+//     super.dispose();
+//   }
 
-  void _showLoadingOverlay() {
-    setState(() {
-      _isLoading = true;
-    });
-  }
+//   void _showLoadingOverlay() {
+//     setState(() {
+//       _isLoading = true;
+//     });
+//   }
 
-  void _hideLoadingOverlay() {
-    setState(() {
-      _isLoading = false;
-    });
-  }
+//   void _hideLoadingOverlay() {
+//     setState(() {
+//       _isLoading = false;
+//     });
+//   }
 
-  Map<Interests, bool> convertCategoriesToMap(List<dynamic> categoryStrings) {
-    Map<Interests, bool> result = {for (var interest in Interests.values) interest: false};
+//   Map<Interests, bool> convertCategoriesToMap(List<dynamic> categoryStrings) {
+//     Map<Interests, bool> result = {for (var interest in Interests.values) interest: false};
 
-    for (var categoryString in categoryStrings) {
-      for (var interest in Interests.values) {
-        if (interest.value == categoryString) {
-          result[interest] = true;
-          break;
-        }
-      }
-    }
+//     for (var categoryString in categoryStrings) {
+//       for (var interest in Interests.values) {
+//         if (interest.value == categoryString) {
+//           result[interest] = true;
+//           break;
+//         }
+//       }
+//     }
 
-    return result;
-  }
+//     return result;
+//   }
 
-  Future<void> _selectDate(BuildContext context, bool isStartDate) async {
-    FocusManager.instance.primaryFocus?.unfocus();
-    final DateTime? picked = await showDatePicker(
-      context: context,
-      initialDate: isStartDate ? DateTime.now() : _selectedStartDate ?? DateTime.now(),
-      firstDate: isStartDate ? DateTime.now() : _selectedStartDate ?? DateTime.now(),
-      lastDate: DateTime(2100),
-    );
-    if (picked != null) {
-      setState(() {
-        if (isStartDate) {
-          _selectedStartDate = picked;
-          _formattedSDate = DateFormat.yMd().format(_selectedStartDate!);
-          sdate = true;
+//   Future<void> _selectDate(BuildContext context, bool isStartDate) async {
+//     FocusManager.instance.primaryFocus?.unfocus();
+//     final DateTime? picked = await showDatePicker(
+//       context: context,
+//       initialDate: isStartDate ? DateTime.now() : _selectedStartDate ?? DateTime.now(),
+//       firstDate: isStartDate ? DateTime.now() : _selectedStartDate ?? DateTime.now(),
+//       lastDate: DateTime(2100),
+//     );
+//     if (picked != null) {
+//       setState(() {
+//         if (isStartDate) {
+//           _selectedStartDate = picked;
+//           _formattedSDate = DateFormat.yMd().format(_selectedStartDate!);
+//           sdate = true;
 
-          // Check if the new start date is after the current end date
-          if (_selectedEndDate != null && picked.isAfter(_selectedEndDate!)) {
-            // Set the end date to be the same as the new start date
-            _selectedEndDate = picked;
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(
-                content: Text('End date adjusted to be after or equal to start date.'),
-              ),
-            );
-            _formattedEDate = DateFormat.yMd().format(_selectedEndDate!);
-            edate = true;
-          }
-        } else {
-          if (_selectedStartDate != null && picked.isBefore(_selectedStartDate!)) {
-            ScaffoldMessenger.of(context).hideCurrentSnackBar();
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(
-                content: Text('End date must be after or equal to start date.'),
-              ),
-            );
-          } else {
-            _selectedEndDate = picked;
-            _formattedEDate = DateFormat.yMd().format(_selectedEndDate!);
-            edate = true;
-          }
-        }
-        _enableButton();
-      });
-    }
-  }
+//           // Check if the new start date is after the current end date
+//           if (_selectedEndDate != null && picked.isAfter(_selectedEndDate!)) {
+//             // Set the end date to be the same as the new start date
+//             _selectedEndDate = picked;
+//             ScaffoldMessenger.of(context).showSnackBar(
+//               const SnackBar(
+//                 content: Text('End date adjusted to be after or equal to start date.'),
+//               ),
+//             );
+//             _formattedEDate = DateFormat.yMd().format(_selectedEndDate!);
+//             edate = true;
+//           }
+//         } else {
+//           if (_selectedStartDate != null && picked.isBefore(_selectedStartDate!)) {
+//             ScaffoldMessenger.of(context).hideCurrentSnackBar();
+//             ScaffoldMessenger.of(context).showSnackBar(
+//               const SnackBar(
+//                 content: Text('End date must be after or equal to start date.'),
+//               ),
+//             );
+//           } else {
+//             _selectedEndDate = picked;
+//             _formattedEDate = DateFormat.yMd().format(_selectedEndDate!);
+//             edate = true;
+//           }
+//         }
+//         _enableButton();
+//       });
+//     }
+//   }
 
-  Future<void> _selectTime(BuildContext context, bool isStartTime) async {
-    FocusManager.instance.primaryFocus?.unfocus();
-    final initialTime = isStartTime
-        ? _selectedStartTime ?? TimeOfDay(hour: 12, minute: 00)
-        : _selectedEndTime ?? TimeOfDay(hour: 12, minute: 00);
+//   Future<void> _selectTime(BuildContext context, bool isStartTime) async {
+//     FocusManager.instance.primaryFocus?.unfocus();
+//     final initialTime = isStartTime
+//         ? _selectedStartTime ?? TimeOfDay(hour: 12, minute: 00)
+//         : _selectedEndTime ?? TimeOfDay(hour: 12, minute: 00);
 
-    final TimeOfDay? picked = await showDialog<TimeOfDay>(
-      context: context,
-      builder: (BuildContext context) {
-        return CustomTimePicker(
-          initialTime: initialTime,
-          onTimeSelected: (TimeOfDay selectedTime) {
-            return selectedTime;
-          },
-          isStartTime: isStartTime,
-        );
-      },
-    );
+//     final TimeOfDay? picked = await showDialog<TimeOfDay>(
+//       context: context,
+//       builder: (BuildContext context) {
+//         return CustomTimePicker(
+//           initialTime: initialTime,
+//           onTimeSelected: (TimeOfDay selectedTime) {
+//             return selectedTime;
+//           },
+//           isStartTime: isStartTime,
+//         );
+//       },
+//     );
 
-    if (picked != null) {
-      setState(() {
-        if (isStartTime) {
-          _selectedStartTime = picked;
-          stime = true;
-        } else {
-          _selectedEndTime = picked;
-          etime = true;
-        }
-        _enableButton();
-      });
+//     if (picked != null) {
+//       setState(() {
+//         if (isStartTime) {
+//           _selectedStartTime = picked;
+//           stime = true;
+//         } else {
+//           _selectedEndTime = picked;
+//           etime = true;
+//         }
+//         _enableButton();
+//       });
 
-      if (isStartTime && _selectedEndTime != null && _selectedStartDate!.isAtSameMomentAs(_selectedEndDate!)) {
-        if (!checkTime(picked, _selectedEndTime!)) {
-          setState(() {
-            enableButton = false;
-          });
-          ScaffoldMessenger.of(context).hideCurrentSnackBar();
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('End time must be after start time.'),
-            ),
-          );
-        }
-      } else if (!isStartTime &&
-          _selectedStartTime != null &&
-          _selectedStartDate!.isAtSameMomentAs(_selectedEndDate!)) {
-        if (!checkTime(_selectedStartTime!, picked)) {
-          setState(() {
-            enableButton = false;
-          });
-          ScaffoldMessenger.of(context).hideCurrentSnackBar();
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('End time must be after start time.'),
-            ),
-          );
-        }
-      }
-    }
-  }
+//       if (isStartTime && _selectedEndTime != null && _selectedStartDate!.isAtSameMomentAs(_selectedEndDate!)) {
+//         if (!checkTime(picked, _selectedEndTime!)) {
+//           setState(() {
+//             enableButton = false;
+//           });
+//           ScaffoldMessenger.of(context).hideCurrentSnackBar();
+//           ScaffoldMessenger.of(context).showSnackBar(
+//             const SnackBar(
+//               content: Text('End time must be after start time.'),
+//             ),
+//           );
+//         }
+//       } else if (!isStartTime &&
+//           _selectedStartTime != null &&
+//           _selectedStartDate!.isAtSameMomentAs(_selectedEndDate!)) {
+//         if (!checkTime(_selectedStartTime!, picked)) {
+//           setState(() {
+//             enableButton = false;
+//           });
+//           ScaffoldMessenger.of(context).hideCurrentSnackBar();
+//           ScaffoldMessenger.of(context).showSnackBar(
+//             const SnackBar(
+//               content: Text('End time must be after start time.'),
+//             ),
+//           );
+//         }
+//       }
+//     }
+//   }
 
-  void _enableButton() {
-    if ((stime &&
-        etime &&
-        sdate &&
-        edate &&
-        (_selectedImage != null || isNewEvent == false) &&
-        _selectedStartDate != null &&
-        _selectedEndDate != null &&
-        _selectedStartTime != null &&
-        _selectedEndTime != null)) {
-      setState(() {
-        enableButton = true;
-      });
-    }
-  }
+//   void _enableButton() {
+//     if ((stime &&
+//         etime &&
+//         sdate &&
+//         edate &&
+//         (_selectedImage != null || isNewEvent == false) &&
+//         _selectedStartDate != null &&
+//         _selectedEndDate != null &&
+//         _selectedStartTime != null &&
+//         _selectedEndTime != null)) {
+//       setState(() {
+//         enableButton = true;
+//       });
+//     }
+//   }
 
-  bool checkTime(TimeOfDay time1, TimeOfDay time2) {
-    DateTime first = DateTime(time1.hour, time1.minute);
-    DateTime second = DateTime(time2.hour, time2.minute);
-    return second.isAfter(first);
-  }
+//   bool checkTime(TimeOfDay time1, TimeOfDay time2) {
+//     DateTime first = DateTime(time1.hour, time1.minute);
+//     DateTime second = DateTime(time2.hour, time2.minute);
+//     return second.isAfter(first);
+//   }
 
-  dynamic uploadImage(File imageFile) async {
-    final supabase = (await ref.read(supabaseInstance));
-    final userId = supabase.client.auth.currentUser!.id.toString();
-    var uuid = const Uuid();
-    final currentImageName = uuid.v4();
+//   dynamic uploadImage(File imageFile) async {
+//     final supabase = (await ref.read(supabaseInstance));
+//     final userId = supabase.client.auth.currentUser!.id.toString();
+//     var uuid = const Uuid();
+//     final currentImageName = uuid.v4();
 
-    // Read the file
-    Uint8List imageBytes = await imageFile.readAsBytes();
+//     // Read the file
+//     Uint8List imageBytes = await imageFile.readAsBytes();
 
-    // Decode the image
-    img.Image? originalImage = img.decodeImage(imageBytes);
+//     // Decode the image
+//     img.Image? originalImage = img.decodeImage(imageBytes);
 
-    if (originalImage != null) {
-      int originalWidth = originalImage.width;
-      int originalHeight = originalImage.height;
+//     if (originalImage != null) {
+//       int originalWidth = originalImage.width;
+//       int originalHeight = originalImage.height;
 
-      // Calculate dimensions for 16:9 aspect ratio
-      int targetWidth, targetHeight;
-      if (originalWidth / originalHeight > 16 / 9) {
-        // Image is wider than 16:9
-        targetHeight = originalHeight;
-        targetWidth = (targetHeight * 16 / 9).round();
-      } else {
-        // Image is taller than 16:9
-        targetWidth = originalWidth;
-        targetHeight = (targetWidth * 9 / 16).round();
-      }
+//       // Calculate dimensions for 16:9 aspect ratio
+//       int targetWidth, targetHeight;
+//       if (originalWidth / originalHeight > 16 / 9) {
+//         // Image is wider than 16:9
+//         targetHeight = originalHeight;
+//         targetWidth = (targetHeight * 16 / 9).round();
+//       } else {
+//         // Image is taller than 16:9
+//         targetWidth = originalWidth;
+//         targetHeight = (targetWidth * 9 / 16).round();
+//       }
 
-      // Crop to 16:9
-      int x = (originalWidth - targetWidth) ~/ 2;
-      int y = (originalHeight - targetHeight) ~/ 2;
-      img.Image croppedImage = img.copyCrop(
-        originalImage,
-        x: x,
-        y: y,
-        width: targetWidth,
-        height: targetHeight,
-      );
+//       // Crop to 16:9
+//       int x = (originalWidth - targetWidth) ~/ 2;
+//       int y = (originalHeight - targetHeight) ~/ 2;
+//       img.Image croppedImage = img.copyCrop(
+//         originalImage,
+//         x: x,
+//         y: y,
+//         width: targetWidth,
+//         height: targetHeight,
+//       );
 
-      // Resize if width is greater than 1440 pixels
-      if (targetWidth > 1440) {
-        croppedImage = img.copyResize(
-          croppedImage,
-          width: 1440,
-          height: 810,
-          interpolation: img.Interpolation.linear,
-        );
-      }
+//       // Resize if width is greater than 1440 pixels
+//       if (targetWidth > 1440) {
+//         croppedImage = img.copyResize(
+//           croppedImage,
+//           width: 1440,
+//           height: 810,
+//           interpolation: img.Interpolation.linear,
+//         );
+//       }
 
-      // Encode the image to PNG
-      List<int> processedImageBytes = img.encodePng(croppedImage);
+//       // Encode the image to PNG
+//       List<int> processedImageBytes = img.encodePng(croppedImage);
 
-      // Create a temporary file with the processed image
-      Directory tempDir = await getTemporaryDirectory();
-      File tempFile = File('${tempDir.path}/processed_$currentImageName.png');
-      await tempFile.writeAsBytes(processedImageBytes);
+//       // Create a temporary file with the processed image
+//       Directory tempDir = await getTemporaryDirectory();
+//       File tempFile = File('${tempDir.path}/processed_$currentImageName.png');
+//       await tempFile.writeAsBytes(processedImageBytes);
 
-      // Upload the processed image
-      final response =
-          await supabase.client.storage.from('Images').upload('$userId/images/$currentImageName', tempFile);
+//       // Upload the processed image
+//       final response =
+//           await supabase.client.storage.from('Images').upload('$userId/images/$currentImageName', tempFile);
 
-      // Delete the temporary file
-      await tempFile.delete();
+//       // Delete the temporary file
+//       await tempFile.delete();
 
-      var imgId = await supabase.client
-          .from('Images')
-          .insert({'image_url': '$userId/images/$currentImageName'}).select('images_id');
-      return imgId[0]["images_id"];
-    } else {
-      // Handle error: unable to decode image
-      throw Exception('Unable to decode image');
-    }
-  }
+//       var imgId = await supabase.client
+//           .from('Images')
+//           .insert({'image_url': '$userId/images/$currentImageName'}).select('images_id');
+//       return imgId[0]["images_id"];
+//     } else {
+//       // Handle error: unable to decode image
+//       throw Exception('Unable to decode image');
+//     }
+//   }
 
-  Future<void> _pickAndCropImage(ImageSource source) async {
-    setState(() {
-      _isImageProcessing = true;
-    });
+//   Future<void> _pickAndCropImage(ImageSource source) async {
+//     setState(() {
+//       _isImageProcessing = true;
+//     });
 
-    try {
-      final XFile? pickedFile = await ImagePicker().pickImage(source: source);
-      if (pickedFile == null) {
-        setState(() {
-          _isImageProcessing = false;
-        });
-        return;
-      }
+//     try {
+//       final XFile? pickedFile = await ImagePicker().pickImage(source: source);
+//       if (pickedFile == null) {
+//         setState(() {
+//           _isImageProcessing = false;
+//         });
+//         return;
+//       }
 
-      final croppedFile = await ImageCropper().cropImage(
-        sourcePath: pickedFile.path,
-        aspectRatio: const CropAspectRatio(ratioX: 16, ratioY: 9),
-        uiSettings: [
-          AndroidUiSettings(
-            toolbarTitle: 'Crop Image',
-            toolbarColor: Theme.of(context).primaryColor,
-            toolbarWidgetColor: Colors.white,
-            initAspectRatio: CropAspectRatioPreset.ratio16x9,
-            lockAspectRatio: true,
-          ),
-          IOSUiSettings(
-            title: 'Crop Image',
-            aspectRatioLockEnabled: true,
-            resetAspectRatioEnabled: false,
-          ),
-        ],
-      );
+//       final croppedFile = await ImageCropper().cropImage(
+//         sourcePath: pickedFile.path,
+//         aspectRatio: const CropAspectRatio(ratioX: 16, ratioY: 9),
+//         uiSettings: [
+//           AndroidUiSettings(
+//             toolbarTitle: 'Crop Image',
+//             toolbarColor: Theme.of(context).primaryColor,
+//             toolbarWidgetColor: Colors.white,
+//             initAspectRatio: CropAspectRatioPreset.ratio16x9,
+//             lockAspectRatio: true,
+//           ),
+//           IOSUiSettings(
+//             title: 'Crop Image',
+//             aspectRatioLockEnabled: true,
+//             resetAspectRatioEnabled: false,
+//           ),
+//         ],
+//       );
 
-      if (croppedFile != null) {
-        setState(() {
-          _selectedImage = File(croppedFile.path);
-          _enableButton();
-        });
-      }
-    } finally {
-      setState(() {
-        _isImageProcessing = false;
-      });
-    }
-  }
+//       if (croppedFile != null) {
+//         setState(() {
+//           _selectedImage = File(croppedFile.path);
+//           _enableButton();
+//         });
+//       }
+//     } finally {
+//       setState(() {
+//         _isImageProcessing = false;
+//       });
+//     }
+//   }
 
-  Future<String> getCords(location) async {
-    List<Location> locations = await locationFromAddress(location);
-    return 'POINT(${locations.first.longitude} ${locations.first.latitude})';
-  }
+//   Future<String> getCords(location) async {
+//     List<Location> locations = await locationFromAddress(location);
+//     return 'POINT(${locations.first.longitude} ${locations.first.latitude})';
+//   }
 
-  Future<void> createEvent(
-      TimeOfDay selectedStart,
-      TimeOfDay selectedEnd,
-      DateTime selectedStartDate,
-      DateTime selectedEndDate,
-      File selectedImage,
-      String inviteType,
-      var location,
-      String title,
-      String description,
-      bool isRecurring,
-      bool isTicketed) async {
-    _showLoadingOverlay();
-    try {
-      DateTime start = DateTime(selectedStartDate.year, selectedStartDate.month, selectedStartDate.day,
-          selectedStart.hour, selectedStart.minute);
-      DateTime end = DateTime(
-          selectedEndDate.year, selectedEndDate.month, selectedEndDate.day, selectedEnd.hour, selectedEnd.minute);
+//   Future<void> createEvent(
+//       TimeOfDay selectedStart,
+//       TimeOfDay selectedEnd,
+//       DateTime selectedStartDate,
+//       DateTime selectedEndDate,
+//       File selectedImage,
+//       String inviteType,
+//       var location,
+//       String title,
+//       String description,
+//       bool isRecurring,
+//       bool isTicketed) async {
+//     _showLoadingOverlay();
+//     try {
+//       DateTime start = DateTime(selectedStartDate.year, selectedStartDate.month, selectedStartDate.day,
+//           selectedStart.hour, selectedStart.minute);
+//       DateTime end = DateTime(
+//           selectedEndDate.year, selectedEndDate.month, selectedEndDate.day, selectedEnd.hour, selectedEnd.minute);
 
-      var imageId = await uploadImage(selectedImage);
-      final supabase = (await ref.read(supabaseInstance)).client;
+//       var imageId = await uploadImage(selectedImage);
+//       final supabase = (await ref.read(supabaseInstance)).client;
 
-      var point;
-      if (virtualEvent) {
-        point = null;
-        location = null;
-      } else {
-        point = await getCords(location);
-      }
-      final newEventRowMap = {
-        'location': location,
-        'description': description,
-        'host': supabase.auth.currentUser!.id,
-        'invitationType': inviteType,
-        'image_id': imageId,
-        'title': title,
-        'is_virtual': virtualEvent,
-        'point': point,
-        'recurring': isRecurring,
-        'ticketed': isTicketed
-      };
-      if (categories.isNotEmpty) {
-        final List<String> interestStrings = categories.entries
-            .where((entry) => entry.value)
-            .map((entry) => ref.read(profileProvider.notifier).enumToString(entry.key))
-            .toList();
+//       var point;
+//       if (virtualEvent) {
+//         point = null;
+//         location = null;
+//       } else {
+//         point = await getCords(location);
+//       }
+//       final newEventRowMap = {
+//         'location': location,
+//         'description': description,
+//         'host': supabase.auth.currentUser!.id,
+//         'invitationType': inviteType,
+//         'image_id': imageId,
+//         'title': title,
+//         'is_virtual': virtualEvent,
+//         'point': point,
+//         'recurring': isRecurring,
+//         'ticketed': isTicketed
+//       };
+//       if (categories.isNotEmpty) {
+//         final List<String> interestStrings = categories.entries
+//             .where((entry) => entry.value)
+//             .map((entry) => ref.read(profileProvider.notifier).enumToString(entry.key))
+//             .toList();
 
-        newEventRowMap['event_interests'] = interestStrings;
-      }
+//         newEventRowMap['event_interests'] = interestStrings;
+//       }
 
-      final responseId = await supabase.from('Event').insert(newEventRowMap).select('event_id').single();
+//       final responseId = await supabase.from('Event').insert(newEventRowMap).select('event_id').single();
 
-      final newDateRowMap = {
-        'event_id' : responseId['event_id'],
-        'time_start': DateFormat('yyyy-MM-dd HH:mm:ss').format(start),
-        'time_end': DateFormat('yyyy-MM-dd HH:mm:ss').format(end),
-      };
-      await supabase.from('Dates').insert(newDateRowMap);
+//       final newDateRowMap = {
+//         'event_id' : responseId['event_id'],
+//         'time_start': DateFormat('yyyy-MM-dd HH:mm:ss').format(start),
+//         'time_end': DateFormat('yyyy-MM-dd HH:mm:ss').format(end),
+//       };
+//       await supabase.from('Dates').insert(newDateRowMap);
 
-      eventData = await ref.read(eventsProvider.notifier).deCodeLinkEvent(responseId['event_id']);
+//       eventData = await ref.read(eventsProvider.notifier).deCodeLinkEvent(responseId['event_id']);
 
-      ref.read(profileProvider.notifier).createBlockedTime(
-            supabase.auth.currentUser!.id,
-            DateFormat('yyyy-MM-dd HH:mm:ss').format(start),
-            DateFormat('yyyy-MM-dd HH:mm:ss').format(end),
-            title,
-            responseId['event_id'],
-          );
-    } finally {
-      _hideLoadingOverlay();
-    }
-  }
+//       ref.read(profileProvider.notifier).createBlockedTime(
+//             supabase.auth.currentUser!.id,
+//             DateFormat('yyyy-MM-dd HH:mm:ss').format(start),
+//             DateFormat('yyyy-MM-dd HH:mm:ss').format(end),
+//             title,
+//             responseId['event_id'],
+//           );
+//     } finally {
+//       _hideLoadingOverlay();
+//     }
+//   }
 
-  Future<void> updateEvent(
-      TimeOfDay selectedStart,
-      TimeOfDay selectedEnd,
-      DateTime selectedStartDate,
-      DateTime selectedEndDate,
-      File? selectedImage,
-      String inviteType,
-      var location,
-      String title,
-      String description,
-      bool isRecurring,
-      bool isTicketed) async {
-    DateTime start = DateTime(selectedStartDate.year, selectedStartDate.month, selectedStartDate.day,
-        selectedStart.hour, selectedStart.minute);
-    DateTime end = DateTime(
-        selectedEndDate.year, selectedEndDate.month, selectedEndDate.day, selectedEnd.hour, selectedEnd.minute);
+//   Future<void> updateEvent(
+//       TimeOfDay selectedStart,
+//       TimeOfDay selectedEnd,
+//       DateTime selectedStartDate,
+//       DateTime selectedEndDate,
+//       File? selectedImage,
+//       String inviteType,
+//       var location,
+//       String title,
+//       String description,
+//       bool isRecurring,
+//       bool isTicketed) async {
+//     DateTime start = DateTime(selectedStartDate.year, selectedStartDate.month, selectedStartDate.day,
+//         selectedStart.hour, selectedStart.minute);
+//     DateTime end = DateTime(
+//         selectedEndDate.year, selectedEndDate.month, selectedEndDate.day, selectedEnd.hour, selectedEnd.minute);
 
-    final Map newEventRowMap;
-    final supabase = (await ref.watch(supabaseInstance)).client;
-    var point;
+//     final Map newEventRowMap;
+//     final supabase = (await ref.watch(supabaseInstance)).client;
+//     var point;
 
-    if (virtualEvent) {
-      point = null;
-      location = null;
-    } else {
-      point = await getCords(location);
-    }
+//     if (virtualEvent) {
+//       point = null;
+//       location = null;
+//     } else {
+//       point = await getCords(location);
+//     }
 
-    if (selectedImage != null) {
-      await supabase.storage.from('Images').remove([widget.event!.imageUrl]);
-      var imageId = await uploadImage(selectedImage);
+//     if (selectedImage != null) {
+//       await supabase.storage.from('Images').remove([widget.event!.imageUrl]);
+//       var imageId = await uploadImage(selectedImage);
 
-      newEventRowMap = {
-        'location': location,
-        'description': description,
-        'invitationType': inviteType,
-        'image_id': imageId,
-        'title': title,
-        'point': point,
-        'recurring': isRecurring,
-        'ticketed': isTicketed
-      };
-    } else {
-      newEventRowMap = {
-        'location': location,
-        'description': description,
-        'invitationType': inviteType,
-        'title': title,
-        'point': point
-      };
-    }
-    if (categories.isNotEmpty) {
-      final List<String> interestStrings = categories.entries
-          .where((entry) => entry.value)
-          .map((entry) => ref.read(profileProvider.notifier).enumToString(entry.key))
-          .toList();
+//       newEventRowMap = {
+//         'location': location,
+//         'description': description,
+//         'invitationType': inviteType,
+//         'image_id': imageId,
+//         'title': title,
+//         'point': point,
+//         'recurring': isRecurring,
+//         'ticketed': isTicketed
+//       };
+//     } else {
+//       newEventRowMap = {
+//         'location': location,
+//         'description': description,
+//         'invitationType': inviteType,
+//         'title': title,
+//         'point': point
+//       };
+//     }
+//     if (categories.isNotEmpty) {
+//       final List<String> interestStrings = categories.entries
+//           .where((entry) => entry.value)
+//           .map((entry) => ref.read(profileProvider.notifier).enumToString(entry.key))
+//           .toList();
 
-      newEventRowMap['event_interests'] = interestStrings;
-    }
+//       newEventRowMap['event_interests'] = interestStrings;
+//     }
 
-    await supabase.from('Event').update(newEventRowMap).eq('event_id', widget.event?.eventId);
-    final newDateRowMap = {
-        'event_id' : widget.event?.eventId,
-        'time_start': DateFormat('yyyy-MM-dd HH:mm:ss').format(start),
-        'time_end': DateFormat('yyyy-MM-dd HH:mm:ss').format(end),
-      };
-      await supabase.from('Dates').update(newDateRowMap).eq('event_id',  widget.event?.eventId);
-    ref.read(attendEventsProvider.notifier).deCodeData();
-  }
+//     await supabase.from('Event').update(newEventRowMap).eq('event_id', widget.event?.eventId);
+//     final newDateRowMap = {
+//         'event_id' : widget.event?.eventId,
+//         'time_start': DateFormat('yyyy-MM-dd HH:mm:ss').format(start),
+//         'time_end': DateFormat('yyyy-MM-dd HH:mm:ss').format(end),
+//       };
+//       await supabase.from('Dates').update(newDateRowMap).eq('event_id',  widget.event?.eventId);
+//     ref.read(attendEventsProvider.notifier).deCodeData();
+//   }
 
-  Widget _buildInvitationTypeItem(BuildContext context, String title, String description) {
-    return Column(
-      //crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          title,
-          style: TextStyle(
-            fontSize: 16,
-            fontWeight: FontWeight.bold,
-            color: Theme.of(context).colorScheme.onSurface,
-          ),
-        ),
-        Text(
-          description,
-          style: TextStyle(
-            fontSize: 14,
-            color: Theme.of(context).colorScheme.onSurface.withOpacity(0.8),
-          ),
-        ),
-      ],
-    );
-  }
+//   Widget _buildInvitationTypeItem(BuildContext context, String title, String description) {
+//     return Column(
+//       //crossAxisAlignment: CrossAxisAlignment.start,
+//       children: [
+//         Text(
+//           title,
+//           style: TextStyle(
+//             fontSize: 16,
+//             fontWeight: FontWeight.bold,
+//             color: Theme.of(context).colorScheme.onSurface,
+//           ),
+//         ),
+//         Text(
+//           description,
+//           style: TextStyle(
+//             fontSize: 14,
+//             color: Theme.of(context).colorScheme.onSurface.withOpacity(0.8),
+//           ),
+//         ),
+//       ],
+//     );
+//   }
 
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Theme.of(context).colorScheme.surface,
-      appBar: AppBar(
-        actions: [
-          if (widget.isEdit == true)
-            IconButton(
-              onPressed: () {
-                FocusManager.instance.primaryFocus?.unfocus();
-                showDialog(
-                    context: context,
-                    builder: (context) => AlertDialog(
-                          title: Text(
-                            'Are you sure you want to delete this event?',
-                            style: TextStyle(color: Theme.of(context).primaryColorDark),
-                          ),
-                          actions: [
-                            TextButton(
-                                onPressed: () async {
-                                  ref.read(eventsProvider.notifier).deleteEvent(widget.event!);
-                                  Navigator.of(context)
-                                      .pushAndRemoveUntil(
-                                          MaterialPageRoute(builder: ((context) => const NavBar())), (route) => false)
-                                      .then((result) => Navigator.pop(context));
-                                  ScaffoldMessenger.of(context).hideCurrentSnackBar();
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    const SnackBar(
-                                      content: Text("Event Deleted"),
-                                    ),
-                                  );
-                                },
-                                child: const Text('DELETE')),
-                            TextButton(onPressed: () => Navigator.pop(context), child: const Text('CANCEL')),
-                          ],
-                        ));
-              },
-              icon: Icon(
-                Icons.delete_forever,
-                size: MediaQuery.of(context).size.aspectRatio * 85,
-              ),
-              color: const Color.fromARGB(212, 255, 80, 67),
-            ),
-        ],
-        flexibleSpace: PreferredSize(
-          preferredSize: const Size.fromHeight(kToolbarHeight),
-          child: Container(
-            padding: const EdgeInsets.only(
-              top: 20,
-              bottom: 5,
-            ),
-            alignment: Alignment.bottomCenter,
-            child: !isNewEvent
-                ? Text('Update Event',
-                    style: TextStyle(
-                      color: Theme.of(context).primaryColor,
-                      fontWeight: FontWeight.w800,
-                      fontSize: 25,
-                    ))
-                : null,
-          ),
-        ),
-      ),
-      body: Stack(
-        children: [
-          Stack(
-            children: [
-              SingleChildScrollView(
-                child: Column(
-                  children: [
-                    GestureDetector(
-                      onTap: () {
-                        showModalBottomSheet(
-                          context: context,
-                          isScrollControlled: true,
-                          shape: const RoundedRectangleBorder(
-                            borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-                          ),
-                          builder: (BuildContext context) {
-                            // Get screen size
-                            final screenSize = MediaQuery.of(context).size;
-                            final double fontSize = screenSize.width * 0.04; // 4% of screen width for font size
+//   @override
+//   Widget build(BuildContext context) {
+//     return Scaffold(
+//       backgroundColor: Theme.of(context).colorScheme.surface,
+//       appBar: AppBar(
+//         actions: [
+//           if (widget.isEdit == true)
+//             IconButton(
+//               onPressed: () {
+//                 FocusManager.instance.primaryFocus?.unfocus();
+//                 showDialog(
+//                     context: context,
+//                     builder: (context) => AlertDialog(
+//                           title: Text(
+//                             'Are you sure you want to delete this event?',
+//                             style: TextStyle(color: Theme.of(context).primaryColorDark),
+//                           ),
+//                           actions: [
+//                             TextButton(
+//                                 onPressed: () async {
+//                                   ref.read(eventsProvider.notifier).deleteEvent(widget.event!);
+//                                   Navigator.of(context)
+//                                       .pushAndRemoveUntil(
+//                                           MaterialPageRoute(builder: ((context) => const NavBar())), (route) => false)
+//                                       .then((result) => Navigator.pop(context));
+//                                   ScaffoldMessenger.of(context).hideCurrentSnackBar();
+//                                   ScaffoldMessenger.of(context).showSnackBar(
+//                                     const SnackBar(
+//                                       content: Text("Event Deleted"),
+//                                     ),
+//                                   );
+//                                 },
+//                                 child: const Text('DELETE')),
+//                             TextButton(onPressed: () => Navigator.pop(context), child: const Text('CANCEL')),
+//                           ],
+//                         ));
+//               },
+//               icon: Icon(
+//                 Icons.delete_forever,
+//                 size: MediaQuery.of(context).size.aspectRatio * 85,
+//               ),
+//               color: const Color.fromARGB(212, 255, 80, 67),
+//             ),
+//         ],
+//         flexibleSpace: PreferredSize(
+//           preferredSize: const Size.fromHeight(kToolbarHeight),
+//           child: Container(
+//             padding: const EdgeInsets.only(
+//               top: 20,
+//               bottom: 5,
+//             ),
+//             alignment: Alignment.bottomCenter,
+//             child: !isNewEvent
+//                 ? Text('Update Event',
+//                     style: TextStyle(
+//                       color: Theme.of(context).primaryColor,
+//                       fontWeight: FontWeight.w800,
+//                       fontSize: 25,
+//                     ))
+//                 : null,
+//           ),
+//         ),
+//       ),
+//       body: Stack(
+//         children: [
+//           Stack(
+//             children: [
+//               SingleChildScrollView(
+//                 child: Column(
+//                   children: [
+//                     GestureDetector(
+//                       onTap: () {
+//                         showModalBottomSheet(
+//                           context: context,
+//                           isScrollControlled: true,
+//                           shape: const RoundedRectangleBorder(
+//                             borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+//                           ),
+//                           builder: (BuildContext context) {
+//                             // Get screen size
+//                             final screenSize = MediaQuery.of(context).size;
+//                             final double fontSize = screenSize.width * 0.04; // 4% of screen width for font size
 
-                            return Container(
-                              width: double.infinity, // Ensures full width
-                              padding: EdgeInsets.only(
-                                bottom: MediaQuery.of(context).viewInsets.bottom,
-                              ),
-                              child: SingleChildScrollView(
-                                child: Padding(
-                                  padding: EdgeInsets.symmetric(
-                                    horizontal: screenSize.width * 0.05,
-                                    vertical: screenSize.height * 0.03,
-                                  ),
-                                  child: Column(
-                                    mainAxisSize: MainAxisSize.min,
-                                    crossAxisAlignment: CrossAxisAlignment.stretch, // Stretches buttons to full width
-                                    children: [
-                                      TextButton(
-                                        child: Row(
-                                          mainAxisAlignment: MainAxisAlignment.center,
-                                          children: [
-                                            Text(
-                                              "Select from Gallery",
-                                              style: TextStyle(fontSize: fontSize),
-                                            ),
-                                            SizedBox(width: screenSize.width * 0.01),
-                                            const Icon(Icons.photo_library_rounded)
-                                          ],
-                                        ),
-                                        onPressed: () {
-                                          _pickAndCropImage(ImageSource.gallery);
-                                          Navigator.pop(context);
-                                        },
-                                      ),
-                                      const Divider(),
-                                      SizedBox(height: screenSize.height * 0.01),
-                                      TextButton(
-                                        child: Row(
-                                          mainAxisAlignment: MainAxisAlignment.center,
-                                          children: [
-                                            Text(
-                                              "Take a Picture",
-                                              style: TextStyle(fontSize: fontSize),
-                                            ),
-                                            SizedBox(width: screenSize.width * 0.01),
-                                            const Icon(Icons.camera_alt_rounded)
-                                          ],
-                                        ),
-                                        onPressed: () {
-                                          _pickAndCropImage(ImageSource.camera);
-                                          Navigator.pop(context);
-                                        },
-                                      ),
-                                      const Divider(),
-                                      SizedBox(height: screenSize.height * 0.005),
-                                      TextButton(
-                                        child: Text(
-                                          "Close",
-                                          style: TextStyle(fontSize: fontSize),
-                                        ),
-                                        onPressed: () {
-                                          Navigator.pop(context);
-                                        },
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ),
-                            );
-                          },
-                        );
-                      },
-                      child: Stack(
-                        children: [
-                          AspectRatio(
-                            aspectRatio: 16 / 9,
-                            child: Container(
-                              height: MediaQuery.of(context).size.height / 3,
-                              decoration: _selectedImage != null
-                                  ? BoxDecoration(
-                                      border: Border.all(color: Colors.black87, width: 2),
-                                      color: Colors.grey.shade200,
-                                      image: DecorationImage(image: FileImage(_selectedImage!), fit: BoxFit.cover))
-                                  : (isNewEvent)
-                                      ? BoxDecoration(
-                                          border: Border.all(color: Colors.black87, width: 2),
-                                          color: Colors.grey.shade200,
-                                        )
-                                      : BoxDecoration(
-                                          border: Border.all(color: Colors.black87, width: 2),
-                                          color: Colors.grey.shade200,
-                                          image: DecorationImage(
-                                              image: NetworkImage(widget.event?.imageUrl), fit: BoxFit.cover),
-                                        ),
-                              child: _selectedImage == null && isNewEvent
-                                  ? Center(
-                                      child: Column(
-                                        mainAxisAlignment: MainAxisAlignment.center,
-                                        children: [
-                                          Icon(
-                                            Icons.add,
-                                            size: MediaQuery.of(context).size.height / 15,
-                                          ),
-                                          const Text("Add An Image")
-                                        ],
-                                      ),
-                                    )
-                                  : null,
-                            ),
-                          ),
-                          const Positioned(
-                            right: 8,
-                            bottom: 8,
-                            child: Icon(
-                              Icons.mode_edit_outlined,
-                              color: Colors.white,
-                              size: 30,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    SizedBox(height: MediaQuery.of(context).size.height / 30),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                      child: Row(
-                        children: [
-                          Text(
-                            "Date",
-                            style: TextStyle(
-                              fontSize: 15,
-                              color: _dateError ? Colors.red : Theme.of(context).colorScheme.onSecondary,
-                            ),
-                          ),
-                          TextButton(
-                            onPressed: () => _selectDate(context, true),
-                            child: Text(
-                              _formattedSDate ?? "Start",
-                              style: TextStyle(
-                                fontSize: 15,
-                                color: _dateError ? Colors.red : Theme.of(context).colorScheme.onSecondary,
-                              ),
-                            ),
-                          ),
-                          Text(
-                            "-",
-                            style: TextStyle(color: Theme.of(context).colorScheme.onSecondary),
-                          ),
-                          TextButton(
-                            onPressed: () => _selectDate(context, false), // Select end date
-                            child: Text(
-                              _formattedEDate ?? "End", // Format end date
-                              style: TextStyle(
-                                fontSize: 15,
-                                color: _dateError ? Colors.red : Theme.of(context).colorScheme.onSecondary,
-                              ),
-                            ),
-                          ),
-                          Text(
-                            "Recurring",
-                            style: TextStyle(
-                              fontSize: 15,
-                              color: Theme.of(context).colorScheme.onSecondary,
-                            ),
-                          ),
-                          Checkbox(
-                            value: _isRecurring,
-                            onChanged: (bool? value) {
-                              setState(() {
-                                _isRecurring = value ?? false;
-                              });
-                            },
-                          ),
-                        ],
-                      ),
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                      child: Row(
-                        children: [
-                          Text(
-                            "Time",
-                            style: TextStyle(
-                              fontSize: 15,
-                              color: _timeError ? Colors.red : Theme.of(context).colorScheme.onSecondary,
-                            ),
-                          ),
-                          TextButton(
-                            onPressed: sdate ? () => _selectTime(context, true) : null, // Select start time
-                            child: Text(
-                              _selectedStartTime?.format(context) ?? "Start", // Format start time
-                              style: TextStyle(
-                                fontSize: 15,
-                                color: _timeError ? Colors.red : Theme.of(context).colorScheme.onSecondary,
-                              ),
-                            ),
-                          ),
-                          Text(
-                            "-",
-                            style: TextStyle(color: Theme.of(context).colorScheme.onSecondary),
-                          ),
-                          TextButton(
-                            onPressed: edate ? () => _selectTime(context, false) : null, // Select end time
-                            child: Text(
-                              _selectedEndTime?.format(context) ?? "End", // Format end time
-                              style: TextStyle(
-                                fontSize: 15,
-                                color: _timeError ? Colors.red : Theme.of(context).colorScheme.onSecondary,
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.only(left: 8.0, bottom: 10.0),
-                      child: Row(
-                        children: [
-                          Text(
-                            "Invitation Type: ",
-                            style: TextStyle(fontSize: 15, color: Theme.of(context).colorScheme.onSecondary),
-                          ),
-                          IconButton(
-                            onPressed: () {
-                              showAdaptiveDialog(
-                                context: context,
-                                builder: (context) => Dialog(
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(16),
-                                  ),
-                                  elevation: 0,
-                                  backgroundColor: Colors.transparent,
-                                  child: Stack(
-                                    children: [
-                                      Container(
-                                        padding: const EdgeInsets.all(16),
-                                        decoration: BoxDecoration(
-                                          color: Theme.of(context).cardColor,
-                                          shape: BoxShape.rectangle,
-                                          borderRadius: BorderRadius.circular(16),
-                                          boxShadow: const [
-                                            BoxShadow(
-                                              color: Colors.black26,
-                                              blurRadius: 10.0,
-                                              offset: Offset(0.0, 10.0),
-                                            ),
-                                          ],
-                                        ),
-                                        child: Column(
-                                          mainAxisSize: MainAxisSize.min,
-                                          children: [
-                                            // Row(
-                                            //   mainAxisAlignment: MainAxisAlignment.center,
-                                            //   children: [
-                                            Center(
-                                              child: Text(
-                                                'Invitation Types',
-                                                style: TextStyle(
-                                                  fontSize: 20,
-                                                  fontWeight: FontWeight.bold,
-                                                  color: Theme.of(context).colorScheme.primary,
-                                                ),
-                                              ),
-                                            ),
+//                             return Container(
+//                               width: double.infinity, // Ensures full width
+//                               padding: EdgeInsets.only(
+//                                 bottom: MediaQuery.of(context).viewInsets.bottom,
+//                               ),
+//                               child: SingleChildScrollView(
+//                                 child: Padding(
+//                                   padding: EdgeInsets.symmetric(
+//                                     horizontal: screenSize.width * 0.05,
+//                                     vertical: screenSize.height * 0.03,
+//                                   ),
+//                                   child: Column(
+//                                     mainAxisSize: MainAxisSize.min,
+//                                     crossAxisAlignment: CrossAxisAlignment.stretch, // Stretches buttons to full width
+//                                     children: [
+//                                       TextButton(
+//                                         child: Row(
+//                                           mainAxisAlignment: MainAxisAlignment.center,
+//                                           children: [
+//                                             Text(
+//                                               "Select from Gallery",
+//                                               style: TextStyle(fontSize: fontSize),
+//                                             ),
+//                                             SizedBox(width: screenSize.width * 0.01),
+//                                             const Icon(Icons.photo_library_rounded)
+//                                           ],
+//                                         ),
+//                                         onPressed: () {
+//                                           _pickAndCropImage(ImageSource.gallery);
+//                                           Navigator.pop(context);
+//                                         },
+//                                       ),
+//                                       const Divider(),
+//                                       SizedBox(height: screenSize.height * 0.01),
+//                                       TextButton(
+//                                         child: Row(
+//                                           mainAxisAlignment: MainAxisAlignment.center,
+//                                           children: [
+//                                             Text(
+//                                               "Take a Picture",
+//                                               style: TextStyle(fontSize: fontSize),
+//                                             ),
+//                                             SizedBox(width: screenSize.width * 0.01),
+//                                             const Icon(Icons.camera_alt_rounded)
+//                                           ],
+//                                         ),
+//                                         onPressed: () {
+//                                           _pickAndCropImage(ImageSource.camera);
+//                                           Navigator.pop(context);
+//                                         },
+//                                       ),
+//                                       const Divider(),
+//                                       SizedBox(height: screenSize.height * 0.005),
+//                                       TextButton(
+//                                         child: Text(
+//                                           "Close",
+//                                           style: TextStyle(fontSize: fontSize),
+//                                         ),
+//                                         onPressed: () {
+//                                           Navigator.pop(context);
+//                                         },
+//                                       ),
+//                                     ],
+//                                   ),
+//                                 ),
+//                               ),
+//                             );
+//                           },
+//                         );
+//                       },
+//                       child: Stack(
+//                         children: [
+//                           AspectRatio(
+//                             aspectRatio: 16 / 9,
+//                             child: Container(
+//                               height: MediaQuery.of(context).size.height / 3,
+//                               decoration: _selectedImage != null
+//                                   ? BoxDecoration(
+//                                       border: Border.all(color: Colors.black87, width: 2),
+//                                       color: Colors.grey.shade200,
+//                                       image: DecorationImage(image: FileImage(_selectedImage!), fit: BoxFit.cover))
+//                                   : (isNewEvent)
+//                                       ? BoxDecoration(
+//                                           border: Border.all(color: Colors.black87, width: 2),
+//                                           color: Colors.grey.shade200,
+//                                         )
+//                                       : BoxDecoration(
+//                                           border: Border.all(color: Colors.black87, width: 2),
+//                                           color: Colors.grey.shade200,
+//                                           image: DecorationImage(
+//                                               image: NetworkImage(widget.event?.imageUrl), fit: BoxFit.cover),
+//                                         ),
+//                               child: _selectedImage == null && isNewEvent
+//                                   ? Center(
+//                                       child: Column(
+//                                         mainAxisAlignment: MainAxisAlignment.center,
+//                                         children: [
+//                                           Icon(
+//                                             Icons.add,
+//                                             size: MediaQuery.of(context).size.height / 15,
+//                                           ),
+//                                           const Text("Add An Image")
+//                                         ],
+//                                       ),
+//                                     )
+//                                   : null,
+//                             ),
+//                           ),
+//                           const Positioned(
+//                             right: 8,
+//                             bottom: 8,
+//                             child: Icon(
+//                               Icons.mode_edit_outlined,
+//                               color: Colors.white,
+//                               size: 30,
+//                             ),
+//                           ),
+//                         ],
+//                       ),
+//                     ),
+//                     SizedBox(height: MediaQuery.of(context).size.height / 30),
+//                     Padding(
+//                       padding: const EdgeInsets.symmetric(horizontal: 8.0),
+//                       child: Row(
+//                         children: [
+//                           Text(
+//                             "Date",
+//                             style: TextStyle(
+//                               fontSize: 15,
+//                               color: _dateError ? Colors.red : Theme.of(context).colorScheme.onSecondary,
+//                             ),
+//                           ),
+//                           TextButton(
+//                             onPressed: () => _selectDate(context, true),
+//                             child: Text(
+//                               _formattedSDate ?? "Start",
+//                               style: TextStyle(
+//                                 fontSize: 15,
+//                                 color: _dateError ? Colors.red : Theme.of(context).colorScheme.onSecondary,
+//                               ),
+//                             ),
+//                           ),
+//                           Text(
+//                             "-",
+//                             style: TextStyle(color: Theme.of(context).colorScheme.onSecondary),
+//                           ),
+//                           TextButton(
+//                             onPressed: () => _selectDate(context, false), // Select end date
+//                             child: Text(
+//                               _formattedEDate ?? "End", // Format end date
+//                               style: TextStyle(
+//                                 fontSize: 15,
+//                                 color: _dateError ? Colors.red : Theme.of(context).colorScheme.onSecondary,
+//                               ),
+//                             ),
+//                           ),
+//                           Text(
+//                             "Recurring",
+//                             style: TextStyle(
+//                               fontSize: 15,
+//                               color: Theme.of(context).colorScheme.onSecondary,
+//                             ),
+//                           ),
+//                           Checkbox(
+//                             value: _isRecurring,
+//                             onChanged: (bool? value) {
+//                               setState(() {
+//                                 _isRecurring = value ?? false;
+//                               });
+//                             },
+//                           ),
+//                         ],
+//                       ),
+//                     ),
+//                     Padding(
+//                       padding: const EdgeInsets.symmetric(horizontal: 8.0),
+//                       child: Row(
+//                         children: [
+//                           Text(
+//                             "Time",
+//                             style: TextStyle(
+//                               fontSize: 15,
+//                               color: _timeError ? Colors.red : Theme.of(context).colorScheme.onSecondary,
+//                             ),
+//                           ),
+//                           TextButton(
+//                             onPressed: sdate ? () => _selectTime(context, true) : null, // Select start time
+//                             child: Text(
+//                               _selectedStartTime?.format(context) ?? "Start", // Format start time
+//                               style: TextStyle(
+//                                 fontSize: 15,
+//                                 color: _timeError ? Colors.red : Theme.of(context).colorScheme.onSecondary,
+//                               ),
+//                             ),
+//                           ),
+//                           Text(
+//                             "-",
+//                             style: TextStyle(color: Theme.of(context).colorScheme.onSecondary),
+//                           ),
+//                           TextButton(
+//                             onPressed: edate ? () => _selectTime(context, false) : null, // Select end time
+//                             child: Text(
+//                               _selectedEndTime?.format(context) ?? "End", // Format end time
+//                               style: TextStyle(
+//                                 fontSize: 15,
+//                                 color: _timeError ? Colors.red : Theme.of(context).colorScheme.onSecondary,
+//                               ),
+//                             ),
+//                           ),
+//                         ],
+//                       ),
+//                     ),
+//                     Padding(
+//                       padding: const EdgeInsets.only(left: 8.0, bottom: 10.0),
+//                       child: Row(
+//                         children: [
+//                           Text(
+//                             "Invitation Type: ",
+//                             style: TextStyle(fontSize: 15, color: Theme.of(context).colorScheme.onSecondary),
+//                           ),
+//                           IconButton(
+//                             onPressed: () {
+//                               showAdaptiveDialog(
+//                                 context: context,
+//                                 builder: (context) => Dialog(
+//                                   shape: RoundedRectangleBorder(
+//                                     borderRadius: BorderRadius.circular(16),
+//                                   ),
+//                                   elevation: 0,
+//                                   backgroundColor: Colors.transparent,
+//                                   child: Stack(
+//                                     children: [
+//                                       Container(
+//                                         padding: const EdgeInsets.all(16),
+//                                         decoration: BoxDecoration(
+//                                           color: Theme.of(context).cardColor,
+//                                           shape: BoxShape.rectangle,
+//                                           borderRadius: BorderRadius.circular(16),
+//                                           boxShadow: const [
+//                                             BoxShadow(
+//                                               color: Colors.black26,
+//                                               blurRadius: 10.0,
+//                                               offset: Offset(0.0, 10.0),
+//                                             ),
+//                                           ],
+//                                         ),
+//                                         child: Column(
+//                                           mainAxisSize: MainAxisSize.min,
+//                                           children: [
+//                                             // Row(
+//                                             //   mainAxisAlignment: MainAxisAlignment.center,
+//                                             //   children: [
+//                                             Center(
+//                                               child: Text(
+//                                                 'Invitation Types',
+//                                                 style: TextStyle(
+//                                                   fontSize: 20,
+//                                                   fontWeight: FontWeight.bold,
+//                                                   color: Theme.of(context).colorScheme.primary,
+//                                                 ),
+//                                               ),
+//                                             ),
 
-                                            //   ],
-                                            // ),
+//                                             //   ],
+//                                             // ),
 
-                                            Text(
-                                              'The Invitation Type you choose affects who can see the event:',
-                                              style: TextStyle(
-                                                fontSize: 16,
-                                                fontWeight: FontWeight.w500,
-                                                color: Theme.of(context).colorScheme.secondary,
-                                              ),
-                                            ),
-                                            const SizedBox(height: 16),
-                                            _buildInvitationTypeItem(context, 'Public Events', 'Visible to all users'),
-                                            const SizedBox(height: 8),
-                                            _buildInvitationTypeItem(
-                                                context, 'Private Events', 'Only visible to your Friends'),
-                                            const SizedBox(height: 8),
-                                            _buildInvitationTypeItem(context, 'Selective Events',
-                                                'Only visible to those you have shared a link with'),
-                                          ],
-                                        ),
-                                      ),
-                                      Positioned(
-                                        top: 5,
-                                        right: 5,
-                                        child: IconButton(
-                                          icon: Icon(Icons.close, color: Theme.of(context).colorScheme.onSurface),
-                                          onPressed: () => Navigator.of(context).pop(),
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              );
-                            },
-                            icon: Icon(
-                              Icons.info,
-                              color: Theme.of(context).colorScheme.onSecondary,
-                            ),
-                          ),
-                          const SizedBox(width: 10),
-                          DropdownButtonHideUnderline(
-                            child: DropdownButton<String>(
-                              value: dropDownValue,
-                              elevation: 16,
-                              icon: const SizedBox.shrink(),
-                              style: TextStyle(
-                                  color: Theme.of(context).colorScheme.primary,
-                                  fontSize: 15,
-                                  fontWeight: FontWeight.w500),
-                              onChanged: (String? value) {
-                                setState(() {
-                                  dropDownValue = value!;
-                                });
-                              },
-                              items: list.map<DropdownMenuItem<String>>((String value) {
-                                return DropdownMenuItem<String>(
-                                  value: value,
-                                  child: Text(value),
-                                );
-                              }).toList(),
-                            ),
-                          ),
-                          Text(
-                            "Virtual",
-                            style: TextStyle(fontSize: 15, color: Theme.of(context).colorScheme.onSecondary),
-                          ),
-                          Checkbox(
-                            value: virtualEvent,
-                            onChanged: (value) {
-                              setState(() {
-                                virtualEvent = !virtualEvent;
-                                if (virtualEvent) {
-                                  _locationController.text = 'Virtual';
-                                } else {
-                                  _locationController.clear();
-                                }
-                              });
-                            },
-                          )
-                        ],
-                      ),
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                      child: AddressSearchField(
-                        controller: _locationController,
-                        isEvent: false,
-                        hasError: _locationError,
-                        isVirtual: virtualEvent,
-                      ),
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                      child: TextField(
-                        controller: _title,
-                        decoration: InputDecoration(
-                          border: OutlineInputBorder(
-                            borderSide: BorderSide(color: _titleError ? Colors.red : Colors.grey),
-                          ),
-                          enabledBorder: OutlineInputBorder(
-                            borderSide: BorderSide(color: _titleError ? Colors.red : Colors.grey),
-                          ),
-                          focusedBorder: OutlineInputBorder(
-                            borderSide:
-                                BorderSide(color: _titleError ? Colors.red : Theme.of(context).colorScheme.primary),
-                          ),
-                          labelText: "Enter Your Event Title",
-                          labelStyle: TextStyle(color: Theme.of(context).colorScheme.onSecondary),
-                          contentPadding: const EdgeInsets.all(5),
-                          errorText: _titleError ? "Please add a title to your event" : null,
-                        ),
-                        keyboardType: TextInputType.multiline,
-                        textInputAction: TextInputAction.done,
-                        maxLines: null,
-                        textAlign: TextAlign.start,
-                        textCapitalization: TextCapitalization.sentences,
-                        maxLength: 100,
-                        style: TextStyle(color: Theme.of(context).colorScheme.onSecondary),
-                      ),
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                      child: TextField(
-                        controller: _description,
-                        decoration: InputDecoration(
-                          border: OutlineInputBorder(
-                            borderSide: BorderSide(color: _descriptionError ? Colors.red : Colors.grey),
-                          ),
-                          enabledBorder: OutlineInputBorder(
-                            borderSide: BorderSide(color: _descriptionError ? Colors.red : Colors.grey),
-                          ),
-                          focusedBorder: OutlineInputBorder(
-                            borderSide: BorderSide(
-                                color: _descriptionError ? Colors.red : Theme.of(context).colorScheme.primary),
-                          ),
-                          labelText: "Enter Your Event Description",
-                          labelStyle: TextStyle(color: Theme.of(context).colorScheme.onSecondary),
-                          contentPadding: const EdgeInsets.all(5),
-                          errorText: _descriptionError ? "Please enter a description for your event" : null,
-                        ),
-                        keyboardType: TextInputType.multiline,
-                        textInputAction: TextInputAction.done,
-                        maxLines: null,
-                        textAlign: TextAlign.start,
-                        textCapitalization: TextCapitalization.sentences,
-                        maxLength: 1500,
-                        style: TextStyle(color: Theme.of(context).colorScheme.onSecondary),
-                      ),
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 12.0),
-                      child: Row(
-                        children: [
-                          Text(
-                            "Ticketed",
-                            style: TextStyle(
-                              fontSize: 15,
-                              color: Theme.of(context).colorScheme.onSecondary,
-                            ),
-                          ),
-                          Checkbox(
-                            value: _isTicketed,
-                            onChanged: (bool? value) {
-                              setState(() {
-                                _isTicketed = value ?? false;
-                              });
-                            },
-                          ),
-                        ],
-                      ),
-                    ),
-                    ElevatedButton(
-                        onPressed: () async {
-                          FocusManager.instance.primaryFocus?.unfocus();
-                          final selectedInterests = await Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (builder) => InterestsScreen(
-                                isEditing: false,
-                                creatingEvent: true,
-                                selectedInterests: categories,
-                              ),
-                            ),
-                          );
-                          if (selectedInterests != null) {
-                            setState(() {
-                              categories = selectedInterests;
-                            });
-                          }
-                        },
-                        child: const Text('Categories')),
-                    SizedBox(height: MediaQuery.sizeOf(context).height / 80),
-                    InkWell(
-                      onTap: () {
-                        setState(() {
-                          _titleError = _title.text.isEmpty;
-                          _descriptionError = _description.text.isEmpty;
-                          _locationError = _locationController.text.isEmpty && !virtualEvent;
-                          _dateError = !sdate || !edate;
-                          _timeError = !stime || !etime;
-                        });
+//                                             Text(
+//                                               'The Invitation Type you choose affects who can see the event:',
+//                                               style: TextStyle(
+//                                                 fontSize: 16,
+//                                                 fontWeight: FontWeight.w500,
+//                                                 color: Theme.of(context).colorScheme.secondary,
+//                                               ),
+//                                             ),
+//                                             const SizedBox(height: 16),
+//                                             _buildInvitationTypeItem(context, 'Public Events', 'Visible to all users'),
+//                                             const SizedBox(height: 8),
+//                                             _buildInvitationTypeItem(
+//                                                 context, 'Private Events', 'Only visible to your Friends'),
+//                                             const SizedBox(height: 8),
+//                                             _buildInvitationTypeItem(context, 'Selective Events',
+//                                                 'Only visible to those you have shared a link with'),
+//                                           ],
+//                                         ),
+//                                       ),
+//                                       Positioned(
+//                                         top: 5,
+//                                         right: 5,
+//                                         child: IconButton(
+//                                           icon: Icon(Icons.close, color: Theme.of(context).colorScheme.onSurface),
+//                                           onPressed: () => Navigator.of(context).pop(),
+//                                         ),
+//                                       ),
+//                                     ],
+//                                   ),
+//                                 ),
+//                               );
+//                             },
+//                             icon: Icon(
+//                               Icons.info,
+//                               color: Theme.of(context).colorScheme.onSecondary,
+//                             ),
+//                           ),
+//                           const SizedBox(width: 10),
+//                           DropdownButtonHideUnderline(
+//                             child: DropdownButton<String>(
+//                               value: dropDownValue,
+//                               elevation: 16,
+//                               icon: const SizedBox.shrink(),
+//                               style: TextStyle(
+//                                   color: Theme.of(context).colorScheme.primary,
+//                                   fontSize: 15,
+//                                   fontWeight: FontWeight.w500),
+//                               onChanged: (String? value) {
+//                                 setState(() {
+//                                   dropDownValue = value!;
+//                                 });
+//                               },
+//                               items: list.map<DropdownMenuItem<String>>((String value) {
+//                                 return DropdownMenuItem<String>(
+//                                   value: value,
+//                                   child: Text(value),
+//                                 );
+//                               }).toList(),
+//                             ),
+//                           ),
+//                           Text(
+//                             "Virtual",
+//                             style: TextStyle(fontSize: 15, color: Theme.of(context).colorScheme.onSecondary),
+//                           ),
+//                           Checkbox(
+//                             value: virtualEvent,
+//                             onChanged: (value) {
+//                               setState(() {
+//                                 virtualEvent = !virtualEvent;
+//                                 if (virtualEvent) {
+//                                   _locationController.text = 'Virtual';
+//                                 } else {
+//                                   _locationController.clear();
+//                                 }
+//                               });
+//                             },
+//                           )
+//                         ],
+//                       ),
+//                     ),
+//                     Padding(
+//                       padding: const EdgeInsets.symmetric(horizontal: 8.0),
+//                       child: AddressSearchField(
+//                         controller: _locationController,
+//                         isEvent: false,
+//                         hasError: _locationError,
+//                         isVirtual: virtualEvent,
+//                       ),
+//                     ),
+//                     Padding(
+//                       padding: const EdgeInsets.symmetric(horizontal: 8.0),
+//                       child: TextField(
+//                         controller: _title,
+//                         decoration: InputDecoration(
+//                           border: OutlineInputBorder(
+//                             borderSide: BorderSide(color: _titleError ? Colors.red : Colors.grey),
+//                           ),
+//                           enabledBorder: OutlineInputBorder(
+//                             borderSide: BorderSide(color: _titleError ? Colors.red : Colors.grey),
+//                           ),
+//                           focusedBorder: OutlineInputBorder(
+//                             borderSide:
+//                                 BorderSide(color: _titleError ? Colors.red : Theme.of(context).colorScheme.primary),
+//                           ),
+//                           labelText: "Enter Your Event Title",
+//                           labelStyle: TextStyle(color: Theme.of(context).colorScheme.onSecondary),
+//                           contentPadding: const EdgeInsets.all(5),
+//                           errorText: _titleError ? "Please add a title to your event" : null,
+//                         ),
+//                         keyboardType: TextInputType.multiline,
+//                         textInputAction: TextInputAction.done,
+//                         maxLines: null,
+//                         textAlign: TextAlign.start,
+//                         textCapitalization: TextCapitalization.sentences,
+//                         maxLength: 100,
+//                         style: TextStyle(color: Theme.of(context).colorScheme.onSecondary),
+//                       ),
+//                     ),
+//                     Padding(
+//                       padding: const EdgeInsets.symmetric(horizontal: 8.0),
+//                       child: TextField(
+//                         controller: _description,
+//                         decoration: InputDecoration(
+//                           border: OutlineInputBorder(
+//                             borderSide: BorderSide(color: _descriptionError ? Colors.red : Colors.grey),
+//                           ),
+//                           enabledBorder: OutlineInputBorder(
+//                             borderSide: BorderSide(color: _descriptionError ? Colors.red : Colors.grey),
+//                           ),
+//                           focusedBorder: OutlineInputBorder(
+//                             borderSide: BorderSide(
+//                                 color: _descriptionError ? Colors.red : Theme.of(context).colorScheme.primary),
+//                           ),
+//                           labelText: "Enter Your Event Description",
+//                           labelStyle: TextStyle(color: Theme.of(context).colorScheme.onSecondary),
+//                           contentPadding: const EdgeInsets.all(5),
+//                           errorText: _descriptionError ? "Please enter a description for your event" : null,
+//                         ),
+//                         keyboardType: TextInputType.multiline,
+//                         textInputAction: TextInputAction.done,
+//                         maxLines: null,
+//                         textAlign: TextAlign.start,
+//                         textCapitalization: TextCapitalization.sentences,
+//                         maxLength: 1500,
+//                         style: TextStyle(color: Theme.of(context).colorScheme.onSecondary),
+//                       ),
+//                     ),
+//                     Padding(
+//                       padding: const EdgeInsets.symmetric(horizontal: 12.0),
+//                       child: Row(
+//                         children: [
+//                           Text(
+//                             "Ticketed",
+//                             style: TextStyle(
+//                               fontSize: 15,
+//                               color: Theme.of(context).colorScheme.onSecondary,
+//                             ),
+//                           ),
+//                           Checkbox(
+//                             value: _isTicketed,
+//                             onChanged: (bool? value) {
+//                               setState(() {
+//                                 _isTicketed = value ?? false;
+//                               });
+//                             },
+//                           ),
+//                         ],
+//                       ),
+//                     ),
+//                     ElevatedButton(
+//                         onPressed: () async {
+//                           FocusManager.instance.primaryFocus?.unfocus();
+//                           final selectedInterests = await Navigator.push(
+//                             context,
+//                             MaterialPageRoute(
+//                               builder: (builder) => InterestsScreen(
+//                                 isEditing: false,
+//                                 creatingEvent: true,
+//                                 selectedInterests: categories,
+//                               ),
+//                             ),
+//                           );
+//                           if (selectedInterests != null) {
+//                             setState(() {
+//                               categories = selectedInterests;
+//                             });
+//                           }
+//                         },
+//                         child: const Text('Categories')),
+//                     SizedBox(height: MediaQuery.sizeOf(context).height / 80),
+//                     InkWell(
+//                       onTap: () {
+//                         setState(() {
+//                           _titleError = _title.text.isEmpty;
+//                           _descriptionError = _description.text.isEmpty;
+//                           _locationError = _locationController.text.isEmpty && !virtualEvent;
+//                           _dateError = !sdate || !edate;
+//                           _timeError = !stime || !etime;
+//                         });
 
-                        if (_titleError || _descriptionError || _locationError || _dateError || _timeError) {
-                          ScaffoldMessenger.of(context).hideCurrentSnackBar();
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(content: Text('Please fill in all required fields')),
-                          );
-                        } else if (_selectedImage == null && isNewEvent) {
-                          ScaffoldMessenger.of(context).hideCurrentSnackBar();
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(content: Text('Select an image for your event')),
-                          );
-                        }
-                      },
-                      child: ElevatedButton(
-                        style: ElevatedButton.styleFrom(
-                          textStyle: TextStyle(
-                              color: Theme.of(context).colorScheme.primary, fontSize: 15, fontWeight: FontWeight.w500),
-                        ),
-                        onPressed: enableButton
-                            ? isNewEvent
-                                ? () async {
-                                    FocusManager.instance.primaryFocus?.unfocus();
-                                    await createEvent(
-                                        _selectedStartTime!,
-                                        _selectedEndTime!,
-                                        _selectedStartDate!,
-                                        _selectedEndDate!,
-                                        _selectedImage!,
-                                        dropDownValue,
-                                        _locationController.text,
-                                        _title.text,
-                                        _description.text,
-                                        _isRecurring,
-                                        _isTicketed);
-                                    if (widget.onEventCreated != null) {
-                                      widget.onEventCreated!();
-                                    }
-                                    Navigator.of(context).pushReplacement(MaterialPageRoute(
-                                        builder: ((context) => DetailedEventScreen(eventData: eventData))));
-                                    ScaffoldMessenger.of(context).hideCurrentSnackBar();
-                                    ScaffoldMessenger.of(context).showSnackBar(
-                                      const SnackBar(
-                                        content: Text('Event Created'),
-                                      ),
-                                    );
-                                  }
-                                : () {
-                                    print(widget.event!.imageId);
-                                    showDialog(
-                                      context: context,
-                                      builder: (context) => AlertDialog(
-                                        title: Text(
-                                          'Are you sure you want to update this event?',
-                                          style: TextStyle(color: Theme.of(context).primaryColorDark),
-                                        ),
-                                        actions: [
-                                          TextButton(
-                                            onPressed: () async {
-                                              FocusManager.instance.primaryFocus?.unfocus();
-                                              await updateEvent(
-                                                  _selectedStartTime!,
-                                                  _selectedEndTime!,
-                                                  _selectedStartDate!,
-                                                  _selectedEndDate!,
-                                                  _selectedImage,
-                                                  dropDownValue,
-                                                  _locationController.text,
-                                                  _title.text,
-                                                  _description.text,
-                                                  _isRecurring,
-                                                  _isTicketed);
-                                              Navigator.of(context)
-                                                  .pushAndRemoveUntil(
-                                                      MaterialPageRoute(builder: ((context) => const NavBar())),
-                                                      (route) => false)
-                                                  .then((result) => Navigator.pop(context));
-                                              ScaffoldMessenger.of(context).hideCurrentSnackBar();
-                                              ScaffoldMessenger.of(context).showSnackBar(
-                                                const SnackBar(
-                                                  content: Text('Event Updated'),
-                                                ),
-                                              );
-                                            },
-                                            child: const Text('YES'),
-                                          ),
-                                          TextButton(
-                                            onPressed: () => Navigator.pop(context),
-                                            child: const Text('CANCEL'),
-                                          ),
-                                        ],
-                                      ),
-                                    );
-                                  }
-                            : null,
-                        child: Text(isNewEvent ? 'Create Event' : 'Update Event'),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              if (_isImageProcessing)
-                Container(
-                  color: Theme.of(context).colorScheme.surface.withOpacity(0.5),
-                  child: const Center(
-                    child: CircularProgressIndicator(),
-                  ),
-                ),
-            ],
-          ),
-          if (_isLoading)
-            Container(
-              color: Colors.black.withOpacity(0.5),
-              child: const Center(
-                child: CircularProgressIndicator(),
-              ),
-            ),
-        ],
-      ),
-    );
-  }
-}
+//                         if (_titleError || _descriptionError || _locationError || _dateError || _timeError) {
+//                           ScaffoldMessenger.of(context).hideCurrentSnackBar();
+//                           ScaffoldMessenger.of(context).showSnackBar(
+//                             const SnackBar(content: Text('Please fill in all required fields')),
+//                           );
+//                         } else if (_selectedImage == null && isNewEvent) {
+//                           ScaffoldMessenger.of(context).hideCurrentSnackBar();
+//                           ScaffoldMessenger.of(context).showSnackBar(
+//                             const SnackBar(content: Text('Select an image for your event')),
+//                           );
+//                         }
+//                       },
+//                       child: ElevatedButton(
+//                         style: ElevatedButton.styleFrom(
+//                           textStyle: TextStyle(
+//                               color: Theme.of(context).colorScheme.primary, fontSize: 15, fontWeight: FontWeight.w500),
+//                         ),
+//                         onPressed: enableButton
+//                             ? isNewEvent
+//                                 ? () async {
+//                                     FocusManager.instance.primaryFocus?.unfocus();
+//                                     await createEvent(
+//                                         _selectedStartTime!,
+//                                         _selectedEndTime!,
+//                                         _selectedStartDate!,
+//                                         _selectedEndDate!,
+//                                         _selectedImage!,
+//                                         dropDownValue,
+//                                         _locationController.text,
+//                                         _title.text,
+//                                         _description.text,
+//                                         _isRecurring,
+//                                         _isTicketed);
+//                                     if (widget.onEventCreated != null) {
+//                                       widget.onEventCreated!();
+//                                     }
+//                                     Navigator.of(context).pushReplacement(MaterialPageRoute(
+//                                         builder: ((context) => DetailedEventScreen(eventData: eventData))));
+//                                     ScaffoldMessenger.of(context).hideCurrentSnackBar();
+//                                     ScaffoldMessenger.of(context).showSnackBar(
+//                                       const SnackBar(
+//                                         content: Text('Event Created'),
+//                                       ),
+//                                     );
+//                                   }
+//                                 : () {
+//                                     print(widget.event!.imageId);
+//                                     showDialog(
+//                                       context: context,
+//                                       builder: (context) => AlertDialog(
+//                                         title: Text(
+//                                           'Are you sure you want to update this event?',
+//                                           style: TextStyle(color: Theme.of(context).primaryColorDark),
+//                                         ),
+//                                         actions: [
+//                                           TextButton(
+//                                             onPressed: () async {
+//                                               FocusManager.instance.primaryFocus?.unfocus();
+//                                               await updateEvent(
+//                                                   _selectedStartTime!,
+//                                                   _selectedEndTime!,
+//                                                   _selectedStartDate!,
+//                                                   _selectedEndDate!,
+//                                                   _selectedImage,
+//                                                   dropDownValue,
+//                                                   _locationController.text,
+//                                                   _title.text,
+//                                                   _description.text,
+//                                                   _isRecurring,
+//                                                   _isTicketed);
+//                                               Navigator.of(context)
+//                                                   .pushAndRemoveUntil(
+//                                                       MaterialPageRoute(builder: ((context) => const NavBar())),
+//                                                       (route) => false)
+//                                                   .then((result) => Navigator.pop(context));
+//                                               ScaffoldMessenger.of(context).hideCurrentSnackBar();
+//                                               ScaffoldMessenger.of(context).showSnackBar(
+//                                                 const SnackBar(
+//                                                   content: Text('Event Updated'),
+//                                                 ),
+//                                               );
+//                                             },
+//                                             child: const Text('YES'),
+//                                           ),
+//                                           TextButton(
+//                                             onPressed: () => Navigator.pop(context),
+//                                             child: const Text('CANCEL'),
+//                                           ),
+//                                         ],
+//                                       ),
+//                                     );
+//                                   }
+//                             : null,
+//                         child: Text(isNewEvent ? 'Create Event' : 'Update Event'),
+//                       ),
+//                     ),
+//                   ],
+//                 ),
+//               ),
+//               if (_isImageProcessing)
+//                 Container(
+//                   color: Theme.of(context).colorScheme.surface.withOpacity(0.5),
+//                   child: const Center(
+//                     child: CircularProgressIndicator(),
+//                   ),
+//                 ),
+//             ],
+//           ),
+//           if (_isLoading)
+//             Container(
+//               color: Colors.black.withOpacity(0.5),
+//               child: const Center(
+//                 child: CircularProgressIndicator(),
+//               ),
+//             ),
+//         ],
+//       ),
+//     );
+//   }
+// }

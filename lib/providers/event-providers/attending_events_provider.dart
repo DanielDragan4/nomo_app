@@ -1,14 +1,10 @@
 import 'dart:convert';
-import 'dart:math';
-
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:nomo/models/events_model.dart';
 import 'package:nomo/providers/supabase-providers/supabase_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import 'package:geocoding/geocoding.dart';
-import 'package:geolocator/geolocator.dart';
 
 class AttendEventProvider extends StateNotifier<List<Event>> {
   AttendEventProvider({required this.supabase}) : super([]);
@@ -75,7 +71,6 @@ class AttendEventProvider extends StateNotifier<List<Event>> {
 
       final Event deCodedEvent = Event(
           description: eventData['description'],
-          sdate: eventData['time_start'],
           eventId: eventData['event_id'],
           eventType: eventData['invitationType'],
           host: eventData['host'],
@@ -83,6 +78,7 @@ class AttendEventProvider extends StateNotifier<List<Event>> {
           imageUrl: eventUrl,
           location: eventData['location'],
           title: eventData['title'],
+          sdate: eventData['time_start'],
           edate: eventData['time_end'],
           attendees: eventData['Attendees'],
           hostProfileUrl: profileUrl,
@@ -100,8 +96,9 @@ class AttendEventProvider extends StateNotifier<List<Event>> {
           distanceAway: distance);
 
       bool attending = false;
+      final userId =  supabaseClient.auth.currentUser!.id;
       for (var i = 0; i < deCodedEvent.attendees.length; i++) {
-        if (deCodedEvent.attendees[i]['user_id'] == supabaseClient.auth.currentUser!.id) {
+        if (deCodedEvent.attendees[i]['user_id'] == userId) {
           attending = true;
           deCodedEvent.attending = true;
           break;
@@ -110,12 +107,44 @@ class AttendEventProvider extends StateNotifier<List<Event>> {
       if ((attending) || ((deCodedEvent.host == supabaseClient.auth.currentUser!.id) || (bookmarked))) {
         if (deCodedEvent.host == supabaseClient.auth.currentUser!.id) {
           deCodedEvent.isHost = true;
+          deCodedEvent.attendeeDates = {'time_start' : deCodedEvent.sdate.first, 'time_end' : deCodedEvent.edate.first};
         }
+        if(attending){
+          var attendDates = await atteendeesDates(userId, eventData['event_id']);
+          if(attendDates != null ) {
+            deCodedEvent.attendeeDates = attendDates;
+          } else {
+            deCodedEvent.attendeeDates = {'time_start' : deCodedEvent.sdate.first, 'time_end' : deCodedEvent.edate.first};
+          }
+          }else {
+            deCodedEvent.attendeeDates = {'time_start' : deCodedEvent.sdate.first, 'time_end' : deCodedEvent.edate.first};
+          }
 
         deCodedList.add(deCodedEvent);
       }
     }
     state = deCodedList;
+  }
+
+  Future<Map?> atteendeesDates(userId, eventId) async{
+    /*
+    Gets the dates for the event that the user selected when joining the event.
+
+      Params: userID: uuid, eventId: uuid
+      
+      Returns: Map of the start and end dates for the event.
+    */
+    final supabaseClient = (await supabase).client;
+    final dateId = await supabaseClient.from('Attendees').select('date_id').eq('attendees_id', userId).eq('event_id', eventId);
+    var dates;
+
+    if(dateId.isNotEmpty) {
+      dates = await supabaseClient.from('Dates').select('time_start, time_end').eq('date_id', dateId);
+      dates = dates.first;
+    }
+    else
+      dates = null;
+    return dates;
   }
 
   Future<List> readEventsWithId(String userID) async {
@@ -206,20 +235,27 @@ class AttendEventProvider extends StateNotifier<List<Event>> {
         if (deCodedEvent.attendees[i] == currentUser) {
           attending = true;
           deCodedEvent.attending = true;
+          var attendDates = await atteendeesDates(currentUser, eventData['event_id']);
+          if(attendDates != null ) {
+            deCodedEvent.attendeeDates = attendDates;
+          } else {
+            deCodedEvent.attendeeDates = {'time_start' : deCodedEvent.sdate.first, 'time_end' : deCodedEvent.edate.first};
+          }
         }
         if (deCodedEvent.attendees[i] == userId) {
           deCodedEvent.otherAttend = true;
+          deCodedEvent.attendeeDates = {'time_start' : deCodedEvent.sdate.first, 'time_end' : deCodedEvent.edate.first};
         }
       }
-      if ((attending) || (deCodedEvent.host == userId || (bookmarked))) {
-        if (deCodedEvent.host == currentUser) {
-          deCodedEvent.isHost = true;
-        }
+      if (deCodedEvent.host == currentUser) {
+        deCodedEvent.attendeeDates = {'time_start' : deCodedEvent.sdate.first, 'time_end' : deCodedEvent.edate.first};
       }
       if (deCodedEvent.host == userId) {
         deCodedEvent.otherHost = true;
+      } else {
+        deCodedEvent.attendeeDates = {'time_start' : deCodedEvent.sdate.first, 'time_end' : deCodedEvent.edate.first};
       }
-      print(deCodedEvent);
+      print(deCodedEvent.sdate);
       deCodedList.add(deCodedEvent);
     }
     state = deCodedList;
@@ -237,8 +273,8 @@ class AttendEventProvider extends StateNotifier<List<Event>> {
     final List<Event> allAttend = state;
 
     for (var event in allAttend) {
-      DateTime startDate = DateTime.parse(event.sdate);
-      DateTime endDate = DateTime.parse(event.edate);
+      DateTime startDate = DateTime.parse(event.sdate.first);
+      DateTime endDate = DateTime.parse(event.edate.first);
 
       // Iterate over each day between startDate and endDate
       for (DateTime day = startDate; day.isBefore(endDate.add(Duration(days: 1))); day = day.add(Duration(days: 1))) {

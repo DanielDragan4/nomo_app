@@ -22,52 +22,35 @@ class _DateTimeSelectorWidgetState extends State<DateTimeSelectorWidget> {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      height: 200, // Adjust this value as needed
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Text(
-              'Select a Prefered Date and Time',
-              style: Theme.of(context).textTheme.bodyMedium,
-            ),
-          ),
-          Expanded(
-            child: ListView.builder(
-              itemCount: widget.startDates.length,
-              itemBuilder: (context, index) {
-                final startDate = widget.startDates[index];
-                final endDate = widget.endDates[index];
-                final isSelected = _selectedIndex == index;
+    return ListView.builder(
+      itemCount: widget.startDates.length,
+      itemBuilder: (context, index) {
+        final startDate = widget.startDates[index];
+        final endDate = widget.endDates[index];
+        final isSelected = _selectedIndex == index;
 
-                return ListTile(
-                  title: Text(
-                    '${_formatDate(startDate)} - ${_formatDate(endDate)}',
-                    style: TextStyle(
-                      fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-                    ),
-                  ),
-                  subtitle: Text(
-                    '${_formatTime(startDate)} - ${_formatTime(endDate)}',
-                    style: TextStyle(
-                      fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-                    ),
-                  ),
-                  tileColor: isSelected ? Theme.of(context).colorScheme.secondaryContainer : null,
-                  onTap: () {
-                    setState(() {
-                      _selectedIndex = index;
-                    });
-                    widget.onDateSelected(startDate, endDate);
-                  },
-                );
-              },
+        return ListTile(
+          title: Text(
+            '${_formatDate(startDate)} - ${_formatDate(endDate)}',
+            style: TextStyle(
+              fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
             ),
           ),
-        ],
-      ),
+          subtitle: Text(
+            '${_formatTime(startDate)} - ${_formatTime(endDate)}',
+            style: TextStyle(
+              fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+            ),
+          ),
+          tileColor: isSelected ? Theme.of(context).cardColor : null,
+          onTap: () {
+            setState(() {
+              _selectedIndex = index;
+            });
+            widget.onDateSelected(startDate, endDate);
+          },
+        );
+      },
     );
   }
 

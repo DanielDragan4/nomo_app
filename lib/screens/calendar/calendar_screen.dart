@@ -7,6 +7,7 @@ import 'package:nomo/providers/calendar-providers/calendar_provider.dart';
 import 'package:nomo/providers/profile_provider.dart';
 import 'package:nomo/screens/calendar/event_cal_tab.dart';
 import 'package:nomo/screens/calendar/month_widget.dart';
+import 'package:nomo/screens/events/event_creation.dart';
 import 'package:nomo/screens/events/new_event_screen.dart';
 import 'package:nomo/widgets/custom_time_picker.dart';
 
@@ -449,7 +450,7 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
                                                           Navigator.of(context, rootNavigator: true).push(
                                                               MaterialPageRoute(
                                                                   builder: ((context) =>
-                                                                      const NewEventScreen(event: null))));
+                                                                      const EventCreateScreen(event: null))));
                                                         },
                                                         child: const Text('CREATE EVENT')),
                                                     TextButton(

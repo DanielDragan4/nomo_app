@@ -20,6 +20,7 @@ import 'package:nomo/screens/events/detailed_event_screen.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:nomo/firebase_options.dart';
+import 'package:nomo/screens/recommended_screen.dart';
 import 'package:overlay_support/overlay_support.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:shared_preferences/shared_preferences.dart';

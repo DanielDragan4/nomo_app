@@ -27,14 +27,15 @@ class Event {
     this.otherHost,
     this.otherAttend,
     this.otherBookmark,
+    this.attendeeDates,
   });
 
   final eventId;
   var imageId;
   late final imageUrl;
   final String title;
-  final String sdate;
-  final String edate;
+  final List sdate;
+  final List edate;
   final host;
   final location;
   final String description;
@@ -56,4 +57,5 @@ class Event {
   var otherHost;
   var otherAttend;
   var otherBookmark;
+  var attendeeDates;
 }

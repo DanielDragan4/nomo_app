@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:flutter_branch_sdk/flutter_branch_sdk.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:nomo/functions/make-fcm.dart';
@@ -185,6 +186,7 @@ class _AppState extends ConsumerState<App> {
             darkTheme: ThemeData().copyWith(
               colorScheme: ColorScheme.fromSeed(
                 primary: const Color.fromARGB(255, 106, 13, 173), // seen on 'Join' button in detailed view
+                onPrimary: Colors.white,
                 secondary: const Color.fromARGB(255, 53, 55, 60), // seen on 'Bookmark' + distance box in detailed view
                 onSecondary: const Color.fromARGB(255, 173, 177, 184), // bookmark + distance icon color
                 seedColor: const Color.fromARGB(255, 106, 13, 173), // same as primary
@@ -216,6 +218,16 @@ class _AppState extends ConsumerState<App> {
                   ),
                 ),
               ),
+              datePickerTheme: const DatePickerThemeData(
+                headerBackgroundColor: Color.fromARGB(255, 142, 57, 202),
+                headerForegroundColor: Colors.white,
+                backgroundColor: Color.fromARGB(255, 53, 55, 60),
+              ),
+              textButtonTheme: TextButtonThemeData(
+                  style: TextButton.styleFrom(
+                foregroundColor: Colors.white,
+              )),
+
               primaryColor: const Color.fromARGB(255, 106, 13, 173), // same as primary
               primaryColorLight: const Color.fromARGB(255, 142, 57, 202), // seen on search toggle
               canvasColor: Color.fromARGB(255, 27, 27, 31), // scaffold color on all light mode screens

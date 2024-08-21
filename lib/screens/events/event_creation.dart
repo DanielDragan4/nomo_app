@@ -539,25 +539,19 @@ class _EventCreateScreenState extends ConsumerState<EventCreateScreen> {
     return 'POINT(${locations.first.longitude} ${locations.first.latitude})';
   }
 
-  Future<void> createEvent(
-      File selectedImage,
-      String inviteType,
-      var location,
-      String title,
-      String description,
-      bool isRecurring,
-      bool isTicketed) async {
+  Future<void> createEvent(File selectedImage, String inviteType, var location, String title, String description,
+      bool isRecurring, bool isTicketed) async {
     _showLoadingOverlay();
     try {
       List<String> start = [];
       List<String> end = [];
-      for(var dates in eventDates) {
-        start.add(DateFormat('yyyy-MM-dd HH:mm:ss').format(DateTime(dates.startDate!.year, dates.startDate!.month, dates.startDate!.day,
-          dates.startTime!.hour, dates.startTime!.minute)));
-        end.add(DateFormat('yyyy-MM-dd HH:mm:ss').format(DateTime(
-          dates.endDate!.year, dates.endDate!.month, dates.endDate!.day, dates.endTime!.hour, dates.endTime!.minute)));
+      for (var dates in eventDates) {
+        start.add(DateFormat('yyyy-MM-dd HH:mm:ss').format(DateTime(dates.startDate!.year, dates.startDate!.month,
+            dates.startDate!.day, dates.startTime!.hour, dates.startTime!.minute)));
+        end.add(DateFormat('yyyy-MM-dd HH:mm:ss').format(DateTime(dates.endDate!.year, dates.endDate!.month,
+            dates.endDate!.day, dates.endTime!.hour, dates.endTime!.minute)));
       }
-      
+
       var imageId = await uploadImage(selectedImage);
       final supabase = (await ref.read(supabaseInstance)).client;
 
@@ -590,7 +584,7 @@ class _EventCreateScreenState extends ConsumerState<EventCreateScreen> {
       }
 
       final responseId = await supabase.from('Event').insert(newEventRowMap).select('event_id').single();
-      for(var i = 0; i < start.length; i++) {
+      for (var i = 0; i < start.length; i++) {
         final newDateRowMap = {
           'event_id': responseId['event_id'],
           'time_start': start[i],
@@ -599,16 +593,15 @@ class _EventCreateScreenState extends ConsumerState<EventCreateScreen> {
         await supabase.from('Dates').insert(newDateRowMap);
 
         ref.read(profileProvider.notifier).createBlockedTime(
-            supabase.auth.currentUser!.id,
-            start[i],
-            end[i],
-            title,
-            responseId['event_id'],
-          );
+              supabase.auth.currentUser!.id,
+              start[i],
+              end[i],
+              title,
+              responseId['event_id'],
+            );
       }
 
       eventData = await ref.read(eventsProvider.notifier).deCodeLinkEvent(responseId['event_id']);
-
     } finally {
       _hideLoadingOverlay();
     }
@@ -854,6 +847,7 @@ class _EventCreateScreenState extends ConsumerState<EventCreateScreen> {
             showModalBottomSheet(
               context: context,
               isScrollControlled: true,
+              backgroundColor: Theme.of(context).colorScheme.secondary,
               shape: const RoundedRectangleBorder(
                 borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
               ),
@@ -1244,11 +1238,24 @@ class _EventCreateScreenState extends ConsumerState<EventCreateScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          AspectRatio(
-            aspectRatio: 16 / 9,
-            child: Container(
-                width: double.infinity, color: Colors.grey[300], child: Image.file(_selectedImage!, fit: BoxFit.cover)),
-          ),
+          if (_selectedImage != null)
+            AspectRatio(
+              aspectRatio: 16 / 9,
+              child: Container(
+                width: double.infinity,
+                color: Colors.grey[300],
+                child: Image.file(_selectedImage!, fit: BoxFit.cover),
+              ),
+            )
+          else
+            AspectRatio(
+              aspectRatio: 16 / 9,
+              child: Container(
+                width: double.infinity,
+                color: Colors.grey[300],
+                child: Icon(Icons.image, size: 50),
+              ),
+            ),
           Text(
             'Title: ${_title.text}',
             style: TextStyle(color: Theme.of(context).colorScheme.onSurface),
@@ -1330,13 +1337,10 @@ class _EventCreateScreenState extends ConsumerState<EventCreateScreen> {
 
   void _resetScreen() {
     setState(() {
+      eventDates = [];
       _currentStep = 0;
       _selectedImage = null;
       _title.clear();
-      _selectedStartDate = null;
-      _selectedEndDate = null;
-      _selectedStartTime = null;
-      _selectedEndTime = null;
       _isRecurring = false;
       _description.clear();
       _locationController.clear();
@@ -1406,19 +1410,18 @@ class _EventCreateScreenState extends ConsumerState<EventCreateScreen> {
                         ? () async {
                             try {
                               FocusManager.instance.primaryFocus?.unfocus();
-                              await createEvent(
-                                  _selectedImage!,
-                                  dropDownValue,
-                                  _locationController.text,
-                                  _title.text,
-                                  _description.text,
-                                  _isRecurring,
-                                  _isTicketed);
+                              await createEvent(_selectedImage!, dropDownValue, _locationController.text, _title.text,
+                                  _description.text, _isRecurring, _isTicketed);
                               if (widget.onEventCreated != null) {
                                 widget.onEventCreated!();
                               }
-                              Navigator.of(context).pushReplacement(
+                              Navigator.of(context)
+                                  .pushReplacement(MaterialPageRoute(builder: ((context) => const NavBar())));
+                              Navigator.of(context, rootNavigator: false).push(
                                   MaterialPageRoute(builder: ((context) => DetailedEventScreen(eventData: eventData))));
+
+                              // Navigator.of(context).pushReplacement(
+                              //     MaterialPageRoute(builder: ((context) => DetailedEventScreen(eventData: eventData))));
                               ScaffoldMessenger.of(context).hideCurrentSnackBar();
                               ScaffoldMessenger.of(context).showSnackBar(
                                 const SnackBar(

@@ -66,8 +66,8 @@ class _NavBarState extends ConsumerState<NavBar> {
       },
       child: Scaffold(
         bottomNavigationBar: Container(
-          height: 60, // Reduce the overall height
-          color: Theme.of(context).canvasColor,
+          height: 55, // Reduce the overall height
+          color: Theme.of(context).bottomNavigationBarTheme.backgroundColor,
           child: Stack(
             children: [
               Row(
@@ -111,7 +111,9 @@ class _NavBarState extends ConsumerState<NavBar> {
             child: IconButton(
               icon: Icon(
                 isSelected ? activeIcon : icon,
-                color: isSelected ? Theme.of(context).bottomNavigationBarTheme.selectedItemColor : Colors.grey,
+                color: isSelected
+                    ? Theme.of(context).bottomNavigationBarTheme.selectedItemColor
+                    : Theme.of(context).bottomNavigationBarTheme.unselectedItemColor,
                 size: 24,
               ),
               onPressed: () => _onItemTapped(index),
@@ -123,7 +125,9 @@ class _NavBarState extends ConsumerState<NavBar> {
         Text(
           label,
           style: TextStyle(
-            color: isSelected ? Theme.of(context).bottomNavigationBarTheme.selectedItemColor : Colors.grey,
+            color: isSelected
+                ? Theme.of(context).bottomNavigationBarTheme.selectedItemColor
+                : Theme.of(context).bottomNavigationBarTheme.unselectedItemColor,
             fontSize: 14, // Smaller font size
           ),
         ),
@@ -137,7 +141,7 @@ class _NavBarState extends ConsumerState<NavBar> {
       height: 50,
       decoration: BoxDecoration(
         shape: BoxShape.circle,
-        color: Theme.of(context).bottomNavigationBarTheme.selectedItemColor,
+        color: Theme.of(context).colorScheme.primary,
       ),
       child: Center(
         child: IconButton(

@@ -260,7 +260,6 @@ class _RecommendedScreenState extends ConsumerState<RecommendedScreen> {
           headerSliverBuilder: (context, innerBoxIsScrolled) => [
             SliverAppBar(
               toolbarHeight: kToolbarHeight + 55,
-              backgroundColor: Theme.of(context).colorScheme.surface,
               floating: true,
               snap: true,
               flexibleSpace: FlexibleSpaceBar(
@@ -286,9 +285,9 @@ class _RecommendedScreenState extends ConsumerState<RecommendedScreen> {
                                 Text(
                                   'nomo',
                                   style: TextStyle(
-                                      color: Theme.of(context).primaryColor,
+                                      color: Theme.of(context).colorScheme.onSurface,
                                       fontSize: MediaQuery.of(context).devicePixelRatio * 10,
-                                      fontFamily: 'fff',
+                                      fontFamily: 'Epilogue',
                                       fontWeight: FontWeight.bold),
                                 )
                               ],

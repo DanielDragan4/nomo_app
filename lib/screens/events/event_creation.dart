@@ -1495,5 +1495,10 @@ class EventDate {
   TimeOfDay? startTime;
   TimeOfDay? endTime;
 
-  EventDate();
+  EventDate({
+    this.startDate,
+    this.endDate,
+    this.startTime,
+    this.endTime,
+  });
 }

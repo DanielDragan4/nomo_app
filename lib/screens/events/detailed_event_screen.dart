@@ -749,7 +749,7 @@ class _DetailedEventScreenState extends ConsumerState<DetailedEventScreen> {
 
   void _showEditEventDialog(BuildContext context) {
     Navigator.of(context).push(MaterialPageRoute(
-      builder: ((context) => EventCreateScreen(
+      builder: ((context) => NewEventScreen(
             event: widget.eventData,
             isEdit: true,
           )),

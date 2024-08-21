@@ -92,14 +92,14 @@ class _EventCreateScreenState extends ConsumerState<EventCreateScreen> {
       etime = true;
       sdate = true;
       edate = true;
-      for(var i = 0; i< widget.event!.sdate.length; i++) {
-      EventDate d = EventDate(); 
-      d.startTime = TimeOfDay.fromDateTime(DateTime.parse(widget.event!.sdate[i]));
-      d.endTime = TimeOfDay.fromDateTime(DateTime.parse(widget.event!.edate[i]));
-      d.startDate = DateTime.parse(widget.event!.sdate[i]);
-      d.endDate = DateTime.parse(widget.event!.edate[i]);
+      for (var i = 0; i < widget.event!.sdate.length; i++) {
+        EventDate d = EventDate();
+        d.startTime = TimeOfDay.fromDateTime(DateTime.parse(widget.event!.sdate[i]));
+        d.endTime = TimeOfDay.fromDateTime(DateTime.parse(widget.event!.edate[i]));
+        d.startDate = DateTime.parse(widget.event!.sdate[i]);
+        d.endDate = DateTime.parse(widget.event!.edate[i]);
 
-      eventDates.add(d);
+        eventDates.add(d);
       }
 
       enableButton = true;
@@ -610,22 +610,16 @@ class _EventCreateScreenState extends ConsumerState<EventCreateScreen> {
     }
   }
 
-  Future<void> updateEvent(
-      File? selectedImage,
-      String inviteType,
-      var location,
-      String title,
-      String description,
-      bool isRecurring,
-      bool isTicketed) async {
-      List<String> start = [];
-      List<String> end = [];
-      for(var dates in eventDates) {
-        start.add(DateFormat('yyyy-MM-dd HH:mm:ss').format(DateTime(dates.startDate!.year, dates.startDate!.month, dates.startDate!.day,
-          dates.startTime!.hour, dates.startTime!.minute)));
-        end.add(DateFormat('yyyy-MM-dd HH:mm:ss').format(DateTime(
+  Future<void> updateEvent(File? selectedImage, String inviteType, var location, String title, String description,
+      bool isRecurring, bool isTicketed) async {
+    List<String> start = [];
+    List<String> end = [];
+    for (var dates in eventDates) {
+      start.add(DateFormat('yyyy-MM-dd HH:mm:ss').format(DateTime(dates.startDate!.year, dates.startDate!.month,
+          dates.startDate!.day, dates.startTime!.hour, dates.startTime!.minute)));
+      end.add(DateFormat('yyyy-MM-dd HH:mm:ss').format(DateTime(
           dates.endDate!.year, dates.endDate!.month, dates.endDate!.day, dates.endTime!.hour, dates.endTime!.minute)));
-      }
+    }
 
     final Map newEventRowMap;
     final supabase = (await ref.watch(supabaseInstance)).client;
@@ -672,13 +666,13 @@ class _EventCreateScreenState extends ConsumerState<EventCreateScreen> {
 
     await supabase.from('Event').update(newEventRowMap).eq('event_id', widget.event?.eventId);
     ref.read(attendEventsProvider.notifier).deCodeData();
-    for(var i = 0; i < start.length; i++) {
-    final newDateRowMap = {
-      'event_id': widget.event?.eventId,
-      'time_start': start[i],
-      'time_end': end[i],
+    for (var i = 0; i < start.length; i++) {
+      final newDateRowMap = {
+        'event_id': widget.event?.eventId,
+        'time_start': start[i],
+        'time_end': end[i],
       };
-    await supabase.from('Dates').update(newDateRowMap).eq('event_id', widget.event?.eventId);
+      await supabase.from('Dates').update(newDateRowMap).eq('event_id', widget.event?.eventId);
     }
   }
 
@@ -1102,10 +1096,10 @@ class _EventCreateScreenState extends ConsumerState<EventCreateScreen> {
   }
 
   void _addNewDate() {
-      setState(() {
-        eventDates.add(EventDate());
-        _validateStep2();
-      });
+    setState(() {
+      eventDates.add(EventDate());
+      _validateStep2();
+    });
   }
 
   void _deleteDate(int index) {
@@ -1444,14 +1438,8 @@ class _EventCreateScreenState extends ConsumerState<EventCreateScreen> {
                                   TextButton(
                                     onPressed: () async {
                                       FocusManager.instance.primaryFocus?.unfocus();
-                                      await updateEvent(
-                                          _selectedImage,
-                                          dropDownValue,
-                                          _locationController.text,
-                                          _title.text,
-                                          _description.text,
-                                          _isRecurring,
-                                          _isTicketed);
+                                      await updateEvent(_selectedImage, dropDownValue, _locationController.text,
+                                          _title.text, _description.text, _isRecurring, _isTicketed);
                                       Navigator.of(context)
                                           .pushAndRemoveUntil(MaterialPageRoute(builder: ((context) => const NavBar())),
                                               (route) => false)

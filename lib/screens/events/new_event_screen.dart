@@ -79,6 +79,20 @@ class _NewEventScreenState extends ConsumerState<NewEventScreen> {
       } else {
         _locationController.text = widget.event!.location;
       }
+      stime = true;
+      etime = true;
+      sdate = true;
+      edate = true;
+      for (var i = 0; i < widget.event!.sdate.length; i++) {
+        EventDate d = EventDate();
+        d.startTime = TimeOfDay.fromDateTime(DateTime.parse(widget.event!.sdate[i]));
+        d.endTime = TimeOfDay.fromDateTime(DateTime.parse(widget.event!.edate[i]));
+        d.startDate = DateTime.parse(widget.event!.sdate[i]);
+        d.endDate = DateTime.parse(widget.event!.edate[i]);
+
+        eventDates.add(d);
+      }
+
       enableButton = true;
       virtualEvent = widget.event!.isVirtual;
       _isRecurring = widget.event!.isRecurring;
@@ -91,11 +105,9 @@ class _NewEventScreenState extends ConsumerState<NewEventScreen> {
           break;
         }
       }
-      _loadExistingDates();
     } else {
       categories = {for (var interest in Interests.values) interest: false};
     }
-    eventDates.add(EventDate());
     super.initState();
   }
 

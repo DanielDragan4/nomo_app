@@ -26,7 +26,10 @@ class AttendEventProvider extends StateNotifier<List<Event>> {
     return events.toList();
   }
 
-  Future<void> deCodeData() async {
+  Future<void> deCodeData({bool fromProfile = false}) async {
+    if (fromProfile) {
+      print('called from profile screen__________________________________________________________');
+    }
     /*
       takes in a list of friend data and converts it to a list of Friends with
       attached images for the hosts avatar and event image and sets the state
@@ -42,8 +45,8 @@ class AttendEventProvider extends StateNotifier<List<Event>> {
     final supabaseClient = (await supabase).client;
     final getLocation = await SharedPreferences.getInstance();
     final exsistingLocation = getLocation.getStringList('savedLocation');
-    final currentPosition ;
-    if(exsistingLocation != null) {
+    final currentPosition;
+    if (exsistingLocation != null) {
       currentPosition = Position.fromMap(json.decode(exsistingLocation[0]));
     } else {
       currentPosition = null;
@@ -96,7 +99,7 @@ class AttendEventProvider extends StateNotifier<List<Event>> {
           distanceAway: distance);
 
       bool attending = false;
-      final userId =  supabaseClient.auth.currentUser!.id;
+      final userId = supabaseClient.auth.currentUser!.id;
       for (var i = 0; i < deCodedEvent.attendees.length; i++) {
         if (deCodedEvent.attendees[i]['user_id'] == userId) {
           attending = true;
@@ -107,18 +110,18 @@ class AttendEventProvider extends StateNotifier<List<Event>> {
       if ((attending) || ((deCodedEvent.host == supabaseClient.auth.currentUser!.id) || (bookmarked))) {
         if (deCodedEvent.host == supabaseClient.auth.currentUser!.id) {
           deCodedEvent.isHost = true;
-          deCodedEvent.attendeeDates = {'time_start' : deCodedEvent.sdate.first, 'time_end' : deCodedEvent.edate.first};
+          deCodedEvent.attendeeDates = {'time_start': deCodedEvent.sdate.first, 'time_end': deCodedEvent.edate.first};
         }
-        if(attending){
-          var attendDates = await atteendeesDates(userId, eventData['event_id']);
-          if(attendDates != null ) {
+        if (attending) {
+          var attendDates = await attendeesDates(userId, eventData['event_id']);
+          if (attendDates != null) {
             deCodedEvent.attendeeDates = attendDates;
           } else {
-            deCodedEvent.attendeeDates = {'time_start' : deCodedEvent.sdate.first, 'time_end' : deCodedEvent.edate.first};
+            deCodedEvent.attendeeDates = {'time_start': deCodedEvent.sdate.first, 'time_end': deCodedEvent.edate.first};
           }
-          }else {
-            deCodedEvent.attendeeDates = {'time_start' : deCodedEvent.sdate.first, 'time_end' : deCodedEvent.edate.first};
-          }
+        } else {
+          deCodedEvent.attendeeDates = {'time_start': deCodedEvent.sdate.first, 'time_end': deCodedEvent.edate.first};
+        }
 
         deCodedList.add(deCodedEvent);
       }
@@ -126,7 +129,7 @@ class AttendEventProvider extends StateNotifier<List<Event>> {
     state = deCodedList;
   }
 
-  Future<Map?> atteendeesDates(userId, eventId) async{
+  Future<Map?> attendeesDates(userId, eventId) async {
     /*
     Gets the dates for the event that the user selected when joining the event.
 
@@ -135,14 +138,14 @@ class AttendEventProvider extends StateNotifier<List<Event>> {
       Returns: Map of the start and end dates for the event.
     */
     final supabaseClient = (await supabase).client;
-    final dateId = await supabaseClient.from('Attendees').select('date_id').eq('attendees_id', userId).eq('event_id', eventId);
+    final dateId =
+        await supabaseClient.from('Attendees').select('date_id').eq('attendees_id', userId).eq('event_id', eventId);
     var dates;
 
-    if(dateId.isNotEmpty) {
+    if (dateId.isNotEmpty) {
       dates = await supabaseClient.from('Dates').select('time_start, time_end').eq('date_id', dateId);
       dates = dates.first;
-    }
-    else {
+    } else {
       dates = null;
     }
 
@@ -237,25 +240,25 @@ class AttendEventProvider extends StateNotifier<List<Event>> {
         if (deCodedEvent.attendees[i] == currentUser) {
           attending = true;
           deCodedEvent.attending = true;
-          var attendDates = await atteendeesDates(currentUser, eventData['event_id']);
-          if(attendDates != null ) {
+          var attendDates = await attendeesDates(currentUser, eventData['event_id']);
+          if (attendDates != null) {
             deCodedEvent.attendeeDates = attendDates;
           } else {
-            deCodedEvent.attendeeDates = {'time_start' : deCodedEvent.sdate.first, 'time_end' : deCodedEvent.edate.first};
+            deCodedEvent.attendeeDates = {'time_start': deCodedEvent.sdate.first, 'time_end': deCodedEvent.edate.first};
           }
         }
         if (deCodedEvent.attendees[i] == userId) {
           deCodedEvent.otherAttend = true;
-          deCodedEvent.attendeeDates = {'time_start' : deCodedEvent.sdate.first, 'time_end' : deCodedEvent.edate.first};
+          deCodedEvent.attendeeDates = {'time_start': deCodedEvent.sdate.first, 'time_end': deCodedEvent.edate.first};
         }
       }
       if (deCodedEvent.host == currentUser) {
-        deCodedEvent.attendeeDates = {'time_start' : deCodedEvent.sdate.first, 'time_end' : deCodedEvent.edate.first};
+        deCodedEvent.attendeeDates = {'time_start': deCodedEvent.sdate.first, 'time_end': deCodedEvent.edate.first};
       }
       if (deCodedEvent.host == userId) {
         deCodedEvent.otherHost = true;
       } else {
-        deCodedEvent.attendeeDates = {'time_start' : deCodedEvent.sdate.first, 'time_end' : deCodedEvent.edate.first};
+        deCodedEvent.attendeeDates = {'time_start': deCodedEvent.sdate.first, 'time_end': deCodedEvent.edate.first};
       }
       print(deCodedEvent);
       deCodedList.add(deCodedEvent);

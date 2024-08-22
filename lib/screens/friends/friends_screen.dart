@@ -29,10 +29,11 @@ class _FriendsScreenState extends ConsumerState<FriendsScreen> {
   void initState() {
     isSelected = [true, false, false];
     super.initState();
-        if (ref.read(profileProvider) != null) {
-          setState(() {
-            currentUser = ref.read(profileProvider)!.username;
-          });
+    if (ref.read(profileProvider) != null) {
+      setState(() {});
+      {
+        currentUser = ref.read(profileProvider)!.username;
+      }
     }
   }
 
@@ -42,7 +43,9 @@ class _FriendsScreenState extends ConsumerState<FriendsScreen> {
 
   @override
   Widget build(BuildContext context) {
-
+    if (ref.read(profileProvider) != null) {
+      currentUser = ref.read(profileProvider)!.username;
+    }
 
     return (currentUser != null)
         ? Scaffold(

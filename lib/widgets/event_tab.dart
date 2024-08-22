@@ -50,10 +50,9 @@ class _EventTabState extends ConsumerState<EventTab> {
     _isMounted = true;
     bookmarkBool = widget.eventData.bookmarked;
     setState(() {
-    _selectedStartDate = DateTime.parse(widget.eventData.sdate.first);
-    _selectedEndDate = DateTime.parse(widget.eventData.edate.first);
+      _selectedStartDate = DateTime.parse(widget.eventData.sdate.first);
+      _selectedEndDate = DateTime.parse(widget.eventData.edate.first);
     });
-    
   }
 
   @override
@@ -75,7 +74,6 @@ class _EventTabState extends ConsumerState<EventTab> {
 
   @override
   Widget build(BuildContext context) {
-
     final bool isHostOrAttending = widget.eventData.isHost || widget.eventData.attending;
 
     return Card(
@@ -482,33 +480,30 @@ class _EventTabState extends ConsumerState<EventTab> {
     return '$hour $period';
   }
 
-
-
   Widget _buildDateTimeInfo(BuildContext context, bool isSmallScreen) {
     final dateFormat = DateFormat('MMM d, yyyy');
     final timeFormat = DateFormat('h:mm a');
 
-    return 
-      Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            'Date: ${dateFormat.format(_selectedStartDate)}',
-            style: TextStyle(
-              fontSize: isSmallScreen ? 14 : 16,
-              fontWeight: FontWeight.bold,
-              color: Theme.of(context).colorScheme.onSecondary,
-            ),
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          'Date: ${dateFormat.format(_selectedStartDate)}',
+          style: TextStyle(
+            fontSize: isSmallScreen ? 14 : 16,
+            fontWeight: FontWeight.bold,
+            color: Theme.of(context).colorScheme.onSecondary,
           ),
-          const SizedBox(height: 4),
-          Text(
-            'Time: ${timeFormat.format(_selectedStartDate)} - ${timeFormat.format(_selectedEndDate)}',
-            style: TextStyle(
-              fontSize: isSmallScreen ? 14 : 16,
-              color: Theme.of(context).colorScheme.onSecondary,
-            ),
+        ),
+        const SizedBox(height: 4),
+        Text(
+          'Time: ${timeFormat.format(_selectedStartDate)} - ${timeFormat.format(_selectedEndDate)}',
+          style: TextStyle(
+            fontSize: isSmallScreen ? 14 : 16,
+            color: Theme.of(context).colorScheme.onSecondary,
           ),
-        ],
+        ),
+      ],
     );
   }
 
@@ -728,7 +723,6 @@ class _EventTabState extends ConsumerState<EventTab> {
       widget.eventData = newEventData;
     });
   }
-
 
   Widget _buildBookmarkButton(BuildContext context) {
     return FutureBuilder(

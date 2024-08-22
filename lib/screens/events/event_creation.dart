@@ -49,8 +49,6 @@ class _EventCreateScreenState extends ConsumerState<EventCreateScreen> {
   bool sdate = false;
   DateTime? _selectedEndDate;
   bool edate = false;
-  String? _formattedSDate;
-  String? _formattedEDate;
   File? _selectedImage;
   String dropDownValue = list.first;
   bool enableButton = false;
@@ -92,12 +90,16 @@ class _EventCreateScreenState extends ConsumerState<EventCreateScreen> {
       etime = true;
       sdate = true;
       edate = true;
-      _selectedStartTime = TimeOfDay.fromDateTime(DateTime.parse(widget.event!.sdate.first));
-      _selectedEndTime = TimeOfDay.fromDateTime(DateTime.parse(widget.event!.edate.first));
-      _selectedStartDate = DateTime.parse(widget.event!.sdate.first);
-      _selectedEndDate = DateTime.parse(widget.event!.edate.first);
-      _formattedEDate = DateFormat.yMd().format(DateTime.parse(widget.event!.edate.first));
-      _formattedSDate = DateFormat.yMd().format(DateTime.parse(widget.event!.sdate.first));
+      for (var i = 0; i < widget.event!.sdate.length; i++) {
+        EventDate d = EventDate();
+        d.startTime = TimeOfDay.fromDateTime(DateTime.parse(widget.event!.sdate[i]));
+        d.endTime = TimeOfDay.fromDateTime(DateTime.parse(widget.event!.edate[i]));
+        d.startDate = DateTime.parse(widget.event!.sdate[i]);
+        d.endDate = DateTime.parse(widget.event!.edate[i]);
+
+        eventDates.add(d);
+      }
+
       enableButton = true;
       virtualEvent = widget.event!.isVirtual;
       _isRecurring = widget.event!.isRecurring;
@@ -607,16 +609,22 @@ class _EventCreateScreenState extends ConsumerState<EventCreateScreen> {
     }
   }
 
-  Future<void> updateEvent(File? selectedImage, String inviteType, var location, String title, String description,
-      bool isRecurring, bool isTicketed) async {
-    List<String> start = [];
-    List<String> end = [];
-    for (var dates in eventDates) {
-      start.add(DateFormat('yyyy-MM-dd HH:mm:ss').format(DateTime(dates.startDate!.year, dates.startDate!.month,
-          dates.startDate!.day, dates.startTime!.hour, dates.startTime!.minute)));
-      end.add(DateFormat('yyyy-MM-dd HH:mm:ss').format(DateTime(
-          dates.endDate!.year, dates.endDate!.month, dates.endDate!.day, dates.endTime!.hour, dates.endTime!.minute)));
-    }
+  Future<void> updateEvent(
+      TimeOfDay selectedStart,
+      TimeOfDay selectedEnd,
+      DateTime selectedStartDate,
+      DateTime selectedEndDate,
+      File? selectedImage,
+      String inviteType,
+      var location,
+      String title,
+      String description,
+      bool isRecurring,
+      bool isTicketed) async {
+    DateTime start = DateTime(selectedStartDate.year, selectedStartDate.month, selectedStartDate.day,
+        selectedStart.hour, selectedStart.minute);
+    DateTime end = DateTime(
+        selectedEndDate.year, selectedEndDate.month, selectedEndDate.day, selectedEnd.hour, selectedEnd.minute);
 
     final Map newEventRowMap;
     final supabase = (await ref.watch(supabaseInstance)).client;
@@ -663,15 +671,12 @@ class _EventCreateScreenState extends ConsumerState<EventCreateScreen> {
 
     await supabase.from('Event').update(newEventRowMap).eq('event_id', widget.event?.eventId);
     ref.read(attendEventsProvider.notifier).deCodeData();
-    print('create');
-    for (var i = 0; i < start.length; i++) {
-      final newDateRowMap = {
-        'event_id': widget.event?.eventId,
-        'time_start': start[i],
-        'time_end': end[i],
-      };
-      await supabase.from('Dates').update(newDateRowMap).eq('event_id', widget.event?.eventId);
-    }
+    final newDateRowMap = {
+      'event_id': widget.event?.eventId,
+      'time_start': DateFormat('yyyy-MM-dd HH:mm:ss').format(start),
+      'time_end': DateFormat('yyyy-MM-dd HH:mm:ss').format(end),
+    };
+    await supabase.from('Dates').update(newDateRowMap).eq('event_id', widget.event?.eventId);
   }
 
   Widget _buildInvitationTypeItem(BuildContext context, String title, String description) {
@@ -800,13 +805,31 @@ class _EventCreateScreenState extends ConsumerState<EventCreateScreen> {
     );
   }
 
-  void _onStepContinue() {
+  void _onStepContinue() async {
     if (_currentStep < _steps.length - 1 && _isStepValid(_currentStep)) {
       setState(() {
         _currentStep += 1;
       });
     } else if (_currentStep == _steps.length - 1) {
-      _showConfirmationScreen();
+      try {
+        FocusManager.instance.primaryFocus?.unfocus();
+        await createEvent(_selectedImage!, dropDownValue, _locationController.text, _title.text, _description.text,
+            _isRecurring, _isTicketed);
+        if (widget.onEventCreated != null) {
+          widget.onEventCreated!();
+        }
+        Navigator.of(context, rootNavigator: true)
+            .pushReplacement(MaterialPageRoute(builder: ((context) => const NavBar())));
+        ScaffoldMessenger.of(context).hideCurrentSnackBar();
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Event Created'),
+          ),
+        );
+      } finally {
+        _resetScreen();
+      }
+
       _enableButton();
     }
   }
@@ -1094,10 +1117,16 @@ class _EventCreateScreenState extends ConsumerState<EventCreateScreen> {
   }
 
   void _addNewDate() {
-    setState(() {
-      eventDates.add(EventDate());
-      _validateStep2();
-    });
+    if (eventDates.length < MAX_DATES) {
+      setState(() {
+        eventDates.add(EventDate());
+        _validateStep2();
+      });
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Maximum of $MAX_DATES dates allowed')),
+      );
+    }
   }
 
   void _deleteDate(int index) {
@@ -1249,7 +1278,9 @@ class _EventCreateScreenState extends ConsumerState<EventCreateScreen> {
             ),
           Text(
             'Title: ${_title.text}',
-            style: TextStyle(color: Theme.of(context).colorScheme.onSurface),
+            style: TextStyle(
+              color: Theme.of(context).colorScheme.onSurface,
+            ),
           ),
           Text(
             'Event Dates:',
@@ -1273,7 +1304,9 @@ class _EventCreateScreenState extends ConsumerState<EventCreateScreen> {
                   ),
                   Text(
                     'Start: ${_formatDateTime(eventDates[i].startDate, eventDates[i].startTime)}',
-                    style: TextStyle(color: Theme.of(context).colorScheme.onSurface),
+                    style: TextStyle(
+                      color: Theme.of(context).colorScheme.onSurface,
+                    ),
                   ),
                   Text(
                     'End: ${_formatDateTime(eventDates[i].endDate, eventDates[i].endTime)}',
@@ -1303,7 +1336,13 @@ class _EventCreateScreenState extends ConsumerState<EventCreateScreen> {
             style: TextStyle(color: Theme.of(context).colorScheme.onSurface),
           ),
           Text(
-            'Categories: ${categories.entries.where((entry) => entry.value).map((entry) => ref.read(profileProvider.notifier).enumToString(entry.key)).join(', ')}',
+            categories.entries
+                    .where((entry) => entry.value)
+                    .map((entry) => ref.read(profileProvider.notifier).enumToString(entry.key))
+                    .join(', ')
+                    .isNotEmpty
+                ? 'Categories: ${categories.entries.where((entry) => entry.value).map((entry) => ref.read(profileProvider.notifier).enumToString(entry.key)).join(', ')}'
+                : 'Categories: None',
             style: TextStyle(color: Theme.of(context).colorScheme.onSurface),
           ),
         ],
@@ -1436,8 +1475,18 @@ class _EventCreateScreenState extends ConsumerState<EventCreateScreen> {
                                   TextButton(
                                     onPressed: () async {
                                       FocusManager.instance.primaryFocus?.unfocus();
-                                      await updateEvent(_selectedImage, dropDownValue, _locationController.text,
-                                          _title.text, _description.text, _isRecurring, _isTicketed);
+                                      await updateEvent(
+                                          _selectedStartTime!,
+                                          _selectedEndTime!,
+                                          _selectedStartDate!,
+                                          _selectedEndDate!,
+                                          _selectedImage,
+                                          dropDownValue,
+                                          _locationController.text,
+                                          _title.text,
+                                          _description.text,
+                                          _isRecurring,
+                                          _isTicketed);
                                       Navigator.of(context)
                                           .pushAndRemoveUntil(MaterialPageRoute(builder: ((context) => const NavBar())),
                                               (route) => false)

@@ -47,6 +47,7 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
     super.initState();
     _fetchData();
     if (widget.isUser) {
+      ref.read(profileProvider.notifier).decodeData();
       ref.read(attendEventsProvider.notifier).deCodeData();
       isFriend = false;
     } else {
@@ -184,12 +185,23 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
       toolbar = 50;
     }
 
+    // Listen to changes in the profileProvider
+    ref.listen<Profile?>(profileProvider, (previous, next) {
+      if (next != null && next != profile) {
+        setState(() {
+          profile = next;
+        });
+      }
+    });
+
+    // If it's the user's own profile, decode the data
     if (widget.isUser) {
-      ref.read(profileProvider.notifier).decodeData();
-      profile = ref.watch(profileProvider.notifier).state;
-      ref.read(attendEventsProvider.notifier).deCodeData();
+      //ref.read(profileProvider.notifier).decodeData();
+      ref.read(attendEventsProvider.notifier).deCodeData(fromProfile: true);
+      profile = ref.watch(profileProvider);
     } else {
-      profile = profileInfo;
+      // For other users, use the profileInfo
+      profile = ref.watch(profileProvider.select((value) => value));
     }
 
     return Scaffold(
@@ -626,9 +638,12 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
                             final relevantEvents = snapshot.data!.where((event) {
                               final now = DateTime.now();
                               if (showHosting && event.isHost) return true;
-                              if (showUpcoming && event.attending && event.attendeeDates['time_start'].compareTo(now.toString()) > 0)
-                                return true;
-                              if (showPassed && event.attending && event.attendeeDates['time_end'].compareTo(now.toString()) < 0) return true;
+                              if (showUpcoming &&
+                                  event.attending &&
+                                  event.attendeeDates['time_start'].compareTo(now.toString()) > 0) return true;
+                              if (showPassed &&
+                                  event.attending &&
+                                  event.attendeeDates['time_end'].compareTo(now.toString()) < 0) return true;
                               return false;
                             }).toList();
                             if (relevantEvents.isEmpty) {
@@ -680,10 +695,12 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
                             }).toList();
                             final attendingEvents = snapshot.data!.where((event) {
                               final now = DateTime.now();
-                              if (showUpcoming && event.otherAttend != null && event.sdate.last.compareTo(now.toString()) > 0)
-                                return true;
-                              if (showPassed && event.otherAttend != null && event.edate.last.compareTo(now.toString()) < 0)
-                                return true;
+                              if (showUpcoming &&
+                                  event.otherAttend != null &&
+                                  event.sdate.last.compareTo(now.toString()) > 0) return true;
+                              if (showPassed &&
+                                  event.otherAttend != null &&
+                                  event.edate.last.compareTo(now.toString()) < 0) return true;
                               return false;
                             }).toList();
                             if (attendingEvents.isEmpty && isSelected.first) {

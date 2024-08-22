@@ -56,8 +56,6 @@ class _NavBarState extends ConsumerState<NavBar> {
 
   @override
   Widget build(BuildContext context) {
-    ref.read(profileProvider.notifier).decodeData();
-
     return PopScope(
       canPop: false,
       onPopInvoked: (didPop) {

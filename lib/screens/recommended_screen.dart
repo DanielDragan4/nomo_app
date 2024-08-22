@@ -67,9 +67,12 @@ class _RecommendedScreenState extends ConsumerState<RecommendedScreen> {
               title: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text("Filter Events", style: TextStyle(color: Theme.of(context).colorScheme.onSecondaryContainer)),
+                  Text(
+                    "Filter Events",
+                    style: TextStyle(color: Theme.of(context).colorScheme.onPrimary),
+                  ),
                   IconButton(
-                    icon: Icon(Icons.close, color: Theme.of(context).colorScheme.onSecondaryContainer),
+                    icon: Icon(Icons.close, color: Theme.of(context).colorScheme.onPrimary),
                     onPressed: () {
                       Navigator.of(context).pop();
                     },
@@ -144,7 +147,6 @@ class _RecommendedScreenState extends ConsumerState<RecommendedScreen> {
                 },
                 child: Text(
                   startDate != null ? DateFormat.yMd().format(startDate!.toLocal()) : "Start Date",
-                  style: TextStyle(color: Theme.of(context).colorScheme.onSecondary),
                 ),
               ),
             ),
@@ -165,7 +167,6 @@ class _RecommendedScreenState extends ConsumerState<RecommendedScreen> {
                 },
                 child: Text(
                   endDate != null ? DateFormat.yMd().format(endDate!.toLocal()) : "End Date",
-                  style: TextStyle(color: Theme.of(context).colorScheme.onSecondary),
                 ),
               ),
             ),
@@ -192,6 +193,9 @@ class _RecommendedScreenState extends ConsumerState<RecommendedScreen> {
                   selectedDays[index] = selected;
                 });
               },
+              checkmarkColor: Theme.of(context).colorScheme.onPrimary,
+              selectedColor: Theme.of(context).primaryColorLight,
+              labelStyle: TextStyle(color: Theme.of(context).colorScheme.onPrimary),
             );
           }),
         ),
@@ -208,12 +212,12 @@ class _RecommendedScreenState extends ConsumerState<RecommendedScreen> {
           children: [
             Text(
               "Maximum Distance",
-              style: TextStyle(color: Theme.of(context).colorScheme.onSecondary),
+              style: TextStyle(color: Theme.of(context).colorScheme.onPrimary),
             ),
             Text(
               "${maxDistance.round()} miles",
               style: TextStyle(
-                color: Theme.of(context).colorScheme.primary,
+                color: Theme.of(context).primaryColorLight,
                 fontWeight: FontWeight.bold,
               ),
             ),
@@ -230,6 +234,7 @@ class _RecommendedScreenState extends ConsumerState<RecommendedScreen> {
               maxDistance = value;
             });
           },
+          activeColor: Theme.of(context).primaryColorLight,
         ),
       ],
     );

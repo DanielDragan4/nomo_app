@@ -76,6 +76,7 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
 
     showModalBottomSheet(
       context: context,
+      backgroundColor: Theme.of(context).colorScheme.surface,
       builder: (BuildContext context) {
         return StatefulBuilder(
           builder: (BuildContext context, StateSetter setState) {
@@ -92,7 +93,7 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
                     Text(
                       'Select Time Range',
                       style: TextStyle(
-                        color: Theme.of(context).colorScheme.onSecondary,
+                        color: Theme.of(context).colorScheme.onSurface,
                       ),
                     ),
                     const SizedBox(height: 20),
@@ -148,8 +149,11 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
                     Padding(
                       padding: const EdgeInsets.all(8.0),
                       child: TextField(
-                        decoration: const InputDecoration(
+                        decoration: InputDecoration(
                           labelText: 'Title',
+                          labelStyle: TextStyle(
+                            color: Theme.of(context).colorScheme.onSurface,
+                          ),
                         ),
                         style: TextStyle(
                           color: Theme.of(context).colorScheme.onSurface,

@@ -143,9 +143,10 @@ class _AppState extends ConsumerState<App> {
             navigatorObservers: [routeObserver],
             themeMode: ref.read(themeModeProvider),
             theme: ThemeData().copyWith(
+              appBarTheme: AppBarTheme(surfaceTintColor: Colors.transparent),
               colorScheme: ColorScheme.fromSeed(
                 primary: const Color.fromARGB(255, 106, 13, 173), // seen on 'Join' button in detailed view
-                onPrimary: Colors.white, // text on 'Join' button
+                onPrimary: Colors.black, // text on 'Join' button
                 secondary:
                     const Color.fromARGB(255, 229, 231, 235), // seen on 'Bookmark' + distance box in detailed view
                 onSecondary: const Color.fromARGB(255, 75, 85, 99), // bookmark + distance icon color
@@ -235,7 +236,7 @@ class _AppState extends ConsumerState<App> {
             home: StreamBuilder(
               stream: ref.watch(currentUserProvider.notifier).stream,
               builder: (context, snapshot) {
-                setSystemOverlay(Theme.of(context).bottomNavigationBarTheme.backgroundColor!);
+                //setSystemOverlay(Theme.of(context).bottomNavigationBarTheme.backgroundColor!);
                 if (ref.watch(onSignUp.notifier).state == 1) {
                   return CreateAccountScreen(
                     isNew: true,

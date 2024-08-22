@@ -76,7 +76,7 @@ class _EventCreateScreenState extends ConsumerState<EventCreateScreen> {
   List<EventDate> eventDates = [];
   static const int MAX_DATES = 5;
 
-  @override
+@override
   void initState() {
     isNewEvent = (widget.event == null);
     if (!isNewEvent) {
@@ -92,16 +92,12 @@ class _EventCreateScreenState extends ConsumerState<EventCreateScreen> {
       etime = true;
       sdate = true;
       edate = true;
-      for (var i = 0; i < widget.event!.sdate.length; i++) {
-        EventDate d = EventDate();
-        d.startTime = TimeOfDay.fromDateTime(DateTime.parse(widget.event!.sdate[i]));
-        d.endTime = TimeOfDay.fromDateTime(DateTime.parse(widget.event!.edate[i]));
-        d.startDate = DateTime.parse(widget.event!.sdate[i]);
-        d.endDate = DateTime.parse(widget.event!.edate[i]);
-
-        eventDates.add(d);
-      }
-
+      _selectedStartTime = TimeOfDay.fromDateTime(DateTime.parse(widget.event!.sdate.first));
+      _selectedEndTime = TimeOfDay.fromDateTime(DateTime.parse(widget.event!.edate.first));
+      _selectedStartDate = DateTime.parse(widget.event!.sdate.first);
+      _selectedEndDate = DateTime.parse(widget.event!.edate.first);
+      _formattedEDate = DateFormat.yMd().format(DateTime.parse(widget.event!.edate.first));
+      _formattedSDate = DateFormat.yMd().format(DateTime.parse(widget.event!.sdate.first));
       enableButton = true;
       virtualEvent = widget.event!.isVirtual;
       _isRecurring = widget.event!.isRecurring;
@@ -117,6 +113,7 @@ class _EventCreateScreenState extends ConsumerState<EventCreateScreen> {
     } else {
       categories = {for (var interest in Interests.values) interest: false};
     }
+    eventDates.add(EventDate());
     super.initState();
   }
 
@@ -666,6 +663,7 @@ class _EventCreateScreenState extends ConsumerState<EventCreateScreen> {
 
     await supabase.from('Event').update(newEventRowMap).eq('event_id', widget.event?.eventId);
     ref.read(attendEventsProvider.notifier).deCodeData();
+    print('create');
     for (var i = 0; i < start.length; i++) {
       final newDateRowMap = {
         'event_id': widget.event?.eventId,

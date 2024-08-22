@@ -142,8 +142,10 @@ class AttendEventProvider extends StateNotifier<List<Event>> {
       dates = await supabaseClient.from('Dates').select('time_start, time_end').eq('date_id', dateId);
       dates = dates.first;
     }
-    else
+    else {
       dates = null;
+    }
+
     return dates;
   }
 
@@ -255,7 +257,7 @@ class AttendEventProvider extends StateNotifier<List<Event>> {
       } else {
         deCodedEvent.attendeeDates = {'time_start' : deCodedEvent.sdate.first, 'time_end' : deCodedEvent.edate.first};
       }
-      print(deCodedEvent.sdate);
+      print(deCodedEvent);
       deCodedList.add(deCodedEvent);
     }
     state = deCodedList;

@@ -188,6 +188,7 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
       ref.read(profileProvider.notifier).decodeData();
       profile = ref.watch(profileProvider.notifier).state;
       ref.read(attendEventsProvider.notifier).deCodeData();
+      print('profile');
     } else {
       profile = profileInfo;
     }
@@ -394,7 +395,7 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
                                                   color: Theme.of(context).colorScheme.onPrimary),
                                             ),
                                             StreamBuilder(
-                                              stream: ref.watch(attendEventsProvider.notifier).stream,
+                                              stream: ref.read(attendEventsProvider.notifier).stream,
                                               builder: (context, snapshot) {
                                                 if (snapshot.data != null) {
                                                   final attendingEvents = snapshot.data!
@@ -620,7 +621,7 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
                   if (isSelected.first)
                     if (widget.isUser)
                       StreamBuilder(
-                        stream: ref.watch(attendEventsProvider.notifier).stream,
+                        stream: ref.read(attendEventsProvider.notifier).stream,
                         builder: (context, snapshot) {
                           if (snapshot.data != null) {
                             final relevantEvents = snapshot.data!.where((event) {
@@ -668,7 +669,7 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
                       )
                     else if (private == false || isFriend)
                       StreamBuilder(
-                        stream: ref.watch(attendEventsProvider.notifier).stream,
+                        stream: ref.read(attendEventsProvider.notifier).stream,
                         builder: (context, snapshot) {
                           if (snapshot.data != null) {
                             final hostingEvents = snapshot.data!.where((event) {
@@ -754,9 +755,9 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
                       )
                   else if ((private == false) || isFriend || widget.isUser)
                     StreamBuilder(
-                      stream: ref.watch(attendEventsProvider.notifier).stream,
+                      stream: ref.read(attendEventsProvider.notifier).stream,
                       builder: (context, snapshot) {
-                        if (snapshot.data != null) {
+                        if (snapshot.data != null) { 
                           if (widget.isUser) {
                             final bookmarkedEvents = snapshot.data!.where((event) => event.bookmarked).toList();
                             if (bookmarkedEvents.isEmpty) {

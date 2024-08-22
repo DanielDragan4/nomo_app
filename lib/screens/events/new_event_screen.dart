@@ -780,6 +780,7 @@ class _NewEventScreenState extends ConsumerState<NewEventScreen> {
 
     await supabase.from('Event').update(newEventRowMap).eq('event_id', widget.event?.eventId);
     ref.read(attendEventsProvider.notifier).deCodeData();
+    print('update');
     for(var i = 0; i < start.length; i++) {
     final newDateRowMap = {
       'event_id': widget.event?.eventId,

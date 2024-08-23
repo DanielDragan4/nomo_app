@@ -177,7 +177,9 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
     //Calculation to prevent appbar overflow on all devices
     double appBarHeight = MediaQuery.of(context).padding.top + MediaQuery.of(context).size.width * 0.24 + 270;
     double toolbar;
-
+    if(widget.isUser) {
+      ref.read(attendEventsProvider.notifier).deCodeData();
+    }
     if (widget.isUser) {
       appBarHeight += 10;
       toolbar = 10;

@@ -50,8 +50,8 @@ class _EventTabState extends ConsumerState<EventTab> {
     _isMounted = true;
     bookmarkBool = widget.eventData.bookmarked;
     setState(() {
-      _selectedStartDate = DateTime.parse(widget.eventData.sdate.first);
-      _selectedEndDate = DateTime.parse(widget.eventData.edate.first);
+      _selectedStartDate = DateTime.parse(widget.eventData.attendeeDates['time_start']);
+      _selectedEndDate = DateTime.parse(widget.eventData.attendeeDates['time_end']);
     });
   }
 
@@ -420,13 +420,11 @@ class _EventTabState extends ConsumerState<EventTab> {
               Icon(Icons.computer, size: 18, color: Theme.of(context).colorScheme.secondary),
               const SizedBox(width: 8),
               Expanded(
-                child: Text(
-                  'Virtual',
-                  style: TextStyle(
-                    color: Theme.of(context).colorScheme.secondary,
-                    decoration: TextDecoration.underline,
-                  ),
-                ),
+                child: Text('Virtual',
+                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                          fontWeight: FontWeight.w200,
+                          color: Theme.of(context).colorScheme.onSurface,
+                        )),
               ),
             ],
           )
@@ -435,16 +433,14 @@ class _EventTabState extends ConsumerState<EventTab> {
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Icon(Icons.location_on, size: 18, color: Theme.of(context).colorScheme.secondary),
+                Icon(Icons.location_on, size: 18, color: Theme.of(context).colorScheme.onSurface),
                 const SizedBox(width: 8),
                 Expanded(
-                  child: Text(
-                    widget.eventData.location,
-                    style: TextStyle(
-                      color: Theme.of(context).colorScheme.secondary,
-                      decoration: TextDecoration.underline,
-                    ),
-                  ),
+                  child: Text(widget.eventData.location,
+                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                            fontWeight: FontWeight.w200,
+                            color: Theme.of(context).colorScheme.onSurface,
+                          )),
                 ),
               ],
             ),

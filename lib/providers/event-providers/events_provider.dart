@@ -142,12 +142,40 @@ class EventProvider extends StateNotifier<List?> {
       } else {
         deCodedEvent.isHost = true;
       }
+      if (deCodedEvent.attending && (eventData['attendee_start'] != null)) {
+          deCodedEvent.attendeeDates = {'time_start': eventData['attendee_start'], 'time_end': eventData['attendee_end']};
+        } else {
+          deCodedEvent.attendeeDates = {'time_start': deCodedEvent.sdate.first, 'time_end': deCodedEvent.edate.first};
+        }
 
       deCodedList.add(deCodedEvent);
     }
     allEvents = deCodedList;
     state = deCodedList;
   }
+  // Future<Map?> attendeesDates(userId, eventId) async {
+  //   /*
+  //   Gets the dates for the event that the user selected when joining the event.
+
+  //     Params: userID: uuid, eventId: uuid
+      
+  //     Returns: Map of the start and end dates for the event.
+  //   */
+  //   print('from Attendees ______________________________________');
+  //   final supabaseClient = (await supabase).client;
+  //   final dateId =
+  //       await supabaseClient.from('Attendees').select('date_id').eq('attendees_id', userId).eq('event_id', eventId);
+  //   var dates;
+
+  //   if (dateId.isNotEmpty) {
+  //     dates = await supabaseClient.from('Dates').select('time_start, time_end').eq('date_id', dateId);
+  //     dates = dates.first;
+  //   } else {
+  //     dates = null;
+  //   }
+
+  //   return dates;
+  // }
 
   Future<void> joinEvent(currentUser, eventToJoin, selectedStart, selectedEnd) async {
     /*

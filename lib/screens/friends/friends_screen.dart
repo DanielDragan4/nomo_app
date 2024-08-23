@@ -29,12 +29,6 @@ class _FriendsScreenState extends ConsumerState<FriendsScreen> {
   void initState() {
     isSelected = [true, false, false];
     super.initState();
-    if (ref.read(profileProvider) != null) {
-      setState(() {});
-      {
-        currentUser = ref.read(profileProvider)!.username;
-      }
-    }
   }
 
   Widget _buildLoadingIndicator() {

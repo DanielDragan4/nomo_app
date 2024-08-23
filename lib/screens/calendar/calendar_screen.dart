@@ -7,6 +7,7 @@ import 'package:nomo/providers/calendar-providers/calendar_provider.dart';
 import 'package:nomo/providers/profile_provider.dart';
 import 'package:nomo/screens/calendar/event_cal_tab.dart';
 import 'package:nomo/screens/calendar/month_widget.dart';
+import 'package:nomo/screens/events/event_creation.dart';
 import 'package:nomo/screens/events/new_event_screen.dart';
 import 'package:nomo/widgets/custom_time_picker.dart';
 
@@ -75,6 +76,7 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
 
     showModalBottomSheet(
       context: context,
+      backgroundColor: Theme.of(context).colorScheme.surface,
       builder: (BuildContext context) {
         return StatefulBuilder(
           builder: (BuildContext context, StateSetter setState) {
@@ -91,7 +93,7 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
                     Text(
                       'Select Time Range',
                       style: TextStyle(
-                        color: Theme.of(context).colorScheme.onSecondary,
+                        color: Theme.of(context).colorScheme.onSurface,
                       ),
                     ),
                     const SizedBox(height: 20),
@@ -147,8 +149,11 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
                     Padding(
                       padding: const EdgeInsets.all(8.0),
                       child: TextField(
-                        decoration: const InputDecoration(
+                        decoration: InputDecoration(
                           labelText: 'Title',
+                          labelStyle: TextStyle(
+                            color: Theme.of(context).colorScheme.onSurface,
+                          ),
                         ),
                         style: TextStyle(
                           color: Theme.of(context).colorScheme.onSurface,
@@ -449,7 +454,7 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
                                                           Navigator.of(context, rootNavigator: true).push(
                                                               MaterialPageRoute(
                                                                   builder: ((context) =>
-                                                                      const NewEventScreen(event: null))));
+                                                                      const EventCreateScreen(event: null))));
                                                         },
                                                         child: const Text('CREATE EVENT')),
                                                     TextButton(

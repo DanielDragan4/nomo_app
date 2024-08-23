@@ -47,6 +47,7 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
     super.initState();
     _fetchData();
     if (widget.isUser) {
+      ref.read(profileProvider.notifier).decodeData();
       ref.read(attendEventsProvider.notifier).deCodeData();
       isFriend = false;
     } else {
@@ -176,7 +177,9 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
     //Calculation to prevent appbar overflow on all devices
     double appBarHeight = MediaQuery.of(context).padding.top + MediaQuery.of(context).size.width * 0.24 + 270;
     double toolbar;
-
+    if(widget.isUser) {
+      ref.read(attendEventsProvider.notifier).deCodeData();
+    }
     if (widget.isUser) {
       appBarHeight += 10;
       toolbar = 10;
@@ -184,13 +187,24 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
       toolbar = 50;
     }
 
-    if (widget.isUser) {
-      ref.read(profileProvider.notifier).decodeData();
-      profile = ref.watch(profileProvider.notifier).state;
-      ref.read(attendEventsProvider.notifier).deCodeData();
-    } else {
-      profile = profileInfo;
-    }
+    // Listen to changes in the profileProvider
+    ref.listen<Profile?>(profileProvider, (previous, next) {
+      if (next != null && next != profile) {
+        setState(() {
+          profile = next;
+        });
+      }
+    });
+
+    // If it's the user's own profile, decode the data
+    // if (widget.isUser) {
+    //   //ref.read(profileProvider.notifier).decodeData();
+    //   ref.read(attendEventsProvider.notifier).deCodeData(fromProfile: true);
+    //   profile = ref.watch(profileProvider);
+    // } else {
+    //   // For other users, use the profileInfo
+    //   profile = ref.watch(profileProvider.select((value) => value));
+    // }
 
     return Scaffold(
       backgroundColor: Theme.of(context).colorScheme.surface,
@@ -262,7 +276,7 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
                                           style: TextStyle(
                                             fontSize: 18,
                                             fontWeight: FontWeight.bold,
-                                            color: Theme.of(context).colorScheme.onSecondary,
+                                            color: Theme.of(context).colorScheme.onPrimary,
                                           ),
                                         ),
                                         const SizedBox(height: 5),
@@ -272,7 +286,7 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
                                             '@${profile?.username ?? 'username'}',
                                             style: TextStyle(
                                               fontSize: 12,
-                                              color: Theme.of(context).colorScheme.onSecondary,
+                                              color: Theme.of(context).colorScheme.onPrimary,
                                             ),
                                             overflow: TextOverflow.ellipsis,
                                           ),
@@ -297,7 +311,7 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
                                                 style: TextStyle(
                                                   fontSize: 24,
                                                   fontWeight: FontWeight.bold,
-                                                  color: Theme.of(context).colorScheme.onSecondary,
+                                                  color: Theme.of(context).colorScheme.onPrimary,
                                                 ),
                                               ),
                                               const SizedBox(height: 5),
@@ -305,7 +319,7 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
                                                 '@username',
                                                 style: TextStyle(
                                                   fontSize: 16,
-                                                  color: Theme.of(context).colorScheme.onSecondary,
+                                                  color: Theme.of(context).colorScheme.onPrimary,
                                                 ),
                                               ),
                                             ],
@@ -359,7 +373,7 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
                                                 style: TextStyle(
                                                   fontSize: 24,
                                                   fontWeight: FontWeight.bold,
-                                                  color: Theme.of(context).colorScheme.onSecondary,
+                                                  color: Theme.of(context).colorScheme.onPrimary,
                                                 ),
                                               ),
                                               const SizedBox(height: 5),
@@ -367,7 +381,7 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
                                                 '@${profile.username}',
                                                 style: TextStyle(
                                                   fontSize: 16,
-                                                  color: Theme.of(context).colorScheme.onSecondary,
+                                                  color: Theme.of(context).colorScheme.onPrimary,
                                                 ),
                                               ),
                                             ],
@@ -391,10 +405,10 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
                                               style: TextStyle(
                                                   fontSize: 18,
                                                   fontWeight: FontWeight.bold,
-                                                  color: Theme.of(context).colorScheme.onSecondary),
+                                                  color: Theme.of(context).colorScheme.onPrimary),
                                             ),
                                             StreamBuilder(
-                                              stream: ref.watch(attendEventsProvider.notifier).stream,
+                                              stream: ref.read(attendEventsProvider.notifier).stream,
                                               builder: (context, snapshot) {
                                                 if (snapshot.data != null) {
                                                   final attendingEvents = snapshot.data!
@@ -404,20 +418,20 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
                                                       .toList();
                                                   var attendingEventCount = attendingEvents.length;
                                                   for (Event event in attendingEvents) {
-                                                    if (event.sdate.compareTo(DateTime.now().toString()) < 0) {
+                                                    if (event.sdate.last.compareTo(DateTime.now().toString()) < 0) {
                                                       attendingEventCount--;
                                                     }
                                                   }
                                                   return Text(
                                                     attendingEventCount.toString(),
                                                     style: TextStyle(
-                                                        fontSize: 18, color: Theme.of(context).colorScheme.onSecondary),
+                                                        fontSize: 18, color: Theme.of(context).colorScheme.onPrimary),
                                                   );
                                                 } else {
                                                   return Text(
                                                     "0",
                                                     style: TextStyle(
-                                                        fontSize: 18, color: Theme.of(context).colorScheme.onSecondary),
+                                                        fontSize: 18, color: Theme.of(context).colorScheme.onPrimary),
                                                   );
                                                 }
                                               },
@@ -523,7 +537,7 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
                                         );
                                       },
                                       icon: const Icon(Icons.calendar_month_outlined),
-                                      color: Theme.of(context).colorScheme.onSecondary,
+                                      color: Theme.of(context).colorScheme.onPrimary,
                                     ),
                                     ProfileDropdown(
                                       updateProfileInfo: updateProfileInfo,
@@ -558,24 +572,36 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
                                     Padding(
                                         padding: const EdgeInsets.symmetric(vertical: 3),
                                         child: widget.isUser
-                                            ? const Text(
+                                            ? Text(
                                                 'Joined Events',
-                                                style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700),
+                                                style: TextStyle(
+                                                    fontSize: 14,
+                                                    fontWeight: FontWeight.w700,
+                                                    color: Theme.of(context).colorScheme.onPrimary),
                                               )
-                                            : const Text(
+                                            : Text(
                                                 "Attending Events",
-                                                style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700),
+                                                style: TextStyle(
+                                                    fontSize: 14,
+                                                    fontWeight: FontWeight.w700,
+                                                    color: Theme.of(context).colorScheme.onPrimary),
                                               )),
                                     Padding(
                                         padding: const EdgeInsets.symmetric(vertical: 3),
                                         child: widget.isUser
-                                            ? const Text(
+                                            ? Text(
                                                 'Bookmarked',
-                                                style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700),
+                                                style: TextStyle(
+                                                    fontSize: 14,
+                                                    fontWeight: FontWeight.w700,
+                                                    color: Theme.of(context).colorScheme.onPrimary),
                                               )
-                                            : const Text(
+                                            : Text(
                                                 "Hosting Events",
-                                                style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700),
+                                                style: TextStyle(
+                                                    fontSize: 14,
+                                                    fontWeight: FontWeight.w700,
+                                                    color: Theme.of(context).colorScheme.onPrimary),
                                               )),
                                   ],
                                 ),
@@ -589,7 +615,13 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
                                     onPressed: () {
                                       _showFilterDialog();
                                     },
-                                    child: Text("Filters"),
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor: Theme.of(context).colorScheme.primary,
+                                    ),
+                                    child: Text(
+                                      "Filters",
+                                      style: TextStyle(color: Theme.of(context).colorScheme.onPrimary),
+                                    ),
                                   ),
                                   SizedBox(width: 16), // Add some padding
                                 ],
@@ -602,17 +634,18 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
                   if (isSelected.first)
                     if (widget.isUser)
                       StreamBuilder(
-                        stream: ref.watch(attendEventsProvider.notifier).stream,
+                        stream: ref.read(attendEventsProvider.notifier).stream,
                         builder: (context, snapshot) {
-                          if (snapshot.data != null) {
+                          if (snapshot.data != null && snapshot.data!.isNotEmpty) {
                             final relevantEvents = snapshot.data!.where((event) {
                               final now = DateTime.now();
-                              final startDate = event.sdate;
-                              final endDate = event.edate;
                               if (showHosting && event.isHost) return true;
-                              if (showUpcoming && event.attending && startDate.compareTo(now.toString()) > 0)
-                                return true;
-                              if (showPassed && event.attending && endDate.compareTo(now.toString()) < 0) return true;
+                              if (showUpcoming &&
+                                  event.attending &&
+                                  event.attendeeDates['time_start'].compareTo(now.toString()) > 0) return true;
+                              if (showPassed &&
+                                  event.attending &&
+                                  event.attendeeDates['time_end'].compareTo(now.toString()) < 0) return true;
                               return false;
                             }).toList();
                             if (relevantEvents.isEmpty) {
@@ -652,7 +685,7 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
                       )
                     else if (private == false || isFriend)
                       StreamBuilder(
-                        stream: ref.watch(attendEventsProvider.notifier).stream,
+                        stream: ref.read(attendEventsProvider.notifier).stream,
                         builder: (context, snapshot) {
                           if (snapshot.data != null) {
                             final hostingEvents = snapshot.data!.where((event) {
@@ -664,12 +697,12 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
                             }).toList();
                             final attendingEvents = snapshot.data!.where((event) {
                               final now = DateTime.now();
-                              final startDate = event.sdate;
-                              final endDate = event.edate;
-                              if (showUpcoming && event.otherAttend != null && startDate.compareTo(now.toString()) > 0)
-                                return true;
-                              if (showPassed && event.otherAttend != null && endDate.compareTo(now.toString()) < 0)
-                                return true;
+                              if (showUpcoming &&
+                                  event.otherAttend != null &&
+                                  event.sdate.last.compareTo(now.toString()) > 0) return true;
+                              if (showPassed &&
+                                  event.otherAttend != null &&
+                                  event.edate.last.compareTo(now.toString()) < 0) return true;
                               return false;
                             }).toList();
                             if (attendingEvents.isEmpty && isSelected.first) {
@@ -740,9 +773,9 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
                       )
                   else if ((private == false) || isFriend || widget.isUser)
                     StreamBuilder(
-                      stream: ref.watch(attendEventsProvider.notifier).stream,
+                      stream: ref.read(attendEventsProvider.notifier).stream,
                       builder: (context, snapshot) {
-                        if (snapshot.data != null) {
+                        if (snapshot.data != null) { 
                           if (widget.isUser) {
                             final bookmarkedEvents = snapshot.data!.where((event) => event.bookmarked).toList();
                             if (bookmarkedEvents.isEmpty) {
@@ -817,7 +850,7 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Text("Filter Events", style: TextStyle(color: Theme.of(context).colorScheme.onSecondaryContainer)),
+          title: Text("Filter Events", style: TextStyle(color: Theme.of(context).colorScheme.primary)),
           backgroundColor: Theme.of(context).cardColor,
           content: StatefulBuilder(
             builder: (BuildContext context, StateSetter setState) {

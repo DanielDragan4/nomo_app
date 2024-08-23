@@ -15,6 +15,7 @@ import 'package:nomo/screens/events/new_event_screen.dart';
 import 'package:nomo/screens/profile/profile_screen.dart';
 import 'package:nomo/widgets/comments_section_widget.dart';
 import 'package:nomo/widgets/event_attendees_widget.dart';
+import 'package:nomo/widgets/event_date_widget.dart';
 import 'package:share_plus/share_plus.dart';
 
 // Widget used to display all event information in recommended and profile screen
@@ -40,12 +41,18 @@ class EventTab extends ConsumerStatefulWidget {
 class _EventTabState extends ConsumerState<EventTab> {
   late bool bookmarkBool;
   bool _isMounted = false;
+  DateTime _selectedStartDate = DateTime.now();
+  DateTime _selectedEndDate = DateTime.now();
 
   @override
   void initState() {
     super.initState();
     _isMounted = true;
     bookmarkBool = widget.eventData.bookmarked;
+    setState(() {
+      _selectedStartDate = DateTime.parse(widget.eventData.attendeeDates['time_start']);
+      _selectedEndDate = DateTime.parse(widget.eventData.attendeeDates['time_end']);
+    });
   }
 
   @override
@@ -67,9 +74,6 @@ class _EventTabState extends ConsumerState<EventTab> {
 
   @override
   Widget build(BuildContext context) {
-    final DateTime date = DateTime.parse(widget.eventData.sdate);
-    final formattedDate = "${date.month}/${date.day}/${date.year} at ${_getFormattedHour(date)}";
-
     final bool isHostOrAttending = widget.eventData.isHost || widget.eventData.attending;
 
     return Card(
@@ -256,7 +260,7 @@ class _EventTabState extends ConsumerState<EventTab> {
   }
 
   bool _hasEventEnded() {
-    final DateTime endDate = DateTime.parse(widget.eventData.edate);
+    final DateTime endDate = DateTime.parse(widget.eventData.edate.last);
     return DateTime.now().isAfter(endDate);
   }
 
@@ -416,13 +420,11 @@ class _EventTabState extends ConsumerState<EventTab> {
               Icon(Icons.computer, size: 18, color: Theme.of(context).colorScheme.secondary),
               const SizedBox(width: 8),
               Expanded(
-                child: Text(
-                  'Virtual',
-                  style: TextStyle(
-                    color: Theme.of(context).colorScheme.secondary,
-                    decoration: TextDecoration.underline,
-                  ),
-                ),
+                child: Text('Virtual',
+                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                          fontWeight: FontWeight.w200,
+                          color: Theme.of(context).colorScheme.onSurface,
+                        )),
               ),
             ],
           )
@@ -431,16 +433,14 @@ class _EventTabState extends ConsumerState<EventTab> {
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Icon(Icons.location_on, size: 18, color: Theme.of(context).colorScheme.secondary),
+                Icon(Icons.location_on, size: 18, color: Theme.of(context).colorScheme.onSurface),
                 const SizedBox(width: 8),
                 Expanded(
-                  child: Text(
-                    widget.eventData.location,
-                    style: TextStyle(
-                      color: Theme.of(context).colorScheme.secondary,
-                      decoration: TextDecoration.underline,
-                    ),
-                  ),
+                  child: Text(widget.eventData.location,
+                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                            fontWeight: FontWeight.w200,
+                            color: Theme.of(context).colorScheme.onSurface,
+                          )),
                 ),
               ],
             ),
@@ -477,24 +477,14 @@ class _EventTabState extends ConsumerState<EventTab> {
   }
 
   Widget _buildDateTimeInfo(BuildContext context, bool isSmallScreen) {
-    final startDate = DateTime.parse(widget.eventData.sdate);
-    final endDate = DateTime.parse(widget.eventData.edate);
     final dateFormat = DateFormat('MMM d, yyyy');
     final timeFormat = DateFormat('h:mm a');
-
-    var displayedDates;
-
-    if (dateFormat.format(startDate) == dateFormat.format(endDate)) {
-      displayedDates = "${dateFormat.format(startDate)}";
-    } else {
-      displayedDates = "${dateFormat.format(startDate)} - ${dateFormat.format(endDate)}";
-    }
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'Date: $displayedDates',
+          'Date: ${dateFormat.format(_selectedStartDate)}',
           style: TextStyle(
             fontSize: isSmallScreen ? 14 : 16,
             fontWeight: FontWeight.bold,
@@ -503,7 +493,7 @@ class _EventTabState extends ConsumerState<EventTab> {
         ),
         const SizedBox(height: 4),
         Text(
-          'Time: ${timeFormat.format(startDate)} - ${timeFormat.format(endDate)}',
+          'Time: ${timeFormat.format(_selectedStartDate)} - ${timeFormat.format(_selectedEndDate)}',
           style: TextStyle(
             fontSize: isSmallScreen ? 14 : 16,
             color: Theme.of(context).colorScheme.onSecondary,
@@ -707,84 +697,9 @@ class _EventTabState extends ConsumerState<EventTab> {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Expanded(
-          child: _buildJoinLeaveButton(context, isSmallScreen),
-        ),
-        const SizedBox(width: 8),
         _buildBookmarkButton(context),
         _buildMoreOptionsButton(context),
       ],
-    );
-  }
-
-  Widget _buildJoinLeaveButton(BuildContext context, bool isSmallScreen) {
-    return FutureBuilder(
-      future: ref.read(supabaseInstance),
-      builder: (context, snapshot) {
-        if (snapshot.hasData && snapshot.data != null) {
-          final supabase = snapshot.data!.client;
-          final currentUser = supabase.auth.currentUser!.id;
-          final isHost = (widget.eventData.host == currentUser);
-          bool isAttending = widget.eventData.attending;
-
-          String buttonText = isHost ? 'Edit' : (isAttending ? 'Leave' : 'Join');
-
-          return ElevatedButton(
-            onPressed: () => _handleJoinLeaveAction(context, isHost, isAttending, currentUser),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Theme.of(context).colorScheme.secondaryContainer,
-              padding: EdgeInsets.symmetric(vertical: isSmallScreen ? 8 : 12),
-            ),
-            child: Text(buttonText,
-                style: TextStyle(
-                    fontSize: isSmallScreen ? 14 : 16, color: Theme.of(context).colorScheme.onSecondaryContainer)),
-          );
-        }
-        return const SizedBox.shrink();
-      },
-    );
-  }
-
-  void _handleJoinLeaveAction(BuildContext context, bool isHost, bool isAttending, String currentUser) {
-    if (isHost) {
-      _showEditEventDialog(context);
-    } else if (isAttending) {
-      _showLeaveEventDialog(context);
-    } else {
-      _joinEvent(context, currentUser);
-    }
-  }
-
-  void _showEditEventDialog(BuildContext context) {
-    Navigator.of(context).push(MaterialPageRoute(
-      builder: ((context) => NewEventScreen(
-            event: widget.eventData,
-            isEdit: true,
-          )),
-    ));
-  }
-
-  void _showLeaveEventDialog(BuildContext context) async {
-    await attendeeLeaveEvent();
-    await ref.read(profileProvider.notifier).deleteBlockedTime(null, widget.eventData.eventId);
-    var newEData = await ref.read(eventsProvider.notifier).deCodeLinkEvent(widget.eventData.eventId);
-
-    if (!_isMounted) return;
-
-    if (widget.eventData.otherHost != null) {
-      newEData.otherAttend = widget.eventData.attending;
-      newEData.otherHost = widget.eventData.otherHost;
-      newEData.otherBookmark = widget.eventData.otherBookmark;
-    }
-    setState(() {
-      widget.eventData.attending = false;
-      widget.eventData.attendees.removeLast();
-    });
-    newData;
-
-    ScaffoldMessenger.of(context).hideCurrentSnackBar();
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text("Left ${widget.eventData.title}")),
     );
   }
 
@@ -803,43 +718,6 @@ class _EventTabState extends ConsumerState<EventTab> {
     setState(() {
       widget.eventData = newEventData;
     });
-  }
-
-  void _joinEvent(BuildContext context, String currentUser) async {
-    final supabase = (await ref.read(supabaseInstance)).client;
-    await ref.read(profileProvider.notifier).createBlockedTime(
-          currentUser,
-          widget.eventData.sdate,
-          widget.eventData.edate,
-          widget.eventData.title,
-          widget.eventData.eventId,
-        );
-    await attendeeJoinEvent();
-    var newEventData = await ref.read(eventsProvider.notifier).deCodeLinkEvent(widget.eventData.eventId);
-    if (widget.eventData.otherHost != null) {
-      newEventData.otherAttend = widget.eventData.attending;
-      newEventData.otherHost = widget.eventData.otherHost;
-      newEventData.otherBookmark = widget.eventData.otherBookmark;
-    }
-
-    if (!_isMounted) return;
-
-    setState(() {
-      widget.eventData.attending = true;
-      widget.eventData.attendees.add(supabase.auth.currentUser!.id);
-    });
-
-    Navigator.of(context)
-        .push(MaterialPageRoute(
-          builder: (context) => DetailedEventScreen(
-            eventData: widget.eventData,
-          ),
-        ))
-        .whenComplete(newData);
-    ScaffoldMessenger.of(context).hideCurrentSnackBar();
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text("Joined ${widget.eventData.title}")),
-    );
   }
 
   Widget _buildBookmarkButton(BuildContext context) {
@@ -895,16 +773,6 @@ class _EventTabState extends ConsumerState<EventTab> {
         const PopupMenuItem(value: Options.itemOne, child: Text("Share Link")),
       ],
     );
-  }
-
-  Future<void> attendeeJoinEvent() async {
-    final supabase = (await ref.read(supabaseInstance)).client;
-    await ref.read(eventsProvider.notifier).joinEvent(supabase.auth.currentUser!.id, widget.eventData.eventId);
-  }
-
-  Future<void> attendeeLeaveEvent() async {
-    final supabase = (await ref.read(supabaseInstance)).client;
-    await ref.read(attendEventsProvider.notifier).leaveEvent(widget.eventData.eventId, supabase.auth.currentUser!.id);
   }
 
   Future<void> bookmarkEvent() async {

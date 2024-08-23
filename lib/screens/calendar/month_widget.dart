@@ -101,8 +101,8 @@ class Month extends ConsumerWidget {
     if (dayInGrid < lastOfMonth && dayInGrid >= 0) {
       // Iterate through all events to check if any event covers this day
       for (var event in events) {
-        DateTime eventStart = DateTime.parse(event.sdate);
-        DateTime eventEnd = DateTime.parse(event.edate);
+        DateTime eventStart = DateTime.parse(event.attendeeDates['time_start']);
+        DateTime eventEnd = DateTime.parse(event.attendeeDates['time_end']);
 
         // Check if the current day is within the event's start and end dates
         if (DateTime(yearDisplayed, selectedMonth, dayInGrid + 1).isAfter(eventStart.subtract(Duration(days: 1))) &&
@@ -134,8 +134,8 @@ class Month extends ConsumerWidget {
 
     if (dayInGrid < lastOfMonth && dayInGrid >= 0) {
       for (var event in events) {
-        DateTime eventStart = DateTime.parse(event.sdate);
-        DateTime eventEnd = DateTime.parse(event.edate);
+        DateTime eventStart = DateTime.parse(event.attendeeDates['time_start']);
+        DateTime eventEnd = DateTime.parse(event.attendeeDates['time_end']);
 
         if (eventStart.day <= (dayInGrid + 1) && (dayInGrid + 1) <= eventEnd.day) {
           if (eventStart.day == eventEnd.day || (dayInGrid + 1) == eventStart.day) {

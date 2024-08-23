@@ -67,9 +67,12 @@ class _RecommendedScreenState extends ConsumerState<RecommendedScreen> {
               title: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text("Filter Events", style: TextStyle(color: Theme.of(context).colorScheme.onSecondaryContainer)),
+                  Text(
+                    "Filter Events",
+                    style: TextStyle(color: Theme.of(context).colorScheme.onPrimary),
+                  ),
                   IconButton(
-                    icon: Icon(Icons.close, color: Theme.of(context).colorScheme.onSecondaryContainer),
+                    icon: Icon(Icons.close, color: Theme.of(context).colorScheme.onPrimary),
                     onPressed: () {
                       Navigator.of(context).pop();
                     },
@@ -144,7 +147,6 @@ class _RecommendedScreenState extends ConsumerState<RecommendedScreen> {
                 },
                 child: Text(
                   startDate != null ? DateFormat.yMd().format(startDate!.toLocal()) : "Start Date",
-                  style: TextStyle(color: Theme.of(context).colorScheme.onSecondary),
                 ),
               ),
             ),
@@ -165,7 +167,6 @@ class _RecommendedScreenState extends ConsumerState<RecommendedScreen> {
                 },
                 child: Text(
                   endDate != null ? DateFormat.yMd().format(endDate!.toLocal()) : "End Date",
-                  style: TextStyle(color: Theme.of(context).colorScheme.onSecondary),
                 ),
               ),
             ),
@@ -192,6 +193,9 @@ class _RecommendedScreenState extends ConsumerState<RecommendedScreen> {
                   selectedDays[index] = selected;
                 });
               },
+              checkmarkColor: Theme.of(context).colorScheme.onPrimary,
+              selectedColor: Theme.of(context).primaryColorLight,
+              labelStyle: TextStyle(color: Theme.of(context).colorScheme.onPrimary),
             );
           }),
         ),
@@ -208,12 +212,12 @@ class _RecommendedScreenState extends ConsumerState<RecommendedScreen> {
           children: [
             Text(
               "Maximum Distance",
-              style: TextStyle(color: Theme.of(context).colorScheme.onSecondary),
+              style: TextStyle(color: Theme.of(context).colorScheme.onPrimary),
             ),
             Text(
               "${maxDistance.round()} miles",
               style: TextStyle(
-                color: Theme.of(context).colorScheme.primary,
+                color: Theme.of(context).primaryColorLight,
                 fontWeight: FontWeight.bold,
               ),
             ),
@@ -230,6 +234,7 @@ class _RecommendedScreenState extends ConsumerState<RecommendedScreen> {
               maxDistance = value;
             });
           },
+          activeColor: Theme.of(context).primaryColorLight,
         ),
       ],
     );
@@ -260,7 +265,6 @@ class _RecommendedScreenState extends ConsumerState<RecommendedScreen> {
           headerSliverBuilder: (context, innerBoxIsScrolled) => [
             SliverAppBar(
               toolbarHeight: kToolbarHeight + 55,
-              backgroundColor: Theme.of(context).colorScheme.surface,
               floating: true,
               snap: true,
               flexibleSpace: FlexibleSpaceBar(
@@ -286,9 +290,9 @@ class _RecommendedScreenState extends ConsumerState<RecommendedScreen> {
                                 Text(
                                   'nomo',
                                   style: TextStyle(
-                                      color: Theme.of(context).primaryColor,
+                                      color: Theme.of(context).colorScheme.onSurface,
                                       fontSize: MediaQuery.of(context).devicePixelRatio * 10,
-                                      fontFamily: 'fff',
+                                      fontFamily: 'Epilogue',
                                       fontWeight: FontWeight.bold),
                                 )
                               ],
@@ -345,31 +349,35 @@ class _RecommendedScreenState extends ConsumerState<RecommendedScreen> {
                   // Preload the first few images
                   preloadImages(context, events, 0, 5);
 
-                  if(events.isNotEmpty) {
+                  if (events.isNotEmpty) {
                     return ListView.builder(
-                    shrinkWrap: true,
-                    physics: const BouncingScrollPhysics(),
-                    key: const PageStorageKey<String>('page'),
-                    itemCount: events.length,
-                    itemBuilder: (context, index) {
-                      // Preload next few images when nearing the end of the list
-                      if (index % 5 == 0) {
-                        preloadImages(context, events, index + 1, 5);
-                      }
+                      shrinkWrap: true,
+                      physics: const BouncingScrollPhysics(),
+                      key: const PageStorageKey<String>('page'),
+                      itemCount: events.length,
+                      itemBuilder: (context, index) {
+                        // Preload next few images when nearing the end of the list
+                        if (index % 5 == 0) {
+                          preloadImages(context, events, index + 1, 5);
+                        }
 
-                      return EventTab(
-                        eventData: events[index],
-                        preloadedImage: NetworkImage(events[index].imageUrl),
-                      );
-                    },
-                  );
-                  }
-                  else {
+                        return EventTab(
+                          eventData: events[index],
+                          preloadedImage: NetworkImage(events[index].imageUrl),
+                        );
+                      },
+                    );
+                  } else {
                     return Center(
                       child: Padding(
                         padding: const EdgeInsets.all(20),
-                        child: Text('There do not seem to be any events in your are. Try updating your location in the profile page!',
-                        style: TextStyle(fontSize: MediaQuery.of(context).devicePixelRatio * 7, fontWeight: FontWeight.w500,color: Theme.of(context).colorScheme.onSecondary),),
+                        child: Text(
+                          'There do not seem to be any events in your area. Try updating your location in the profile page!',
+                          style: TextStyle(
+                              fontSize: MediaQuery.of(context).devicePixelRatio * 7,
+                              fontWeight: FontWeight.w500,
+                              color: Theme.of(context).colorScheme.onSecondary),
+                        ),
                       ),
                     );
                   }

@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:flutter_branch_sdk/flutter_branch_sdk.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:nomo/functions/make-fcm.dart';
@@ -20,6 +21,7 @@ import 'package:nomo/screens/events/detailed_event_screen.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:nomo/firebase_options.dart';
+import 'package:nomo/screens/recommended_screen.dart';
 import 'package:overlay_support/overlay_support.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -114,6 +116,14 @@ class _AppState extends ConsumerState<App> {
     super.dispose();
   }
 
+  void setSystemOverlay(Color color) {
+    SystemChrome.setSystemUIOverlayStyle(
+      SystemUiOverlayStyle.dark.copyWith(
+        systemNavigationBarColor: color,
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     void loadData() {
@@ -133,58 +143,100 @@ class _AppState extends ConsumerState<App> {
             navigatorObservers: [routeObserver],
             themeMode: ref.read(themeModeProvider),
             theme: ThemeData().copyWith(
-              cardColor: Color.fromARGB(255, 221, 221, 221),
+              appBarTheme: AppBarTheme(surfaceTintColor: Colors.transparent),
               colorScheme: ColorScheme.fromSeed(
-                onSecondary: Colors.black,
-                seedColor: const Color.fromARGB(255, 80, 12, 122),
-                onPrimaryContainer: const Color.fromARGB(255, 80, 12, 122),
-                primary: Color.fromARGB(255, 139, 66, 185),
-                onPrimary: Color.fromARGB(255, 230, 230, 230),
+                primary: const Color.fromARGB(255, 106, 13, 173), // seen on 'Join' button in detailed view
+                onPrimary: Colors.black, // text on 'Join' button
+                secondary:
+                    const Color.fromARGB(255, 229, 231, 235), // seen on 'Bookmark' + distance box in detailed view
+                onSecondary: const Color.fromARGB(255, 75, 85, 99), // bookmark + distance icon color
+                seedColor: const Color.fromARGB(255, 106, 13, 173), // same as primary
+                primaryContainer: const Color.fromARGB(255, 241, 242, 245), // seen on comments box
+                onPrimaryContainer:
+                    const Color.fromARGB(255, 3, 7, 18), // comments title (use onSecondary for detail text)
+                surface: const Color.fromARGB(255, 241, 242, 245), // page color of detailed view
+                onSurface: const Color.fromARGB(255, 3, 7, 18),
               ),
               bottomNavigationBarTheme: const BottomNavigationBarThemeData(
-                selectedItemColor: Color.fromARGB(255, 80, 12, 122),
-                unselectedItemColor: Color.fromARGB(255, 158, 158, 158),
+                selectedItemColor: Color.fromARGB(255, 142, 57, 202), // navabar selected icon (center uses primary)
+                unselectedItemColor: Color.fromARGB(255, 173, 177, 184), // navbar unselected icon
+                backgroundColor:
+                    Color.fromARGB(255, 255, 255, 255), // border necessary with Color.fromARGB(255, 241, 243, 245),
               ),
-              textTheme: GoogleFonts.nunitoTextTheme(),
-              primaryColor: const Color.fromARGB(255, 80, 12, 122),
-              primaryColorLight: Color.fromARGB(255, 202, 141, 237),
-              canvasColor: Colors.white,
+              cardColor: const Color.fromARGB(255, 241, 243, 245),
+              textTheme: GoogleFonts.nunitoTextTheme(
+                const TextTheme(
+                  titleMedium: TextStyle(
+                    // comments title + user
+                    color: Color.fromARGB(255, 3, 7, 18),
+                  ),
+                  bodyMedium: TextStyle(
+                    // details + comments text (same as onSecondary)
+                    color: Color.fromARGB(255, 75, 85, 99),
+                  ),
+                  labelMedium: TextStyle(
+                    // text color on purple button
+                    color: Colors.white,
+                  ),
+                ),
+              ),
+              primaryColor: const Color.fromARGB(255, 106, 13, 173), // same as primary
+              primaryColorLight: const Color.fromARGB(255, 169, 78, 219), // seen on search toggle
+              canvasColor: Colors.white, // scaffold color on all light mode screens
             ),
             darkTheme: ThemeData().copyWith(
-              cardColor: Color.fromARGB(255, 27, 27, 27),
-              bottomNavigationBarTheme: const BottomNavigationBarThemeData(
-                selectedItemColor: Color.fromARGB(255, 109, 51, 146),
-                unselectedItemColor: Color.fromARGB(255, 206, 206, 206),
-                backgroundColor: Colors.black,
-              ),
-              primaryColor: const Color.fromARGB(255, 109, 51, 146),
-              primaryColorLight: Color.fromARGB(255, 202, 141, 237),
-              canvasColor: Colors.black,
-              brightness: Brightness.dark,
               colorScheme: ColorScheme.fromSeed(
-                onSecondary: const Color.fromARGB(255, 206, 206, 206),
-                surface: Colors.black,
-                brightness: Brightness.dark,
-                seedColor: const Color.fromARGB(255, 109, 51, 146),
-                onPrimaryContainer: Color.fromARGB(255, 237, 208, 255),
-                primary: Color.fromARGB(255, 139, 66, 185),
-                onPrimary: Color.fromARGB(255, 230, 230, 230),
-              ).copyWith(surface: Colors.black),
-              textTheme: GoogleFonts.nunitoTextTheme(),
-              // timePickerTheme: TimePickerThemeData(
-              //   backgroundColor: Color.fromARGB(255, 44, 44, 44),
-              //   dayPeriodColor: Color.fromARGB(255, 109, 51, 146),
-              //   dayPeriodTextColor: Colors.white,
-              //   entryModeIconColor: Color.fromARGB(255, 163, 76, 217),
-              //   hourMinuteColor: Color.fromARGB(255, 117, 117, 117),
-              //   hourMinuteTextColor: Colors.white,
-              //   hourMinuteTextStyle: TextStyle(color: Colors.white, fontSize: 42),
-              //   helpTextStyle: TextStyle(color: Colors.white, fontSize: 24),
-              // ),
+                primary: const Color.fromARGB(255, 106, 13, 173), // seen on 'Join' button in detailed view
+                onPrimary: Colors.white,
+                secondary: const Color.fromARGB(255, 53, 55, 60), // seen on 'Bookmark' + distance box in detailed view
+                onSecondary: const Color.fromARGB(255, 173, 177, 184), // bookmark + distance icon color
+                seedColor: const Color.fromARGB(255, 106, 13, 173), // same as primary
+                primaryContainer: const Color.fromARGB(255, 36, 36, 45), // seen on comments box
+                onPrimaryContainer:
+                    const Color.fromARGB(255, 237, 238, 240), // comments title (use onSecondary for detail text)
+                surface: const Color.fromARGB(255, 27, 27, 31), // page color of detailed view
+                onSurface: const Color.fromARGB(255, 237, 238, 240),
+              ),
+              bottomNavigationBarTheme: const BottomNavigationBarThemeData(
+                selectedItemColor: Color.fromARGB(255, 142, 57, 202), // navabar selected icon (center uses primary)
+                unselectedItemColor: Color.fromARGB(255, 173, 177, 184), // navbar unselected icon
+                backgroundColor: Color.fromARGB(255, 24, 24, 26), // no border
+              ),
+              cardColor: const Color.fromARGB(255, 36, 36, 45),
+              textTheme: GoogleFonts.nunitoTextTheme(
+                const TextTheme(
+                  titleMedium: TextStyle(
+                    // comments title + user
+                    color: Color.fromARGB(255, 237, 238, 240),
+                  ),
+                  bodyMedium: TextStyle(
+                    // details + comments text (same as onSecondary)
+                    color: Color.fromARGB(255, 173, 177, 184),
+                  ),
+                  labelMedium: TextStyle(
+                    // text color on purple button
+                    color: Colors.white,
+                  ),
+                ),
+              ),
+              datePickerTheme: const DatePickerThemeData(
+                headerBackgroundColor: Color.fromARGB(255, 142, 57, 202),
+                headerForegroundColor: Colors.white,
+                backgroundColor: Color.fromARGB(255, 53, 55, 60),
+              ),
+              // textButtonTheme: TextButtonThemeData(
+              //     style: TextButton.styleFrom(
+              //   foregroundColor: Colors.white,
+              // )),
+
+              primaryColor: const Color.fromARGB(255, 106, 13, 173), // same as primary
+              primaryColorLight: const Color.fromARGB(255, 142, 57, 202), // seen on search toggle
+              canvasColor: Color.fromARGB(255, 27, 27, 31), // scaffold color on all light mode screens
             ),
             home: StreamBuilder(
               stream: ref.watch(currentUserProvider.notifier).stream,
               builder: (context, snapshot) {
+                //setSystemOverlay(Theme.of(context).bottomNavigationBarTheme.backgroundColor!);
                 if (ref.watch(onSignUp.notifier).state == 1) {
                   return CreateAccountScreen(
                     isNew: true,

@@ -49,8 +49,6 @@ class _EventCreateScreenState extends ConsumerState<EventCreateScreen> {
   bool sdate = false;
   DateTime? _selectedEndDate;
   bool edate = false;
-  String? _formattedSDate;
-  String? _formattedEDate;
   File? _selectedImage;
   String dropDownValue = list.first;
   bool enableButton = false;
@@ -73,10 +71,10 @@ class _EventCreateScreenState extends ConsumerState<EventCreateScreen> {
   bool _step1Valid = false;
   bool _step2Valid = false;
   bool _step3Valid = false;
-  bool _step4Valid = false;
-  bool _step5Valid = false;
+  List<EventDate> eventDates = [];
+  static const int MAX_DATES = 5;
 
-  @override
+@override
   void initState() {
     isNewEvent = (widget.event == null);
     if (!isNewEvent) {
@@ -92,12 +90,16 @@ class _EventCreateScreenState extends ConsumerState<EventCreateScreen> {
       etime = true;
       sdate = true;
       edate = true;
-      _selectedStartTime = TimeOfDay.fromDateTime(DateTime.parse(widget.event!.sdate));
-      _selectedEndTime = TimeOfDay.fromDateTime(DateTime.parse(widget.event!.edate));
-      _selectedStartDate = DateTime.parse(widget.event!.sdate);
-      _selectedEndDate = DateTime.parse(widget.event!.edate);
-      _formattedEDate = DateFormat.yMd().format(DateTime.parse(widget.event!.edate));
-      _formattedSDate = DateFormat.yMd().format(DateTime.parse(widget.event!.sdate));
+      for (var i = 0; i < widget.event!.sdate.length; i++) {
+        EventDate d = EventDate();
+        d.startTime = TimeOfDay.fromDateTime(DateTime.parse(widget.event!.sdate[i]));
+        d.endTime = TimeOfDay.fromDateTime(DateTime.parse(widget.event!.edate[i]));
+        d.startDate = DateTime.parse(widget.event!.sdate[i]);
+        d.endDate = DateTime.parse(widget.event!.edate[i]);
+
+        eventDates.add(d);
+      }
+
       enableButton = true;
       virtualEvent = widget.event!.isVirtual;
       _isRecurring = widget.event!.isRecurring;
@@ -113,6 +115,7 @@ class _EventCreateScreenState extends ConsumerState<EventCreateScreen> {
     } else {
       categories = {for (var interest in Interests.values) interest: false};
     }
+    eventDates.add(EventDate());
     super.initState();
   }
 
@@ -135,15 +138,106 @@ class _EventCreateScreenState extends ConsumerState<EventCreateScreen> {
 
   void _validateStep2() {
     setState(() {
-      _step2Valid = _selectedStartDate != null &&
-          _selectedEndDate != null &&
-          _selectedStartTime != null &&
-          _selectedEndTime != null &&
-          // Secondary measure to make sure end time is after start time
-          ((_selectedEndTime!.hour > _selectedStartTime!.hour) ||
-              ((_selectedEndTime!.hour == _selectedStartTime!.hour) &&
-                  (_selectedEndTime!.minute > _selectedStartTime!.minute)));
+      bool allDatesValid = eventDates.isNotEmpty &&
+          eventDates.every((date) =>
+              date.startDate != null &&
+              date.endDate != null &&
+              date.startTime != null &&
+              date.endTime != null &&
+              _isValidDateTimeRange(date));
+
+      bool noOverlaps = !_hasOverlappingDates();
+
+      _step2Valid = allDatesValid && noOverlaps;
+
+      if (!noOverlaps) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Date/time ranges cannot overlap. Please adjust your selections.')),
+        );
+      }
     });
+  }
+
+  bool _isValidDateTimeRange(EventDate date) {
+    if (date.startDate == null || date.endDate == null || date.startTime == null || date.endTime == null) {
+      return false;
+    }
+
+    DateTime startDateTime = DateTime(
+      date.startDate!.year,
+      date.startDate!.month,
+      date.startDate!.day,
+      date.startTime!.hour,
+      date.startTime!.minute,
+    );
+
+    DateTime endDateTime = DateTime(
+      date.endDate!.year,
+      date.endDate!.month,
+      date.endDate!.day,
+      date.endTime!.hour,
+      date.endTime!.minute,
+    );
+
+    return endDateTime.isAfter(startDateTime);
+  }
+
+  bool _hasOverlappingDates() {
+    for (int i = 0; i < eventDates.length; i++) {
+      for (int j = i + 1; j < eventDates.length; j++) {
+        if (_datesOverlap(eventDates[i], eventDates[j])) {
+          return true;
+        }
+      }
+    }
+    return false;
+  }
+
+  bool _datesOverlap(EventDate date1, EventDate date2) {
+    if (date1.startDate == null ||
+        date1.endDate == null ||
+        date1.startTime == null ||
+        date1.endTime == null ||
+        date2.startDate == null ||
+        date2.endDate == null ||
+        date2.startTime == null ||
+        date2.endTime == null) {
+      return false;
+    }
+
+    DateTime start1 = DateTime(
+      date1.startDate!.year,
+      date1.startDate!.month,
+      date1.startDate!.day,
+      date1.startTime!.hour,
+      date1.startTime!.minute,
+    );
+
+    DateTime end1 = DateTime(
+      date1.endDate!.year,
+      date1.endDate!.month,
+      date1.endDate!.day,
+      date1.endTime!.hour,
+      date1.endTime!.minute,
+    );
+
+    DateTime start2 = DateTime(
+      date2.startDate!.year,
+      date2.startDate!.month,
+      date2.startDate!.day,
+      date2.startTime!.hour,
+      date2.startTime!.minute,
+    );
+
+    DateTime end2 = DateTime(
+      date2.endDate!.year,
+      date2.endDate!.month,
+      date2.endDate!.day,
+      date2.endTime!.hour,
+      date2.endTime!.minute,
+    );
+
+    return (start1.isBefore(end2) && end1.isAfter(start2)) || (start2.isBefore(end1) && end2.isAfter(start1));
   }
 
   void _validateStep3() {
@@ -179,57 +273,43 @@ class _EventCreateScreenState extends ConsumerState<EventCreateScreen> {
     return result;
   }
 
-  Future<void> _selectDate(BuildContext context, bool isStartDate) async {
+  Future<void> _selectDate(BuildContext context, bool isStartDate, int index) async {
     FocusManager.instance.primaryFocus?.unfocus();
     final DateTime? picked = await showDatePicker(
       context: context,
-      initialDate: isStartDate ? DateTime.now() : _selectedStartDate ?? DateTime.now(),
-      firstDate: isStartDate ? DateTime.now() : _selectedStartDate ?? DateTime.now(),
+      initialDate: isStartDate
+          ? eventDates[index].startDate ?? DateTime.now()
+          : eventDates[index].endDate ?? eventDates[index].startDate ?? DateTime.now(),
+      firstDate: isStartDate ? DateTime.now() : eventDates[index].startDate ?? DateTime.now(),
       lastDate: DateTime(2100),
     );
     if (picked != null) {
       setState(() {
         if (isStartDate) {
-          _selectedStartDate = picked;
-          _formattedSDate = DateFormat.yMd().format(_selectedStartDate!);
-          sdate = true;
-
-          // Check if the new start date is after the current end date
-          if (_selectedEndDate != null && picked.isAfter(_selectedEndDate!)) {
-            // Set the end date to be the same as the new start date
-            _selectedEndDate = picked;
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(
-                content: Text('End date adjusted to be after or equal to start date.'),
-              ),
-            );
-            _formattedEDate = DateFormat.yMd().format(_selectedEndDate!);
-            edate = true;
-          }
+          eventDates[index].startDate = picked;
+          _adjustEndDateTime(index);
         } else {
-          if (_selectedStartDate != null && picked.isBefore(_selectedStartDate!)) {
-            ScaffoldMessenger.of(context).hideCurrentSnackBar();
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(
-                content: Text('End date must be after or equal to start date.'),
-              ),
-            );
-          } else {
-            _selectedEndDate = picked;
-            _formattedEDate = DateFormat.yMd().format(_selectedEndDate!);
-            edate = true;
-          }
+          eventDates[index].endDate = picked;
         }
         _validateStep2();
       });
     }
   }
 
-  Future<void> _selectTime(BuildContext context, bool isStartTime) async {
+  void _showDateTimeAdjustmentNotification() {
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('End date and time have been automatically adjusted to ensure they come after the start.'),
+        duration: Duration(seconds: 4),
+      ),
+    );
+  }
+
+  Future<void> _selectTime(BuildContext context, bool isStartTime, int index) async {
     FocusManager.instance.primaryFocus?.unfocus();
     final initialTime = isStartTime
-        ? _selectedStartTime ?? TimeOfDay(hour: 12, minute: 00)
-        : _selectedEndTime ?? TimeOfDay(hour: 12, minute: 00);
+        ? eventDates[index].startTime ?? TimeOfDay(hour: 12, minute: 00)
+        : eventDates[index].endTime ?? TimeOfDay(hour: 12, minute: 00);
 
     final TimeOfDay? picked = await showDialog<TimeOfDay>(
       context: context,
@@ -245,46 +325,73 @@ class _EventCreateScreenState extends ConsumerState<EventCreateScreen> {
     );
 
     if (picked != null) {
-      if (isStartTime && _selectedEndTime != null && _selectedStartDate!.isAtSameMomentAs(_selectedEndDate!)) {
-        if (!checkTime(picked, _selectedEndTime!)) {
-          setState(() {
-            enableButton = false;
-          });
-          ScaffoldMessenger.of(context).hideCurrentSnackBar();
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('End time must be after start time.'),
-            ),
-          );
-          return;
-        }
-      } else if (!isStartTime &&
-          _selectedStartTime != null &&
-          _selectedStartDate!.isAtSameMomentAs(_selectedEndDate!)) {
-        if (!checkTime(_selectedStartTime!, picked)) {
-          setState(() {
-            enableButton = false;
-          });
-          ScaffoldMessenger.of(context).hideCurrentSnackBar();
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('End time must be after start time.'),
-            ),
-          );
-          return;
-        }
-      }
       setState(() {
         if (isStartTime) {
-          _selectedStartTime = picked;
-          stime = true;
+          eventDates[index].startTime = picked;
+          _adjustEndDateTime(index);
         } else {
-          _selectedEndTime = picked;
-          etime = true;
+          eventDates[index].endTime = picked;
         }
         _validateStep2();
       });
     }
+  }
+
+  void _adjustEndDateTime(int index) {
+    if (eventDates[index].startDate != null &&
+        eventDates[index].startTime != null &&
+        eventDates[index].endDate != null &&
+        eventDates[index].endTime != null) {
+      DateTime startDateTime = DateTime(
+        eventDates[index].startDate!.year,
+        eventDates[index].startDate!.month,
+        eventDates[index].startDate!.day,
+        eventDates[index].startTime!.hour,
+        eventDates[index].startTime!.minute,
+      );
+
+      DateTime endDateTime = DateTime(
+        eventDates[index].endDate!.year,
+        eventDates[index].endDate!.month,
+        eventDates[index].endDate!.day,
+        eventDates[index].endTime!.hour,
+        eventDates[index].endTime!.minute,
+      );
+
+      if (endDateTime.isBefore(startDateTime) || endDateTime.isAtSameMomentAs(startDateTime)) {
+        // Set the end date to the start date initially
+        endDateTime = DateTime(
+          startDateTime.year,
+          startDateTime.month,
+          startDateTime.day,
+          eventDates[index].endTime!.hour,
+          eventDates[index].endTime!.minute,
+        );
+
+        // If end time is still before or equal to start time, add one day to the end date
+        if (endDateTime.isBefore(startDateTime) || endDateTime.isAtSameMomentAs(startDateTime)) {
+          endDateTime = endDateTime.add(Duration(days: 1));
+        }
+
+        eventDates[index].endDate = endDateTime;
+
+        // Notify user
+        _showDateTimeAdjustmentNotification();
+      }
+    }
+  }
+
+  bool _isTimeAfter(TimeOfDay time1, TimeOfDay time2) {
+    return time1.hour > time2.hour || (time1.hour == time2.hour && time1.minute > time2.minute);
+  }
+
+  void _showTimeAdjustmentNotification() {
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('End time has been automatically adjusted to ensure it\'s after the start time.'),
+        duration: Duration(seconds: 4),
+      ),
+    );
   }
 
   void _enableButton() {
@@ -434,24 +541,18 @@ class _EventCreateScreenState extends ConsumerState<EventCreateScreen> {
     return 'POINT(${locations.first.longitude} ${locations.first.latitude})';
   }
 
-  Future<void> createEvent(
-      TimeOfDay selectedStart,
-      TimeOfDay selectedEnd,
-      DateTime selectedStartDate,
-      DateTime selectedEndDate,
-      File selectedImage,
-      String inviteType,
-      var location,
-      String title,
-      String description,
-      bool isRecurring,
-      bool isTicketed) async {
+  Future<void> createEvent(File selectedImage, String inviteType, var location, String title, String description,
+      bool isRecurring, bool isTicketed) async {
     _showLoadingOverlay();
     try {
-      DateTime start = DateTime(selectedStartDate.year, selectedStartDate.month, selectedStartDate.day,
-          selectedStart.hour, selectedStart.minute);
-      DateTime end = DateTime(
-          selectedEndDate.year, selectedEndDate.month, selectedEndDate.day, selectedEnd.hour, selectedEnd.minute);
+      List<String> start = [];
+      List<String> end = [];
+      for (var dates in eventDates) {
+        start.add(DateFormat('yyyy-MM-dd HH:mm:ss').format(DateTime(dates.startDate!.year, dates.startDate!.month,
+            dates.startDate!.day, dates.startTime!.hour, dates.startTime!.minute)));
+        end.add(DateFormat('yyyy-MM-dd HH:mm:ss').format(DateTime(dates.endDate!.year, dates.endDate!.month,
+            dates.endDate!.day, dates.endTime!.hour, dates.endTime!.minute)));
+      }
 
       var imageId = await uploadImage(selectedImage);
       final supabase = (await ref.read(supabaseInstance)).client;
@@ -485,22 +586,24 @@ class _EventCreateScreenState extends ConsumerState<EventCreateScreen> {
       }
 
       final responseId = await supabase.from('Event').insert(newEventRowMap).select('event_id').single();
-      final newDateRowMap = {
-        'event_id' : responseId['event_id'],
-        'time_start': DateFormat('yyyy-MM-dd HH:mm:ss').format(start),
-        'time_end': DateFormat('yyyy-MM-dd HH:mm:ss').format(end),
-      };
-      await supabase.from('Dates').insert(newDateRowMap);
+      for (var i = 0; i < start.length; i++) {
+        final newDateRowMap = {
+          'event_id': responseId['event_id'],
+          'time_start': start[i],
+          'time_end': end[i],
+        };
+        await supabase.from('Dates').insert(newDateRowMap);
+
+        ref.read(profileProvider.notifier).createBlockedTime(
+              supabase.auth.currentUser!.id,
+              start[i],
+              end[i],
+              title,
+              responseId['event_id'],
+            );
+      }
 
       eventData = await ref.read(eventsProvider.notifier).deCodeLinkEvent(responseId['event_id']);
-
-      ref.read(profileProvider.notifier).createBlockedTime(
-            supabase.auth.currentUser!.id,
-            DateFormat('yyyy-MM-dd HH:mm:ss').format(start),
-            DateFormat('yyyy-MM-dd HH:mm:ss').format(end),
-            title,
-            responseId['event_id'],
-          );
     } finally {
       _hideLoadingOverlay();
     }
@@ -569,11 +672,11 @@ class _EventCreateScreenState extends ConsumerState<EventCreateScreen> {
     await supabase.from('Event').update(newEventRowMap).eq('event_id', widget.event?.eventId);
     ref.read(attendEventsProvider.notifier).deCodeData();
     final newDateRowMap = {
-        'event_id' : widget.event?.eventId,
-        'time_start': DateFormat('yyyy-MM-dd HH:mm:ss').format(start),
-        'time_end': DateFormat('yyyy-MM-dd HH:mm:ss').format(end),
-      };
-      await supabase.from('Dates').update(newDateRowMap).eq('event_id',  widget.event?.eventId);
+      'event_id': widget.event?.eventId,
+      'time_start': DateFormat('yyyy-MM-dd HH:mm:ss').format(start),
+      'time_end': DateFormat('yyyy-MM-dd HH:mm:ss').format(end),
+    };
+    await supabase.from('Dates').update(newDateRowMap).eq('event_id', widget.event?.eventId);
   }
 
   Widget _buildInvitationTypeItem(BuildContext context, String title, String description) {
@@ -702,13 +805,31 @@ class _EventCreateScreenState extends ConsumerState<EventCreateScreen> {
     );
   }
 
-  void _onStepContinue() {
+  void _onStepContinue() async {
     if (_currentStep < _steps.length - 1 && _isStepValid(_currentStep)) {
       setState(() {
         _currentStep += 1;
       });
     } else if (_currentStep == _steps.length - 1) {
-      _showConfirmationScreen();
+      try {
+        FocusManager.instance.primaryFocus?.unfocus();
+        await createEvent(_selectedImage!, dropDownValue, _locationController.text, _title.text, _description.text,
+            _isRecurring, _isTicketed);
+        if (widget.onEventCreated != null) {
+          widget.onEventCreated!();
+        }
+        Navigator.of(context, rootNavigator: true)
+            .pushReplacement(MaterialPageRoute(builder: ((context) => const NavBar())));
+        ScaffoldMessenger.of(context).hideCurrentSnackBar();
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Event Created'),
+          ),
+        );
+      } finally {
+        _resetScreen();
+      }
+
       _enableButton();
     }
   }
@@ -746,6 +867,7 @@ class _EventCreateScreenState extends ConsumerState<EventCreateScreen> {
             showModalBottomSheet(
               context: context,
               isScrollControlled: true,
+              backgroundColor: Theme.of(context).colorScheme.secondary,
               shape: const RoundedRectangleBorder(
                 borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
               ),
@@ -865,40 +987,153 @@ class _EventCreateScreenState extends ConsumerState<EventCreateScreen> {
   }
 
   Widget _buildStep2Content() {
+    return SingleChildScrollView(
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            for (int i = 0; i < eventDates.length; i++) _buildDateTimeFields(i),
+            SizedBox(height: 16),
+            if (eventDates.length < MAX_DATES)
+              Center(
+                child: ElevatedButton.icon(
+                  onPressed: _step2Valid
+                      ? () {
+                          _addNewDate();
+                          _validateStep2();
+                        }
+                      : null,
+                  icon: Icon(Icons.add),
+                  label: Text('Add Another Date'),
+                ),
+              ),
+            SizedBox(height: 16),
+            SwitchListTile(
+              title: const Text('Recurring Event'),
+              value: _isRecurring,
+              onChanged: (bool value) {
+                setState(() {
+                  _isRecurring = value;
+                });
+              },
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildDateTimeFields(int index) {
     return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        ListTile(
-          title: const Text('Start Date'),
-          subtitle:
-              Text(_selectedStartDate == null ? 'Not set' : DateFormat('MMM d, yyyy').format(_selectedStartDate!)),
-          onTap: () => _selectDate(context, true),
+        if (index > 0) Divider(height: 32, thickness: 2),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 8.0),
+              child: Text('Date ${index + 1}',
+                  style: TextStyle(fontWeight: FontWeight.bold, color: Theme.of(context).colorScheme.onSurface)),
+            ),
+            if (index > 0)
+              IconButton(
+                onPressed: () {
+                  _deleteDate(index);
+                  _validateStep2();
+                },
+                icon: Icon(Icons.close),
+                color: Theme.of(context).colorScheme.onSurface,
+              ),
+          ],
         ),
-        ListTile(
-          title: const Text('End Date'),
-          subtitle: Text(_selectedEndDate == null ? 'Not set' : DateFormat('MMM d, yyyy').format(_selectedEndDate!)),
-          onTap: () => _selectDate(context, false),
+        Row(
+          children: [
+            Expanded(
+              child: _buildDateTimeField(
+                title: 'Start Date',
+                value: eventDates[index].startDate == null
+                    ? 'Not set'
+                    : DateFormat('MMM d, yyyy').format(eventDates[index].startDate!),
+                onTap: () => _selectDate(context, true, index),
+              ),
+            ),
+            SizedBox(width: 16),
+            Expanded(
+              child: _buildDateTimeField(
+                title: 'Start Time',
+                value: eventDates[index].startTime?.format(context) ?? 'Not set',
+                onTap: () => _selectTime(context, true, index),
+              ),
+            ),
+          ],
         ),
-        ListTile(
-          title: const Text('Start Time'),
-          subtitle: Text(_selectedStartTime?.format(context) ?? 'Not set'),
-          onTap: () => _selectTime(context, true),
-        ),
-        ListTile(
-          title: const Text('End Time'),
-          subtitle: Text(_selectedEndTime?.format(context) ?? 'Not set'),
-          onTap: () => _selectTime(context, false),
-        ),
-        SwitchListTile(
-          title: const Text('Recurring Event'),
-          value: _isRecurring,
-          onChanged: (bool value) {
-            setState(() {
-              _isRecurring = value;
-            });
-          },
+        SizedBox(height: 16),
+        Row(
+          children: [
+            Expanded(
+              child: _buildDateTimeField(
+                title: 'End Date',
+                value: eventDates[index].endDate == null
+                    ? 'Not set'
+                    : DateFormat('MMM d, yyyy').format(eventDates[index].endDate!),
+                onTap: () => _selectDate(context, false, index),
+              ),
+            ),
+            SizedBox(width: 16),
+            Expanded(
+              child: _buildDateTimeField(
+                title: 'End Time',
+                value: eventDates[index].endTime?.format(context) ?? 'Not set',
+                onTap: () => _selectTime(context, false, index),
+              ),
+            ),
+          ],
         ),
       ],
     );
+  }
+
+  Widget _buildDateTimeField({required String title, required String value, required VoidCallback onTap}) {
+    return InkWell(
+      onTap: onTap,
+      child: Container(
+        padding: EdgeInsets.symmetric(vertical: 8, horizontal: 12),
+        decoration: BoxDecoration(
+          border: Border.all(color: Colors.grey),
+          borderRadius: BorderRadius.circular(4),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(title, style: TextStyle(fontSize: 12, color: Theme.of(context).colorScheme.onSurface)),
+            SizedBox(height: 4),
+            Text(value, style: TextStyle(fontSize: 16, color: Theme.of(context).colorScheme.onSurface)),
+          ],
+        ),
+      ),
+    );
+  }
+
+  void _addNewDate() {
+    if (eventDates.length < MAX_DATES) {
+      setState(() {
+        eventDates.add(EventDate());
+        _validateStep2();
+      });
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Maximum of $MAX_DATES dates allowed')),
+      );
+    }
+  }
+
+  void _deleteDate(int index) {
+    setState(() {
+      eventDates.removeAt(index);
+      _validateStep2();
+    });
   }
 
   Widget _buildStep3Content() {
@@ -1023,23 +1258,63 @@ class _EventCreateScreenState extends ConsumerState<EventCreateScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          AspectRatio(
-            aspectRatio: 16 / 9,
-            child: Container(
-                width: double.infinity, color: Colors.grey[300], child: Image.file(_selectedImage!, fit: BoxFit.cover)),
-          ),
+          if (_selectedImage != null)
+            AspectRatio(
+              aspectRatio: 16 / 9,
+              child: Container(
+                width: double.infinity,
+                color: Colors.grey[300],
+                child: Image.file(_selectedImage!, fit: BoxFit.cover),
+              ),
+            )
+          else
+            AspectRatio(
+              aspectRatio: 16 / 9,
+              child: Container(
+                width: double.infinity,
+                color: Colors.grey[300],
+                child: Icon(Icons.image, size: 50),
+              ),
+            ),
           Text(
             'Title: ${_title.text}',
-            style: TextStyle(color: Theme.of(context).colorScheme.onSurface),
+            style: TextStyle(
+              color: Theme.of(context).colorScheme.onSurface,
+            ),
           ),
           Text(
-            'Start: ${_formatDateTime(_selectedStartDate, _selectedStartTime)}',
-            style: TextStyle(color: Theme.of(context).colorScheme.onSurface),
+            'Event Dates:',
+            style: TextStyle(
+              color: Theme.of(context).colorScheme.onSurface,
+              fontWeight: FontWeight.bold,
+            ),
           ),
-          Text(
-            'End: ${_formatDateTime(_selectedEndDate, _selectedEndTime)}',
-            style: TextStyle(color: Theme.of(context).colorScheme.onSurface),
-          ),
+          for (int i = 0; i < eventDates.length; i++)
+            Padding(
+              padding: const EdgeInsets.only(left: 8.0, top: 2.0, bottom: 2),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Date ${i + 1}:',
+                    style: TextStyle(
+                      color: Theme.of(context).colorScheme.onSurface,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  Text(
+                    'Start: ${_formatDateTime(eventDates[i].startDate, eventDates[i].startTime)}',
+                    style: TextStyle(
+                      color: Theme.of(context).colorScheme.onSurface,
+                    ),
+                  ),
+                  Text(
+                    'End: ${_formatDateTime(eventDates[i].endDate, eventDates[i].endTime)}',
+                    style: TextStyle(color: Theme.of(context).colorScheme.onSurface),
+                  ),
+                ],
+              ),
+            ),
           Text(
             'Description: ${_description.text}',
             style: TextStyle(color: Theme.of(context).colorScheme.onSurface),
@@ -1061,7 +1336,13 @@ class _EventCreateScreenState extends ConsumerState<EventCreateScreen> {
             style: TextStyle(color: Theme.of(context).colorScheme.onSurface),
           ),
           Text(
-            'Categories: ${categories.entries.where((entry) => entry.value).map((entry) => ref.read(profileProvider.notifier).enumToString(entry.key)).join(', ')}',
+            categories.entries
+                    .where((entry) => entry.value)
+                    .map((entry) => ref.read(profileProvider.notifier).enumToString(entry.key))
+                    .join(', ')
+                    .isNotEmpty
+                ? 'Categories: ${categories.entries.where((entry) => entry.value).map((entry) => ref.read(profileProvider.notifier).enumToString(entry.key)).join(', ')}'
+                : 'Categories: None',
             style: TextStyle(color: Theme.of(context).colorScheme.onSurface),
           ),
         ],
@@ -1086,13 +1367,10 @@ class _EventCreateScreenState extends ConsumerState<EventCreateScreen> {
 
   void _resetScreen() {
     setState(() {
+      eventDates = [];
       _currentStep = 0;
       _selectedImage = null;
       _title.clear();
-      _selectedStartDate = null;
-      _selectedEndDate = null;
-      _selectedStartTime = null;
-      _selectedEndTime = null;
       _isRecurring = false;
       _description.clear();
       _locationController.clear();
@@ -1157,28 +1435,23 @@ class _EventCreateScreenState extends ConsumerState<EventCreateScreen> {
                   textStyle: TextStyle(
                       color: Theme.of(context).colorScheme.primary, fontSize: 15, fontWeight: FontWeight.w500),
                 ),
-                onPressed: enableButton
+                onPressed: _step3Valid
                     ? isNewEvent
                         ? () async {
                             try {
                               FocusManager.instance.primaryFocus?.unfocus();
-                              await createEvent(
-                                  _selectedStartTime!,
-                                  _selectedEndTime!,
-                                  _selectedStartDate!,
-                                  _selectedEndDate!,
-                                  _selectedImage!,
-                                  dropDownValue,
-                                  _locationController.text,
-                                  _title.text,
-                                  _description.text,
-                                  _isRecurring,
-                                  _isTicketed);
+                              await createEvent(_selectedImage!, dropDownValue, _locationController.text, _title.text,
+                                  _description.text, _isRecurring, _isTicketed);
                               if (widget.onEventCreated != null) {
                                 widget.onEventCreated!();
                               }
-                              Navigator.of(context).pushReplacement(
+                              Navigator.of(context)
+                                  .pushReplacement(MaterialPageRoute(builder: ((context) => const NavBar())));
+                              Navigator.of(context, rootNavigator: false).push(
                                   MaterialPageRoute(builder: ((context) => DetailedEventScreen(eventData: eventData))));
+
+                              // Navigator.of(context).pushReplacement(
+                              //     MaterialPageRoute(builder: ((context) => DetailedEventScreen(eventData: eventData))));
                               ScaffoldMessenger.of(context).hideCurrentSnackBar();
                               ScaffoldMessenger.of(context).showSnackBar(
                                 const SnackBar(
@@ -1244,4 +1517,18 @@ class _EventCreateScreenState extends ConsumerState<EventCreateScreen> {
       },
     );
   }
+}
+
+class EventDate {
+  DateTime? startDate;
+  DateTime? endDate;
+  TimeOfDay? startTime;
+  TimeOfDay? endTime;
+
+  EventDate({
+    this.startDate,
+    this.endDate,
+    this.startTime,
+    this.endTime,
+  });
 }

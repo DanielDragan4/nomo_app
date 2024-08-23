@@ -195,14 +195,14 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
     });
 
     // If it's the user's own profile, decode the data
-    if (widget.isUser) {
-      //ref.read(profileProvider.notifier).decodeData();
-      ref.read(attendEventsProvider.notifier).deCodeData(fromProfile: true);
-      profile = ref.watch(profileProvider);
-    } else {
-      // For other users, use the profileInfo
-      profile = ref.watch(profileProvider.select((value) => value));
-    }
+    // if (widget.isUser) {
+    //   //ref.read(profileProvider.notifier).decodeData();
+    //   ref.read(attendEventsProvider.notifier).deCodeData(fromProfile: true);
+    //   profile = ref.watch(profileProvider);
+    // } else {
+    //   // For other users, use the profileInfo
+    //   profile = ref.watch(profileProvider.select((value) => value));
+    // }
 
     return Scaffold(
       backgroundColor: Theme.of(context).colorScheme.surface,
@@ -634,7 +634,7 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
                       StreamBuilder(
                         stream: ref.read(attendEventsProvider.notifier).stream,
                         builder: (context, snapshot) {
-                          if (snapshot.data != null) {
+                          if (snapshot.data != null && snapshot.data!.isNotEmpty) {
                             final relevantEvents = snapshot.data!.where((event) {
                               final now = DateTime.now();
                               if (showHosting && event.isHost) return true;
@@ -848,7 +848,7 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Text("Filter Events", style: TextStyle(color: Theme.of(context).colorScheme.onSecondaryContainer)),
+          title: Text("Filter Events", style: TextStyle(color: Theme.of(context).colorScheme.primary)),
           backgroundColor: Theme.of(context).cardColor,
           content: StatefulBuilder(
             builder: (BuildContext context, StateSetter setState) {

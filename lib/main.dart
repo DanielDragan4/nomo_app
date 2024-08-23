@@ -224,10 +224,10 @@ class _AppState extends ConsumerState<App> {
                 headerForegroundColor: Colors.white,
                 backgroundColor: Color.fromARGB(255, 53, 55, 60),
               ),
-              textButtonTheme: TextButtonThemeData(
-                  style: TextButton.styleFrom(
-                foregroundColor: Colors.white,
-              )),
+              // textButtonTheme: TextButtonThemeData(
+              //     style: TextButton.styleFrom(
+              //   foregroundColor: Colors.white,
+              // )),
 
               primaryColor: const Color.fromARGB(255, 106, 13, 173), // same as primary
               primaryColorLight: const Color.fromARGB(255, 142, 57, 202), // seen on search toggle

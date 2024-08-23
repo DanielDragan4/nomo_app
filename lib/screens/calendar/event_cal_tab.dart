@@ -20,7 +20,7 @@ class EventCalTab extends StatelessWidget {
       child: ListTile(
         title: Text(
           eventData.title,
-          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: Theme.of(context).colorScheme.primary),
         ),
         subtitle: Text(formattedDate),
         trailing: Icon(Icons.chevron_right),

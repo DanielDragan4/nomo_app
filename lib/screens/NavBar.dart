@@ -64,7 +64,7 @@ class _NavBarState extends ConsumerState<NavBar> {
       },
       child: Scaffold(
         bottomNavigationBar: Container(
-          height: 55, // Reduce the overall height
+          height: 65,
           color: Theme.of(context).bottomNavigationBarTheme.backgroundColor,
           child: Stack(
             children: [

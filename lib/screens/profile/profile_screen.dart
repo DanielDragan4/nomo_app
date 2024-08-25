@@ -177,7 +177,7 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
     //Calculation to prevent appbar overflow on all devices
     double appBarHeight = MediaQuery.of(context).padding.top + MediaQuery.of(context).size.width * 0.24 + 270;
     double toolbar;
-    if(widget.isUser) {
+    if (widget.isUser) {
       ref.read(attendEventsProvider.notifier).deCodeData();
     }
     if (widget.isUser) {
@@ -197,14 +197,14 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
     });
 
     // If it's the user's own profile, decode the data
-    // if (widget.isUser) {
-    //   //ref.read(profileProvider.notifier).decodeData();
-    //   ref.read(attendEventsProvider.notifier).deCodeData(fromProfile: true);
-    //   profile = ref.watch(profileProvider);
-    // } else {
-    //   // For other users, use the profileInfo
-    //   profile = ref.watch(profileProvider.select((value) => value));
-    // }
+    if (widget.isUser) {
+      //ref.read(profileProvider.notifier).decodeData();
+      ref.read(attendEventsProvider.notifier).deCodeData();
+      profile = ref.watch(profileProvider);
+    } else {
+      // For other users, use the profileInfo
+      profile = ref.watch(profileProvider.select((value) => value));
+    }
 
     return Scaffold(
       backgroundColor: Theme.of(context).colorScheme.surface,
@@ -775,7 +775,7 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
                     StreamBuilder(
                       stream: ref.read(attendEventsProvider.notifier).stream,
                       builder: (context, snapshot) {
-                        if (snapshot.data != null) { 
+                        if (snapshot.data != null) {
                           if (widget.isUser) {
                             final bookmarkedEvents = snapshot.data!.where((event) => event.bookmarked).toList();
                             if (bookmarkedEvents.isEmpty) {

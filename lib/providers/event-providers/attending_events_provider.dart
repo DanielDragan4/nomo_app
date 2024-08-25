@@ -27,6 +27,7 @@ class AttendEventProvider extends StateNotifier<List<Event>> {
   }
 
   Future<void> deCodeData() async {
+    print('decoded data');
     /*
       takes in a list of friend data and converts it to a list of Friends with
       attached images for the hosts avatar and event image and sets the state
@@ -110,9 +111,12 @@ class AttendEventProvider extends StateNotifier<List<Event>> {
           deCodedEvent.attendeeDates = {'time_start': deCodedEvent.sdate.first, 'time_end': deCodedEvent.edate.first};
         }
         if (attending) {
-          if(eventData['attendee_start'] != null) {
-            deCodedEvent.attendeeDates = {'time_start': eventData['attendee_start'], 'time_end': eventData['attendee_end']};
-          } else{
+          if (eventData['attendee_start'] != null) {
+            deCodedEvent.attendeeDates = {
+              'time_start': eventData['attendee_start'],
+              'time_end': eventData['attendee_end']
+            };
+          } else {
             deCodedEvent.attendeeDates = {'time_start': deCodedEvent.sdate.first, 'time_end': deCodedEvent.edate.first};
           }
         } else {
@@ -124,7 +128,6 @@ class AttendEventProvider extends StateNotifier<List<Event>> {
     }
     state = deCodedList;
   }
-
 
   Future<List> readEventsWithId(String userID) async {
     /*
@@ -141,6 +144,7 @@ class AttendEventProvider extends StateNotifier<List<Event>> {
   }
 
   Future<void> deCodeDataWithId(String userId) async {
+    print('decoded data with ID');
     /*
       Converts read events data to Friends and returns the List as the state
 
@@ -212,9 +216,12 @@ class AttendEventProvider extends StateNotifier<List<Event>> {
       bool attending = false;
       for (var i = 0; i < deCodedEvent.attendees.length; i++) {
         if (deCodedEvent.attendees[i] == currentUser) {
-         if(eventData['attendee_start'] != null) {
-            deCodedEvent.attendeeDates = {'time_start': eventData['attendee_start'], 'time_end': eventData['attendee_end']};
-          } else{
+          if (eventData['attendee_start'] != null) {
+            deCodedEvent.attendeeDates = {
+              'time_start': eventData['attendee_start'],
+              'time_end': eventData['attendee_end']
+            };
+          } else {
             deCodedEvent.attendeeDates = {'time_start': deCodedEvent.sdate.first, 'time_end': deCodedEvent.edate.first};
           }
         } else {
@@ -227,7 +234,7 @@ class AttendEventProvider extends StateNotifier<List<Event>> {
 
       if (deCodedEvent.host == userId) {
         deCodedEvent.otherHost = true;
-      } 
+      }
       deCodedList.add(deCodedEvent);
     }
     state = deCodedList;

@@ -250,16 +250,15 @@ class ProfileProvider extends StateNotifier<Profile?> {
       String profileUrl = supabaseClient.storage.from('Images').getPublicUrl(f['profile_path']);
 
       final Friend friend = Friend(
-        friendProfileId: f['friend'],
-        avatar: profileUrl,
-        friendUsername: f['username'],
-        friendProfileName: f['profile_name']
-      );
+          friendProfileId: f['friend'],
+          avatar: profileUrl,
+          friendUsername: f['username'],
+          friendProfileName: f['profile_name']);
 
       userFriends.add(friend);
     }
     return userFriends;
-}
+  }
 
   // Returns a list of incoming friend requests data for current user
 

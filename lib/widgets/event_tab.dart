@@ -97,10 +97,9 @@ class _EventTabState extends ConsumerState<EventTab> {
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        if (_hasEventEnded()) _buildEventEndedIndicator(),
-                        const SizedBox(width: 4),
-                        if (isHostOrAttending) _buildHostOrAttendingIndicator(),
+                        _buildMoreOptionsButton(context),
                       ],
+                      
                     ),
                   )
                 ],
@@ -112,37 +111,37 @@ class _EventTabState extends ConsumerState<EventTab> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     _buildEventTitle(context),
-                    const SizedBox(height: 8),
+                    SizedBox(height: MediaQuery.of(context).size.height * .0075,),
                     _buildEventLocation(context),
-                    ((widget.eventData.distanceAway != null) || (widget.eventData.isRecurring))
+                    SizedBox(height: MediaQuery.of(context).size.height * .0075,),
+                    _buildDateTimeInfo(context),
+                    ((widget.eventData.distanceAway != null) || (widget.eventData.isRecurring) || _hasEventEnded() || widget.eventData.isHost)
                         ? Row(
                             children: [
+                              if(_hasEventEnded()) _buildEventEndedIndicator(),
+                              if(_hasEventEnded())SizedBox(width: MediaQuery.of(context).size.width * .02,),
+                              if(widget.eventData.isHost || widget.eventData.attending)_buildHostOrAttendingIndicator(),
+                              if(widget.eventData.isHost || widget.eventData.attending)SizedBox(width: MediaQuery.of(context).size.width * .02,),
                               if (widget.eventData.distanceAway != null) _buildDistanceInfo(context), // Add this line
-                              SizedBox(width: 4),
+                              if (widget.eventData.distanceAway != null)SizedBox(width: MediaQuery.of(context).size.width * .02,),
                               if (widget.eventData.isRecurring) _buildRecurringIndicator(),
                             ],
                           )
                         : SizedBox(),
+                    SizedBox(height: MediaQuery.of(context).size.height * .015,),
                     LayoutBuilder(
                       builder: (context, constraints) {
                         final isSmallScreen = constraints.maxWidth < 600;
-                        return Padding(
-                          padding: const EdgeInsets.all(8.0),
-                          child: Column(
+                        return Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              _buildDateTimeInfo(context, isSmallScreen),
-                              const SizedBox(height: 8),
                               _buildAttendeeInfo(context, isSmallScreen),
                               const SizedBox(height: 16),
-                              _buildActionButtons(context, isSmallScreen),
+                              _buildActionButtons(context, isSmallScreen, isHostOrAttending),
                             ],
-                          ),
-                        );
+                          );
                       },
-                    ),
-                    const SizedBox(height: 12),
-                    _buildGetDetails(context, isHostOrAttending),
+                    ),                    
                   ],
                 ),
               ),
@@ -189,32 +188,32 @@ class _EventTabState extends ConsumerState<EventTab> {
     }
 
     final distance = widget.eventData.distanceAway!;
-    final String distanceText = '${distance.toStringAsFixed(1)} miles away';
+    final String distanceText = '${distance.toStringAsFixed(1)} mi';
 
-    return Container(
-      margin: const EdgeInsets.only(top: 8),
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-      decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.secondaryContainer,
-        borderRadius: BorderRadius.circular(16),
-      ),
-      child: GestureDetector(
-        onTap: () => MapsLauncher.launchQuery(widget.eventData.location),
+   return GestureDetector(
+      onTap: () => MapsLauncher.launchQuery(widget.eventData.location),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+        decoration: BoxDecoration(
+          color: Color.fromARGB(36, 173, 177, 184),
+          borderRadius: BorderRadius.circular(4),
+        ),
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
             Icon(
-              Icons.directions_run, // Changed icon to a running person
-              size: 18,
-              color: Theme.of(context).colorScheme.secondary,
+              Icons.navigation_outlined,
+              size: MediaQuery.of(context).devicePixelRatio * 8,
+              weight: .01,
+              color: Colors.white,
             ),
-            const SizedBox(width: 6),
+            const SizedBox(width: 4),
             Text(
               distanceText,
               style: TextStyle(
-                fontSize: 14,
-                fontWeight: FontWeight.bold,
-                color: Theme.of(context).colorScheme.secondary,
+                fontSize: MediaQuery.of(context).devicePixelRatio * 6,
+                fontWeight: FontWeight.w400,
+                color: Colors.white,
               ),
             ),
           ],
@@ -224,40 +223,34 @@ class _EventTabState extends ConsumerState<EventTab> {
   }
 
   Widget _buildHostOrAttendingIndicator() {
-    var host = widget.eventData.isHost;
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-      decoration: BoxDecoration(
-        color: host
-            ? Theme.of(context).colorScheme.tertiary.withOpacity(0.2)
-            : Theme.of(context).colorScheme.primary.withOpacity(0.2),
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(
-          color: host ? Colors.green : Color.fromARGB(255, 60, 132, 255),
-          width: 1.5,
+  var host = widget.eventData.isHost;
+  return Container(
+    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+    decoration: BoxDecoration(
+      color: host ? Colors.green : Color.fromARGB(255, 30, 42, 138),
+      borderRadius: BorderRadius.circular(4),
+    ),
+    child: Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        const SizedBox(width: 4),
+        Text(
+          host ? 'Hosting' : 'Attending',
+          style: host ? TextStyle(
+            color: Colors.white,
+            fontWeight: FontWeight.w500,
+            fontSize: MediaQuery.of(context).devicePixelRatio * 6,
+          ) :
+          TextStyle(
+            color: Color.fromARGB(255, 98, 169, 255),
+            fontWeight: FontWeight.w500,
+            fontSize: MediaQuery.of(context).devicePixelRatio * 6,
+          )
         ),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(
-            host ? Icons.star : Icons.check_circle,
-            size: 14,
-            color: host ? Colors.green : Color.fromARGB(255, 60, 132, 255),
-          ),
-          const SizedBox(width: 4),
-          Text(
-            host ? 'Hosting' : 'Attending',
-            style: TextStyle(
-              color: host ? Colors.green : Color.fromARGB(255, 60, 132, 255),
-              fontWeight: FontWeight.bold,
-              fontSize: 12,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
+      ],
+    ),
+  );
+}
 
   bool _hasEventEnded() {
     final DateTime endDate = DateTime.parse(widget.eventData.edate.last);
@@ -266,40 +259,31 @@ class _EventTabState extends ConsumerState<EventTab> {
 
   Widget _buildEventEndedIndicator() {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-      decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.error.withOpacity(0.2),
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(
-          color: Theme.of(context).colorScheme.error,
-          width: 1.5,
+    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+    decoration: BoxDecoration(
+      color: const Color.fromARGB(255, 179, 38, 28),
+      borderRadius: BorderRadius.circular(4),
+    ),
+    child: Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        const SizedBox(width: 4),
+        Text(
+          'Passed',
+          style: TextStyle(
+            color: Color.fromARGB(255, 219, 169, 166),
+            fontWeight: FontWeight.w500,
+            fontSize: MediaQuery.of(context).devicePixelRatio * 6,
+          ),
         ),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(
-            Icons.event_busy,
-            size: 14,
-            color: Theme.of(context).colorScheme.error,
-          ),
-          const SizedBox(width: 4),
-          Text(
-            'Passed',
-            style: TextStyle(
-              color: Theme.of(context).colorScheme.error,
-              fontWeight: FontWeight.bold,
-              fontSize: 12,
-            ),
-          ),
-        ],
-      ),
-    );
+      ],
+    ),
+  );
   }
 
   Widget _buildHostInfo(BuildContext context) {
     return Padding(
-      padding: EdgeInsets.all(MediaQuery.of(context).devicePixelRatio * 2.5),
+      padding: EdgeInsets.all(MediaQuery.of(context).devicePixelRatio * 5),
       child: GestureDetector(
         onTap: () async {
           String currentUser = await ref.read(profileProvider.notifier).getCurrentUserId();
@@ -329,13 +313,13 @@ class _EventTabState extends ConsumerState<EventTab> {
           mainAxisSize: MainAxisSize.min,
           children: [
             _buildHostAvatar(context),
-            SizedBox(width: MediaQuery.of(context).size.width * 0.01),
+            SizedBox(width: MediaQuery.of(context).size.width * 0.0275),
             Flexible(
               child: Text(
-                '@${widget.eventData.hostUsername}',
+                widget.eventData.hostUsername,
                 style: TextStyle(
-                  fontWeight: FontWeight.bold,
-                  fontSize: 12,
+                  fontWeight: FontWeight.w600,
+                  fontSize: MediaQuery.of(context).devicePixelRatio * 7.5,
                   color: Theme.of(context).colorScheme.onSurface,
                 ),
                 overflow: TextOverflow.ellipsis,
@@ -353,13 +337,13 @@ class _EventTabState extends ConsumerState<EventTab> {
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.done) {
           return CircleAvatar(
-            radius: MediaQuery.of(context).devicePixelRatio * 6,
+            radius: MediaQuery.of(context).devicePixelRatio * 8.5,
             backgroundColor: Colors.grey[200],
             backgroundImage: NetworkImage(widget.eventData.hostProfileUrl),
           );
         } else {
           return CircleAvatar(
-            radius: MediaQuery.of(context).devicePixelRatio * 7,
+            radius: MediaQuery.of(context).devicePixelRatio * 9.5,
             backgroundColor: Colors.grey,
             child: const CircularProgressIndicator(),
           );
@@ -368,33 +352,40 @@ class _EventTabState extends ConsumerState<EventTab> {
     );
   }
 
-  Widget _buildEventImage(BuildContext context) {
-    return GestureDetector(
+Widget _buildEventImage(BuildContext context) {
+  return Padding(
+    padding: const EdgeInsets.fromLTRB(10, 2, 10, 0),
+    child: GestureDetector(
       onTap: () => Navigator.of(context)
           .push(MaterialPageRoute(
             builder: (context) => DetailedEventScreen(eventData: widget.eventData),
           ))
           .whenComplete(newData),
-      child: AspectRatio(
-        aspectRatio: 16 / 9,
-        child: widget.preloadedImage != null
-            ? Container(
-                decoration: BoxDecoration(color: Colors.black),
-                child: Image(image: widget.preloadedImage!, fit: BoxFit.contain))
-            : Container(
-                decoration: BoxDecoration(color: Colors.black),
-                child: CachedNetworkImage(
-                  imageUrl: widget.eventData.imageUrl,
-                  fit: BoxFit.cover,
-                  placeholder: (context, url) => Center(
-                    child: CircularProgressIndicator(),
-                  ),
-                  errorWidget: (context, url, error) => Icon(Icons.error),
-                ),
-              ),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(16.0),
+        child: 
+            AspectRatio(
+              aspectRatio: 16 / 9,
+              child: (widget.preloadedImage != null)
+                  ? Container(
+                      decoration: BoxDecoration(color: Colors.black),
+                      child: Image(image: widget.preloadedImage!, fit: BoxFit.cover))
+                  : Container(
+                      decoration: BoxDecoration(color: Colors.black),
+                      child: CachedNetworkImage(
+                        imageUrl: widget.eventData.imageUrl,
+                        fit: BoxFit.cover,
+                        placeholder: (context, url) => Center(
+                          child: CircularProgressIndicator(),
+                        ),
+                        errorWidget: (context, url, error) => Icon(Icons.error),
+                      ),
+                    ),
+            ),
       ),
-    );
-  }
+    ),
+  );
+}
 
   Widget _buildEventTitle(BuildContext context) {
     return GestureDetector(
@@ -405,8 +396,9 @@ class _EventTabState extends ConsumerState<EventTab> {
             .whenComplete(newData),
         child: Text(
           widget.eventData.title,
-          style: Theme.of(context).textTheme.headlineLarge?.copyWith(
-                fontWeight: FontWeight.bold,
+          style: TextStyle(
+                fontSize: MediaQuery.of(context).devicePixelRatio * 11,
+                fontWeight: FontWeight.w700,
                 color: Theme.of(context).colorScheme.onSurface,
               ),
         ));
@@ -417,14 +409,14 @@ class _EventTabState extends ConsumerState<EventTab> {
         ? Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Icon(Icons.computer, size: 18, color: Theme.of(context).colorScheme.secondary),
+              Icon(Icons.computer, size: MediaQuery.of(context).devicePixelRatio *8.5, color: Theme.of(context).colorScheme.onSurface),
               const SizedBox(width: 8),
               Expanded(
                 child: Text('Virtual',
-                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                          fontWeight: FontWeight.w200,
-                          color: Theme.of(context).colorScheme.onSurface,
-                        )),
+                    style:  Theme.of(context).textTheme.bodyLarge?.copyWith(
+                            fontWeight: FontWeight.w300,
+                            color: Theme.of(context).colorScheme.onSurface,
+                          )),
               ),
             ],
           )
@@ -433,12 +425,12 @@ class _EventTabState extends ConsumerState<EventTab> {
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Icon(Icons.location_on, size: 18, color: Theme.of(context).colorScheme.onSurface),
+                Icon(Icons.location_on_outlined, size: MediaQuery.of(context).devicePixelRatio *10, color: Theme.of(context).colorScheme.onSurface),
                 const SizedBox(width: 8),
                 Expanded(
                   child: Text(widget.eventData.location,
-                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                            fontWeight: FontWeight.w200,
+                      style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                            fontWeight: FontWeight.w300,
                             color: Theme.of(context).colorScheme.onSurface,
                           )),
                 ),
@@ -446,28 +438,110 @@ class _EventTabState extends ConsumerState<EventTab> {
             ),
           );
   }
+  Widget _buildDateTimeInfo(BuildContext context) {
+    final startDate = _selectedStartDate;
+    final endDate = _selectedEndDate;
+    final dateFormat = DateFormat('MMM d, yyyy');
+    final timeFormat = DateFormat('h:mm a');
+
+    var displayedDates;
+
+    if (dateFormat.format(startDate) == dateFormat.format(endDate)) {
+      displayedDates = "${dateFormat.format(startDate)}";
+    } else {
+      displayedDates = "${dateFormat.format(startDate)} - ${dateFormat.format(endDate)}";
+    }
+
+    return 
+     Container(
+          padding: const EdgeInsets.symmetric( vertical: 8),
+          child: (dateFormat.format(startDate) == dateFormat.format(endDate))
+              ? Row(mainAxisAlignment: MainAxisAlignment.start, children: [
+                  Container(
+                      child: Row(children: [
+                    Icon(Icons.calendar_today, size: MediaQuery.of(context).devicePixelRatio * 8, color: Theme.of(context).colorScheme.onSurface),
+                    const SizedBox(width: 8),
+                    Text(
+                      displayedDates,
+                      style: TextStyle(
+                        fontSize: MediaQuery.of(context).devicePixelRatio * 6,
+                        fontWeight: FontWeight.bold,
+                        color: Theme.of(context).colorScheme.onSurface,
+                      ),
+                    ),
+                  ])),
+                  SizedBox(width: MediaQuery.of(context).size.width * .05 ,),
+                  Container(
+                      child: Row(
+                    children: [
+                      Icon(Icons.access_time, size: MediaQuery.of(context).devicePixelRatio * 8, color: Theme.of(context).colorScheme.onSurface),
+                      const SizedBox(width: 8),
+                      Text(
+                        '${timeFormat.format(startDate)} - ${timeFormat.format(endDate)}',
+                        style: TextStyle(
+                          fontSize: MediaQuery.of(context).devicePixelRatio * 6,
+                          color: Theme.of(context).colorScheme.onSurface,
+                        ),
+                      ),
+                    ],
+                  ))
+                ])
+              : Column(
+                  children: [
+                    Row(mainAxisAlignment: MainAxisAlignment.start, children: [
+                      Icon(Icons.calendar_today, size: MediaQuery.of(context).devicePixelRatio * 8, color: Theme.of(context).colorScheme.onSurface),
+                      const SizedBox(width: 8),
+                      Text(
+                        displayedDates,
+                        style: TextStyle(
+                          fontSize: MediaQuery.of(context).devicePixelRatio * 6,
+                          color: Theme.of(context).colorScheme.onSurface,
+                        ),
+                      ),
+                    ]),
+                    Row(
+                      children: [
+                        Icon(Icons.access_time, size: MediaQuery.of(context).devicePixelRatio * 8, color: Theme.of(context).colorScheme.onSurface),
+                        const SizedBox(width: 8),
+                        Text(
+                          '${timeFormat.format(startDate)} - ${timeFormat.format(endDate)}',
+                          style: TextStyle(
+                          fontSize: MediaQuery.of(context).devicePixelRatio * 6,
+                          color: Theme.of(context).colorScheme.onSurface,
+                        ),
+                        ),
+                      ],
+                    )
+                  ],
+                )
+    );
+  }
 
   Widget _buildGetDetails(BuildContext context, isHostOrAttending) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        GestureDetector(
-            onTap: () => Navigator.of(context)
+    return ElevatedButton(
+    style: ElevatedButton.styleFrom(
+      backgroundColor: Theme.of(context).primaryColor, // Background color
+      padding: EdgeInsets.symmetric(vertical: MediaQuery.of(context).size.height * .0185, horizontal:  MediaQuery.of(context).size.width *0.23),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12.0), // Rounded corners
+      ),
+    ),
+    onPressed: () {
+      Navigator.of(context)
                 .push(MaterialPageRoute(
                   builder: (context) => DetailedEventScreen(eventData: widget.eventData),
                 ))
-                .whenComplete(newData),
-            child: Text(
-              'View Details',
-              style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                    fontWeight: FontWeight.bold,
-                    color: isHostOrAttending
-                        ? Theme.of(context).colorScheme.onPrimaryContainer // Color for hosted/attended events
-                        : Theme.of(context).colorScheme.onSecondary, // Default card color
-                  ),
-            )),
-      ],
-    );
+                .whenComplete(newData);
+    },
+    child: Text(
+      'View details',
+      style: TextStyle(
+        fontSize: MediaQuery.of(context).devicePixelRatio * 6.75,
+        color: Theme.of(context).colorScheme.onSurface,
+        fontWeight: FontWeight.bold,
+      ),
+    ),
+  );
   }
 
   String _getFormattedHour(DateTime date) {
@@ -476,36 +550,11 @@ class _EventTabState extends ConsumerState<EventTab> {
     return '$hour $period';
   }
 
-  Widget _buildDateTimeInfo(BuildContext context, bool isSmallScreen) {
-    final dateFormat = DateFormat('MMM d, yyyy');
-    final timeFormat = DateFormat('h:mm a');
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          'Date: ${dateFormat.format(_selectedStartDate)}',
-          style: TextStyle(
-            fontSize: isSmallScreen ? 14 : 16,
-            fontWeight: FontWeight.bold,
-            color: Theme.of(context).colorScheme.onSecondary,
-          ),
-        ),
-        const SizedBox(height: 4),
-        Text(
-          'Time: ${timeFormat.format(_selectedStartDate)} - ${timeFormat.format(_selectedEndDate)}',
-          style: TextStyle(
-            fontSize: isSmallScreen ? 14 : 16,
-            color: Theme.of(context).colorScheme.onSecondary,
-          ),
-        ),
-      ],
-    );
-  }
 
   Widget _buildAttendeeInfo(BuildContext context, bool isSmallScreen) {
     var numAttendees = widget.eventData.attendees.length;
     return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         GestureDetector(
           onTap: () {
@@ -556,7 +605,7 @@ class _EventTabState extends ConsumerState<EventTab> {
           },
           child: _buildInfoItem(context, '$numAttendees', 'Attending', isSmallScreen),
         ),
-        SizedBox(width: MediaQuery.of(context).size.width * .04),
+        SizedBox(width: MediaQuery.of(context).size.width * .02),
         GestureDetector(
           onTap: () {
             showModalBottomSheet(
@@ -606,7 +655,7 @@ class _EventTabState extends ConsumerState<EventTab> {
           },
           child: _buildInfoItem(context, '${widget.eventData.friends.length}', 'Friends', isSmallScreen),
         ),
-        SizedBox(width: MediaQuery.of(context).size.width * .04),
+        SizedBox(width: MediaQuery.of(context).size.width * .02),
         GestureDetector(
           onTap: () {
             if (!Navigator.of(context).canPop()) {
@@ -636,18 +685,7 @@ class _EventTabState extends ConsumerState<EventTab> {
                                 child: Row(
                                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                   children: [
-                                    // Text(
-                                    //   'Comments',
-                                    //   style: TextStyle(
-                                    //     color: Theme.of(context).primaryColor,
-                                    //     fontWeight: FontWeight.bold,
-                                    //     fontSize: 30,
-                                    //   ),
-                                    // ),
-                                    // IconButton(
-                                    //   icon: const Icon(Icons.close),
-                                    //   onPressed: () => Navigator.of(context).pop(),
-                                    // ),
+                                  
                                   ],
                                 ),
                               ),
@@ -671,13 +709,23 @@ class _EventTabState extends ConsumerState<EventTab> {
     );
   }
 
-  Widget _buildInfoItem(BuildContext context, String value, String label, bool isSmallScreen) {
-    return Column(
+ Widget _buildInfoItem(BuildContext context, String value, String label, bool isSmallScreen) {
+  return Container(
+    height: MediaQuery.of(context).size.height * 0.06,
+    width: MediaQuery.of(context).size.width * 0.27,
+    decoration: BoxDecoration(
+      borderRadius: BorderRadius.circular(8.0),
+      border: Border.all(
+        width: 0.3,
+        color: Color.fromARGB(200, 128, 122, 122),
+      ),
+    ),
+    child: Column(
       children: [
         Text(
           value,
           style: TextStyle(
-            fontSize: isSmallScreen ? 16 : 18,
+            fontSize: MediaQuery.of(context).devicePixelRatio * 6.75,
             fontWeight: FontWeight.bold,
             color: Theme.of(context).colorScheme.onSecondary,
           ),
@@ -685,20 +733,22 @@ class _EventTabState extends ConsumerState<EventTab> {
         Text(
           label,
           style: TextStyle(
-            fontSize: isSmallScreen ? 12 : 14,
+            fontSize: MediaQuery.of(context).devicePixelRatio * 5.8,
             color: Theme.of(context).colorScheme.onSecondary,
           ),
         ),
       ],
-    );
-  }
+    ),
+  );
+}
 
-  Widget _buildActionButtons(BuildContext context, bool isSmallScreen) {
+
+  Widget _buildActionButtons(BuildContext context, bool isSmallScreen, bool isHostOrAttending) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
+        _buildGetDetails(context, isHostOrAttending),
         _buildBookmarkButton(context),
-        _buildMoreOptionsButton(context),
       ],
     );
   }
@@ -730,32 +780,41 @@ class _EventTabState extends ConsumerState<EventTab> {
             final isHost = widget.eventData.host == currentUser;
             return (isHost)
                 ? const SizedBox()
-                : IconButton(
-                    onPressed: () {
-                      setState(() {
-                        bookmarkBool
-                            ? {
-                                deBookmarkEvent(),
-                                ScaffoldMessenger.of(context).hideCurrentSnackBar(),
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(content: Text("UnBookmarked ${widget.eventData.title}")),
-                                )
-                              }
-                            : {
-                                bookmarkEvent(),
-                                ScaffoldMessenger.of(context).hideCurrentSnackBar(),
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(content: Text("Bookmarked ${widget.eventData.title}")),
-                                )
-                              };
-                        bookmarkBool = !bookmarkBool;
-                      });
-                    },
-                    icon: Icon(
-                      bookmarkBool ? Icons.bookmark : Icons.bookmark_border_outlined,
-                      color: Theme.of(context).colorScheme.onSecondary,
+                : Container(
+                  height: MediaQuery.of(context).size.height * .0633,
+                  width: MediaQuery.of(context).size.width * .14,
+                  decoration: BoxDecoration(
+                    color: Theme.of(context).colorScheme.secondary, // Light grey color
+                    borderRadius: BorderRadius.circular(10), // Rounded corners
+                  ),
+                  child: IconButton(
+                      onPressed: () {
+                        setState(() {
+                          bookmarkBool
+                              ? {
+                                  deBookmarkEvent(),
+                                  ScaffoldMessenger.of(context).hideCurrentSnackBar(),
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(content: Text("UnBookmarked ${widget.eventData.title}")),
+                                  )
+                                }
+                              : {
+                                  bookmarkEvent(),
+                                  ScaffoldMessenger.of(context).hideCurrentSnackBar(),
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(content: Text("Bookmarked ${widget.eventData.title}")),
+                                  )
+                                };
+                          bookmarkBool = !bookmarkBool;
+                        });
+                      },
+                      icon: Icon(
+                        bookmarkBool ? Icons.bookmark : Icons.bookmark_border_outlined,
+                        color: Theme.of(context).colorScheme.onSecondary,
+                        size: MediaQuery.of(context).devicePixelRatio * 12,
+                      ),
                     ),
-                  );
+                );
           }
           return const SizedBox();
         });
@@ -763,7 +822,9 @@ class _EventTabState extends ConsumerState<EventTab> {
 
   Widget _buildMoreOptionsButton(BuildContext context) {
     return PopupMenuButton<Options>(
+      icon: const Icon(Icons.more_horiz),
       iconColor: Theme.of(context).colorScheme.onSecondary,
+      iconSize: MediaQuery.of(context).devicePixelRatio * 11,
       onSelected: (Options item) {
         if (item == Options.itemOne) {
           _shareEventLink();

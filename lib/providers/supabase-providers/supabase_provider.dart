@@ -82,6 +82,31 @@ class AuthProvider extends StateNotifier<Session?> {
     return false;
   }
 
+  Future<bool> signInWithIdTokenApple(idToken, nonce) async {
+    /*
+      signs in with a provided idToken and accessToken with the session then being
+      saved onto the phone.
+
+      Params: idToken: string, accessToken: string
+      
+      Returns: bool
+    */
+    final AuthResponse res = await (await supabase).client.auth.signInWithIdToken(
+          provider: OAuthProvider.apple,
+          idToken: idToken,
+          nonce: nonce,
+        );
+    var user = await (await supabase).client.from('Profiles').select('profile_id').eq('profile_id', res.user!.id);
+
+    state = res.session;
+    saveData();
+
+    if (user.isEmpty) {
+      return true;
+    }
+    return false;
+  }
+
   void saveData() {
     /*
       saves the sessions user and the access token onto the phones data.
@@ -177,8 +202,9 @@ Future<void> checkProfile() async {
       await supabase.from("Profiles").select('profile_id, username').eq('profile_id', supabase.auth.currentUser!.id);
   }
   final removeSession = await SharedPreferences.getInstance();
-  if (checkProf.isEmpty || checkProf == null) {
+  if ( checkProf == null || checkProf.isEmpty) {
     removeSession.remove("savedSession");
+    if(supabase.auth.currentUser != null)
     await supabase.from("auth.users").delete().eq('id', (supabase.auth.currentUser!.id));
   } else if ((checkProf.first['profile_id'] == supabase.auth.currentUser!.id) &&
       (checkProf.first['username'] == null)) {

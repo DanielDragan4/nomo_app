@@ -236,7 +236,7 @@ class _AppState extends ConsumerState<App> {
             home: StreamBuilder(
               stream: ref.watch(currentUserProvider.notifier).stream,
               builder: (context, snapshot) {
-                //setSystemOverlay(Theme.of(context).bottomNavigationBarTheme.backgroundColor!);
+                setSystemOverlay(Theme.of(context).bottomNavigationBarTheme.backgroundColor!);
                 if (ref.watch(onSignUp.notifier).state == 1) {
                   return CreateAccountScreen(
                     isNew: true,

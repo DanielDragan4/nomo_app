@@ -197,14 +197,14 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
     });
 
     // If it's the user's own profile, decode the data
-    if (widget.isUser) {
-      //ref.read(profileProvider.notifier).decodeData();
-      ref.read(attendEventsProvider.notifier).deCodeData();
-      profile = ref.watch(profileProvider);
-    } else {
-      // For other users, use the profileInfo
-      profile = ref.watch(profileProvider.select((value) => value));
-    }
+    // if (widget.isUser) {
+    //   //ref.read(profileProvider.notifier).decodeData();
+    //   ref.read(attendEventsProvider.notifier).deCodeData();
+    //   profile = ref.watch(profileProvider);
+    // } else {
+    //   // For other users, use the profileInfo
+    //   profile = ref.watch(profileProvider.select((value) => value));
+    // }
 
     return Scaffold(
       backgroundColor: Theme.of(context).colorScheme.surface,

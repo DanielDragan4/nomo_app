@@ -6,6 +6,7 @@ import 'package:nomo/providers/supabase-providers/saved_session_provider.dart';
 import 'package:nomo/providers/supabase-providers/supabase_provider.dart';
 import 'package:nomo/providers/supabase-providers/user_signup_provider.dart';
 import 'package:nomo/screens/password_handling/forgot_password_screen.dart';
+import 'package:sign_in_with_apple/sign_in_with_apple.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 class LoginScreen extends ConsumerStatefulWidget {
@@ -272,27 +273,37 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                               },
                               child: Text(isLogin ? 'Create an Account' : 'I already have an account.', style: TextStyle(color: Theme.of(context).colorScheme.primary),),
                             ),
-                          // ElevatedButton(
-                          //     onPressed: () async {
-                                
-                          //     },
-                          //     child: Padding(
-                          //       padding: EdgeInsets.symmetric(horizontal: MediaQuery.of(context).size.width * 0.1),
-                          //       child: Container(
-                          //         child: Row(
-                          //           mainAxisAlignment: MainAxisAlignment.center,
-                          //           children: [
-                          //             Image.asset(
-                          //               'assets/images/apple.png',
-                          //               fit: BoxFit.cover,
-                          //               scale: MediaQuery.of(context).size.aspectRatio * 75,
-                          //             ),
-                          //             SizedBox(width: MediaQuery.of(context).size.width *.01,),
-                          //             Text('Sign in with Apple')
-                          //           ],
-                          //         ),
-                          //       ),
-                          //     )),
+                          ElevatedButton(
+                              onPressed: () async {
+                                  final credential = await SignInWithApple.getAppleIDCredential(
+                                    scopes: [
+                                      AppleIDAuthorizationScopes.email,
+                                      AppleIDAuthorizationScopes.fullName,
+                                    ],
+                                  );
+
+                                  print(credential);
+
+                                  // Now send the credential (especially `credential.authorizationCode`) to your server to create a session
+                                  // after they have been validated with Apple (see `Integration` section for more information on how to do this)
+                                },
+                              child: Padding(
+                                padding: EdgeInsets.symmetric(horizontal: MediaQuery.of(context).size.width * 0.1),
+                                child: Container(
+                                  child: Row(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      Image.asset(
+                                        'assets/images/apple.png',
+                                        fit: BoxFit.cover,
+                                        scale: MediaQuery.of(context).size.aspectRatio * 75,
+                                      ),
+                                      SizedBox(width: MediaQuery.of(context).size.width *.01,),
+                                      Text('Sign in with Apple')
+                                    ],
+                                  ),
+                                ),
+                              )),
                           ElevatedButton(
                               onPressed: () async {
                                 const webClientId =

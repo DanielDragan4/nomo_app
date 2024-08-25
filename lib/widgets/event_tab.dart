@@ -221,7 +221,7 @@ class _EventTabState extends ConsumerState<EventTab> {
           children: [
             Icon(
               Icons.navigation_outlined,
-              size: MediaQuery.of(context).devicePixelRatio * 6,
+              size: MediaQuery.of(context).devicePixelRatio * 5.5,
               weight: .01,
               color: Colors.white,
             ),

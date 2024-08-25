@@ -1,3 +1,6 @@
+import 'dart:convert';
+
+import 'package:crypto/crypto.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_sign_in/google_sign_in.dart';
@@ -275,14 +278,32 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                             ),
                           ElevatedButton(
                               onPressed: () async {
+                                final rawNonce = supabase.auth.generateRawNonce();
+                                final hashedNonce = sha256.convert(utf8.encode(rawNonce)).toString();
                                   final credential = await SignInWithApple.getAppleIDCredential(
                                     scopes: [
                                       AppleIDAuthorizationScopes.email,
                                       AppleIDAuthorizationScopes.fullName,
                                     ],
+                                    nonce: hashedNonce,
                                   );
 
-                                  print(credential);
+                                  final idToken = credential.identityToken;
+                                  if (idToken == null) {
+                                    throw const AuthException(
+                                        'Could not find ID Token from generated credential.');
+                                  }
+                                  bool firstSignIn = await ref.read(currentUserProvider.notifier)
+                                  .signInWithIdTokenApple(idToken, rawNonce);
+
+                                  if (firstSignIn) {
+                                  print('1');
+                                  ref.watch(onSignUp.notifier).notifyAccountCreation();
+                                } else {
+                                  print('2');
+                                  makeFcm(supabase);
+                                }
+                                ref.read(savedSessionProvider.notifier).changeSessionDataList();
 
                                   // Now send the credential (especially `credential.authorizationCode`) to your server to create a session
                                   // after they have been validated with Apple (see `Integration` section for more information on how to do this)

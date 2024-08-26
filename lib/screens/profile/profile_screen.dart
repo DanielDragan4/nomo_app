@@ -48,12 +48,20 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
     _fetchData();
     if (widget.isUser) {
       ref.read(profileProvider.notifier).decodeData();
+      print('init');
       ref.read(attendEventsProvider.notifier).deCodeData();
       isFriend = false;
     } else {
+      print('init');
       ref.read(attendEventsProvider.notifier).deCodeDataWithId(widget.userId!);
       checkPendingRequest();
     }
+  }
+
+  @override
+  void dispose() {
+    // TODO: implement dispose
+    super.dispose();
   }
 
 // Called from Event Tab to refresh data when leaving anothe profile view
@@ -64,8 +72,11 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
         _futureBuilderKey = UniqueKey();
       });
     }
-    await ref.read(attendEventsProvider.notifier).deCodeData();
-    if (!widget.isUser) {
+    if (widget.isUser) {
+      print('refresh');
+      await ref.read(attendEventsProvider.notifier).deCodeData();
+    } else {
+      print('refresh');
       ref.read(attendEventsProvider.notifier).deCodeDataWithId(widget.userId!);
     }
   }
@@ -97,8 +108,10 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
 // Gets all relevant event/attendance information for profile being viewed
   Future<void> _fetchEvents() async {
     if (widget.isUser) {
+      print('fetch');
       ref.read(attendEventsProvider.notifier).deCodeData();
     } else {
+      print('fetch');
       ref.read(attendEventsProvider.notifier).deCodeDataWithId(widget.userId!);
     }
   }
@@ -178,6 +191,7 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
     double appBarHeight = MediaQuery.of(context).padding.top + MediaQuery.of(context).size.width * 0.24 + 270;
     double toolbar;
     if (widget.isUser) {
+      print('build');
       ref.read(attendEventsProvider.notifier).deCodeData();
     }
     if (widget.isUser) {

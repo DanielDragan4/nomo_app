@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:nomo/models/friend_model.dart';
 import 'package:nomo/models/interests_enum.dart';
 import 'package:nomo/providers/search_provider.dart';
+import 'package:nomo/providers/theme_provider.dart';
 import 'package:nomo/screens/profile/interests_screen.dart';
 import 'package:nomo/widgets/event_tab.dart';
 import 'package:nomo/widgets/friend_tab.dart';
@@ -167,6 +168,8 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
 
   @override
   Widget build(BuildContext context) {
+    var themeMode = ref.watch(themeModeProvider);
+
     return Scaffold(
       backgroundColor: Theme.of(context).colorScheme.surface,
       appBar: AppBar(
@@ -194,10 +197,9 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
                           ? 'Who are you looking for?'
                           : 'What are you looking for?',
                   hintStyle: TextStyle(color: Theme.of(context).colorScheme.onSecondary, fontWeight: FontWeight.w500),
-                  prefixIcon: Icon(
-                    Icons.search,
-                    color: Theme.of(context).colorScheme.onSecondary,
-                  ),
+                  prefixIcon: themeMode == ThemeMode.dark
+                      ? Image.asset('assets/icons/search-dark.png')
+                      : Image.asset('assets/icons/search-light.png'),
                   suffixIcon: _searchController.text.isNotEmpty && !_isSelected[2]
                       ? IconButton(
                           icon: Icon(

@@ -167,7 +167,7 @@ class _AppState extends ConsumerState<App> {
                 backgroundColor:
                     Color.fromARGB(255, 255, 255, 255), // border necessary with Color.fromARGB(255, 241, 243, 245),
               ),
-              cardColor: const Color.fromARGB(255, 241, 243, 245),
+              cardColor: Color.fromARGB(255, 227, 229, 231),
               textTheme: GoogleFonts.nunitoTextTheme(
                 const TextTheme(
                   titleMedium: TextStyle(

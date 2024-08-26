@@ -49,12 +49,19 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
     _fetchData();
     if (widget.isUser) {
       ref.read(profileProvider.notifier).decodeData();
+      print('init');
       ref.read(attendEventsProvider.notifier).deCodeData();
       isFriend = false;
     } else {
       ref.read(otherEventsProvider.notifier).deCodeDataWithId(widget.userId!);
       checkPendingRequest();
     }
+  }
+
+  @override
+  void dispose() {
+    // TODO: implement dispose
+    super.dispose();
   }
 
 // Called from Event Tab to refresh data when leaving anothe profile view
@@ -65,8 +72,11 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
         _futureBuilderKey = UniqueKey();
       });
     }
-    await ref.read(attendEventsProvider.notifier).deCodeData();
-    if (!widget.isUser) {
+    if (widget.isUser) {
+      print('refresh');
+      await ref.read(attendEventsProvider.notifier).deCodeData();
+    } else {
+      print('refresh');
       ref.read(otherEventsProvider.notifier).deCodeDataWithId(widget.userId!);
     }
   }
@@ -98,6 +108,7 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
 // Gets all relevant event/attendance information for profile being viewed
   Future<void> _fetchEvents() async {
     if (widget.isUser) {
+      print('fetch');
       ref.read(attendEventsProvider.notifier).deCodeData();
     } else {
       ref.read(otherEventsProvider.notifier).deCodeDataWithId(widget.userId!);
@@ -179,6 +190,7 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
     double appBarHeight = MediaQuery.of(context).padding.top + MediaQuery.of(context).size.width * 0.24 + 270;
     double toolbar;
     if (widget.isUser) {
+      print('build');
       ref.read(attendEventsProvider.notifier).deCodeData();
     }
     if (widget.isUser) {
@@ -198,14 +210,14 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
     });
 
     // If it's the user's own profile, decode the data
-    if (widget.isUser) {
-      //ref.read(profileProvider.notifier).decodeData();
-      ref.read(attendEventsProvider.notifier).deCodeData();
-      profile = ref.watch(profileProvider);
-    } else {
-      // For other users, use the profileInfo
-      profile = ref.watch(profileProvider.select((value) => value));
-    }
+    // if (widget.isUser) {
+    //   //ref.read(profileProvider.notifier).decodeData();
+    //   ref.read(attendEventsProvider.notifier).deCodeData();
+    //   profile = ref.watch(profileProvider);
+    // } else {
+    //   // For other users, use the profileInfo
+    //   profile = ref.watch(profileProvider.select((value) => value));
+    // }
 
     return Scaffold(
       backgroundColor: Theme.of(context).colorScheme.surface,

@@ -143,7 +143,11 @@ class _AppState extends ConsumerState<App> {
             navigatorObservers: [routeObserver],
             themeMode: ref.read(themeModeProvider),
             theme: ThemeData().copyWith(
-              appBarTheme: AppBarTheme(surfaceTintColor: Colors.transparent),
+              appBarTheme: const AppBarTheme(
+                backgroundColor: const Color.fromARGB(255, 241, 242, 245),
+                surfaceTintColor: Colors.transparent,
+                scrolledUnderElevation: 0,
+              ),
               colorScheme: ColorScheme.fromSeed(
                 primary: const Color.fromARGB(255, 106, 13, 173), // seen on 'Join' button in detailed view
                 onPrimary: Colors.black, // text on 'Join' button
@@ -163,7 +167,7 @@ class _AppState extends ConsumerState<App> {
                 backgroundColor:
                     Color.fromARGB(255, 255, 255, 255), // border necessary with Color.fromARGB(255, 241, 243, 245),
               ),
-              cardColor: const Color.fromARGB(255, 241, 243, 245),
+              cardColor: Color.fromARGB(255, 227, 229, 231),
               textTheme: GoogleFonts.nunitoTextTheme(
                 const TextTheme(
                   titleMedium: TextStyle(
@@ -185,6 +189,11 @@ class _AppState extends ConsumerState<App> {
               canvasColor: Colors.white, // scaffold color on all light mode screens
             ),
             darkTheme: ThemeData().copyWith(
+              appBarTheme: const AppBarTheme(
+                backgroundColor: const Color.fromARGB(255, 27, 27, 31),
+                surfaceTintColor: Colors.transparent,
+                scrolledUnderElevation: 0,
+              ),
               colorScheme: ColorScheme.fromSeed(
                 primary: const Color.fromARGB(255, 106, 13, 173), // seen on 'Join' button in detailed view
                 onPrimary: Colors.white,
@@ -236,7 +245,7 @@ class _AppState extends ConsumerState<App> {
             home: StreamBuilder(
               stream: ref.watch(currentUserProvider.notifier).stream,
               builder: (context, snapshot) {
-                //setSystemOverlay(Theme.of(context).bottomNavigationBarTheme.backgroundColor!);
+                setSystemOverlay(Theme.of(context).bottomNavigationBarTheme.backgroundColor!);
                 if (ref.watch(onSignUp.notifier).state == 1) {
                   return CreateAccountScreen(
                     isNew: true,

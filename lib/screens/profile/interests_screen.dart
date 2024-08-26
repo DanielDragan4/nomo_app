@@ -88,7 +88,7 @@ class _InterestsScreenState extends ConsumerState<InterestsScreen> {
     }
 
     return Scaffold(
-      backgroundColor: Theme.of(context).colorScheme.background,
+      backgroundColor: Theme.of(context).colorScheme.surface,
       appBar: widget.searching == null
           ? AppBar(
               centerTitle: true,
@@ -111,7 +111,7 @@ class _InterestsScreenState extends ConsumerState<InterestsScreen> {
                     ),
                   ),
                 ),
-              const SizedBox(height: 24),
+              widget.searching == null ? const SizedBox(height: 24) : const SizedBox(height: 60),
               Expanded(child: _buildInterestGrid()),
               //if (widget.searching == null) const SizedBox(height: 16),
               if (widget.searching == null) _buildBottomActions(colorScheme),
@@ -167,7 +167,7 @@ class _InterestsScreenState extends ConsumerState<InterestsScreen> {
               borderRadius: BorderRadius.circular(20),
               side: BorderSide(
                 color: isSelected ? colorScheme.primary : colorScheme.outline,
-                width: 1,
+                width: 2,
               ),
             ),
             padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),

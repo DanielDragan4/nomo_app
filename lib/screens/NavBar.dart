@@ -99,37 +99,39 @@ class _NavBarState extends ConsumerState<NavBar> {
 
   Widget _buildNavItem(int index, IconData icon, IconData activeIcon, String label) {
     bool isSelected = _index == index;
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Padding(
-          padding: const EdgeInsets.only(top: 8),
-          child: Container(
-            height: 24,
-            child: IconButton(
-              icon: Icon(
-                isSelected ? activeIcon : icon,
+    return GestureDetector(
+      onTap: () => _onItemTapped(index),
+      behavior: HitTestBehavior.opaque,
+      child: Container(
+        width: 60, // Increase touch area width
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Padding(
+              padding: const EdgeInsets.only(top: 8),
+              child: Container(
+                height: 24,
+                child: Icon(
+                  isSelected ? activeIcon : icon,
+                  color: isSelected
+                      ? Theme.of(context).bottomNavigationBarTheme.selectedItemColor
+                      : Theme.of(context).bottomNavigationBarTheme.unselectedItemColor,
+                  size: 24,
+                ),
+              ),
+            ),
+            Text(
+              label,
+              style: TextStyle(
                 color: isSelected
                     ? Theme.of(context).bottomNavigationBarTheme.selectedItemColor
                     : Theme.of(context).bottomNavigationBarTheme.unselectedItemColor,
-                size: 24,
+                fontSize: 14,
               ),
-              onPressed: () => _onItemTapped(index),
-              padding: EdgeInsets.zero,
-              constraints: BoxConstraints(), // Remove constraints
             ),
-          ),
+          ],
         ),
-        Text(
-          label,
-          style: TextStyle(
-            color: isSelected
-                ? Theme.of(context).bottomNavigationBarTheme.selectedItemColor
-                : Theme.of(context).bottomNavigationBarTheme.unselectedItemColor,
-            fontSize: 14, // Smaller font size
-          ),
-        ),
-      ],
+      ),
     );
   }
 

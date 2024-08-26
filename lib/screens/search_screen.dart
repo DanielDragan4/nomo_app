@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:nomo/models/friend_model.dart';
 import 'package:nomo/models/interests_enum.dart';
 import 'package:nomo/providers/search_provider.dart';
+import 'package:nomo/providers/theme_provider.dart';
 import 'package:nomo/screens/profile/interests_screen.dart';
 import 'package:nomo/widgets/event_tab.dart';
 import 'package:nomo/widgets/friend_tab.dart';
@@ -28,6 +29,7 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
   List<dynamic> _searchResults = [];
   Map<Interests, bool> _selectedInterests = {};
   String _mainSearchText = '';
+  final ValueNotifier<bool> _showSearchButton = ValueNotifier<bool>(false);
 
   @override
   void initState() {
@@ -137,6 +139,7 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
           .map((entry) => entry.key.toString().split('.').last)
           .join(', ');
     });
+    _showSearchButton.value = selectedInterests.values.any((value) => value);
   }
 
   void _switchTab(int index) {
@@ -167,6 +170,8 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
 
   @override
   Widget build(BuildContext context) {
+    var themeMode = ref.watch(themeModeProvider);
+
     return Scaffold(
       backgroundColor: Theme.of(context).colorScheme.surface,
       appBar: AppBar(
@@ -176,9 +181,13 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
       ),
       body: Column(
         children: [
-          SizedBox(
-            child: Padding(
-              padding: const EdgeInsets.fromLTRB(10, 0, 10, 5),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+            child: Container(
+              decoration: BoxDecoration(
+                color: Theme.of(context).cardColor,
+                borderRadius: BorderRadius.circular(45),
+              ),
               child: TextField(
                 readOnly: _isSelected[2] == true,
                 autofocus: false,
@@ -189,11 +198,16 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
                       : _isSelected[1] == true
                           ? 'Who are you looking for?'
                           : 'What are you looking for?',
-                  hintStyle: TextStyle(color: Theme.of(context).primaryColorLight.withOpacity(0.9)),
-                  prefixIcon: Icon(Icons.search),
+                  hintStyle: TextStyle(color: Theme.of(context).colorScheme.onSecondary, fontWeight: FontWeight.w500),
+                  prefixIcon: themeMode == ThemeMode.dark
+                      ? Image.asset('assets/icons/search-dark.png')
+                      : Image.asset('assets/icons/search-light.png'),
                   suffixIcon: _searchController.text.isNotEmpty && !_isSelected[2]
                       ? IconButton(
-                          icon: Icon(Icons.clear),
+                          icon: Icon(
+                            Icons.clear,
+                            color: Theme.of(context).colorScheme.onSecondary,
+                          ),
                           onPressed: () {
                             setState(() {
                               _searchController.clear();
@@ -202,84 +216,147 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
                           },
                         )
                       : null,
+                  contentPadding: EdgeInsets.symmetric(vertical: 12),
+                  border: InputBorder.none,
                 ),
-                style: TextStyle(color: Theme.of(context).colorScheme.onSecondary),
+                style: TextStyle(
+                  color: Theme.of(context).colorScheme.onSecondary,
+                  fontSize: MediaQuery.of(context).devicePixelRatio * 4.5,
+                ),
                 onChanged: (value) {
                   setState(() {});
+                },
+                textInputAction: TextInputAction.search,
+                onSubmitted: (value) {
+                  if (_isSelected[0]) {
+                    //FocusManager.instance.primaryFocus?.unfocus();
+                    _searchEvents(value);
+                  } else if (_isSelected[1]) {
+                    //FocusManager.instance.primaryFocus?.unfocus();
+                    _searchProfiles(value);
+                  }
                 },
               ),
             ),
           ),
           if (!widget.searchingPeople)
-            ToggleButtons(
-              constraints: const BoxConstraints(
-                maxHeight: 250,
-                minWidth: 90,
-                maxWidth: 200,
-              ),
-              borderColor: Colors.black,
-              fillColor: Theme.of(context).primaryColor,
-              borderWidth: 1,
-              selectedBorderColor: Colors.black,
-              selectedColor: Colors.grey,
-              borderRadius: BorderRadius.circular(15),
-              onPressed: _switchTab,
-              isSelected: _isSelected,
-              children: const [
-                Padding(
-                  padding: EdgeInsets.fromLTRB(10, 3, 10, 3),
-                  child: Text(
-                    'Events',
-                    style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700),
-                  ),
-                ),
-                Padding(
-                  padding: EdgeInsets.fromLTRB(10, 3, 10, 3),
-                  child: Text(
-                    'People',
-                    style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700),
-                  ),
-                ),
-                Padding(
-                  padding: EdgeInsets.fromLTRB(10, 3, 10, 3),
-                  child: Text(
-                    'Interests',
-                    style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700),
-                  ),
-                ),
-              ],
-            ),
-          const Divider(),
-          Padding(
-            padding: const EdgeInsets.only(bottom: 15.0),
-            child: ElevatedButton(
-              onPressed: () {
-                if (_isSelected[0]) {
-                  FocusManager.instance.primaryFocus?.unfocus();
-                  _searchEvents(_searchController.text);
-                } else if (_isSelected[1]) {
-                  FocusManager.instance.primaryFocus?.unfocus();
-                  _searchProfiles(_searchController.text);
-                } else if (_isSelected[2]) {
-                  FocusManager.instance.primaryFocus?.unfocus();
-                  _searchInterests(_searchController.text);
-                }
-              },
-              child: Text(
-                'Search',
-                style: TextStyle(color: Theme.of(context).primaryColorLight.withOpacity(0.9)),
+            Padding(
+              padding: _isSelected[2]
+                  ? const EdgeInsets.symmetric(horizontal: 16, vertical: 12)
+                  : const EdgeInsets.fromLTRB(16, 12, 16, 28),
+              child: LayoutBuilder(
+                builder: (context, constraints) {
+                  return Container(
+                    width: constraints.maxWidth,
+                    height: 28,
+                    decoration: BoxDecoration(
+                      color: Theme.of(context).cardColor,
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: Row(
+                      children: List.generate(3 * 2 - 1, (index) {
+                        if (index.isOdd) {
+                          // This is a divider
+                          return Container(
+                            width: 1,
+                            height: 12,
+                            color: Theme.of(context).dividerColor,
+                          );
+                        }
+                        int buttonIndex = index ~/ 2;
+                        return Expanded(
+                          child: GestureDetector(
+                            onTap: () => _switchTab(buttonIndex),
+                            child: Container(
+                              height: 28,
+                              decoration: BoxDecoration(
+                                color: _isSelected[buttonIndex]
+                                    ? Theme.of(context).bottomNavigationBarTheme.selectedItemColor
+                                    : Colors.transparent,
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                              child: Center(
+                                child: Text(
+                                  ['Events', 'People', 'Interests'][buttonIndex],
+                                  style: TextStyle(
+                                    color: _isSelected[buttonIndex]
+                                        ? Colors.white
+                                        : Theme.of(context).bottomNavigationBarTheme.unselectedItemColor,
+                                    fontSize: MediaQuery.of(context).devicePixelRatio * 4,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
+                        );
+                      }),
+                    ),
+                  );
+                },
               ),
             ),
-          ),
+          // _isSelected[2]
+          //     ? Padding(
+          //         padding: const EdgeInsets.only(bottom: 15.0),
+          //         child: ElevatedButton(
+          //           onPressed: () {
+          //             FocusManager.instance.primaryFocus?.unfocus();
+          //             _searchInterests(_searchController.text);
+          //           },
+          //           style: ElevatedButton.styleFrom(backgroundColor: Theme.of(context).colorScheme.primary),
+          //           child: Text(
+          //             'Search',
+          //             style: TextStyle(color: Theme.of(context).colorScheme.onPrimary),
+          //           ),
+          //         ),
+          //       )
+          //     : const SizedBox(height: 0),
           Expanded(
             child: _searchResults.isEmpty
                 ? (_isSelected[2]
-                    ? InterestsScreen(
-                        isEditing: false,
-                        creatingEvent: false,
-                        searching: true,
-                        selectedInterests: _selectedInterests,
-                        onSelectionChanged: _updateSearchBar,
+                    ? Stack(
+                        children: [
+                          InterestsScreen(
+                            isEditing: false,
+                            creatingEvent: false,
+                            searching: true,
+                            selectedInterests: _selectedInterests,
+                            onSelectionChanged: _updateSearchBar,
+                          ),
+                          ValueListenableBuilder<bool>(
+                            valueListenable: _showSearchButton,
+                            builder: (context, showButton, child) {
+                              return showButton
+                                  ? Positioned(
+                                      top: 10,
+                                      left: 0,
+                                      right: 0,
+                                      child: Center(
+                                        child: ElevatedButton(
+                                          onPressed: () {
+                                            FocusManager.instance.primaryFocus?.unfocus();
+                                            _searchInterests(_searchController.text);
+                                          },
+                                          style: ElevatedButton.styleFrom(
+                                            backgroundColor: Theme.of(context).colorScheme.primary,
+                                            shape: RoundedRectangleBorder(
+                                              borderRadius: BorderRadius.circular(20),
+                                            ),
+                                          ),
+                                          child: Padding(
+                                            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                                            child: Text(
+                                              'Search',
+                                              style: TextStyle(color: Theme.of(context).colorScheme.onPrimary),
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                    )
+                                  : SizedBox.shrink();
+                            },
+                          ),
+                        ],
                       )
                     : Center(
                         child: Text(
@@ -287,12 +364,14 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
                           style: TextStyle(color: Theme.of(context).colorScheme.onSecondary, fontSize: 18),
                         ),
                       ))
-                : ListView.builder(
-                    itemCount: _searchResults.length,
-                    itemBuilder: (context, index) {
-                      print('Building item for index $index');
-                      return _searchResults[index];
-                    },
+                : Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    child: ListView.builder(
+                      itemCount: _searchResults.length,
+                      itemBuilder: (context, index) {
+                        return _searchResults[index];
+                      },
+                    ),
                   ),
           ),
         ],

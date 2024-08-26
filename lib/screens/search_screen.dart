@@ -29,6 +29,7 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
   List<dynamic> _searchResults = [];
   Map<Interests, bool> _selectedInterests = {};
   String _mainSearchText = '';
+  final ValueNotifier<bool> _showSearchButton = ValueNotifier<bool>(false);
 
   @override
   void initState() {
@@ -138,6 +139,7 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
           .map((entry) => entry.key.toString().split('.').last)
           .join(', ');
     });
+    _showSearchButton.value = selectedInterests.values.any((value) => value);
   }
 
   void _switchTab(int index) {
@@ -232,9 +234,6 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
                   } else if (_isSelected[1]) {
                     //FocusManager.instance.primaryFocus?.unfocus();
                     _searchProfiles(value);
-                  } else if (_isSelected[2]) {
-                    //FocusManager.instance.primaryFocus?.unfocus();
-                    _searchInterests(value);
                   }
                 },
               ),
@@ -296,31 +295,68 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
                 },
               ),
             ),
-          _isSelected[2]
-              ? Padding(
-                  padding: const EdgeInsets.only(bottom: 15.0),
-                  child: ElevatedButton(
-                    onPressed: () {
-                      FocusManager.instance.primaryFocus?.unfocus();
-                      _searchInterests(_searchController.text);
-                    },
-                    style: ElevatedButton.styleFrom(backgroundColor: Theme.of(context).colorScheme.primary),
-                    child: Text(
-                      'Search',
-                      style: TextStyle(color: Theme.of(context).colorScheme.onPrimary),
-                    ),
-                  ),
-                )
-              : const SizedBox(height: 0),
+          // _isSelected[2]
+          //     ? Padding(
+          //         padding: const EdgeInsets.only(bottom: 15.0),
+          //         child: ElevatedButton(
+          //           onPressed: () {
+          //             FocusManager.instance.primaryFocus?.unfocus();
+          //             _searchInterests(_searchController.text);
+          //           },
+          //           style: ElevatedButton.styleFrom(backgroundColor: Theme.of(context).colorScheme.primary),
+          //           child: Text(
+          //             'Search',
+          //             style: TextStyle(color: Theme.of(context).colorScheme.onPrimary),
+          //           ),
+          //         ),
+          //       )
+          //     : const SizedBox(height: 0),
           Expanded(
             child: _searchResults.isEmpty
                 ? (_isSelected[2]
-                    ? InterestsScreen(
-                        isEditing: false,
-                        creatingEvent: false,
-                        searching: true,
-                        selectedInterests: _selectedInterests,
-                        onSelectionChanged: _updateSearchBar,
+                    ? Stack(
+                        children: [
+                          InterestsScreen(
+                            isEditing: false,
+                            creatingEvent: false,
+                            searching: true,
+                            selectedInterests: _selectedInterests,
+                            onSelectionChanged: _updateSearchBar,
+                          ),
+                          ValueListenableBuilder<bool>(
+                            valueListenable: _showSearchButton,
+                            builder: (context, showButton, child) {
+                              return showButton
+                                  ? Positioned(
+                                      top: 10,
+                                      left: 0,
+                                      right: 0,
+                                      child: Center(
+                                        child: ElevatedButton(
+                                          onPressed: () {
+                                            FocusManager.instance.primaryFocus?.unfocus();
+                                            _searchInterests(_searchController.text);
+                                          },
+                                          style: ElevatedButton.styleFrom(
+                                            backgroundColor: Theme.of(context).colorScheme.primary,
+                                            shape: RoundedRectangleBorder(
+                                              borderRadius: BorderRadius.circular(20),
+                                            ),
+                                          ),
+                                          child: Padding(
+                                            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                                            child: Text(
+                                              'Search',
+                                              style: TextStyle(color: Theme.of(context).colorScheme.onPrimary),
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                    )
+                                  : SizedBox.shrink();
+                            },
+                          ),
+                        ],
                       )
                     : Center(
                         child: Text(

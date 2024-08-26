@@ -5,6 +5,7 @@ import 'package:nomo/models/events_model.dart';
 import 'package:nomo/models/friend_model.dart';
 import 'package:nomo/models/profile_model.dart';
 import 'package:nomo/providers/event-providers/attending_events_provider.dart';
+import 'package:nomo/providers/event-providers/other_attending_profile.dart';
 import 'package:nomo/providers/notification-providers/friend-notif-manager.dart';
 import 'package:nomo/providers/profile_provider.dart';
 import 'package:nomo/providers/supabase-providers/supabase_provider.dart';
@@ -51,7 +52,7 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
       ref.read(attendEventsProvider.notifier).deCodeData();
       isFriend = false;
     } else {
-      ref.read(attendEventsProvider.notifier).deCodeDataWithId(widget.userId!);
+      ref.read(otherEventsProvider.notifier).deCodeDataWithId(widget.userId!);
       checkPendingRequest();
     }
   }
@@ -66,7 +67,7 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
     }
     await ref.read(attendEventsProvider.notifier).deCodeData();
     if (!widget.isUser) {
-      ref.read(attendEventsProvider.notifier).deCodeDataWithId(widget.userId!);
+      ref.read(otherEventsProvider.notifier).deCodeDataWithId(widget.userId!);
     }
   }
 
@@ -99,7 +100,7 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
     if (widget.isUser) {
       ref.read(attendEventsProvider.notifier).deCodeData();
     } else {
-      ref.read(attendEventsProvider.notifier).deCodeDataWithId(widget.userId!);
+      ref.read(otherEventsProvider.notifier).deCodeDataWithId(widget.userId!);
     }
   }
 

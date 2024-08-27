@@ -733,6 +733,7 @@ class _NewEventScreenState extends ConsumerState<NewEventScreen> {
           dates.startTime!.hour, dates.startTime!.minute)));
         end.add(DateFormat('yyyy-MM-dd HH:mm:ss').format(DateTime(
           dates.endDate!.year, dates.endDate!.month, dates.endDate!.day, dates.endTime!.hour, dates.endTime!.minute)));
+          print(dates.startDate);
       }
 
     final Map newEventRowMap;
@@ -781,13 +782,15 @@ class _NewEventScreenState extends ConsumerState<NewEventScreen> {
     await supabase.from('Event').update(newEventRowMap).eq('event_id', widget.event?.eventId);
     ref.read(attendEventsProvider.notifier).deCodeData();
     print('update');
+    await supabase.from('Dates').delete().eq('event_id', widget.event?.eventId);
     for(var i = 0; i < start.length; i++) {
     final newDateRowMap = {
       'event_id': widget.event?.eventId,
       'time_start': start[i],
       'time_end': end[i],
       };
-    await supabase.from('Dates').update(newDateRowMap).eq('event_id', widget.event?.eventId);
+    
+    await supabase.from('Dates').insert(newDateRowMap).eq('event_id', widget.event?.eventId);
     }
   }
 

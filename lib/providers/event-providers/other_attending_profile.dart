@@ -118,6 +118,10 @@ class OtherEventProvider extends StateNotifier<List<Event>> {
       if (deCodedEvent.host == userId) {
         deCodedEvent.otherHost = true;
       }
+      if((deCodedEvent.attendeeDates == null) || deCodedEvent.attendeeDates.isEmpty) {
+        deCodedEvent.attendeeDates = {'time_start': deCodedEvent.sdate.first, 'time_end': deCodedEvent.edate.first};
+      }
+
       deCodedList.add(deCodedEvent);
     }
     state = deCodedList;

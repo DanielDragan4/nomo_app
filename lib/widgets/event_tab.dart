@@ -8,16 +8,13 @@ import 'package:maps_launcher/maps_launcher.dart';
 import 'package:nomo/models/events_model.dart';
 import 'package:nomo/providers/event-providers/attending_events_provider.dart';
 import 'package:nomo/providers/event-providers/events_provider.dart';
-import 'package:nomo/providers/event-providers/other_attending_profile.dart';
 import 'package:nomo/providers/profile_provider.dart';
 import 'package:nomo/providers/supabase-providers/supabase_provider.dart';
 import 'package:nomo/screens/events/detailed_event_screen.dart';
-import 'package:nomo/screens/events/new_event_screen.dart';
 import 'package:nomo/screens/profile/other_profile_screen.dart';
 import 'package:nomo/screens/profile/profile_screen.dart';
 import 'package:nomo/widgets/comments_section_widget.dart';
 import 'package:nomo/widgets/event_attendees_widget.dart';
-import 'package:nomo/widgets/event_date_widget.dart';
 import 'package:share_plus/share_plus.dart';
 
 // Widget used to display all event information in recommended and profile screen
@@ -196,12 +193,6 @@ class _EventTabState extends ConsumerState<EventTab> {
     );
   }
 
-  Future<void> getOriginalProfileInfo() async {
-    if (Navigator.canPop(context)) {
-      await ref.read(attendEventsProvider.notifier).deCodeData();
-    }
-  }
-
   Widget _buildDistanceInfo(BuildContext context) {
     if (widget.eventData.distanceAway == null) {
       return const SizedBox.shrink();
@@ -223,7 +214,7 @@ class _EventTabState extends ConsumerState<EventTab> {
           children: [
             Icon(
               Icons.navigation_outlined,
-              size: MediaQuery.of(context).devicePixelRatio * 5.5,
+              size: MediaQuery.of(context).size.width * .05,
               weight: .01,
               color: Theme.of(context).colorScheme.onSecondary,
             ),
@@ -231,7 +222,7 @@ class _EventTabState extends ConsumerState<EventTab> {
             Text(
               distanceText,
               style: TextStyle(
-                fontSize: MediaQuery.of(context).devicePixelRatio * 4,
+                fontSize: MediaQuery.of(context).size.width * .035,
                 fontWeight: FontWeight.w400,
                 color: Theme.of(context).colorScheme.onSecondary,
               ),
@@ -258,12 +249,12 @@ class _EventTabState extends ConsumerState<EventTab> {
                   ? TextStyle(
                       color: Colors.white,
                       fontWeight: FontWeight.w500,
-                      fontSize: MediaQuery.of(context).devicePixelRatio * 4,
+                      fontSize: MediaQuery.of(context).size.width * .035,
                     )
                   : TextStyle(
                       color: Color.fromARGB(255, 98, 169, 255),
                       fontWeight: FontWeight.w500,
-                      fontSize: MediaQuery.of(context).devicePixelRatio * 4,
+                      fontSize: MediaQuery.of(context).size.width * .035,
                     )),
         ],
       ),
@@ -290,7 +281,7 @@ class _EventTabState extends ConsumerState<EventTab> {
             style: TextStyle(
               color: Color.fromARGB(255, 219, 169, 166),
               fontWeight: FontWeight.w500,
-              fontSize: MediaQuery.of(context).devicePixelRatio * 4,
+              fontSize: MediaQuery.of(context).size.width * .035,
             ),
           ),
         ],
@@ -310,8 +301,7 @@ class _EventTabState extends ConsumerState<EventTab> {
                   MaterialPageRoute(
                     builder: (context) => OtherProfileScreen(userId: widget.eventData.host),
                   ),
-                )
-                .whenComplete(getOriginalProfileInfo);
+                );
           } else {
             await Navigator.of(context, rootNavigator: true).push(
               MaterialPageRoute(
@@ -413,7 +403,7 @@ class _EventTabState extends ConsumerState<EventTab> {
         child: Text(
           widget.eventData.title,
           style: TextStyle(
-            fontSize: MediaQuery.of(context).devicePixelRatio * 7,
+            fontSize: MediaQuery.of(context).size.width * .06,
             fontWeight: FontWeight.w700,
             color: Theme.of(context).colorScheme.onSurface,
           ),
@@ -426,13 +416,14 @@ class _EventTabState extends ConsumerState<EventTab> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Icon(Icons.computer,
-                  size: MediaQuery.of(context).devicePixelRatio * 8.5, color: Theme.of(context).colorScheme.onSurface),
+                  size: MediaQuery.of(context).size.width * 0.035, color: Theme.of(context).colorScheme.onSurface),
               const SizedBox(width: 8),
               Expanded(
                 child: Text('Virtual',
                     style: Theme.of(context).textTheme.bodyLarge?.copyWith(
                           fontWeight: FontWeight.w300,
                           color: Theme.of(context).colorScheme.onSurface,
+                          fontSize: MediaQuery.of(context).size.width * .035
                         )),
               ),
             ],
@@ -443,14 +434,14 @@ class _EventTabState extends ConsumerState<EventTab> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Icon(Icons.location_on_outlined,
-                    size: MediaQuery.of(context).devicePixelRatio * 7, color: Theme.of(context).colorScheme.onSurface),
+                    size: MediaQuery.of(context).size.width * .05, color: Theme.of(context).colorScheme.onSurface),
                 const SizedBox(width: 8),
                 Expanded(
                   child: Text(widget.eventData.location,
                       style: Theme.of(context).textTheme.bodyLarge?.copyWith(
                             fontWeight: FontWeight.w300,
                             color: Theme.of(context).colorScheme.onSurface,
-                            fontSize: MediaQuery.of(context).devicePixelRatio * 4,
+                            fontSize: MediaQuery.of(context).size.width * .035,
                           )),
                 ),
               ],
@@ -479,13 +470,13 @@ class _EventTabState extends ConsumerState<EventTab> {
                 Container(
                     child: Row(children: [
                   Icon(Icons.calendar_today,
-                      size: MediaQuery.of(context).devicePixelRatio * 6,
+                      size: MediaQuery.of(context).size.width * .05,
                       color: Theme.of(context).colorScheme.onSurface),
                   const SizedBox(width: 8),
                   Text(
                     displayedDates,
                     style: TextStyle(
-                      fontSize: MediaQuery.of(context).devicePixelRatio * 4,
+                      fontSize: MediaQuery.of(context).size.width * .035,
                       color: Theme.of(context).colorScheme.onSurface,
                     ),
                   ),
@@ -497,13 +488,13 @@ class _EventTabState extends ConsumerState<EventTab> {
                     child: Row(
                   children: [
                     Icon(Icons.access_time,
-                        size: MediaQuery.of(context).devicePixelRatio * 6,
+                        size: MediaQuery.of(context).size.width * .05,
                         color: Theme.of(context).colorScheme.onSurface),
                     const SizedBox(width: 8),
                     Text(
                       '${timeFormat.format(startDate)} - ${timeFormat.format(endDate)}',
                       style: TextStyle(
-                        fontSize: MediaQuery.of(context).devicePixelRatio * 3.75,
+                        fontSize: MediaQuery.of(context).size.width * .035,
                         color: Theme.of(context).colorScheme.onSurface,
                       ),
                     ),
@@ -514,13 +505,13 @@ class _EventTabState extends ConsumerState<EventTab> {
                 children: [
                   Row(mainAxisAlignment: MainAxisAlignment.start, children: [
                     Icon(Icons.calendar_today,
-                        size: MediaQuery.of(context).devicePixelRatio * 6,
+                        size: MediaQuery.of(context).size.width * .05,
                         color: Theme.of(context).colorScheme.onSurface),
                     const SizedBox(width: 8),
                     Text(
                       displayedDates,
                       style: TextStyle(
-                        fontSize: MediaQuery.of(context).devicePixelRatio * 4,
+                        fontSize: MediaQuery.of(context).size.width * .035,
                         color: Theme.of(context).colorScheme.onSurface,
                       ),
                     ),
@@ -528,13 +519,13 @@ class _EventTabState extends ConsumerState<EventTab> {
                   Row(
                     children: [
                       Icon(Icons.access_time,
-                          size: MediaQuery.of(context).devicePixelRatio * 6,
+                          size: MediaQuery.of(context).size.width * .05,
                           color: Theme.of(context).colorScheme.onSurface),
                       const SizedBox(width: 8),
                       Text(
                         '${timeFormat.format(startDate)} - ${timeFormat.format(endDate)}',
                         style: TextStyle(
-                          fontSize: MediaQuery.of(context).devicePixelRatio * 3.75,
+                          fontSize: MediaQuery.of(context).size.width * .035,
                           color: Theme.of(context).colorScheme.onSurface,
                         ),
                       ),
@@ -564,7 +555,7 @@ class _EventTabState extends ConsumerState<EventTab> {
       child: Text(
         'View details',
         style: TextStyle(
-          fontSize: MediaQuery.of(context).devicePixelRatio * 4.25,
+          fontSize: MediaQuery.of(context).size.width * .04,
           color: Theme.of(context).colorScheme.onPrimary,
           fontWeight: FontWeight.bold,
         ),
@@ -599,7 +590,8 @@ class _EventTabState extends ConsumerState<EventTab> {
                     ),
                     child: Column(
                       mainAxisSize: MainAxisSize.min,
-                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -746,11 +738,12 @@ class _EventTabState extends ConsumerState<EventTab> {
         ),
       ),
       child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Text(
             value,
             style: TextStyle(
-              fontSize: MediaQuery.of(context).devicePixelRatio * 4.25,
+              fontSize: MediaQuery.of(context).size.width * .0425,
               fontWeight: FontWeight.bold,
               color: Theme.of(context).colorScheme.onSecondary,
             ),
@@ -758,7 +751,7 @@ class _EventTabState extends ConsumerState<EventTab> {
           Text(
             label,
             style: TextStyle(
-              fontSize: MediaQuery.of(context).devicePixelRatio * 4.25,
+              fontSize: MediaQuery.of(context).size.width * .03,
               color: Theme.of(context).colorScheme.onSecondary,
             ),
           ),
@@ -848,7 +841,7 @@ class _EventTabState extends ConsumerState<EventTab> {
     return PopupMenuButton<Options>(
       icon: const Icon(Icons.more_horiz),
       iconColor: Theme.of(context).colorScheme.onSecondary,
-      iconSize: MediaQuery.of(context).devicePixelRatio * 8,
+      iconSize: MediaQuery.of(context).size.width * .07,
       onSelected: (Options item) {
         if (item == Options.itemOne) {
           _shareEventLink();

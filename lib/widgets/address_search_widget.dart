@@ -22,12 +22,12 @@ class AddressSearchField extends StatefulWidget {
 }
 
 class _AddressSearchFieldState extends State<AddressSearchField> {
-  final NominatimService _nominatimService = NominatimService();
+  final RadarAutocompleteService _nominatimService = RadarAutocompleteService();
   List<Map<String, dynamic>> _searchResults = [];
 
   Future<void> _searchLocation(String query) async {
     final country = await getSavedCountry();
-    final results = await _nominatimService.search(query, country: country);
+    final results = await _nominatimService.autocomplete(query, country: country);
     setState(() {
       _searchResults = results;
     });

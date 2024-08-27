@@ -57,13 +57,6 @@ class _DetailedEventScreenState extends ConsumerState<DetailedEventScreen> {
 
   @override
   Widget build(BuildContext context) {
-    // if (widget.eventData == null) {
-    //   return Scaffold(
-    //     backgroundColor: Theme.of(context).colorScheme.surface,
-    //     body: const Center(child: CircularProgressIndicator()),
-    //   );
-    // }
-
     return Scaffold(
       backgroundColor: Theme.of(context).colorScheme.surface,
       appBar: AppBar(

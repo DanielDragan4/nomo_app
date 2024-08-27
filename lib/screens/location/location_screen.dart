@@ -216,8 +216,8 @@ class _LocationScreenState extends ConsumerState<LocationScreen> {
                     ),
                     SizedBox(height: 8),
                     ElevatedButton.icon(
-                      onPressed: () {
-                        _setLocationManually();
+                      onPressed: () async{
+                        await _setLocationManually();
                         scrollController.animateTo(100, duration: Duration(milliseconds: 200), curve: Curves.easeIn);
                         ref.read(eventsProvider.notifier).deCodeData();
                       },

@@ -8,10 +8,12 @@ import 'package:maps_launcher/maps_launcher.dart';
 import 'package:nomo/models/events_model.dart';
 import 'package:nomo/providers/event-providers/attending_events_provider.dart';
 import 'package:nomo/providers/event-providers/events_provider.dart';
+import 'package:nomo/providers/event-providers/other_attending_profile.dart';
 import 'package:nomo/providers/profile_provider.dart';
 import 'package:nomo/providers/supabase-providers/supabase_provider.dart';
 import 'package:nomo/screens/events/detailed_event_screen.dart';
 import 'package:nomo/screens/events/new_event_screen.dart';
+import 'package:nomo/screens/profile/other_profile_screen.dart';
 import 'package:nomo/screens/profile/profile_screen.dart';
 import 'package:nomo/widgets/comments_section_widget.dart';
 import 'package:nomo/widgets/event_attendees_widget.dart';
@@ -306,7 +308,7 @@ class _EventTabState extends ConsumerState<EventTab> {
             await Navigator.of(context, rootNavigator: true)
                 .push(
                   MaterialPageRoute(
-                    builder: (context) => ProfileScreen(isUser: false, userId: widget.eventData.host),
+                    builder: (context) => OtherProfileScreen(userId: widget.eventData.host),
                   ),
                 )
                 .whenComplete(getOriginalProfileInfo);

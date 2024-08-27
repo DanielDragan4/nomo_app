@@ -349,7 +349,7 @@ class _FriendTabState extends ConsumerState<FriendTab> {
                         style: TextStyle(
                             color: Theme.of(context).colorScheme.onSecondary,
                             fontWeight: FontWeight.bold,
-                            fontSize: 16),
+                            fontSize: MediaQuery.of(context).size.width / 25),
                         overflow: TextOverflow.ellipsis,
                       ),
                     ),
@@ -451,7 +451,7 @@ class _FriendTabState extends ConsumerState<FriendTab> {
                           style: TextStyle(
                               color: Theme.of(context).colorScheme.onSecondary,
                               fontWeight: FontWeight.w800,
-                              fontSize: 16),
+                              fontSize: MediaQuery.of(context).size.width / 25),
                           overflow: TextOverflow.ellipsis,
                         ),
                       ),

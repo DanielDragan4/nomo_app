@@ -70,7 +70,7 @@ class _FriendTabState extends ConsumerState<GroupTab> {
                 style: TextStyle(
                   color: Theme.of(context).colorScheme.onSecondary,
                   fontWeight: FontWeight.bold,
-                  fontSize: 16,
+                  fontSize: MediaQuery.of(context).size.width / 25,
                 ),
               ),
             ],

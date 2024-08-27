@@ -61,7 +61,9 @@ class _FriendsScreenState extends ConsumerState<FriendsScreen> {
                           style: TextStyle(
                             color: Theme.of(context).colorScheme.onSurface,
                             fontWeight: FontWeight.w900,
-                            fontSize: widget.isGroupChats ? 25 : 20,
+                            fontSize: widget.isGroupChats
+                                ? MediaQuery.of(context).devicePixelRatio * 4
+                                : MediaQuery.of(context).size.width / 18,
                           ),
                           overflow: TextOverflow.ellipsis,
                         ),
@@ -246,10 +248,9 @@ class _FriendsScreenState extends ConsumerState<FriendsScreen> {
               if (isSelected.last)
                 Positioned(
                   right: 10,
-                  bottom: -20,
+                  bottom: 10,
                   child: CircularIconButton(
                     icon: Icons.group_add,
-                    label: '',
                     onPressed: () {
                       if (isSelected.last) {
                         showDialog(
@@ -304,44 +305,33 @@ class _FriendsScreenState extends ConsumerState<FriendsScreen> {
 //Class for the group icons styling
 class CircularIconButton extends StatelessWidget {
   final IconData icon;
-  final String label;
+
   final VoidCallback onPressed;
 
   const CircularIconButton({
     Key? key,
     required this.icon,
-    required this.label,
     required this.onPressed,
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Container(
-          width: 60,
-          height: 60,
-          decoration: BoxDecoration(
-            shape: BoxShape.circle,
-            color: Theme.of(context).primaryColor,
-          ),
-          child: IconButton(
-            icon: Icon(icon),
-            onPressed: onPressed,
-            color: Theme.of(context).colorScheme.onPrimary,
-            iconSize: MediaQuery.of(context).size.aspectRatio * 90,
-          ),
+    return Column(mainAxisSize: MainAxisSize.min, children: [
+      Container(
+        width: 60,
+        height: 60,
+        decoration: BoxDecoration(
+          shape: BoxShape.circle,
+          color: Theme.of(context).primaryColor,
         ),
-        SizedBox(height: 4),
-        Text(
-          label,
-          style: TextStyle(
-            fontSize: 18,
-            color: Theme.of(context).colorScheme.onSecondary,
-          ),
+        child: IconButton(
+          icon: Icon(icon),
+          onPressed: onPressed,
+          color: Theme.of(context).colorScheme.onPrimary,
+          iconSize: MediaQuery.of(context).size.aspectRatio * 90,
         ),
-      ],
-    );
+      ),
+      SizedBox(height: 4),
+    ]);
   }
 }

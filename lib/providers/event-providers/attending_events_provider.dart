@@ -175,6 +175,7 @@ class AttendEventProvider extends StateNotifier<List<Event>> {
   }
 }
 
+
 final attendEventsProvider = StateNotifierProvider<AttendEventProvider, List<Event>>((ref) {
   final supabase = ref.read(supabaseInstance);
   return AttendEventProvider(

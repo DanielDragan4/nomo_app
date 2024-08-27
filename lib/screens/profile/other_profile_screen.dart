@@ -4,31 +4,24 @@ import 'package:nomo/functions/image-handling.dart';
 import 'package:nomo/models/events_model.dart';
 import 'package:nomo/models/friend_model.dart';
 import 'package:nomo/models/profile_model.dart';
-import 'package:nomo/providers/event-providers/attending_events_provider.dart';
 import 'package:nomo/providers/event-providers/other_attending_profile.dart';
 import 'package:nomo/providers/notification-providers/friend-notif-manager.dart';
 import 'package:nomo/providers/profile_provider.dart';
 import 'package:nomo/providers/supabase-providers/supabase_provider.dart';
-import 'package:nomo/screens/calendar/calendar_screen.dart';
-import 'package:nomo/screens/friends/chat_screen.dart';
-import 'package:nomo/screens/profile/create_account_screen.dart';
-import 'package:nomo/screens/events/new_event_screen.dart';
 import 'package:nomo/widgets/event_tab.dart';
-import 'package:nomo/widgets/profile_dropdown.dart';
 
-class ProfileScreen extends ConsumerStatefulWidget {
-  ProfileScreen({super.key, required this.isUser, this.userId});
+class OtherProfileScreen extends ConsumerStatefulWidget {
+  OtherProfileScreen({super.key, required this.userId});
 
-  bool isUser;
-  String? userId;
+  final String userId;
 
   @override
-  ConsumerState<ProfileScreen> createState() {
+  ConsumerState<OtherProfileScreen> createState() {
     return ProfileScreenState();
   }
 }
 
-class ProfileScreenState extends ConsumerState<ProfileScreen> {
+class ProfileScreenState extends ConsumerState<OtherProfileScreen> {
   Future<Profile>? profileInfo;
   UniqueKey _futureBuilderKey = UniqueKey();
   final TextEditingController searchController = TextEditingController();
@@ -47,15 +40,9 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
   void initState() {
     super.initState();
     _fetchData();
-    if (widget.isUser) {
-      ref.read(profileProvider.notifier).decodeData();
-      print('init');
-      ref.read(attendEventsProvider.notifier).deCodeData();
-      isFriend = false;
-    } else {
+
       ref.read(otherEventsProvider.notifier).deCodeDataWithId(widget.userId!);
       checkPendingRequest();
-    }
   }
 
   @override
@@ -72,13 +59,8 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
         _futureBuilderKey = UniqueKey();
       });
     }
-    if (widget.isUser) {
-      print('refresh');
-      await ref.read(attendEventsProvider.notifier).deCodeData();
-    } else {
-      print('refresh');
+
       ref.read(otherEventsProvider.notifier).deCodeDataWithId(widget.userId!);
-    }
   }
 
 // Loads profile info and event info
@@ -86,9 +68,7 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
     setState(() {
       _isLoading = true;
     });
-    if (!widget.isUser) {
       await _fetchProfileInfo();
-    }
     await _fetchEvents();
     if (mounted) {
       setState(() {
@@ -107,34 +87,17 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
 
 // Gets all relevant event/attendance information for profile being viewed
   Future<void> _fetchEvents() async {
-    if (widget.isUser) {
-      print('fetch');
-      ref.read(attendEventsProvider.notifier).deCodeData();
-    } else {
       ref.read(otherEventsProvider.notifier).deCodeDataWithId(widget.userId!);
-    }
   }
 
 // Returns relevant profile information to _fetchProfileInfo, or sets default values to avoid error
-  Future<Profile> fetchInfo(String? userId) async {
+  Future<Profile> fetchInfo(String userId) async {
     await Future.delayed(const Duration(microseconds: 1));
     Profile profileState;
 
-    if (userId == null) {
-      profileState = ref.read(profileProvider.notifier).state ??
-          Profile(
-              profile_id: 'example',
-              avatar: null,
-              username: 'User-404',
-              profile_name: 'User-404',
-              interests: [],
-              availability: [],
-              private: false);
-    } else {
       profileState = await ref.read(profileProvider.notifier).fetchProfileById(userId);
       isFriend = await ref.read(profileProvider.notifier).isFriend(userId);
       private = profileState.private;
-    }
     return profileState;
   }
 
@@ -189,17 +152,7 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
     //Calculation to prevent appbar overflow on all devices
     double appBarHeight = MediaQuery.of(context).padding.top + MediaQuery.of(context).size.width * 0.24 + 270;
     double toolbar;
-    ref.read(attendEventsProvider.notifier).state;
-    if (widget.isUser) {
-      print('build');
-      ref.read(attendEventsProvider.notifier).deCodeData();
-    }
-    if (widget.isUser) {
-      appBarHeight += 10;
-      toolbar = 10;
-    } else {
       toolbar = 50;
-    }
 
     // Listen to changes in the profileProvider
     ref.listen<Profile?>(profileProvider, (previous, next) {
@@ -253,61 +206,7 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
                         ),
                         child: Column(
                           children: [
-                            GestureDetector(
-                              onTap: () {
-                                if (profile != null && widget.isUser && widget.userId == null) {
-                                  Navigator.of(context)
-                                      .push(
-                                        MaterialPageRoute(
-                                          builder: (contex) => CreateAccountScreen(
-                                            isNew: false,
-                                            avatar: profile.avatar,
-                                            profilename: profile.profile_name,
-                                            username: profile.username,
-                                            onUpdateProfile: updateProfileInfo,
-                                          ),
-                                        ),
-                                      )
-                                      .then((_) => updateProfileInfo());
-                                }
-                              },
-                              child: widget.isUser
-                                  ? Column(
-                                      mainAxisAlignment: MainAxisAlignment.center,
-                                      children: [
-                                        const SizedBox(height: 10),
-                                        CircleAvatar(
-                                          radius: MediaQuery.of(context).size.width * 0.12,
-                                          backgroundImage:
-                                              profile?.avatar != null ? NetworkImage(profile!.avatar!) : null,
-                                          child: profile?.avatar == null
-                                              ? Icon(Icons.person, size: MediaQuery.of(context).size.width * 0.12)
-                                              : null,
-                                        ),
-                                        const SizedBox(height: 10),
-                                        Text(
-                                          profile?.profile_name ?? 'Loading...',
-                                          style: TextStyle(
-                                            fontSize: 18,
-                                            fontWeight: FontWeight.bold,
-                                            color: Theme.of(context).colorScheme.onPrimary,
-                                          ),
-                                        ),
-                                        const SizedBox(height: 5),
-                                        Padding(
-                                          padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                                          child: Text(
-                                            '@${profile?.username ?? 'username'}',
-                                            style: TextStyle(
-                                              fontSize: 12,
-                                              color: Theme.of(context).colorScheme.onPrimary,
-                                            ),
-                                            overflow: TextOverflow.ellipsis,
-                                          ),
-                                        ),
-                                      ],
-                                    )
-                                  : FutureBuilder(
+                            FutureBuilder(
                                       key: _futureBuilderKey,
                                       future: profileInfo,
                                       builder: (context, snapshot) {
@@ -403,8 +302,6 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
                                         }
                                       },
                                     ),
-                            ),
-                            const SizedBox(height: 10),
                             Row(
                               mainAxisAlignment: MainAxisAlignment.spaceAround,
                               children: [
@@ -456,108 +353,6 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
                                     ),
                                   ],
                                 ),
-                                if (!widget.isUser)
-                                  Padding(
-                                    padding: const EdgeInsets.only(top: 8.0),
-                                    child: Row(
-                                      children: [
-                                        isFriend
-                                            //If profile is private, make this a request instead of instant
-                                            ? ElevatedButton(
-                                                onPressed: () {
-                                                  setState(() {
-                                                    FocusManager.instance.primaryFocus?.unfocus();
-                                                    showDialog(
-                                                        context: context,
-                                                        builder: (context) => AlertDialog(
-                                                              title: Text(
-                                                                'Are you sure you unfriend this user?',
-                                                                style: TextStyle(
-                                                                    color: Theme.of(context).primaryColorDark),
-                                                              ),
-                                                              actions: [
-                                                                TextButton(
-                                                                    onPressed: () async {
-                                                                      removeFriend();
-                                                                      isFriend = !isFriend;
-                                                                      Navigator.pop(context);
-                                                                      ScaffoldMessenger.of(context)
-                                                                          .hideCurrentSnackBar();
-                                                                      ScaffoldMessenger.of(context).showSnackBar(
-                                                                        const SnackBar(
-                                                                          content: Text("Event Deleted"),
-                                                                        ),
-                                                                      );
-                                                                    },
-                                                                    child: const Text('YES')),
-                                                                TextButton(
-                                                                    onPressed: () => Navigator.pop(context),
-                                                                    child: const Text('CANCEL')),
-                                                              ],
-                                                            ));
-                                                  });
-                                                },
-                                                child: const Text("Unfriend"),
-                                              )
-                                            : ElevatedButton(
-                                                onPressed: friendPending
-                                                    ? null
-                                                    : () {
-                                                        setState(() {
-                                                          addFriend();
-                                                        });
-                                                      },
-                                                child: friendPending
-                                                    ? const Text("Pending")
-                                                    : (private == false
-                                                        ? const Text("Friend")
-                                                        : const Text("Request Friend")),
-                                              ),
-                                        SizedBox(width: MediaQuery.of(context).size.width / 20),
-                                        Container(
-                                          decoration: BoxDecoration(
-                                              borderRadius: BorderRadius.circular(100),
-                                              color: Theme.of(context).primaryColor),
-                                          child: IconButton(
-                                            onPressed: () async {
-                                              Friend friend = Friend(
-                                                  avatar: (await profileInfo)?.avatar,
-                                                  friendProfileId: widget.userId!,
-                                                  friendProfileName: (await profileInfo)!.profile_name,
-                                                  friendUsername: (await profileInfo)!.username);
-                                              Navigator.push(
-                                                  context,
-                                                  MaterialPageRoute(
-                                                      builder: (context) => ChatScreen(
-                                                            chatterUser: friend,
-                                                            currentUser:
-                                                                ref.read(profileProvider.notifier).state!.profile_id,
-                                                          )));
-                                            },
-                                            icon: const Icon(Icons.message),
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                if (widget.isUser)
-                                  Row(children: [
-                                    IconButton(
-                                      onPressed: () {
-                                        Navigator.of(context).push(
-                                          MaterialPageRoute(
-                                            builder: (context) => const CalendarScreen(),
-                                          ),
-                                        );
-                                      },
-                                      icon: const Icon(Icons.calendar_month_outlined),
-                                      color: Theme.of(context).colorScheme.onPrimary,
-                                    ),
-                                    ProfileDropdown(
-                                      updateProfileInfo: updateProfileInfo,
-                                      profileInfo: profileInfo,
-                                    ),
-                                  ]),
                               ],
                             ),
                             const SizedBox(height: 20),
@@ -585,15 +380,7 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
                                   children: [
                                     Padding(
                                         padding: const EdgeInsets.symmetric(vertical: 3),
-                                        child: widget.isUser
-                                            ? Text(
-                                                'Joined Events',
-                                                style: TextStyle(
-                                                    fontSize: 14,
-                                                    fontWeight: FontWeight.w700,
-                                                    color: Theme.of(context).colorScheme.onPrimary),
-                                              )
-                                            : Text(
+                                        child: Text(
                                                 "Attending Events",
                                                 style: TextStyle(
                                                     fontSize: 14,
@@ -602,15 +389,7 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
                                               )),
                                     Padding(
                                         padding: const EdgeInsets.symmetric(vertical: 3),
-                                        child: widget.isUser
-                                            ? Text(
-                                                'Bookmarked',
-                                                style: TextStyle(
-                                                    fontSize: 14,
-                                                    fontWeight: FontWeight.w700,
-                                                    color: Theme.of(context).colorScheme.onPrimary),
-                                              )
-                                            : Text(
+                                        child:  Text(
                                                 "Hosting Events",
                                                 style: TextStyle(
                                                     fontSize: 14,
@@ -621,83 +400,13 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
                                 ),
                               ),
                             ),
-                            if (widget.isUser && isSelected[0])
-                              Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  ElevatedButton(
-                                    onPressed: () {
-                                      _showFilterDialog();
-                                    },
-                                    style: ElevatedButton.styleFrom(
-                                      backgroundColor: Theme.of(context).colorScheme.primary,
-                                    ),
-                                    child: Text(
-                                      "Filters",
-                                      style: TextStyle(color: Theme.of(context).colorScheme.onPrimary),
-                                    ),
-                                  ),
-                                  SizedBox(width: 16), // Add some padding
-                                ],
-                              ),
                           ],
                         ),
                       ),
                     ),
                   ),
                   if (isSelected.first)
-                    if (widget.isUser)
-                      StreamBuilder(
-                        stream: ref.read(attendEventsProvider.notifier).stream,
-                        builder: (context, snapshot) {
-                          if (snapshot.data != null && snapshot.data!.isNotEmpty) {
-                            final relevantEvents = snapshot.data!.where((event) {
-                              final now = DateTime.now();
-                              if (showHosting && event.isHost) return true;
-                              if (showUpcoming &&
-                                  event.attending &&
-                                  event.attendeeDates['time_start'].compareTo(now.toString()) > 0) return true;
-                              if (showPassed &&
-                                  event.attending &&
-                                  event.attendeeDates['time_end'].compareTo(now.toString()) < 0) return true;
-                              return false;
-                            }).toList();
-                            if (relevantEvents.isEmpty) {
-                              return SliverFillRemaining(
-                                child: Center(
-                                  child: Text(
-                                    "No Events Found",
-                                    style: TextStyle(fontSize: 18, color: Theme.of(context).colorScheme.onSecondary),
-                                  ),
-                                ),
-                              );
-                            } else {
-                              return SliverList(
-                                delegate: SliverChildBuilderDelegate(
-                                  (context, index) {
-                                    final event = relevantEvents[index];
-
-                                    preloadImages(context, relevantEvents, index, 4);
-
-                                    return EventTab(
-                                      eventData: event,
-                                      preloadedImage: NetworkImage(event.imageUrl),
-                                    );
-                                  },
-                                  childCount: relevantEvents.length,
-                                ),
-                              );
-                            }
-                          } else {
-                            return const SliverFillRemaining(
-                              child: Center(
-                                child: Text("No Data Retrieved"),
-                              ),
-                            );
-                          }
-                        },
-                      )
-                    else if (private == false || isFriend)
+                    if (private == false || isFriend)
                       StreamBuilder(
                         stream: ref.read(otherEventsProvider.notifier).stream,
                         builder: (context, snapshot) {
@@ -785,38 +494,11 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
                           ),
                         ),
                       )
-                  else if ((private == false) || isFriend || widget.isUser)
+                  else if ((private == false) || isFriend)
                     StreamBuilder(
-                      stream: (widget.isUser) ? ref.read(attendEventsProvider.notifier).stream : ref.read(otherEventsProvider.notifier).stream,
+                      stream: ref.read(otherEventsProvider.notifier).stream,
                       builder: (context, snapshot) {
                         if (snapshot.data != null) {
-                          if (widget.isUser) {
-                            final bookmarkedEvents = snapshot.data!.where((event) => event.bookmarked).toList();
-                            if (bookmarkedEvents.isEmpty) {
-                              return SliverFillRemaining(
-                                child: Center(
-                                  child: Text(
-                                    "No Bookmarked Events",
-                                    style: TextStyle(color: Theme.of(context).colorScheme.onSurface),
-                                  ),
-                                ),
-                              );
-                            } else {
-                              return SliverList(
-                                delegate: SliverChildBuilderDelegate(
-                                  (context, index) {
-                                    final event = bookmarkedEvents[index];
-                                    preloadImages(context, bookmarkedEvents, index, 4);
-                                    return EventTab(
-                                      eventData: event,
-                                      preloadedImage: NetworkImage(event.imageUrl),
-                                    );
-                                  },
-                                  childCount: bookmarkedEvents.length,
-                                ),
-                              );
-                            }
-                          } else {
                             // Only useful when viewing a profile through means other than an event header
                             final hostingEvents = snapshot.data!.where((event) => event.otherHost).toList();
                             if (hostingEvents.isEmpty) {
@@ -834,7 +516,6 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
                                 ),
                               );
                             }
-                          }
                         } else {
                           return const SliverFillRemaining(
                             child: Center(

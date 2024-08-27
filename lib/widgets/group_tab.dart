@@ -53,42 +53,75 @@ class _FriendTabState extends ConsumerState<GroupTab> {
         child: Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
           Row(
             children: [
-              CircleAvatar(
-                radius: MediaQuery.of(context).size.width * .1,
-                backgroundImage: NetworkImage(avatar),
+              Padding(
+                padding: const EdgeInsets.only(left: 12.0),
+                child: LayoutBuilder(
+                  builder: (context, constraints) {
+                    return CircleAvatar(
+                      radius: constraints.maxHeight / 2,
+                      backgroundImage: NetworkImage(avatar),
+                    );
+                  },
+                ),
               ),
               const SizedBox(width: 10),
               Text(
                 widget.groupData['title'],
-                style: TextStyle(color: Theme.of(context).colorScheme.onSecondary),
+                style: TextStyle(
+                  color: Theme.of(context).colorScheme.onSecondary,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 16,
+                ),
               ),
             ],
           ),
           const Spacer(),
           Row(
             children: [
-              IconButton(
-                onPressed: () {
-                  Navigator.of(context).push(MaterialPageRoute(
-                    builder: (context) => ChatScreen(
-                      currentUser: ref.read(profileProvider.notifier).state!.profile_id,
-                      groupInfo: widget.groupData,
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                child: Container(
+                  height: MediaQuery.of(context).size.height * .05,
+                  width: MediaQuery.of(context).size.width * .12,
+                  decoration: BoxDecoration(
+                    color: Theme.of(context).colorScheme.secondary, // Light grey color
+                    borderRadius: BorderRadius.circular(8), // Rounded corners
+                  ),
+                  child: IconButton(
+                    onPressed: () {
+                      Navigator.of(context).push(MaterialPageRoute(
+                        builder: (context) => ChatScreen(
+                          currentUser: ref.read(profileProvider.notifier).state!.profile_id,
+                          groupInfo: widget.groupData,
+                        ),
+                      ));
+                    },
+                    icon: Icon(
+                      Icons.messenger_outline,
+                      color: Theme.of(context).colorScheme.onSecondary,
                     ),
-                  ));
-                },
-                icon: Icon(
-                  Icons.messenger_outline,
-                  color: Theme.of(context).colorScheme.onSecondary,
+                  ),
                 ),
               ),
-              IconButton(
-                onPressed: () async {
-                  Navigator.of(context)
-                      .push(MaterialPageRoute(builder: (context) => AvailableTimesScreen(users: users)));
-                },
-                icon: Icon(
-                  Icons.calendar_month_outlined,
-                  color: Theme.of(context).colorScheme.onSecondary,
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                child: Container(
+                  height: MediaQuery.of(context).size.height * .05,
+                  width: MediaQuery.of(context).size.width * .12,
+                  decoration: BoxDecoration(
+                    color: Theme.of(context).colorScheme.secondary, // Light grey color
+                    borderRadius: BorderRadius.circular(8), // Rounded corners
+                  ),
+                  child: IconButton(
+                    onPressed: () async {
+                      Navigator.of(context)
+                          .push(MaterialPageRoute(builder: (context) => AvailableTimesScreen(users: users)));
+                    },
+                    icon: Icon(
+                      Icons.calendar_month_outlined,
+                      color: Theme.of(context).colorScheme.onSecondary,
+                    ),
+                  ),
                 ),
               ),
             ],

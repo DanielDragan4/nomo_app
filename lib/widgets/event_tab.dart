@@ -80,7 +80,7 @@ class _EventTabState extends ConsumerState<EventTab> {
       elevation: 4,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
-      color: isHostOrAttending ? Theme.of(context).colorScheme.primaryContainer : Theme.of(context).cardColor,
+      color: Theme.of(context).cardColor,
       child: Stack(
         children: [
           Column(
@@ -213,7 +213,7 @@ class _EventTabState extends ConsumerState<EventTab> {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
         decoration: BoxDecoration(
-          color: Color.fromARGB(36, 173, 177, 184),
+          color: Theme.of(context).colorScheme.secondary,
           borderRadius: BorderRadius.circular(4),
         ),
         child: Row(
@@ -223,7 +223,7 @@ class _EventTabState extends ConsumerState<EventTab> {
               Icons.navigation_outlined,
               size: MediaQuery.of(context).devicePixelRatio * 5.5,
               weight: .01,
-              color: Colors.white,
+              color: Theme.of(context).colorScheme.onSecondary,
             ),
             const SizedBox(width: 4),
             Text(
@@ -231,7 +231,7 @@ class _EventTabState extends ConsumerState<EventTab> {
               style: TextStyle(
                 fontSize: MediaQuery.of(context).devicePixelRatio * 4,
                 fontWeight: FontWeight.w400,
-                color: Colors.white,
+                color: Theme.of(context).colorScheme.onSecondary,
               ),
             ),
           ],
@@ -251,13 +251,12 @@ class _EventTabState extends ConsumerState<EventTab> {
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          const SizedBox(width: 4),
           Text(host ? 'Hosting' : 'Attending',
               style: host
                   ? TextStyle(
                       color: Colors.white,
                       fontWeight: FontWeight.w500,
-                      fontSize: MediaQuery.of(context).devicePixelRatio * 6,
+                      fontSize: MediaQuery.of(context).devicePixelRatio * 4,
                     )
                   : TextStyle(
                       color: Color.fromARGB(255, 98, 169, 255),
@@ -284,13 +283,12 @@ class _EventTabState extends ConsumerState<EventTab> {
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          const SizedBox(width: 4),
           Text(
             'Passed',
             style: TextStyle(
               color: Color.fromARGB(255, 219, 169, 166),
               fontWeight: FontWeight.w500,
-              fontSize: MediaQuery.of(context).devicePixelRatio * 6,
+              fontSize: MediaQuery.of(context).devicePixelRatio * 4,
             ),
           ),
         ],
@@ -486,7 +484,6 @@ class _EventTabState extends ConsumerState<EventTab> {
                     displayedDates,
                     style: TextStyle(
                       fontSize: MediaQuery.of(context).devicePixelRatio * 4,
-                      fontWeight: FontWeight.bold,
                       color: Theme.of(context).colorScheme.onSurface,
                     ),
                   ),
@@ -566,7 +563,7 @@ class _EventTabState extends ConsumerState<EventTab> {
         'View details',
         style: TextStyle(
           fontSize: MediaQuery.of(context).devicePixelRatio * 4.25,
-          color: Theme.of(context).colorScheme.onSurface,
+          color: Theme.of(context).colorScheme.onPrimary,
           fontWeight: FontWeight.bold,
         ),
       ),

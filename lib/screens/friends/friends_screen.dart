@@ -5,6 +5,7 @@ import 'package:nomo/providers/chat-providers/chats_provider.dart';
 import 'package:nomo/providers/notification-providers/notification-bell-provider.dart';
 import 'package:nomo/providers/notification-providers/notification-provider.dart';
 import 'package:nomo/providers/profile_provider.dart';
+import 'package:nomo/providers/theme_provider.dart';
 import 'package:nomo/screens/friends/groupchat_create_screen.dart';
 import 'package:nomo/screens/search_screen.dart';
 import 'package:nomo/widgets/friend_tab.dart';
@@ -40,6 +41,7 @@ class _FriendsScreenState extends ConsumerState<FriendsScreen> {
     if (ref.read(profileProvider) != null) {
       currentUser = ref.read(profileProvider)!.username;
     }
+    var themeMode = ref.watch(themeModeProvider);
 
     return (currentUser != null)
         ? Scaffold(
@@ -57,8 +59,8 @@ class _FriendsScreenState extends ConsumerState<FriendsScreen> {
                         child: Text(
                           widget.isGroupChats ? 'Groups' : '@${currentUser}',
                           style: TextStyle(
-                            color: Theme.of(context).primaryColor,
-                            fontWeight: FontWeight.w800,
+                            color: Theme.of(context).colorScheme.onSurface,
+                            fontWeight: FontWeight.w900,
                             fontSize: widget.isGroupChats ? 25 : 20,
                           ),
                           overflow: TextOverflow.ellipsis,
@@ -75,10 +77,9 @@ class _FriendsScreenState extends ConsumerState<FriendsScreen> {
                             ),
                           );
                         },
-                        icon: Icon(
-                          Icons.search,
-                          color: Theme.of(context).colorScheme.onSecondary,
-                        ),
+                        icon: themeMode == ThemeMode.dark
+                            ? Image.asset('assets/icons/search-dark.png')
+                            : Image.asset('assets/icons/search-light.png'),
                       ),
                     ],
                   ),
@@ -95,40 +96,75 @@ class _FriendsScreenState extends ConsumerState<FriendsScreen> {
             body: Stack(children: [
               Column(
                 children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                    children: widget.isGroupChats
-                        ? []
-                        : [
-                            TabStyleToggleButtons(
-                              options: const [
-                                ToggleOption(label: 'Friends', icon: Icons.people),
-                                ToggleOption(label: 'Requests', icon: Icons.person_add),
-                                ToggleOption(label: 'Groups', icon: Icons.groups),
-                              ],
-                              textColor: Theme.of(context).colorScheme.onSecondary.withOpacity(0.75),
-                              isSelected: isSelected,
-                              onPressed: (index) {
-                                setState(() {
-                                  for (int i = 0; i < isSelected.length; i++) {
-                                    isSelected[i] = i == index;
-                                  }
-                                  _isLoading = true; // Set loading state to true
-                                });
-                                // Use a microtask to allow the UI to update before fetching data
-                                Future.microtask(() async {
-                                  // Simulate a short delay for the loading indicator to be visible
-                                  await Future.delayed(Duration(milliseconds: 300));
-                                  if (mounted) {
-                                    setState(() {
-                                      _isLoading = false; // Set loading state back to false
-                                    });
-                                  }
-                                });
-                              },
+                  if (!widget.isGroupChats)
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                      child: LayoutBuilder(
+                        builder: (context, constraints) {
+                          return Container(
+                            width: constraints.maxWidth,
+                            height: 28,
+                            decoration: BoxDecoration(
+                              color: Theme.of(context).cardColor,
+                              borderRadius: BorderRadius.circular(8),
                             ),
-                          ],
-                  ),
+                            child: Row(
+                              children: List.generate(3 * 2 - 1, (index) {
+                                if (index.isOdd) {
+                                  // This is a divider
+                                  return Container(
+                                    width: 1,
+                                    height: 12,
+                                    color: Theme.of(context).dividerColor,
+                                  );
+                                }
+                                int buttonIndex = index ~/ 2;
+                                return Expanded(
+                                  child: GestureDetector(
+                                    onTap: () {
+                                      setState(() {
+                                        for (int i = 0; i < isSelected.length; i++) {
+                                          isSelected[i] = i == buttonIndex;
+                                        }
+                                        _isLoading = true;
+                                      });
+                                      Future.microtask(() async {
+                                        await Future.delayed(Duration(milliseconds: 300));
+                                        if (mounted) {
+                                          setState(() {
+                                            _isLoading = false;
+                                          });
+                                        }
+                                      });
+                                    },
+                                    child: Container(
+                                      height: 28,
+                                      decoration: BoxDecoration(
+                                        color: isSelected[buttonIndex]
+                                            ? Theme.of(context).bottomNavigationBarTheme.selectedItemColor
+                                            : Colors.transparent,
+                                        borderRadius: BorderRadius.circular(8),
+                                      ),
+                                      child: Center(
+                                        child: Text(
+                                          ['Friends', 'Requests', 'Groups'][buttonIndex],
+                                          style: TextStyle(
+                                            color: isSelected[buttonIndex]
+                                                ? Colors.white
+                                                : Theme.of(context).bottomNavigationBarTheme.unselectedItemColor,
+                                            fontSize: MediaQuery.of(context).devicePixelRatio * 4,
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                );
+                              }),
+                            ),
+                          );
+                        },
+                      ),
+                    ),
                   Expanded(
                       child: _isLoading
                           ? _buildLoadingIndicator()
@@ -209,11 +245,11 @@ class _FriendsScreenState extends ConsumerState<FriendsScreen> {
               ),
               if (isSelected.last)
                 Positioned(
-                  right: 20,
-                  bottom: MediaQuery.of(context).padding.bottom + 10,
+                  right: 10,
+                  bottom: -20,
                   child: CircularIconButton(
                     icon: Icons.group_add,
-                    label: 'Create\nGroup',
+                    label: '',
                     onPressed: () {
                       if (isSelected.last) {
                         showDialog(

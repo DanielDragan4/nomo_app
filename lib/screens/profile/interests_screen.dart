@@ -111,7 +111,7 @@ class _InterestsScreenState extends ConsumerState<InterestsScreen> {
                     ),
                   ),
                 ),
-              widget.searching == null ? const SizedBox(height: 24) : const SizedBox(height: 60),
+              //widget.searching == null ? const SizedBox(height: 24) : const SizedBox.shrink(),
               Expanded(child: _buildInterestGrid()),
               //if (widget.searching == null) const SizedBox(height: 16),
               if (widget.searching == null) _buildBottomActions(colorScheme),
@@ -160,14 +160,14 @@ class _InterestsScreenState extends ConsumerState<InterestsScreen> {
       child: IntrinsicWidth(
         child: ElevatedButton(
           style: ElevatedButton.styleFrom(
-            backgroundColor: isSelected ? colorScheme.primaryContainer : colorScheme.surface,
-            foregroundColor: isSelected ? colorScheme.onPrimary : colorScheme.onSurface,
+            backgroundColor: colorScheme.surface,
+            foregroundColor: colorScheme.onSurface,
             elevation: isSelected ? 4 : 1,
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(20),
               side: BorderSide(
                 color: isSelected ? colorScheme.primary : colorScheme.outline,
-                width: 2,
+                width: isSelected ? 3 : 2,
               ),
             ),
             padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),

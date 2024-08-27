@@ -133,22 +133,33 @@ class _FriendTabState extends ConsumerState<FriendTab> {
             children: [
               Stack(
                 children: [
-                  IconButton(
-                    onPressed: () async {
-                      ref.read(profileProvider.notifier).decodeData();
-                      ref
-                          .read(friendNotificationProvider.notifier)
-                          .resetNotification(widget.friendData.friendProfileId);
-                      Navigator.of(context).push(MaterialPageRoute(
-                        builder: (context) => ChatScreen(
-                          chatterUser: widget.friendData,
-                          currentUser: ref.read(profileProvider.notifier).state!.profile_id,
+                  Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 8.0),
+                    child: Container(
+                      height: MediaQuery.of(context).size.height * .05,
+                      width: MediaQuery.of(context).size.width * .12,
+                      decoration: BoxDecoration(
+                        color: Theme.of(context).colorScheme.secondary, // Light grey color
+                        borderRadius: BorderRadius.circular(8), // Rounded corners
+                      ),
+                      child: IconButton(
+                        onPressed: () async {
+                          ref.read(profileProvider.notifier).decodeData();
+                          ref
+                              .read(friendNotificationProvider.notifier)
+                              .resetNotification(widget.friendData.friendProfileId);
+                          Navigator.of(context).push(MaterialPageRoute(
+                            builder: (context) => ChatScreen(
+                              chatterUser: widget.friendData,
+                              currentUser: ref.read(profileProvider.notifier).state!.profile_id,
+                            ),
+                          ));
+                        },
+                        icon: Icon(
+                          Icons.messenger_outline,
+                          color: Theme.of(context).colorScheme.onSecondary,
                         ),
-                      ));
-                    },
-                    icon: Icon(
-                      Icons.messenger_outline,
-                      color: Theme.of(context).colorScheme.onSecondary,
+                      ),
                     ),
                   ),
                   if (hasNewMessage)
@@ -169,58 +180,90 @@ class _FriendTabState extends ConsumerState<FriendTab> {
                     ),
                 ],
               ),
-              IconButton(
-                onPressed: () {
-                  Navigator.of(context).push(MaterialPageRoute(
-                    builder: (context) => AvailableTimesScreen(
-                      users: users,
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                child: Container(
+                  height: MediaQuery.of(context).size.height * .05,
+                  width: MediaQuery.of(context).size.width * .12,
+                  decoration: BoxDecoration(
+                    color: Theme.of(context).colorScheme.secondary, // Light grey color
+                    borderRadius: BorderRadius.circular(8), // Rounded corners
+                  ),
+                  child: IconButton(
+                    onPressed: () {
+                      Navigator.of(context).push(MaterialPageRoute(
+                        builder: (context) => AvailableTimesScreen(
+                          users: users,
+                        ),
+                      ));
+                    },
+                    icon: Icon(
+                      Icons.calendar_month_outlined,
+                      color: Theme.of(context).colorScheme.onSecondary,
                     ),
-                  ));
-                },
-                icon: Icon(
-                  Icons.calendar_month_outlined,
-                  color: Theme.of(context).colorScheme.onSecondary,
+                  ),
                 ),
               )
             ],
           );
         } else {
           return Row(mainAxisSize: MainAxisSize.min, children: [
-            IconButton(
-                onPressed: () async {
-                  String friendId =
-                      await ref.read(profileProvider.notifier).addFriend(widget.friendData.friendProfileId, true);
-                  await FriendNotificationManager.handleAddFriend(ref, friendId);
-                  ScaffoldMessenger.of(context).clearSnackBars();
-                  ScaffoldMessenger.of(context)
-                      .showSnackBar(SnackBar(content: Text('Added @$username to friends list')));
-                  setState(() {
-                    currentFriend = false;
-                  });
-                },
-                icon: const Icon(
-                  Icons.check,
-                  color: Colors.green,
+            Padding(
+              padding: EdgeInsets.symmetric(horizontal: 8.0),
+              child: Container(
+                height: MediaQuery.of(context).size.height * .05,
+                width: MediaQuery.of(context).size.width * .12,
+                decoration: BoxDecoration(
+                  color: Theme.of(context).colorScheme.secondary, // Light grey color
+                  borderRadius: BorderRadius.circular(8), // Rounded corners
                 ),
-                splashRadius: 15),
-            const SizedBox(width: 10),
-            IconButton(
-                onPressed: () async {
-                  String friendId =
-                      await ref.read(profileProvider.notifier).removeRequest(widget.friendData.friendProfileId);
-                  await FriendNotificationManager.handleRemoveFriend(ref, friendId);
-                  ScaffoldMessenger.of(context).clearSnackBars();
-                  ScaffoldMessenger.of(context)
-                      .showSnackBar(SnackBar(content: Text("Rejected @$username's friend request")));
-                  setState(() {
-                    currentFriend = false;
-                  });
-                },
-                icon: const Icon(
-                  Icons.close,
-                  color: Colors.red,
+                child: IconButton(
+                    onPressed: () async {
+                      String friendId =
+                          await ref.read(profileProvider.notifier).addFriend(widget.friendData.friendProfileId, true);
+                      await FriendNotificationManager.handleAddFriend(ref, friendId);
+                      ScaffoldMessenger.of(context).clearSnackBars();
+                      ScaffoldMessenger.of(context)
+                          .showSnackBar(SnackBar(content: Text('Added @$username to friends list')));
+                      setState(() {
+                        currentFriend = false;
+                      });
+                    },
+                    icon: const Icon(
+                      Icons.check,
+                      color: Colors.green,
+                    ),
+                    splashRadius: 15),
+              ),
+            ),
+            Padding(
+              padding: EdgeInsets.symmetric(horizontal: 8.0),
+              child: Container(
+                height: MediaQuery.of(context).size.height * .05,
+                width: MediaQuery.of(context).size.width * .12,
+                decoration: BoxDecoration(
+                  color: Theme.of(context).colorScheme.secondary, // Light grey color
+                  borderRadius: BorderRadius.circular(8), // Rounded corners
                 ),
-                splashRadius: 15),
+                child: IconButton(
+                    onPressed: () async {
+                      String friendId =
+                          await ref.read(profileProvider.notifier).removeRequest(widget.friendData.friendProfileId);
+                      await FriendNotificationManager.handleRemoveFriend(ref, friendId);
+                      ScaffoldMessenger.of(context).clearSnackBars();
+                      ScaffoldMessenger.of(context)
+                          .showSnackBar(SnackBar(content: Text("Rejected @$username's friend request")));
+                      setState(() {
+                        currentFriend = false;
+                      });
+                    },
+                    icon: const Icon(
+                      Icons.close,
+                      color: Colors.red,
+                    ),
+                    splashRadius: 15),
+              ),
+            ),
           ]);
         }
       } else {
@@ -290,16 +333,23 @@ class _FriendTabState extends ConsumerState<FriendTab> {
                   child: Expanded(
                 child: Row(
                   children: [
-                    CircleAvatar(
-                      radius: MediaQuery.of(context).size.width * .1,
-                      backgroundImage: NetworkImage(avatar),
+                    LayoutBuilder(
+                      builder: (context, constraints) {
+                        return CircleAvatar(
+                          radius: constraints.maxHeight / 2,
+                          backgroundImage: NetworkImage(avatar),
+                        );
+                      },
                     ),
                     const SizedBox(width: 10),
                     Flexible(
                       fit: FlexFit.tight,
                       child: Text(
                         '@$username',
-                        style: TextStyle(color: Theme.of(context).colorScheme.onSecondary),
+                        style: TextStyle(
+                            color: Theme.of(context).colorScheme.onSecondary,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 16),
                         overflow: TextOverflow.ellipsis,
                       ),
                     ),
@@ -362,46 +412,59 @@ class _FriendTabState extends ConsumerState<FriendTab> {
     }
 
     // Original FriendTab layout
-    return Container(
-      height: 60,
-      padding: const EdgeInsets.symmetric(vertical: 5),
-      child: GestureDetector(
-        onTap: () async {
-          String currentId = await getCurrentUser();
-          Navigator.of(context).push(MaterialPageRoute(
-              builder: ((context) => ProfileScreen(
-                    isUser: widget.friendData.friendProfileId != currentId ? false : true,
-                    userId: widget.friendData.friendProfileId,
-                  ))));
-        },
-        child: Row(
-          children: [
-            Container(
-              child: Expanded(
-                child: Row(
-                  children: [
-                    CircleAvatar(
-                      radius: MediaQuery.of(context).size.width * .1,
-                      backgroundImage: NetworkImage(avatar),
-                    ),
-                    const SizedBox(width: 10),
-                    Flexible(
-                      fit: FlexFit.tight,
-                      child: Text(
-                        '@$username',
-                        style: TextStyle(color: Theme.of(context).colorScheme.onSecondary),
-                        overflow: TextOverflow.ellipsis,
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 8.0),
+      child: Container(
+        height: 60,
+        padding: const EdgeInsets.symmetric(vertical: 5),
+        child: GestureDetector(
+          onTap: () async {
+            String currentId = await getCurrentUser();
+            Navigator.of(context).push(MaterialPageRoute(
+                builder: ((context) => ProfileScreen(
+                      isUser: widget.friendData.friendProfileId != currentId ? false : true,
+                      userId: widget.friendData.friendProfileId,
+                    ))));
+          },
+          child: Row(
+            children: [
+              Container(
+                child: Expanded(
+                  child: Row(
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.only(left: 12.0),
+                        child: LayoutBuilder(
+                          builder: (context, constraints) {
+                            return CircleAvatar(
+                              radius: constraints.maxHeight / 2,
+                              backgroundImage: NetworkImage(avatar),
+                            );
+                          },
+                        ),
                       ),
-                    ),
-                  ],
+                      const SizedBox(width: 10),
+                      Flexible(
+                        fit: FlexFit.tight,
+                        child: Text(
+                          '@$username',
+                          style: TextStyle(
+                              color: Theme.of(context).colorScheme.onSecondary,
+                              fontWeight: FontWeight.w800,
+                              fontSize: 16),
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               ),
-            ),
-            Container(
-              padding: EdgeInsets.symmetric(horizontal: 5),
-              child: buildRightSideWidgets(),
-            ),
-          ],
+              Container(
+                padding: EdgeInsets.symmetric(horizontal: 5),
+                child: buildRightSideWidgets(),
+              ),
+            ],
+          ),
         ),
       ),
     );

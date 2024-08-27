@@ -151,8 +151,7 @@ class _AppState extends ConsumerState<App> {
               colorScheme: ColorScheme.fromSeed(
                 primary: const Color.fromARGB(255, 106, 13, 173), // seen on 'Join' button in detailed view
                 onPrimary: Colors.black, // text on 'Join' button
-                secondary:
-                    const Color.fromARGB(255, 229, 231, 235), // seen on 'Bookmark' + distance box in detailed view
+                secondary: Color.fromARGB(255, 207, 209, 213), // seen on 'Bookmark' + distance box in detailed view
                 onSecondary: const Color.fromARGB(255, 75, 85, 99), // bookmark + distance icon color
                 seedColor: const Color.fromARGB(255, 106, 13, 173), // same as primary
                 primaryContainer: const Color.fromARGB(255, 241, 242, 245), // seen on comments box

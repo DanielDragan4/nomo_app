@@ -184,6 +184,7 @@ class _NewGroupChatScreenState extends ConsumerState<NewGroupChatScreen> {
       appBar: AppBar(
         toolbarHeight: MediaQuery.of(context).size.height * .1,
         title: const Text('New Group'),
+        centerTitle: true,
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),

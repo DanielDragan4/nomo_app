@@ -437,7 +437,7 @@ class ProfileScreenState extends ConsumerState<OtherProfileScreen> {
                                   ),
                                 ),
                               );
-                            } else if (isSelected.first && attendingEvents.isNotEmpty) {
+                            } else if (isSelected.first && attendingEvents != null && attendingEvents.isNotEmpty) {
                               return SliverList(
                                 delegate: SliverChildBuilderDelegate(
                                   (context, index) {

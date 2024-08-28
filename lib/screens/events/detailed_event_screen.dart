@@ -53,70 +53,74 @@ class _DetailedEventScreenState extends ConsumerState<DetailedEventScreen> {
 
   @override
   Widget build(BuildContext context) {
-  return Scaffold(
-    backgroundColor: Theme.of(context).colorScheme.surface,
-    body: CustomScrollView(
-      slivers: [
-        SliverAppBar(
-          pinned: false,
-          toolbarHeight: kToolbarHeight + (MediaQuery.of(context).size.height * 0.14),
-          backgroundColor: Colors.transparent,
-          elevation: 0,
-          flexibleSpace: _buildEventImage(),
-          leading: Align(
-                  alignment: Alignment.centerLeft,
-                  child: IntrinsicHeight(
-                    child: _buildBackButton(),
+  return Stack(
+    children: [ 
+      PopScope(
+        canPop: false,
+        child: Scaffold(
+        backgroundColor: Theme.of(context).colorScheme.surface,
+        body: CustomScrollView(
+          slivers: [
+            SliverAppBar(
+              pinned: false,
+              automaticallyImplyLeading: false,
+              toolbarHeight: kToolbarHeight + (MediaQuery.of(context).size.height * 0.14),
+              backgroundColor: Colors.transparent,
+              elevation: 0,
+              flexibleSpace: _buildEventImage(),
+              // actions: [
+              //   IconButton(
+              //     icon: Icon(Icons.more_vert, color: Colors.white),
+              //     onPressed: () {
+              //       // Add your menu logic here
+              //     },
+              //   ),
+              // ],
+            ),
+            SliverPadding(
+              padding: const EdgeInsets.all(16.0),
+              sliver: SliverList(
+                delegate: SliverChildListDelegate([
+                  Text(
+                    widget.eventData.title,
+                    style: TextStyle(
+                      color: Theme.of(context).colorScheme.onPrimary,
+                      fontWeight: FontWeight.bold,
+                      fontSize: MediaQuery.of(context).size.height * 0.03
+                    ),
                   ),
-                ),
-          // actions: [
-          //   IconButton(
-          //     icon: Icon(Icons.more_vert, color: Colors.white),
-          //     onPressed: () {
-          //       // Add your menu logic here
-          //     },
-          //   ),
-          // ],
-        ),
-        SliverPadding(
-          padding: const EdgeInsets.all(16.0),
-          sliver: SliverList(
-            delegate: SliverChildListDelegate([
-              Text(
-                widget.eventData.title,
-                style: TextStyle(
-                  color: Theme.of(context).colorScheme.onPrimary,
-                  fontWeight: FontWeight.bold,
-                  fontSize: MediaQuery.of(context).size.height * 0.03
-                ),
+                  SizedBox(height: MediaQuery.of(context).size.height * 0.02),
+                  _buildEventHost(),
+                  SizedBox(height: MediaQuery.of(context).size.height * 0.01),
+                  _buildEventLocation(context),
+                  SizedBox(height: MediaQuery.of(context).size.height * 0.0025),
+                  _buildDateTimeInfo(context),
+                  SizedBox(height: MediaQuery.of(context).size.height * 0.015),
+                  if (widget.eventData.distanceAway != null) 
+                    Align(
+                      alignment: Alignment.centerLeft,
+                      child: IntrinsicWidth(
+                        child: _buildDistanceInfo(context),
+                      ),
+                    ),
+                  SizedBox(height: MediaQuery.of(context).size.height * 0.025),
+                  _buildAttendeeInfo(context, false),
+                  SizedBox(height: MediaQuery.of(context).size.height * 0.025),
+                  _buildActionButtons(context, false),
+                  const SizedBox(height: 16),
+                  _buildEventDescription(),
+                  const SizedBox(height: 24),
+                  _buildCommentsSection(),
+                ]),
               ),
-              SizedBox(height: MediaQuery.of(context).size.height * 0.02),
-              _buildEventHost(),
-              SizedBox(height: MediaQuery.of(context).size.height * 0.01),
-              _buildEventLocation(context),
-              SizedBox(height: MediaQuery.of(context).size.height * 0.0025),
-              _buildDateTimeInfo(context),
-              SizedBox(height: MediaQuery.of(context).size.height * 0.015),
-              if (widget.eventData.distanceAway != null) 
-                Align(
-                  alignment: Alignment.centerLeft,
-                  child: IntrinsicWidth(
-                    child: _buildDistanceInfo(context),
-                  ),
-                ),
-              SizedBox(height: MediaQuery.of(context).size.height * 0.025),
-              _buildAttendeeInfo(context, false),
-              SizedBox(height: MediaQuery.of(context).size.height * 0.025),
-              _buildActionButtons(context, false),
-              const SizedBox(height: 16),
-              _buildEventDescription(),
-              const SizedBox(height: 24),
-              _buildCommentsSection(),
-            ]),
-          ),
+            ),
+          ],
         ),
-      ],
-    ),
+            ),
+      ), 
+    _buildBackButton(),
+    _buildMoreOptionsButton()
+    ]
   );
 }
 
@@ -128,8 +132,8 @@ class _DetailedEventScreenState extends ConsumerState<DetailedEventScreen> {
 
 Widget _buildBackButton() {
     return Positioned(
-      top: MediaQuery.of(context).size.height * .01 + MediaQuery.of(context).padding.top,
-      left: MediaQuery.of(context).size.width * .1,
+      top: MediaQuery.of(context).size.height * .03 + MediaQuery.of(context).padding.top,
+      left: MediaQuery.of(context).size.width * .033,
       child: Container(
         padding: const EdgeInsets.only(left: 10),
         height: MediaQuery.of(context).size.width * .11,
@@ -153,6 +157,44 @@ Widget _buildBackButton() {
       ),
     );
   }
+
+Widget _buildMoreOptionsButton() {
+    return Positioned(
+      top: MediaQuery.of(context).size.height * .03 + MediaQuery.of(context).padding.top,
+      right: MediaQuery.of(context).size.width * .033,
+      child: Container(
+        height: MediaQuery.of(context).size.width * .11,
+        width: MediaQuery.of(context).size.width * .11,
+        decoration: BoxDecoration(
+          color: Theme.of(context).colorScheme.secondary, // Light grey color
+          borderRadius: BorderRadius.circular(8), // Rounded corners
+        ),
+        child: Center(
+          child: PopupMenuButton<Options>(
+            icon: Icon(Icons.more_horiz, color: Colors.white, size: MediaQuery.of(context).size.width * .075,),
+           onSelected: (Options item) {
+              if (item == Options.itemOne) {
+                _shareEventLink();
+              }
+            },
+            itemBuilder: (context) => <PopupMenuEntry<Options>>[
+              PopupMenuItem(
+                  value: Options.itemOne,
+                  child: Text(
+                    "Share Link",
+                    style: TextStyle(color: Theme.of(context).colorScheme.onSecondary),
+                  )),
+            ],
+            padding: EdgeInsets.zero,
+            constraints: BoxConstraints(),
+            splashRadius: 24,
+            color: Theme.of(context).colorScheme.secondary,
+          ),
+        ),
+      ),
+    );
+  }
+ 
   Widget _buildEventImage() {
     return ClipRRect(
       borderRadius: BorderRadius.circular(8),
@@ -419,9 +461,8 @@ Widget _buildBackButton() {
             fontSize: MediaQuery.of(context).size.width * .0575,
           ),
         ),
-        const SizedBox(height: 8),
         Container(
-          height: MediaQuery.of(context).size.height * .4,
+          height: (!(widget.eventData.numOfComments == 0)) ? MediaQuery.of(context).size.height * .6 :MediaQuery.of(context).size.height * .25,
           child: CommentsSection(eventId: widget.eventData!.eventId),
         ),
       ],
@@ -902,25 +943,6 @@ Widget _buildBackButton() {
         });
   }
 
-  Widget _buildMoreOptionsButton(BuildContext context) {
-    return PopupMenuButton<Options>(
-      iconColor: Theme.of(context).colorScheme.onSecondary,
-      color: Theme.of(context).colorScheme.secondary,
-      onSelected: (Options item) {
-        if (item == Options.itemOne) {
-          _shareEventLink();
-        }
-      },
-      itemBuilder: (context) => <PopupMenuEntry<Options>>[
-        PopupMenuItem(
-            value: Options.itemOne,
-            child: Text(
-              "Share Link",
-              style: TextStyle(color: Theme.of(context).colorScheme.onSecondary),
-            )),
-      ],
-    );
-  }
 
   Future<void> attendeeJoinEvent() async {
     final supabase = (await ref.read(supabaseInstance)).client;

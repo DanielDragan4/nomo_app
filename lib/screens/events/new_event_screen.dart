@@ -97,7 +97,9 @@ class _NewEventScreenState extends ConsumerState<NewEventScreen> {
       virtualEvent = widget.event!.isVirtual;
       _isRecurring = widget.event!.isRecurring;
       _isTicketed = widget.event!.isTicketed;
+      if(widget.event?.categories != null) {
       categories = convertCategoriesToMap(widget.event!.categories);
+      }
 
       for (int i = 0; i < list.length; i++) {
         if (list[i] == widget.event!.eventType) {

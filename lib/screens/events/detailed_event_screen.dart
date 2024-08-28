@@ -302,14 +302,14 @@ Widget _buildMoreOptionsButton() {
             mainAxisAlignment: MainAxisAlignment.start,
             children: [
               Icon(Icons.computer,
-                  size: MediaQuery.of(context).size.width * 0.035, color: Theme.of(context).colorScheme.onSurface),
+                  size: MediaQuery.of(context).size.width * 0.067, color: Theme.of(context).colorScheme.onSurface),
               const SizedBox(width: 8),
               Expanded(
                 child: Text('Virtual',
                     style: Theme.of(context).textTheme.bodyLarge?.copyWith(
                           fontWeight: FontWeight.w300,
                           color: Theme.of(context).colorScheme.onSurface,
-                          fontSize: MediaQuery.of(context).size.width * .035
+                          fontSize: MediaQuery.of(context).size.width * .0425
                         )),
               ),
             ],
@@ -352,7 +352,7 @@ Widget _buildMoreOptionsButton() {
     return Container(
         padding: const EdgeInsets.symmetric(vertical: 8),
         child: (dateFormat.format(startDate) == dateFormat.format(endDate))
-            ? Row(mainAxisAlignment: MainAxisAlignment.start, children: [
+            ? Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
                 Container(
                     child: Row(children: [
                   Icon(Icons.calendar_today,
@@ -369,9 +369,6 @@ Widget _buildMoreOptionsButton() {
                     ),
                   ),
                 ])),
-                SizedBox(
-                  width: MediaQuery.of(context).size.width * .055,
-                ),
                 Container(
                     child: Row(
                   children: [

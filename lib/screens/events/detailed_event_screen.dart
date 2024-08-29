@@ -349,50 +349,20 @@ Widget _buildMoreOptionsButton() {
       displayedDates = "${dateFormat.format(startDate)} - ${dateFormat.format(endDate)}";
     }
 
-    return Container(
-        padding: const EdgeInsets.symmetric(vertical: 8),
-        child: (dateFormat.format(startDate) == dateFormat.format(endDate))
-            ? Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-                Container(
-                    child: Row(children: [
-                  Icon(Icons.calendar_today,
-                      size: MediaQuery.of(context).size.width * .055,
-                      color: Theme.of(context).colorScheme.onSurface,
-                      ),
-                  const SizedBox(width: 8),
-                  Text(
-                    displayedDates,
-                    style: TextStyle(
-                      fontSize: MediaQuery.of(context).size.width * .0425,
-                      color: Theme.of(context).colorScheme.onSurface,
-                      fontWeight: FontWeight.w100
-                    ),
-                  ),
-                ])),
-                Container(
-                    child: Row(
-                  children: [
-                    Icon(Icons.access_time,
-                        size: MediaQuery.of(context).size.width * .055,
-                        color: Theme.of(context).colorScheme.onSurface),
-                    const SizedBox(width: 8),
-                    Text(
-                      '${timeFormat.format(startDate)} - ${timeFormat.format(endDate)}',
-                      style: TextStyle(
-                        fontSize: MediaQuery.of(context).size.width * .0425,
-                        color: Theme.of(context).colorScheme.onSurface,
-                        fontWeight: FontWeight.w100
-                      ),
-                    ),
-                  ],
-                ))
-              ])
-            : Column(
-                children: [
-                  Row(mainAxisAlignment: MainAxisAlignment.start, children: [
+    return GestureDetector(
+      onTap: () {
+        _showDateTimeSelectorDialog(context);
+      },
+      child: Container(
+          padding: const EdgeInsets.symmetric(vertical: 8),
+          child: (dateFormat.format(startDate) == dateFormat.format(endDate))
+              ? Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
+                  Container(
+                      child: Row(children: [
                     Icon(Icons.calendar_today,
                         size: MediaQuery.of(context).size.width * .055,
-                        color: Theme.of(context).colorScheme.onSurface),
+                        color: Theme.of(context).colorScheme.onSurface,
+                        ),
                     const SizedBox(width: 8),
                     Text(
                       displayedDates,
@@ -402,8 +372,9 @@ Widget _buildMoreOptionsButton() {
                         fontWeight: FontWeight.w100
                       ),
                     ),
-                  ]),
-                  Row(
+                  ])),
+                  Container(
+                      child: Row(
                     children: [
                       Icon(Icons.access_time,
                           size: MediaQuery.of(context).size.width * .055,
@@ -418,9 +389,43 @@ Widget _buildMoreOptionsButton() {
                         ),
                       ),
                     ],
-                  )
-                ],
-              ));
+                  ))
+                ])
+              : Column(
+                  children: [
+                    Row(mainAxisAlignment: MainAxisAlignment.start, children: [
+                      Icon(Icons.calendar_today,
+                          size: MediaQuery.of(context).size.width * .055,
+                          color: Theme.of(context).colorScheme.onSurface),
+                      const SizedBox(width: 8),
+                      Text(
+                        displayedDates,
+                        style: TextStyle(
+                          fontSize: MediaQuery.of(context).size.width * .0425,
+                          color: Theme.of(context).colorScheme.onSurface,
+                          fontWeight: FontWeight.w100
+                        ),
+                      ),
+                    ]),
+                    Row(
+                      children: [
+                        Icon(Icons.access_time,
+                            size: MediaQuery.of(context).size.width * .055,
+                            color: Theme.of(context).colorScheme.onSurface),
+                        const SizedBox(width: 8),
+                        Text(
+                          '${timeFormat.format(startDate)} - ${timeFormat.format(endDate)}',
+                          style: TextStyle(
+                            fontSize: MediaQuery.of(context).size.width * .0425,
+                            color: Theme.of(context).colorScheme.onSurface,
+                            fontWeight: FontWeight.w100
+                          ),
+                        ),
+                      ],
+                    )
+                  ],
+                )),
+    );
   }
   Widget _buildEventDescription() {
     return Column(

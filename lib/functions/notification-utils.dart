@@ -64,7 +64,7 @@ void handleMessage(RemoteMessage message, BuildContext context, WidgetRef ref) a
     );
     navigatorKey.currentState?.push(
       MaterialPageRoute(
-          builder: (context) => NavBar(
+          builder: (context) => const NavBar(
                 initialIndex: 3,
               )),
     );
@@ -127,8 +127,10 @@ void handleMessage(RemoteMessage message, BuildContext context, WidgetRef ref) a
     String eventId = message.data['eventId'];
     //String eventDescription = message.data['eventDescription'];
     ref.read(unreadNotificationsProvider.notifier).addNotification(
-          "$hostUsername has updated '$eventTitle'",
-        );
+      "$hostUsername has updated '$eventTitle'",
+      type: 'UPDATE',
+      additionalData: {'eventId': eventId},
+    );
     ref.read(notificationBellProvider.notifier).setBellState(true);
     showSimpleNotification(
       context,
@@ -148,9 +150,11 @@ void handleMessage(RemoteMessage message, BuildContext context, WidgetRef ref) a
     if (joinedEventFriendsOnlySwitch) {
       bool isFriend = await ref.read(profileProvider.notifier).isFriend(attendeeId);
       if (isFriend) {
-        ref
-            .read(unreadNotificationsProvider.notifier)
-            .addNotification("$attendeeName has joined your event, '$eventTitle'");
+        ref.read(unreadNotificationsProvider.notifier).addNotification(
+          "$attendeeName has joined your event, '$eventTitle'",
+          type: 'JOIN',
+          additionalData: {'eventId': eventId},
+        );
         ref.read(notificationBellProvider.notifier).setBellState(true);
         showSimpleNotification(
           context,
@@ -161,9 +165,11 @@ void handleMessage(RemoteMessage message, BuildContext context, WidgetRef ref) a
       }
       // If setting toggle for only notifying if a friend joins is disabled (notify for all)
     } else {
-      ref
-          .read(unreadNotificationsProvider.notifier)
-          .addNotification("$attendeeName has joined your event, '$eventTitle'");
+      ref.read(unreadNotificationsProvider.notifier).addNotification(
+        "$attendeeName has joined your event, '$eventTitle'",
+        type: 'JOIN',
+        additionalData: {'eventId': eventId},
+      );
       ref.read(notificationBellProvider.notifier).setBellState(true);
       showSimpleNotification(
         context,
@@ -180,8 +186,10 @@ void handleMessage(RemoteMessage message, BuildContext context, WidgetRef ref) a
     String eventTitle = message.data['eventTitle'];
     String eventId = message.data['eventId'];
     ref.read(unreadNotificationsProvider.notifier).addNotification(
-          "$hostUsername has created an event, '$eventTitle'",
-        );
+      "$hostUsername has created an event, '$eventTitle'",
+      type: 'CREATE',
+      additionalData: {'eventId': eventId},
+    );
     ref.read(notificationBellProvider.notifier).setBellState(true);
     showSimpleNotification(
       context,
@@ -194,7 +202,10 @@ void handleMessage(RemoteMessage message, BuildContext context, WidgetRef ref) a
   if (type == 'REQUEST') {
     print('REQUEST notification handling');
     String senderName = message.data['senderName'];
-    ref.read(unreadNotificationsProvider.notifier).addNotification("$senderName has sent you a Friend Request");
+    ref.read(unreadNotificationsProvider.notifier).addNotification(
+          "$senderName has sent you a Friend Request",
+          type: 'REQUEST',
+        );
     ref.read(notificationBellProvider.notifier).setBellState(true);
     showSimpleNotification(
       context,
@@ -207,7 +218,10 @@ void handleMessage(RemoteMessage message, BuildContext context, WidgetRef ref) a
   if (type == 'ACCEPT') {
     print('ACCEPT notification handling');
     String recieverName = message.data['senderName'];
-    ref.read(unreadNotificationsProvider.notifier).addNotification("$recieverName has accepted your Friend Request");
+    ref.read(unreadNotificationsProvider.notifier).addNotification(
+          "$recieverName has accepted your Friend Request",
+          type: 'ACCEPT',
+        );
     ref.read(notificationBellProvider.notifier).setBellState(true);
     showSimpleNotification(
       context,

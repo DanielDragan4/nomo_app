@@ -1,6 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:nomo/models/friend_model.dart';
+import 'package:nomo/providers/event-providers/events_provider.dart';
 import 'package:nomo/providers/notification-providers/notification-provider.dart';
+import 'package:nomo/providers/profile_provider.dart';
+import 'package:nomo/screens/NavBar.dart';
+import 'package:nomo/screens/events/detailed_event_screen.dart';
+import 'package:nomo/screens/friends/chat_screen.dart';
+import 'package:nomo/screens/friends/friends_screen.dart';
 import 'package:nomo/widgets/fade_out_dismissable.dart';
 import 'package:nomo/widgets/notification.dart';
 
@@ -12,6 +19,39 @@ class NotificationsScreen extends ConsumerStatefulWidget {
 }
 
 class _NotificationsScreenState extends ConsumerState<NotificationsScreen> {
+  void _handleNotificationTap(NotificationData notification) {
+    switch (notification.type) {
+      case 'UPDATE':
+      case 'JOIN':
+      case 'CREATE':
+        String? eventId = notification.additionalData?['eventId'];
+        if (eventId != null) {
+          ref.read(eventsProvider.notifier).deCodeLinkEvent(eventId).then((event) {
+            if (event != null) {
+              Navigator.pop(context);
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => DetailedEventScreen(eventData: event),
+                ),
+              );
+            }
+          });
+        }
+        break;
+      case 'REQUEST':
+      case 'ACCEPT':
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+              builder: (context) => const NavBar(
+                    initialIndex: 3,
+                  )),
+        );
+        break;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final notifications = ref.watch(unreadNotificationsProvider);
@@ -42,8 +82,9 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen> {
       body: ListView.builder(
         itemCount: notifications.length,
         itemBuilder: (context, index) {
+          final notification = notifications[index]; // No need to reverse the index
           return FadeOutDismissible(
-            key: Key(notifications[index].title),
+            key: Key(notification.title),
             onDismissed: (direction) {
               ref.read(unreadNotificationsProvider.notifier).removeNotification(index);
               ScaffoldMessenger.of(context).hideCurrentSnackBar();
@@ -51,9 +92,12 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen> {
                 const SnackBar(content: Text('Notification dismissed')),
               );
             },
-            child: NotificationItem(
-              title: notifications[index].title,
-              details: notifications[index].description,
+            child: GestureDetector(
+              onTap: () => _handleNotificationTap(notification),
+              child: NotificationItem(
+                title: notification.title,
+                details: notification.description,
+              ),
             ),
           );
         },

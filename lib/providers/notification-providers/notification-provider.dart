@@ -6,18 +6,29 @@ import 'dart:convert';
 class NotificationData {
   final String title;
   final String? description;
+  final String? type;
+  final Map<String, dynamic>? additionalData;
 
-  NotificationData({required this.title, this.description});
+  NotificationData({
+    required this.title,
+    this.description,
+    this.type,
+    this.additionalData,
+  });
 
   Map<String, dynamic> toJson() => {
         'title': title,
         'description': description,
+        'type': type,
+        'additionalData': additionalData,
       };
 
   static NotificationData fromJson(Map<String, dynamic> json) {
     return NotificationData(
       title: json['title'],
       description: json['description'],
+      type: json['type'],
+      additionalData: json['additionalData'],
     );
   }
 }
@@ -33,11 +44,13 @@ class UnreadNotificationsNotifier extends StateNotifier<List<NotificationData>> 
   //
   // Parameters:
   // - 'title': title of the added notification
-  void addNotification(String title) {
+  void addNotification(String title, {String? type, Map<String, dynamic>? additionalData}) {
     state = [
       ...state,
       NotificationData(
         title: title,
+        type: type,
+        additionalData: additionalData,
       )
     ];
     _saveNotifications();
@@ -75,7 +88,11 @@ class UnreadNotificationsNotifier extends StateNotifier<List<NotificationData>> 
     final prefs = await SharedPreferences.getInstance();
     final List<String>? notificationStrings = prefs.getStringList('notifications');
     if (notificationStrings != null) {
-      state = notificationStrings.map((notifStr) => NotificationData.fromJson(json.decode(notifStr))).toList();
+      state = notificationStrings
+          .map((notifStr) => NotificationData.fromJson(json.decode(notifStr)))
+          .toList()
+          .reversed
+          .toList(); // Reverse the loaded list to have newest first
     }
   }
 

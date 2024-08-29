@@ -53,76 +53,73 @@ class _DetailedEventScreenState extends ConsumerState<DetailedEventScreen> {
 
   @override
   Widget build(BuildContext context) {
-  return Stack(
-    children: [ 
+    return Stack(children: [
       PopScope(
         canPop: false,
         child: Scaffold(
-        backgroundColor: Theme.of(context).colorScheme.surface,
-        body: CustomScrollView(
-          slivers: [
-            SliverAppBar(
-              pinned: false,
-              automaticallyImplyLeading: false,
-              toolbarHeight: kToolbarHeight + (MediaQuery.of(context).size.height * 0.14),
-              backgroundColor: Colors.transparent,
-              elevation: 0,
-              flexibleSpace: _buildEventImage(),
-              // actions: [
-              //   IconButton(
-              //     icon: Icon(Icons.more_vert, color: Colors.white),
-              //     onPressed: () {
-              //       // Add your menu logic here
-              //     },
-              //   ),
-              // ],
-            ),
-            SliverPadding(
-              padding: const EdgeInsets.all(16.0),
-              sliver: SliverList(
-                delegate: SliverChildListDelegate([
-                  Text(
-                    widget.eventData.title,
-                    style: TextStyle(
-                      color: Theme.of(context).colorScheme.onPrimary,
-                      fontWeight: FontWeight.bold,
-                      fontSize: MediaQuery.of(context).size.height * 0.03
-                    ),
-                  ),
-                  SizedBox(height: MediaQuery.of(context).size.height * 0.02),
-                  _buildEventHost(),
-                  SizedBox(height: MediaQuery.of(context).size.height * 0.01),
-                  _buildEventLocation(context),
-                  SizedBox(height: MediaQuery.of(context).size.height * 0.0025),
-                  _buildDateTimeInfo(context),
-                  SizedBox(height: MediaQuery.of(context).size.height * 0.015),
-                  if (widget.eventData.distanceAway != null) 
-                    Align(
-                      alignment: Alignment.centerLeft,
-                      child: IntrinsicWidth(
-                        child: _buildDistanceInfo(context),
-                      ),
-                    ),
-                  SizedBox(height: MediaQuery.of(context).size.height * 0.025),
-                  _buildAttendeeInfo(context, false),
-                  SizedBox(height: MediaQuery.of(context).size.height * 0.025),
-                  _buildActionButtons(context, false),
-                  const SizedBox(height: 16),
-                  _buildEventDescription(),
-                  const SizedBox(height: 24),
-                  _buildCommentsSection(),
-                ]),
+          backgroundColor: Theme.of(context).colorScheme.surface,
+          body: CustomScrollView(
+            slivers: [
+              SliverAppBar(
+                pinned: false,
+                automaticallyImplyLeading: false,
+                toolbarHeight: kToolbarHeight + (MediaQuery.of(context).size.height * 0.14),
+                backgroundColor: Colors.transparent,
+                elevation: 0,
+                flexibleSpace: _buildEventImage(),
+                // actions: [
+                //   IconButton(
+                //     icon: Icon(Icons.more_vert, color: Colors.white),
+                //     onPressed: () {
+                //       // Add your menu logic here
+                //     },
+                //   ),
+                // ],
               ),
-            ),
-          ],
+              SliverPadding(
+                padding: const EdgeInsets.all(16.0),
+                sliver: SliverList(
+                  delegate: SliverChildListDelegate([
+                    Text(
+                      widget.eventData.title,
+                      style: TextStyle(
+                          color: Theme.of(context).colorScheme.onPrimary,
+                          fontWeight: FontWeight.bold,
+                          fontSize: MediaQuery.of(context).size.height * 0.03),
+                    ),
+                    SizedBox(height: MediaQuery.of(context).size.height * 0.02),
+                    _buildEventHost(),
+                    SizedBox(height: MediaQuery.of(context).size.height * 0.01),
+                    _buildEventLocation(context),
+                    SizedBox(height: MediaQuery.of(context).size.height * 0.0025),
+                    _buildDateTimeInfo(context),
+                    SizedBox(height: MediaQuery.of(context).size.height * 0.015),
+                    if (widget.eventData.distanceAway != null)
+                      Align(
+                        alignment: Alignment.centerLeft,
+                        child: IntrinsicWidth(
+                          child: _buildDistanceInfo(context),
+                        ),
+                      ),
+                    SizedBox(height: MediaQuery.of(context).size.height * 0.025),
+                    _buildAttendeeInfo(context, false),
+                    SizedBox(height: MediaQuery.of(context).size.height * 0.025),
+                    _buildActionButtons(context, false),
+                    const SizedBox(height: 16),
+                    _buildEventDescription(),
+                    const SizedBox(height: 24),
+                    _buildCommentsSection(),
+                  ]),
+                ),
+              ),
+            ],
+          ),
         ),
-            ),
-      ), 
-    _buildBackButton(),
-    _buildMoreOptionsButton()
-    ]
-  );
-}
+      ),
+      _buildBackButton(),
+      _buildMoreOptionsButton()
+    ]);
+  }
 
   Future<void> getOriginalProfileInfo() async {
     if (Navigator.canPop(context)) {
@@ -130,7 +127,7 @@ class _DetailedEventScreenState extends ConsumerState<DetailedEventScreen> {
     }
   }
 
-Widget _buildBackButton() {
+  Widget _buildBackButton() {
     return Positioned(
       top: MediaQuery.of(context).size.height * .03 + MediaQuery.of(context).padding.top,
       left: MediaQuery.of(context).size.width * .033,
@@ -144,8 +141,12 @@ Widget _buildBackButton() {
         ),
         child: Center(
           child: IconButton(
-            icon: Icon(Icons.arrow_back_ios, color: Colors.white, size: MediaQuery.of(context).size.width * .055,),
-            onPressed: (){
+            icon: Icon(
+              Icons.arrow_back_ios,
+              color: Colors.white,
+              size: MediaQuery.of(context).size.width * .055,
+            ),
+            onPressed: () {
               Navigator.of(context).pop();
             },
             padding: EdgeInsets.zero,
@@ -158,7 +159,7 @@ Widget _buildBackButton() {
     );
   }
 
-Widget _buildMoreOptionsButton() {
+  Widget _buildMoreOptionsButton() {
     return Positioned(
       top: MediaQuery.of(context).size.height * .03 + MediaQuery.of(context).padding.top,
       right: MediaQuery.of(context).size.width * .033,
@@ -171,8 +172,12 @@ Widget _buildMoreOptionsButton() {
         ),
         child: Center(
           child: PopupMenuButton<Options>(
-            icon: Icon(Icons.more_horiz, color: Colors.white, size: MediaQuery.of(context).size.width * .075,),
-           onSelected: (Options item) {
+            icon: Icon(
+              Icons.more_horiz,
+              color: Colors.white,
+              size: MediaQuery.of(context).size.width * .075,
+            ),
+            onSelected: (Options item) {
               if (item == Options.itemOne) {
                 _shareEventLink();
               }
@@ -194,7 +199,7 @@ Widget _buildMoreOptionsButton() {
       ),
     );
   }
- 
+
   Widget _buildEventImage() {
     return ClipRRect(
       borderRadius: BorderRadius.circular(8),
@@ -218,12 +223,13 @@ Widget _buildMoreOptionsButton() {
     return Row(
       children: [
         GestureDetector(
-          onTap: () { 
+          onTap: () {
             Navigator.of(context)
-              .push(MaterialPageRoute(
-                builder: (context) => OtherProfileScreen(userId: widget.eventData.host),
-              ))
-              .whenComplete(getOriginalProfileInfo);},
+                .push(MaterialPageRoute(
+                  builder: (context) => OtherProfileScreen(userId: widget.eventData.host),
+                ))
+                .whenComplete(getOriginalProfileInfo);
+          },
           child: Row(children: [
             CircleAvatar(
               radius: MediaQuery.of(context).size.width * 0.0525,
@@ -233,12 +239,17 @@ Widget _buildMoreOptionsButton() {
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                 Text(
-                  widget.eventData!.hostUsername,
-                  style: TextStyle(
-                    color: Theme.of(context).colorScheme.onSurface,
-                    fontWeight: FontWeight.w600,
-                    fontSize: MediaQuery.of(context).size.width * 0.0525
+                Container(
+                  width: MediaQuery.of(context).size.width * 0.75, // Adjust this value as needed
+                  child: Text(
+                    '@${widget.eventData.hostUsername}',
+                    style: TextStyle(
+                      color: Theme.of(context).colorScheme.onSurface,
+                      fontWeight: FontWeight.w600,
+                      fontSize: MediaQuery.of(context).size.width * 0.0525,
+                    ),
+                    overflow: TextOverflow.ellipsis,
+                    maxLines: 1,
                   ),
                 ),
                 Text(
@@ -307,10 +318,9 @@ Widget _buildMoreOptionsButton() {
               Expanded(
                 child: Text('Virtual',
                     style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                          fontWeight: FontWeight.w300,
-                          color: Theme.of(context).colorScheme.onSurface,
-                          fontSize: MediaQuery.of(context).size.width * .0425
-                        )),
+                        fontWeight: FontWeight.w300,
+                        color: Theme.of(context).colorScheme.onSurface,
+                        fontSize: MediaQuery.of(context).size.width * .0425)),
               ),
             ],
           )
@@ -325,10 +335,10 @@ Widget _buildMoreOptionsButton() {
                 Expanded(
                   child: Text(widget.eventData.location,
                       style: TextStyle(
-                            fontWeight: FontWeight.w100,
-                            color: Theme.of(context).colorScheme.onSurface,
-                            fontSize: MediaQuery.of(context).size.width * .0425,
-                          )),
+                        fontWeight: FontWeight.w100,
+                        color: Theme.of(context).colorScheme.onSurface,
+                        fontSize: MediaQuery.of(context).size.width * .0425,
+                      )),
                 ),
               ],
             ),
@@ -427,6 +437,7 @@ Widget _buildMoreOptionsButton() {
                 )),
     );
   }
+
   Widget _buildEventDescription() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -464,7 +475,9 @@ Widget _buildMoreOptionsButton() {
           ),
         ),
         Container(
-          height: (!(widget.eventData.numOfComments == 0)) ? MediaQuery.of(context).size.height * .6 :MediaQuery.of(context).size.height * .25,
+          height: (!(widget.eventData.numOfComments == 0))
+              ? MediaQuery.of(context).size.height * .6
+              : MediaQuery.of(context).size.height * .25,
           child: CommentsSection(eventId: widget.eventData!.eventId),
         ),
       ],
@@ -818,19 +831,21 @@ Widget _buildMoreOptionsButton() {
             style: ElevatedButton.styleFrom(
               backgroundColor: Theme.of(context).primaryColor, // Background color
               padding: EdgeInsets.symmetric(
-                  vertical: MediaQuery.of(context).size.height * .01625, horizontal: MediaQuery.of(context).size.width * 0.23),
+                  vertical: MediaQuery.of(context).size.height * .01625,
+                  horizontal: MediaQuery.of(context).size.width * 0.23),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(12.0), // Rounded corners
               ),
             ),
             onPressed: () => _handleJoinLeaveAction(context, isHost, isAttending, currentUser),
-            child: Text(buttonText,
-                style: TextStyle(
-          fontSize: MediaQuery.of(context).size.width * .0475,
-          color: Theme.of(context).colorScheme.onPrimary,
-          fontWeight: FontWeight.bold,
-        ),
-        ),
+            child: Text(
+              buttonText,
+              style: TextStyle(
+                fontSize: MediaQuery.of(context).size.width * .0475,
+                color: Theme.of(context).colorScheme.onPrimary,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
           );
         }
         return const SizedBox.shrink();
@@ -944,7 +959,6 @@ Widget _buildMoreOptionsButton() {
           return const SizedBox();
         });
   }
-
 
   Future<void> attendeeJoinEvent() async {
     final supabase = (await ref.read(supabaseInstance)).client;

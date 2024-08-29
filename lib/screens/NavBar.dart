@@ -11,14 +11,22 @@ import 'package:nomo/screens/recommended_screen.dart';
 import 'package:nomo/screens/search_screen.dart';
 
 class NavBar extends ConsumerStatefulWidget {
-  const NavBar({super.key});
+  const NavBar({Key? key, this.initialIndex = 0}) : super(key: key);
+
+  final int initialIndex;
 
   @override
   ConsumerState<NavBar> createState() => _NavBarState();
 }
 
 class _NavBarState extends ConsumerState<NavBar> {
-  int _index = 0;
+  late int _index;
+
+  @override
+  void initState() {
+    super.initState();
+    _index = widget.initialIndex;
+  }
 
   final List<GlobalKey<NavigatorState>> _navigatorKeys = [
     GlobalKey<NavigatorState>(),

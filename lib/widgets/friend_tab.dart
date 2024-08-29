@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:nomo/models/friend_model.dart';
+import 'package:nomo/providers/chat-providers/chat_id_provider.dart';
 import 'package:nomo/providers/notification-providers/friend-notif-manager.dart';
 import 'package:nomo/providers/profile_provider.dart';
 import 'package:nomo/providers/supabase-providers/supabase_provider.dart';
@@ -148,12 +149,17 @@ class _FriendTabState extends ConsumerState<FriendTab> {
                           ref
                               .read(friendNotificationProvider.notifier)
                               .resetNotification(widget.friendData.friendProfileId);
-                          Navigator.of(context).push(MaterialPageRoute(
-                            builder: (context) => ChatScreen(
-                              chatterUser: widget.friendData,
-                              currentUser: ref.read(profileProvider.notifier).state!.profile_id,
-                            ),
-                          ));
+                          Navigator.of(
+                            context,
+                            rootNavigator: true,
+                          )
+                              .push(MaterialPageRoute(
+                                builder: (context) => ChatScreen(
+                                  chatterUser: widget.friendData,
+                                  currentUser: ref.read(profileProvider.notifier).state!.profile_id,
+                                ),
+                              ))
+                              .then((value) => ref.read(activeChatIdProvider.notifier).setActiveChatId(null));
                         },
                         icon: Icon(
                           Icons.messenger_outline,
@@ -164,8 +170,8 @@ class _FriendTabState extends ConsumerState<FriendTab> {
                   ),
                   if (hasNewMessage)
                     Positioned(
-                      right: 7,
-                      top: 7,
+                      right: MediaQuery.of(context).size.width / 25,
+                      top: MediaQuery.of(context).size.width / 45,
                       child: Container(
                         padding: EdgeInsets.all(1),
                         decoration: BoxDecoration(
@@ -292,7 +298,7 @@ class _FriendTabState extends ConsumerState<FriendTab> {
                                               ScaffoldMessenger.of(context).hideCurrentSnackBar();
                                               ScaffoldMessenger.of(context).showSnackBar(
                                                 const SnackBar(
-                                                  content: Text("User Unfriended"),
+                                                  content: Text("User unfriended"),
                                                 ),
                                               );
                                             },
@@ -381,7 +387,7 @@ class _FriendTabState extends ConsumerState<FriendTab> {
                                                     ScaffoldMessenger.of(context).hideCurrentSnackBar();
                                                     ScaffoldMessenger.of(context).showSnackBar(
                                                       const SnackBar(
-                                                        content: Text("User Unfriended"),
+                                                        content: Text("User unfriended"),
                                                       ),
                                                     );
                                                   },

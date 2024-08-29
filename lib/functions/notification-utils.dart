@@ -2,11 +2,19 @@ import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:nomo/main.dart';
+import 'package:nomo/models/friend_model.dart';
 import 'package:nomo/providers/chat-providers/chat_id_provider.dart';
+import 'package:nomo/providers/chat-providers/chats_provider.dart';
+import 'package:nomo/providers/event-providers/events_provider.dart';
 import 'package:nomo/providers/notification-providers/friend-notif-manager.dart';
 import 'package:nomo/providers/notification-providers/notification-bell-provider.dart';
 import 'package:nomo/providers/notification-providers/notification-provider.dart';
 import 'package:nomo/providers/profile_provider.dart';
+import 'package:nomo/screens/NavBar.dart';
+import 'package:nomo/screens/events/detailed_event_screen.dart';
+import 'package:nomo/screens/friends/chat_screen.dart';
+import 'package:nomo/screens/friends/friends_screen.dart';
 import 'package:overlay_support/overlay_support.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -33,6 +41,69 @@ void handleMessage(RemoteMessage message, BuildContext context, WidgetRef ref) a
 
   String? type = message.data['type'];
 
+  // Function to navigate to Friends Screen
+  void navigateToFriendsScreen() {
+    navigatorKey.currentState?.pushAndRemoveUntil(
+      MaterialPageRoute(builder: (context) => NavBar()),
+      (route) => false,
+    );
+    navigatorKey.currentState?.push(
+      MaterialPageRoute(
+          builder: (context) => NavBar(
+                initialIndex: 3,
+              )),
+    );
+  }
+
+  // Function to navigate to Chat Screen
+  void navigateToChatScreen(String senderId, String chatId) {
+    ref.read(friendNotificationProvider.notifier).resetNotification(senderId);
+    navigatorKey.currentState?.pushAndRemoveUntil(
+      MaterialPageRoute(builder: (context) => NavBar()),
+      (route) => false,
+    );
+    navigatorKey.currentState?.push(
+      MaterialPageRoute(
+          builder: (context) => NavBar(
+                initialIndex: 3,
+              )),
+    );
+    // Fetch friend data using senderId and navigate to ChatScreen
+    ref.read(profileProvider.notifier).fetchProfileById(senderId).then((friendProfile) {
+      Friend friendData = Friend(
+        friendProfileId: friendProfile.profile_id,
+        friendProfileName: friendProfile.username,
+        friendUsername: friendProfile.username,
+        avatar: friendProfile.avatar,
+      );
+      navigatorKey.currentState?.push(
+        MaterialPageRoute(
+          builder: (context) => ChatScreen(
+            chatterUser: friendData,
+            currentUser: ref.read(profileProvider)!.profile_id,
+          ),
+        ),
+      );
+    });
+  }
+
+  // New function to navigate to Detailed Event Screen
+  void navigateToDetailedEventScreen(String eventId) {
+    ref.read(eventsProvider.notifier).deCodeLinkEvent(eventId).then((event) {
+      if (event != null) {
+        navigatorKey.currentState?.pushAndRemoveUntil(
+          MaterialPageRoute(builder: (context) => NavBar()),
+          (route) => false,
+        );
+        navigatorKey.currentState?.push(
+          MaterialPageRoute(
+            builder: (context) => DetailedEventScreen(eventData: event),
+          ),
+        );
+      }
+    });
+  }
+
   // Handles in-app notification for a joined event getting deleted
   if (type == 'DELETE' && eventDeletedSwitch) {
     print('DELETE notification handling');
@@ -53,6 +124,7 @@ void handleMessage(RemoteMessage message, BuildContext context, WidgetRef ref) a
     print('UPDATE notification handling');
     String eventTitle = message.data['eventTitle'];
     String hostUsername = message.data['hostUsername'];
+    String eventId = message.data['eventId'];
     //String eventDescription = message.data['eventDescription'];
     ref.read(unreadNotificationsProvider.notifier).addNotification(
           "$hostUsername has updated '$eventTitle'",
@@ -62,6 +134,7 @@ void handleMessage(RemoteMessage message, BuildContext context, WidgetRef ref) a
       context,
       message.notification?.body ?? 'New Message',
       message.notification?.title ?? 'Notification',
+      onTap: () => navigateToDetailedEventScreen(eventId),
     );
   }
   // Handles in-app notification for another user joining current user's event
@@ -70,6 +143,7 @@ void handleMessage(RemoteMessage message, BuildContext context, WidgetRef ref) a
     String attendeeName = message.data['attendeeName'];
     String attendeeId = message.data['attendeeId'];
     String eventTitle = message.data['eventTitle'];
+    String eventId = message.data['eventId'];
     // If setting toggle for only notifying if a friend joins is enabled
     if (joinedEventFriendsOnlySwitch) {
       bool isFriend = await ref.read(profileProvider.notifier).isFriend(attendeeId);
@@ -82,6 +156,7 @@ void handleMessage(RemoteMessage message, BuildContext context, WidgetRef ref) a
           context,
           message.notification?.body ?? 'New Message',
           message.notification?.title ?? 'Notification',
+          onTap: () => navigateToDetailedEventScreen(eventId),
         );
       }
       // If setting toggle for only notifying if a friend joins is disabled (notify for all)
@@ -94,6 +169,7 @@ void handleMessage(RemoteMessage message, BuildContext context, WidgetRef ref) a
         context,
         message.notification?.body ?? 'New Message',
         message.notification?.title ?? 'Notification',
+        onTap: () => navigateToDetailedEventScreen(eventId),
       );
     }
   }
@@ -102,6 +178,7 @@ void handleMessage(RemoteMessage message, BuildContext context, WidgetRef ref) a
     print('CREATE notification handling');
     String hostUsername = message.data['hostUsername'];
     String eventTitle = message.data['eventTitle'];
+    String eventId = message.data['eventId'];
     ref.read(unreadNotificationsProvider.notifier).addNotification(
           "$hostUsername has created an event, '$eventTitle'",
         );
@@ -110,6 +187,7 @@ void handleMessage(RemoteMessage message, BuildContext context, WidgetRef ref) a
       context,
       message.notification?.body ?? 'New Message',
       message.notification?.title ?? 'Notification',
+      onTap: () => navigateToDetailedEventScreen(eventId),
     );
   }
   // Handles in-app notification for user recieving a friend request
@@ -122,6 +200,7 @@ void handleMessage(RemoteMessage message, BuildContext context, WidgetRef ref) a
       context,
       message.notification?.body ?? 'New Message',
       message.notification?.title ?? 'Notification',
+      onTap: navigateToFriendsScreen,
     );
   }
   // Handles in-app notification for user's friend request getting accepted
@@ -134,6 +213,7 @@ void handleMessage(RemoteMessage message, BuildContext context, WidgetRef ref) a
       context,
       message.notification?.body ?? 'New Message',
       message.notification?.title ?? 'Notification',
+      onTap: navigateToFriendsScreen,
     );
   }
   // Handles in-app notification for user recieving a direct-message
@@ -156,6 +236,7 @@ void handleMessage(RemoteMessage message, BuildContext context, WidgetRef ref) a
             context,
             message.notification?.body ?? 'New Message',
             message.notification?.title ?? 'Notification',
+            onTap: () => navigateToChatScreen(senderId!, chatId!),
           );
           ref.read(friendNotificationProvider.notifier).setNotification(senderId!, true);
         }
@@ -165,6 +246,7 @@ void handleMessage(RemoteMessage message, BuildContext context, WidgetRef ref) a
           context,
           message.notification?.body ?? 'New Message',
           message.notification?.title ?? 'Notification',
+          onTap: () => navigateToChatScreen(senderId!, chatId!),
         );
         ref.read(friendNotificationProvider.notifier).setNotification(senderId!, true);
       }
@@ -182,35 +264,38 @@ void handleMessage(RemoteMessage message, BuildContext context, WidgetRef ref) a
 // - 'background': Color of the notification, set to dark purple by default (can be overwritten)
 
 void showSimpleNotification(BuildContext context, String message, String messageTitle,
-    {Color background = const Color.fromARGB(255, 109, 51, 146)}) {
+    {Color background = const Color.fromARGB(255, 109, 51, 146), VoidCallback? onTap}) {
   showOverlayNotification(
     (context) {
-      return Dismissible(
-        key: Key(DateTime.now().millisecondsSinceEpoch.toString()),
-        direction: DismissDirection.up,
-        onDismissed: (_) {
-          OverlaySupportEntry.of(context)?.dismiss();
-        },
-        child: Card(
-          margin: EdgeInsets.symmetric(horizontal: 4),
-          color: background,
-          child: SafeArea(
-            child: ListTile(
-              leading: Icon(Icons.message, color: Colors.white),
-              title: Text(
-                messageTitle,
-                style: TextStyle(color: Colors.white),
+      return GestureDetector(
+        onTap: onTap,
+        child: Dismissible(
+          key: Key(DateTime.now().millisecondsSinceEpoch.toString()),
+          direction: DismissDirection.up,
+          onDismissed: (_) {
+            OverlaySupportEntry.of(context)?.dismiss();
+          },
+          child: Card(
+            margin: EdgeInsets.symmetric(horizontal: 4),
+            color: background,
+            child: SafeArea(
+              child: ListTile(
+                leading: Icon(Icons.message, color: Colors.white),
+                title: Text(
+                  messageTitle,
+                  style: TextStyle(color: Colors.white),
+                ),
+                subtitle: Text(
+                  message,
+                  style: TextStyle(color: Colors.white),
+                ),
+                // trailing: IconButton(
+                //   icon: Icon(Icons.close, color: Colors.white),
+                //   onPressed: () {
+                //     OverlaySupportEntry.of(context)?.dismiss();
+                //   },
+                // ),
               ),
-              subtitle: Text(
-                message,
-                style: TextStyle(color: Colors.white),
-              ),
-              // trailing: IconButton(
-              //   icon: Icon(Icons.close, color: Colors.white),
-              //   onPressed: () {
-              //     OverlaySupportEntry.of(context)?.dismiss();
-              //   },
-              // ),
             ),
           ),
         ),

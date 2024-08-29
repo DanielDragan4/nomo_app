@@ -114,6 +114,7 @@ Deno.serve(async (req) => {
           data: {
             hostUsername: hostProfileName.profile_name,
             eventTitle: payload.record.title,
+            eventId: payload.record.eventId,
             type: 'CREATE'
           }
         }

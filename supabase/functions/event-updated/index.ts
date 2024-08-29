@@ -227,6 +227,7 @@ Deno.serve(async (req) => {
               hostUsername: hostProfileName.profile_name,
               eventTitle: payload.old_record.title,
               eventDescription: payload.old_record.description,
+              eventId: payload.old_record.event_id,
               type: payload.type
             }
           }

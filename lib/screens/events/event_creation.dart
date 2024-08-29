@@ -1556,24 +1556,26 @@ class _EventCreateScreenState extends ConsumerState<EventCreateScreen> {
                 ),
               ),
             SizedBox(height: 16),
-            Row(
-              children: [
-                Text(
-                  'Title: ',
-                  style: TextStyle(
-                      color: Theme.of(context).colorScheme.onSecondary,
-                      fontSize: MediaQuery.of(context).size.width / 20,
-                      fontWeight: FontWeight.bold),
-                ),
-                Text(
-                  _title.text,
-                  style: TextStyle(
-                    color: Theme.of(context).colorScheme.onSurface,
-                    fontSize: MediaQuery.of(context).size.width / 20,
+            Wrap(children: [
+              Row(
+                children: [
+                  Text(
+                    'Title: ',
+                    style: TextStyle(
+                        color: Theme.of(context).colorScheme.onSecondary,
+                        fontSize: MediaQuery.of(context).size.width / 20,
+                        fontWeight: FontWeight.bold),
                   ),
-                ),
-              ],
-            ),
+                  Text(
+                    _title.text,
+                    style: TextStyle(
+                      color: Theme.of(context).colorScheme.onSurface,
+                      fontSize: MediaQuery.of(context).size.width / 20,
+                    ),
+                  ),
+                ],
+              ),
+            ]),
             SizedBox(height: 8),
             Text(
               'Event Dates:',
@@ -1642,41 +1644,49 @@ class _EventCreateScreenState extends ConsumerState<EventCreateScreen> {
                 ),
               ),
             SizedBox(height: 8),
-            Row(
+            Wrap(
               children: [
-                Text(
-                  'Description: ',
-                  style: TextStyle(
-                    color: Theme.of(context).colorScheme.onSecondary,
-                    fontSize: MediaQuery.of(context).size.width / 20,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                Text(
-                  '${_description.text}',
-                  style: TextStyle(
-                    color: Theme.of(context).colorScheme.onSurface,
-                    fontSize: MediaQuery.of(context).size.width / 20,
-                  ),
+                Row(
+                  children: [
+                    Text(
+                      'Description: ',
+                      style: TextStyle(
+                        color: Theme.of(context).colorScheme.onSecondary,
+                        fontSize: MediaQuery.of(context).size.width / 20,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    Text(
+                      '${_description.text}',
+                      style: TextStyle(
+                        color: Theme.of(context).colorScheme.onSurface,
+                        fontSize: MediaQuery.of(context).size.width / 20,
+                      ),
+                    ),
+                  ],
                 ),
               ],
             ),
             SizedBox(height: 8),
-            Row(
+            Wrap(
               children: [
-                Text(
-                  'Location: ',
-                  style: TextStyle(
-                      color: Theme.of(context).colorScheme.onSecondary,
-                      fontSize: MediaQuery.of(context).size.width / 20,
-                      fontWeight: FontWeight.bold),
-                ),
-                Text(
-                  '${_locationController.text}',
-                  style: TextStyle(
-                    color: Theme.of(context).colorScheme.onSurface,
-                    fontSize: MediaQuery.of(context).size.width / 20,
-                  ),
+                Row(
+                  children: [
+                    Text(
+                      'Location: ',
+                      style: TextStyle(
+                          color: Theme.of(context).colorScheme.onSecondary,
+                          fontSize: MediaQuery.of(context).size.width / 20,
+                          fontWeight: FontWeight.bold),
+                    ),
+                    Text(
+                      '${_locationController.text}',
+                      style: TextStyle(
+                        color: Theme.of(context).colorScheme.onSurface,
+                        fontSize: MediaQuery.of(context).size.width / 20,
+                      ),
+                    ),
+                  ],
                 ),
               ],
             ),

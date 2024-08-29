@@ -120,14 +120,14 @@ class _AppState extends ConsumerState<App> {
     checkProfile();
     initDeepLinkData();
     listenDynamicLinks();
-    // streamSubscription = FlutterBranchSdk.listSession().listen((data) {
-    //   if (data.containsKey("+clicked_branch_link") && data["+clicked_branch_link"] == true) {
-    //     String eventId = data["event_id"];
-    //     navigateToEvent(eventId);
-    //   }
-    // }, onError: (error) {
-    //   print('listSession error: ${error.toString()}');
-    // });
+    streamSubscription = FlutterBranchSdk.listSession().listen((data) {
+      if (data.containsKey("+clicked_branch_link") && data["+clicked_branch_link"] == true) {
+        String eventId = data["event_id"];
+        navigateToEvent(eventId);
+      }
+    }, onError: (error) {
+      print('listSession error: ${error.toString()}');
+    });
 
     firebaseMessaging.setForegroundNotificationPresentationOptions(
       alert: true,

@@ -98,6 +98,7 @@ Deno.serve(async (req) => {
         },
         data: {
           eventTitle: event.title,
+          eventId: payload.record.event_id,
           attendeeName: attendeeProfile.profile_name,
           attendeeId: payload.record.attendees_id,
           type: 'JOIN',

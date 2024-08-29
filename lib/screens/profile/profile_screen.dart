@@ -485,7 +485,7 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
                                                                           .hideCurrentSnackBar();
                                                                       ScaffoldMessenger.of(context).showSnackBar(
                                                                         const SnackBar(
-                                                                          content: Text("Event Deleted"),
+                                                                          content: Text("User unfriended"),
                                                                         ),
                                                                       );
                                                                     },
@@ -787,7 +787,9 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
                       )
                   else if ((private == false) || isFriend || widget.isUser)
                     StreamBuilder(
-                      stream: (widget.isUser) ? ref.read(attendEventsProvider.notifier).stream : ref.read(otherEventsProvider.notifier).stream,
+                      stream: (widget.isUser)
+                          ? ref.read(attendEventsProvider.notifier).stream
+                          : ref.read(otherEventsProvider.notifier).stream,
                       builder: (context, snapshot) {
                         if (snapshot.data != null) {
                           if (widget.isUser) {

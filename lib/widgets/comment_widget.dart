@@ -22,16 +22,17 @@ class CommentWidget extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return Card(
+      color: Theme.of(context).cardColor,
       elevation: 2,
       margin: EdgeInsets.symmetric(
         vertical: MediaQuery.of(context).size.height * 0.005,
         horizontal: MediaQuery.of(context).size.width * 0.02,
       ),
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(8),
       ),
       child: Padding(
-        padding: EdgeInsets.all(MediaQuery.of(context).size.width * 0.03),
+        padding: EdgeInsets.fromLTRB(MediaQuery.of(context).size.width * 0.015, MediaQuery.of(context).size.width * 0.03, MediaQuery.of(context).size.width * 0.015, MediaQuery.of(context).size.width * 0.03),
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -40,7 +41,7 @@ class CommentWidget extends ConsumerWidget {
               builder: (context, snapshot) {
                 if (snapshot.hasData) {
                   return CircleAvatar(
-                    radius: MediaQuery.of(context).size.width * 0.05,
+                    radius: MediaQuery.of(context).size.width * 0.0435,
                     backgroundColor: Colors.grey[200],
                     backgroundImage: NetworkImage(commentData.profileUrl),
                   );
@@ -61,17 +62,20 @@ class CommentWidget extends ConsumerWidget {
                       Text(
                         commentData.username,
                         style: TextStyle(
-                          color: Theme.of(context).colorScheme.onSecondary,
+                          color: Theme.of(context).colorScheme.onPrimary,
                           fontWeight: FontWeight.bold,
-                          fontSize: MediaQuery.of(context).size.width * 0.04,
+                          fontSize: MediaQuery.of(context).size.width * 0.0435,
                         ),
                       ),
                       SizedBox(width: MediaQuery.of(context).size.width * 0.02),
+                      Icon(Icons.circle, size: MediaQuery.of(context).size.width * 0.012,
+                       color: Theme.of(context).colorScheme.onSecondary.withOpacity(0.6),),
+                      SizedBox(width: MediaQuery.of(context).size.width * 0.015),
                       Text(
                         Jiffy.parseFromDateTime(DateTime.parse(commentData.timeStamp)).fromNow(),
                         style: TextStyle(
                           color: Theme.of(context).colorScheme.onSecondary.withOpacity(0.6),
-                          fontSize: MediaQuery.of(context).size.width * 0.03,
+                          fontSize: MediaQuery.of(context).size.width * 0.0325,
                         ),
                       ),
                     ],
@@ -81,7 +85,7 @@ class CommentWidget extends ConsumerWidget {
                     commentData.comment_text,
                     style: TextStyle(
                       color: Theme.of(context).colorScheme.onSecondary,
-                      fontSize: MediaQuery.of(context).size.width * 0.035,
+                      fontSize: MediaQuery.of(context).size.width * 0.0425,
                     ),
                   ),
                 ],

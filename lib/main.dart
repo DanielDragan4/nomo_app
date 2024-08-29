@@ -46,7 +46,10 @@ void main() async {
     print('Location permission denied');
   }
 
-  await FlutterBranchSdk.init(enableLogging: false, disableTracking: false);
+  await FlutterBranchSdk.init(
+    useTestKey: false, // Set to true for testing
+    enableLogging: true,
+  );
 
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
@@ -86,11 +89,37 @@ class _AppState extends ConsumerState<App> {
         enableLogging: true,
         disableTracking: false);
   }
+  void initDeepLinkData() async {
+    var linkData = await FlutterBranchSdk.getLatestReferringParams();
+    if (linkData != null) {
+      handleDeepLink(linkData!);
+    }
+  }
+
+  void listenDynamicLinks() {
+    streamSubscription = FlutterBranchSdk.listSession().listen((data) {
+      if (data.containsKey("+clicked_branch_link") &&
+          data["+clicked_branch_link"] == true) {
+        handleDeepLink(data);
+      }
+    }, onError: (error) {
+      print('listSession error: ${error.toString()}');
+    });
+  }
+
+  void handleDeepLink(Map<dynamic, dynamic> data) {
+    if (data.containsKey("event_id")) {
+      String eventId = data["event_id"];
+      navigateToEvent(eventId);
+    }
+  }
 
   @override
   void initState() {
     super.initState();
     checkProfile();
+    initDeepLinkData();
+    listenDynamicLinks();
     // streamSubscription = FlutterBranchSdk.listSession().listen((data) {
     //   if (data.containsKey("+clicked_branch_link") && data["+clicked_branch_link"] == true) {
     //     String eventId = data["event_id"];

@@ -1,4 +1,5 @@
 import 'dart:typed_data';
+import 'package:flutter/widgets.dart';
 import 'package:image_cropper/image_cropper.dart';
 import 'package:flutter/material.dart';
 import 'package:geocoding/geocoding.dart';
@@ -6,6 +7,7 @@ import 'package:nomo/models/events_model.dart';
 import 'package:nomo/models/interests_enum.dart';
 import 'package:nomo/providers/event-providers/events_provider.dart';
 import 'package:nomo/providers/profile_provider.dart';
+import 'package:nomo/providers/theme_provider.dart';
 import 'package:nomo/screens/NavBar.dart';
 import 'package:nomo/providers/event-providers/attending_events_provider.dart';
 import 'package:nomo/screens/events/detailed_event_screen.dart';
@@ -14,6 +16,7 @@ import 'dart:io';
 import 'package:intl/intl.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:nomo/providers/supabase-providers/supabase_provider.dart';
+import 'package:nomo/screens/settings/setting_blocked.dart';
 import 'package:nomo/widgets/address_search_widget.dart';
 import 'package:nomo/widgets/custom_time_picker.dart';
 import 'package:uuid/uuid.dart';
@@ -39,7 +42,7 @@ class EventCreateScreen extends ConsumerStatefulWidget {
 
 class _EventCreateScreenState extends ConsumerState<EventCreateScreen> {
   int _currentStep = 0;
-  final List<String> _steps = ['Basics', 'Date & Time', 'Details', 'Review'];
+  final List<String> _steps = ['Basics', 'Date & Time', 'Confirm', 'Redirect'];
 
   TimeOfDay? _selectedStartTime;
   bool stime = false;
@@ -70,11 +73,11 @@ class _EventCreateScreenState extends ConsumerState<EventCreateScreen> {
   bool _isTicketed = false;
   bool _step1Valid = false;
   bool _step2Valid = false;
-  bool _step3Valid = false;
+  bool _step3Valid = true;
   List<EventDate> eventDates = [];
   static const int MAX_DATES = 5;
 
-@override
+  @override
   void initState() {
     isNewEvent = (widget.event == null);
     if (!isNewEvent) {
@@ -127,12 +130,22 @@ class _EventCreateScreenState extends ConsumerState<EventCreateScreen> {
     super.dispose();
   }
 
-  void _validateStep1(bool changedTitle) {
-    setState(() {
-      _step1Valid = _selectedImage != null && _title.text.isNotEmpty;
-      if (changedTitle) {
+  void _validateStep1(bool setErrors) {
+    bool isValid = _selectedImage != null &&
+        _title.text.isNotEmpty &&
+        _description.text.isNotEmpty &&
+        (_locationController.text.isNotEmpty || virtualEvent);
+
+    if (setErrors) {
+      setState(() {
         _titleError = _title.text.isEmpty;
-      }
+        _descriptionError = _description.text.isEmpty;
+        _locationError = _locationController.text.isEmpty && !virtualEvent;
+      });
+    }
+
+    setState(() {
+      _step1Valid = isValid;
     });
   }
 
@@ -238,12 +251,6 @@ class _EventCreateScreenState extends ConsumerState<EventCreateScreen> {
     );
 
     return (start1.isBefore(end2) && end1.isAfter(start2)) || (start2.isBefore(end1) && end2.isAfter(start1));
-  }
-
-  void _validateStep3() {
-    setState(() {
-      _step3Valid = _description.text.isNotEmpty && (_locationController.text.isNotEmpty || virtualEvent);
-    });
   }
 
   void _showLoadingOverlay() {
@@ -709,18 +716,24 @@ class _EventCreateScreenState extends ConsumerState<EventCreateScreen> {
         Scaffold(
           backgroundColor: Theme.of(context).colorScheme.surface,
           appBar: AppBar(
-            title: Text(widget.isEdit == true ? 'Edit Event' : 'Create Event'),
+            title: Text(widget.isEdit == true ? 'Edit Event' : 'Create Event',
+                style: TextStyle(fontWeight: FontWeight.bold, fontSize: MediaQuery.of(context).size.width / 25)),
             backgroundColor: Theme.of(context).colorScheme.surface,
+            centerTitle: true,
           ),
-          body: Column(
-            children: [
-              _buildCustomStepper(),
-              Expanded(
-                child: SingleChildScrollView(
-                  child: _buildStepContent(),
+          body: CustomScrollView(
+            slivers: [
+              SliverFillRemaining(
+                hasScrollBody: false,
+                child: Column(
+                  children: [
+                    Expanded(
+                      child: _buildStepContent(),
+                    ),
+                    if (_currentStep < 3) _buildContinueButton(),
+                  ],
                 ),
               ),
-              _buildNavigationButtons(),
             ],
           ),
         ),
@@ -731,6 +744,7 @@ class _EventCreateScreenState extends ConsumerState<EventCreateScreen> {
               child: CircularProgressIndicator(),
             ),
           ),
+        if (_currentStep > 0 && _currentStep < _steps.length - 1) _buildBackButton(),
       ],
     );
   }
@@ -785,52 +799,104 @@ class _EventCreateScreenState extends ConsumerState<EventCreateScreen> {
     }
   }
 
-  Widget _buildNavigationButtons() {
+  Widget _buildContinueButton() {
     return Padding(
       padding: const EdgeInsets.all(16.0),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          if (_currentStep > 0)
-            ElevatedButton(
-              onPressed: _onStepCancel,
-              child: Text('Back'),
+          Expanded(
+            child: ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: _isStepValid(_currentStep)
+                    ? Theme.of(context).colorScheme.primary
+                    : Theme.of(context).colorScheme.secondary,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                padding: EdgeInsets.symmetric(vertical: 16),
+              ),
+              onPressed: () {
+                if (_currentStep == 0) {
+                  _validateStep1(true); // Set errors if fields are empty
+                } else if (_currentStep == 1) {
+                  _validateStep2();
+                }
+                if (_isStepValid(_currentStep)) {
+                  _onStepContinue();
+                }
+              },
+              child: Text(
+                _currentStep == 2 ? 'Create Event' : 'Next Step',
+                style: TextStyle(
+                    color: Theme.of(context).colorScheme.onPrimary,
+                    fontSize: MediaQuery.of(context).size.width / 25,
+                    fontWeight: FontWeight.bold),
+              ),
             ),
-          ElevatedButton(
-            onPressed: _isStepValid(_currentStep) ? _onStepContinue : null,
-            child: Text(_currentStep == 3 ? 'Confirm' : 'Continue'),
           ),
         ],
       ),
     );
   }
 
+  Widget _buildBackButton() {
+    return Positioned(
+      top: MediaQuery.of(context).size.height * .02 + MediaQuery.of(context).padding.top,
+      left: MediaQuery.of(context).size.height * .01,
+      child: Container(
+        padding: const EdgeInsets.only(left: 10),
+        height: MediaQuery.of(context).size.width * .1,
+        width: MediaQuery.of(context).size.width * .1,
+        decoration: BoxDecoration(
+          color: Theme.of(context).colorScheme.secondary, // Light grey color
+          borderRadius: BorderRadius.circular(8), // Rounded corners
+        ),
+        child: Center(
+          child: IconButton(
+            icon: Icon(Icons.arrow_back_ios, color: Colors.white),
+            onPressed: _onStepCancel,
+            padding: EdgeInsets.zero,
+            constraints: BoxConstraints(),
+            splashRadius: 24,
+            color: Theme.of(context).colorScheme.secondary,
+          ),
+        ),
+      ),
+    );
+  }
+
   void _onStepContinue() async {
-    if (_currentStep < _steps.length - 1 && _isStepValid(_currentStep)) {
+    if (_currentStep < 2 && _isStepValid(_currentStep)) {
       setState(() {
         _currentStep += 1;
       });
-    } else if (_currentStep == _steps.length - 1) {
+    } else if (_currentStep == 2) {
       try {
         FocusManager.instance.primaryFocus?.unfocus();
+        _showLoadingOverlay();
         await createEvent(_selectedImage!, dropDownValue, _locationController.text, _title.text, _description.text,
             _isRecurring, _isTicketed);
         if (widget.onEventCreated != null) {
           widget.onEventCreated!();
         }
-        Navigator.of(context, rootNavigator: true)
-            .pushReplacement(MaterialPageRoute(builder: ((context) => const NavBar())));
-        ScaffoldMessenger.of(context).hideCurrentSnackBar();
+        setState(() {
+          _currentStep = 3; // Move to step 4 after event creation
+        });
+      } catch (e) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Event Created'),
-          ),
+          SnackBar(content: Text('Failed to create event: $e')),
         );
       } finally {
-        _resetScreen();
+        _hideLoadingOverlay();
       }
-
-      _enableButton();
+    } else if (_currentStep == 3) {
+      // Navigate away from the event creation screen
+      Navigator.of(context, rootNavigator: true)
+          .pushReplacement(MaterialPageRoute(builder: ((context) => const NavBar())));
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Event Created')),
+      );
     }
   }
 
@@ -859,142 +925,430 @@ class _EventCreateScreenState extends ConsumerState<EventCreateScreen> {
     }
   }
 
-  Widget _buildStep1Content() {
-    return Column(
-      children: [
-        GestureDetector(
-          onTap: () {
-            showModalBottomSheet(
-              context: context,
-              isScrollControlled: true,
-              backgroundColor: Theme.of(context).colorScheme.secondary,
-              shape: const RoundedRectangleBorder(
-                borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-              ),
-              builder: (BuildContext context) {
-                // Get screen size
-                final screenSize = MediaQuery.of(context).size;
-                final double fontSize = screenSize.width * 0.04; // 4% of screen width for font size
+  void _showImageSelectionOptions() {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Theme.of(context).colorScheme.secondary,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (BuildContext context) {
+        // Get screen size
+        final screenSize = MediaQuery.of(context).size;
+        final double fontSize = screenSize.width * 0.04; // 4% of screen width for font size
 
-                return Container(
-                  width: double.infinity, // Ensures full width
-                  padding: EdgeInsets.only(
-                    bottom: MediaQuery.of(context).viewInsets.bottom,
+        return Container(
+          width: double.infinity, // Ensures full width
+          padding: EdgeInsets.only(
+            bottom: MediaQuery.of(context).viewInsets.bottom,
+          ),
+          child: SingleChildScrollView(
+            child: Padding(
+              padding: EdgeInsets.symmetric(
+                horizontal: screenSize.width * 0.05,
+                vertical: screenSize.height * 0.03,
+              ),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.stretch, // Stretches buttons to full width
+                children: [
+                  TextButton(
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text(
+                          "Select from Gallery",
+                          style: TextStyle(fontSize: fontSize, color: Theme.of(context).colorScheme.onSurface),
+                        ),
+                        SizedBox(width: screenSize.width * 0.01),
+                        Icon(Icons.photo_library_rounded, color: Theme.of(context).colorScheme.onSurface)
+                      ],
+                    ),
+                    onPressed: () {
+                      _pickAndCropImage(ImageSource.gallery);
+                      Navigator.pop(context);
+                    },
                   ),
-                  child: SingleChildScrollView(
-                    child: Padding(
-                      padding: EdgeInsets.symmetric(
-                        horizontal: screenSize.width * 0.05,
-                        vertical: screenSize.height * 0.03,
+                  const Divider(),
+                  SizedBox(height: screenSize.height * 0.01),
+                  TextButton(
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text(
+                          "Take a Picture",
+                          style: TextStyle(fontSize: fontSize, color: Theme.of(context).colorScheme.onSurface),
+                        ),
+                        SizedBox(width: screenSize.width * 0.01),
+                        Icon(Icons.camera_alt_rounded, color: Theme.of(context).colorScheme.onSurface)
+                      ],
+                    ),
+                    onPressed: () {
+                      _pickAndCropImage(ImageSource.camera);
+                      Navigator.pop(context);
+                    },
+                  ),
+                  const Divider(),
+                  SizedBox(height: screenSize.height * 0.005),
+                  TextButton(
+                    child: Text(
+                      "Close",
+                      style: TextStyle(fontSize: fontSize, color: Theme.of(context).colorScheme.onSurface),
+                    ),
+                    onPressed: () {
+                      Navigator.pop(context);
+                    },
+                  ),
+                ],
+              ),
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildStep1Content() {
+    return SingleChildScrollView(
+      child: Padding(
+        padding: EdgeInsets.all(8),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'Add an image',
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: MediaQuery.of(context).size.width / 20,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            SizedBox(
+              height: MediaQuery.of(context).size.height / 40,
+            ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                Padding(
+                  padding: EdgeInsets.only(
+                    left: MediaQuery.of(context).size.width / 20,
+                  ),
+                  child: GestureDetector(
+                    onTap: _showImageSelectionOptions,
+                    child: Container(
+                      width: MediaQuery.of(context).size.width / 3.5,
+                      height: MediaQuery.of(context).size.width / 3.5,
+                      decoration: BoxDecoration(
+                        color: Theme.of(context).colorScheme.secondary,
+                        borderRadius: BorderRadius.circular(20),
                       ),
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        crossAxisAlignment: CrossAxisAlignment.stretch, // Stretches buttons to full width
-                        children: [
-                          TextButton(
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Text(
-                                  "Select from Gallery",
-                                  style: TextStyle(fontSize: fontSize),
-                                ),
-                                SizedBox(width: screenSize.width * 0.01),
-                                const Icon(Icons.photo_library_rounded)
-                              ],
+                      child: _selectedImage != null
+                          ? ClipRRect(
+                              borderRadius: BorderRadius.circular(20),
+                              child: Image.file(_selectedImage!, fit: BoxFit.cover))
+                          : Icon(
+                              Icons.image,
+                              color: Theme.of(context).colorScheme.onSecondary,
+                              size: MediaQuery.of(context).size.width / 10,
                             ),
-                            onPressed: () {
-                              _pickAndCropImage(ImageSource.gallery);
-                              Navigator.pop(context);
-                            },
-                          ),
-                          const Divider(),
-                          SizedBox(height: screenSize.height * 0.01),
-                          TextButton(
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Text(
-                                  "Take a Picture",
-                                  style: TextStyle(fontSize: fontSize),
-                                ),
-                                SizedBox(width: screenSize.width * 0.01),
-                                const Icon(Icons.camera_alt_rounded)
-                              ],
-                            ),
-                            onPressed: () {
-                              _pickAndCropImage(ImageSource.camera);
-                              Navigator.pop(context);
-                            },
-                          ),
-                          const Divider(),
-                          SizedBox(height: screenSize.height * 0.005),
-                          TextButton(
-                            child: Text(
-                              "Close",
-                              style: TextStyle(fontSize: fontSize),
-                            ),
-                            onPressed: () {
-                              Navigator.pop(context);
-                            },
-                          ),
-                        ],
+                    ),
+                  ),
+                ),
+                SizedBox(width: 8),
+                Padding(
+                  padding: EdgeInsets.only(
+                    right: MediaQuery.of(context).size.width / 20,
+                  ),
+                  child: Container(
+                    height: MediaQuery.of(context).size.width / 12,
+                    width: MediaQuery.of(context).size.width / 2.25,
+                    child: ElevatedButton.icon(
+                      onPressed: _showImageSelectionOptions,
+                      icon: Icon(
+                        Icons.add,
+                        color: Colors.white,
+                        size: MediaQuery.of(context).size.width / 20,
+                      ),
+                      label: Text(
+                        'Choose a photo',
+                        style: TextStyle(
+                          color: Theme.of(context).colorScheme.onSecondary,
+                          fontSize: MediaQuery.of(context).size.width / 30,
+                        ),
+                      ),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Theme.of(context).colorScheme.secondary,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        padding: EdgeInsets.symmetric(horizontal: 12, vertical: 0),
                       ),
                     ),
                   ),
-                );
+                ),
+              ],
+            ),
+            SizedBox(
+              height: MediaQuery.of(context).size.height / 60,
+            ),
+            Text(
+              'Info',
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: MediaQuery.of(context).size.width / 20,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            SizedBox(
+              height: MediaQuery.of(context).size.height / 80,
+            ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text('Location',
+                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: MediaQuery.of(context).size.width / 30)),
+                Row(
+                  children: [
+                    Text(
+                      "Virtual",
+                      style: TextStyle(fontSize: 15, color: Theme.of(context).colorScheme.onSecondary),
+                    ),
+                    Checkbox(
+                      value: virtualEvent,
+                      onChanged: (value) {
+                        setState(() {
+                          virtualEvent = !virtualEvent;
+                          if (virtualEvent) {
+                            _locationController.text = 'Virtual';
+                          } else {
+                            _locationController.clear();
+                          }
+                        });
+                      },
+                    )
+                  ],
+                )
+              ],
+            ),
+            if (!virtualEvent)
+              AddressSearchField(
+                controller: _locationController,
+                isEvent: true,
+                hasError: false,
+                isVirtual: virtualEvent,
+                onChanged: (value) {
+                  setState(() {
+                    _validateStep1(false);
+                  });
+                },
+              ),
+            SizedBox(
+              height: MediaQuery.of(context).size.height / 80,
+            ),
+            Text('Title',
+                style: TextStyle(fontWeight: FontWeight.bold, fontSize: MediaQuery.of(context).size.width / 30)),
+            TextField(
+              controller: _title,
+              decoration: InputDecoration(
+                filled: true,
+                fillColor: Theme.of(context).colorScheme.secondary,
+                hintText: 'Enter event title',
+                hintStyle: TextStyle(
+                  color: Theme.of(context).colorScheme.onSecondary,
+                ),
+                border: OutlineInputBorder(
+                  borderSide: BorderSide(
+                    color: _titleError ? Colors.red : Theme.of(context).colorScheme.secondary,
+                  ),
+                ),
+                enabledBorder: OutlineInputBorder(
+                  borderSide: BorderSide(
+                    color: _titleError ? Colors.red : Theme.of(context).colorScheme.secondary,
+                  ),
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderSide: BorderSide(
+                    color: Theme.of(context).colorScheme.secondary,
+                  ),
+                ),
+              ),
+              style: TextStyle(color: Theme.of(context).colorScheme.onPrimary),
+              onChanged: (value) {
+                setState(() {
+                  _validateStep1(false);
+                });
               },
-            );
-          },
-          child: AspectRatio(
-            aspectRatio: 16 / 9,
-            child: Container(
-              width: double.infinity,
-              color: Colors.grey[300],
-              child: _isImageProcessing
-                  ? Center(child: const CircularProgressIndicator())
-                  : _selectedImage != null
-                      ? Image.file(_selectedImage!, fit: BoxFit.cover)
-                      : const Icon(Icons.add_a_photo, size: 50),
             ),
-          ),
-        ),
-        Padding(
-          padding: const EdgeInsets.symmetric(vertical: 12.0),
-          child: TextField(
-            controller: _title,
-            style: TextStyle(color: Theme.of(context).colorScheme.onSurface),
-            decoration: InputDecoration(
-              border: OutlineInputBorder(
-                borderSide: BorderSide(color: _titleError ? Colors.red : Colors.grey),
-              ),
-              enabledBorder: OutlineInputBorder(
-                borderSide: BorderSide(color: _titleError ? Colors.red : Colors.grey),
-              ),
-              focusedBorder: OutlineInputBorder(
-                borderSide: BorderSide(color: _titleError ? Colors.red : Theme.of(context).colorScheme.primary),
-              ),
-              labelText: "Enter Your Event Title",
-              labelStyle: TextStyle(color: Theme.of(context).colorScheme.onSecondary),
-              contentPadding: const EdgeInsets.all(5),
-              errorText: _titleError ? "Please add a title to your event" : null,
+            SizedBox(
+              height: MediaQuery.of(context).size.height / 80,
             ),
-            onChanged: (value) => _validateStep1(true),
-          ),
+            Text('Description',
+                style: TextStyle(fontWeight: FontWeight.bold, fontSize: MediaQuery.of(context).size.width / 30)),
+            TextField(
+              controller: _description,
+              decoration: InputDecoration(
+                filled: true,
+                fillColor: Theme.of(context).colorScheme.secondary,
+                hintText: 'Enter event description',
+                hintStyle: TextStyle(
+                  color: Theme.of(context).colorScheme.onSecondary,
+                ),
+                border: OutlineInputBorder(
+                  borderSide: BorderSide(
+                    color: _descriptionError ? Colors.red : Theme.of(context).colorScheme.secondary,
+                  ),
+                ),
+                enabledBorder: OutlineInputBorder(
+                  borderSide: BorderSide(
+                    color: _descriptionError ? Colors.red : Theme.of(context).colorScheme.secondary,
+                  ),
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderSide: BorderSide(
+                    color: Theme.of(context).colorScheme.secondary,
+                  ),
+                ),
+              ),
+              style: TextStyle(color: Theme.of(context).colorScheme.onPrimary),
+              maxLines: 3,
+              onChanged: (value) {
+                setState(() {
+                  _validateStep1(false);
+                });
+              },
+            ),
+          ],
         ),
-      ],
+      ),
     );
   }
 
   Widget _buildStep2Content() {
     return SingleChildScrollView(
       child: Padding(
-        padding: const EdgeInsets.all(16.0),
+        padding: EdgeInsets.fromLTRB(8, MediaQuery.of(context).padding.top, 8, 8),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            for (int i = 0; i < eventDates.length; i++) _buildDateTimeFields(i),
+            Text(
+              'Settings',
+              style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: MediaQuery.of(context).size.width / 20,
+                  color: Theme.of(context).colorScheme.onPrimary),
+            ),
             SizedBox(height: 16),
+            Text(
+              'Invitation Type',
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                color: Theme.of(context).colorScheme.onPrimary,
+                fontSize: MediaQuery.of(context).size.width / 30,
+              ),
+            ),
+            SizedBox(height: 8),
+            Container(
+              height: 30,
+              decoration: BoxDecoration(
+                color: Theme.of(context).cardColor,
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Row(
+                children: [
+                  _buildInvitationTypeOption('Public'),
+                  _buildVerticalDivider(),
+                  _buildInvitationTypeOption('Private'),
+                  _buildVerticalDivider(),
+                  _buildInvitationTypeOption('Selective'),
+                ],
+              ),
+            ),
+            SizedBox(height: 24),
+            Text(
+              'Event Categories',
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                color: Theme.of(context).colorScheme.onPrimary,
+                fontSize: MediaQuery.of(context).size.width / 30,
+              ),
+            ),
+            SizedBox(height: 8),
+            Center(
+              child: ElevatedButton(
+                style: ElevatedButton.styleFrom(backgroundColor: Theme.of(context).primaryColorLight),
+                onPressed: () async {
+                  FocusManager.instance.primaryFocus?.unfocus();
+                  final selectedInterests = await Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (builder) => InterestsScreen(
+                        isEditing: false,
+                        creatingEvent: true,
+                        selectedInterests: categories,
+                      ),
+                    ),
+                  );
+                  if (selectedInterests != null) {
+                    setState(() {
+                      categories = selectedInterests;
+                    });
+                  }
+                },
+                child: Text('Select Categories', style: TextStyle(color: Theme.of(context).colorScheme.onPrimary)),
+              ),
+            ),
+            SizedBox(height: 8),
+            Row(
+              children: [
+                Checkbox(
+                  value: _isTicketed,
+                  onChanged: (value) {
+                    setState(() {
+                      _isTicketed = value!;
+                    });
+                  },
+                ),
+                Text(
+                  'Ticketed Event',
+                  style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: MediaQuery.of(context).size.width / 30,
+                      color: Theme.of(context).colorScheme.onPrimary),
+                ),
+              ],
+            ),
+            SizedBox(height: MediaQuery.of(context).size.height / 60),
+            Divider(),
+            SizedBox(height: MediaQuery.of(context).size.height / 60),
+            Text(
+              'Scheduling',
+              style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: MediaQuery.of(context).size.width / 20,
+                  color: Theme.of(context).colorScheme.onPrimary),
+            ),
+            Row(
+              children: [
+                Checkbox(
+                  value: _isRecurring,
+                  onChanged: (value) {
+                    setState(() {
+                      _isRecurring = value!;
+                    });
+                  },
+                ),
+                Text(
+                  'Recurring Event',
+                  style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: MediaQuery.of(context).size.width / 30,
+                      color: Theme.of(context).colorScheme.onPrimary),
+                ),
+              ],
+            ),
+            for (int i = 0; i < eventDates.length; i++) _buildDateTimeFields(i),
+            SizedBox(height: 8),
             if (eventDates.length < MAX_DATES)
               Center(
                 child: ElevatedButton.icon(
@@ -1008,19 +1362,46 @@ class _EventCreateScreenState extends ConsumerState<EventCreateScreen> {
                   label: Text('Add Another Date'),
                 ),
               ),
-            SizedBox(height: 16),
-            SwitchListTile(
-              title: const Text('Recurring Event'),
-              value: _isRecurring,
-              onChanged: (bool value) {
-                setState(() {
-                  _isRecurring = value;
-                });
-              },
-            ),
           ],
         ),
       ),
+    );
+  }
+
+  Widget _buildInvitationTypeOption(String option) {
+    bool isSelected = dropDownValue == option;
+    return Expanded(
+      child: GestureDetector(
+        onTap: () {
+          setState(() {
+            dropDownValue = option;
+          });
+        },
+        child: Container(
+          height: 36,
+          decoration: BoxDecoration(
+            color: isSelected ? Theme.of(context).primaryColorLight : Colors.transparent,
+            borderRadius: BorderRadius.circular(8),
+          ),
+          child: Center(
+            child: Text(
+              option,
+              style: TextStyle(
+                color: isSelected ? Colors.white : Theme.of(context).colorScheme.onSurface,
+                fontSize: MediaQuery.of(context).size.width / 30,
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildVerticalDivider() {
+    return Container(
+      width: 1,
+      height: 16,
+      color: Theme.of(context).dividerColor,
     );
   }
 
@@ -1033,9 +1414,14 @@ class _EventCreateScreenState extends ConsumerState<EventCreateScreen> {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Padding(
-              padding: const EdgeInsets.symmetric(vertical: 8.0),
-              child: Text('Date ${index + 1}',
-                  style: TextStyle(fontWeight: FontWeight.bold, color: Theme.of(context).colorScheme.onSurface)),
+              padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 14),
+              child: Text(
+                'Date ${index + 1}',
+                style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: MediaQuery.of(context).size.width / 25,
+                    color: Theme.of(context).colorScheme.onSurface),
+              ),
             ),
             if (index > 0)
               IconButton(
@@ -1137,213 +1523,389 @@ class _EventCreateScreenState extends ConsumerState<EventCreateScreen> {
   }
 
   Widget _buildStep3Content() {
-    return Column(
-      children: [
-        Padding(
-          padding: const EdgeInsets.only(top: 12.0),
-          child: TextField(
-            controller: _description,
-            decoration: InputDecoration(
-              border: OutlineInputBorder(
-                borderSide: BorderSide(color: _descriptionError ? Colors.red : Colors.grey),
-              ),
-              enabledBorder: OutlineInputBorder(
-                borderSide: BorderSide(color: _descriptionError ? Colors.red : Colors.grey),
-              ),
-              focusedBorder: OutlineInputBorder(
-                borderSide: BorderSide(color: _descriptionError ? Colors.red : Theme.of(context).colorScheme.primary),
-              ),
-              labelText: "Enter Your Event Description",
-              labelStyle: TextStyle(color: Theme.of(context).colorScheme.onSecondary),
-              contentPadding: const EdgeInsets.all(5),
-              errorText: _descriptionError ? "Please enter a description for your event" : null,
+    return SingleChildScrollView(
+      child: Padding(
+        padding: EdgeInsets.fromLTRB(8, MediaQuery.of(context).padding.top, 8, 8),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'Confirm Details',
+              style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: MediaQuery.of(context).size.width / 20,
+                  color: Theme.of(context).colorScheme.onPrimary),
             ),
-            keyboardType: TextInputType.multiline,
-            textInputAction: TextInputAction.done,
-            maxLines: null,
-            textAlign: TextAlign.start,
-            textCapitalization: TextCapitalization.sentences,
-            maxLength: 1500,
-            style: TextStyle(color: Theme.of(context).colorScheme.onSecondary),
-            onChanged: (value) {
-              setState(() {
-                _validateStep3();
-              });
-            },
-          ),
-        ),
-        SizedBox(height: 16),
-        SwitchListTile(
-          title: const Text('Virtual Event'),
-          value: virtualEvent,
-          onChanged: (bool value) {
-            setState(() {
-              virtualEvent = value;
-              if (virtualEvent) {
-                _locationController.text = 'Virtual';
-              } else {
-                _locationController.clear();
-              }
-              _validateStep3();
-            });
-          },
-        ),
-        SizedBox(height: 16),
-        if (!virtualEvent)
-          AddressSearchField(
-            controller: _locationController,
-            isEvent: true,
-            hasError: false,
-            isVirtual: virtualEvent,
-            onChanged: (value) {
-              setState(() {
-                _validateStep3();
-              });
-            },
-          ),
-        DropdownButtonFormField<String>(
-          value: dropDownValue,
-          decoration: const InputDecoration(labelText: 'Invitation Type'),
-          items: ['Public', 'Private', 'Selective']
-              .map((type) => DropdownMenuItem(value: type, child: Text(type)))
-              .toList(),
-          style: TextStyle(color: Theme.of(context).colorScheme.onSurface),
-          onChanged: (String? newValue) {
-            if (newValue != null) {
-              setState(() {
-                dropDownValue = newValue;
-              });
-            }
-          },
-        ),
-        SizedBox(height: 16),
-        ElevatedButton(
-          onPressed: () async {
-            FocusManager.instance.primaryFocus?.unfocus();
-            final selectedInterests = await Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (builder) => InterestsScreen(
-                  isEditing: false,
-                  creatingEvent: true,
-                  selectedInterests: categories,
+            SizedBox(height: 16),
+            if (_selectedImage != null)
+              AspectRatio(
+                aspectRatio: 16 / 9,
+                child: Container(
+                  width: double.infinity,
+                  color: Colors.grey[300],
+                  child: Image.file(_selectedImage!, fit: BoxFit.cover),
+                ),
+              )
+            else
+              AspectRatio(
+                aspectRatio: 16 / 9,
+                child: Container(
+                  width: double.infinity,
+                  color: Colors.grey[300],
+                  child: Icon(Icons.image, size: 50),
                 ),
               ),
-            );
-            if (selectedInterests != null) {
-              setState(() {
-                categories = selectedInterests;
-              });
-            }
-          },
-          child: const Text('Select Categories'),
+            SizedBox(height: 16),
+            Row(
+              children: [
+                Text(
+                  'Title: ',
+                  style: TextStyle(
+                      color: Theme.of(context).colorScheme.onSecondary,
+                      fontSize: MediaQuery.of(context).size.width / 20,
+                      fontWeight: FontWeight.bold),
+                ),
+                Text(
+                  _title.text,
+                  style: TextStyle(
+                    color: Theme.of(context).colorScheme.onSurface,
+                    fontSize: MediaQuery.of(context).size.width / 20,
+                  ),
+                ),
+              ],
+            ),
+            SizedBox(height: 8),
+            Text(
+              'Event Dates:',
+              style: TextStyle(
+                color: Theme.of(context).colorScheme.onSecondary,
+                fontWeight: FontWeight.bold,
+                fontSize: MediaQuery.of(context).size.width / 20,
+              ),
+            ),
+            for (int i = 0; i < eventDates.length; i++)
+              Padding(
+                padding: const EdgeInsets.only(left: 8.0, top: 2.0, bottom: 2),
+                child: IntrinsicWidth(
+                  child: Container(
+                    decoration: BoxDecoration(
+                      color: Theme.of(context).colorScheme.secondary,
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    padding: EdgeInsets.all(12),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Date ${i + 1}:',
+                          style: TextStyle(
+                            color: Theme.of(context).colorScheme.onSecondary,
+                            fontWeight: FontWeight.bold,
+                            fontSize: MediaQuery.of(context).size.width / 25,
+                          ),
+                        ),
+                        Row(
+                          children: [
+                            Text(
+                              'Start: ',
+                              style: TextStyle(
+                                color: Theme.of(context).colorScheme.onSurface,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            Text(
+                              '${_formatDateTime(eventDates[i].startDate, eventDates[i].startTime)}',
+                              style: TextStyle(
+                                color: Theme.of(context).colorScheme.onSurface,
+                              ),
+                            ),
+                          ],
+                        ),
+                        Row(
+                          children: [
+                            Text(
+                              'End: ',
+                              style: TextStyle(
+                                color: Theme.of(context).colorScheme.onSurface,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            Text(
+                              '${_formatDateTime(eventDates[i].endDate, eventDates[i].endTime)}',
+                              style: TextStyle(color: Theme.of(context).colorScheme.onSurface),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            SizedBox(height: 8),
+            Row(
+              children: [
+                Text(
+                  'Description: ',
+                  style: TextStyle(
+                    color: Theme.of(context).colorScheme.onSecondary,
+                    fontSize: MediaQuery.of(context).size.width / 20,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                Text(
+                  '${_description.text}',
+                  style: TextStyle(
+                    color: Theme.of(context).colorScheme.onSurface,
+                    fontSize: MediaQuery.of(context).size.width / 20,
+                  ),
+                ),
+              ],
+            ),
+            SizedBox(height: 8),
+            Row(
+              children: [
+                Text(
+                  'Location: ',
+                  style: TextStyle(
+                      color: Theme.of(context).colorScheme.onSecondary,
+                      fontSize: MediaQuery.of(context).size.width / 20,
+                      fontWeight: FontWeight.bold),
+                ),
+                Text(
+                  '${_locationController.text}',
+                  style: TextStyle(
+                    color: Theme.of(context).colorScheme.onSurface,
+                    fontSize: MediaQuery.of(context).size.width / 20,
+                  ),
+                ),
+              ],
+            ),
+            SizedBox(height: 8),
+            Row(
+              children: [
+                Text(
+                  'Invitation Type: ',
+                  style: TextStyle(
+                    color: Theme.of(context).colorScheme.onSecondary,
+                    fontSize: MediaQuery.of(context).size.width / 20,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                Text(
+                  dropDownValue,
+                  style: TextStyle(
+                    color: Theme.of(context).colorScheme.onSurface,
+                    fontSize: MediaQuery.of(context).size.width / 20,
+                  ),
+                ),
+              ],
+            ),
+            SizedBox(height: 8),
+            Row(
+              children: [
+                Text(
+                  'Recurring: ',
+                  style: TextStyle(
+                    color: Theme.of(context).colorScheme.onSecondary,
+                    fontSize: MediaQuery.of(context).size.width / 20,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                Text(
+                  '${_isRecurring ? 'Yes' : 'No'}',
+                  style: TextStyle(
+                    color: Theme.of(context).colorScheme.onSurface,
+                    fontSize: MediaQuery.of(context).size.width / 20,
+                  ),
+                ),
+              ],
+            ),
+            SizedBox(height: 8),
+            Row(
+              children: [
+                Text(
+                  'Ticketed: ',
+                  style: TextStyle(
+                    color: Theme.of(context).colorScheme.onSecondary,
+                    fontSize: MediaQuery.of(context).size.width / 20,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                Text(
+                  '${_isTicketed ? 'Yes' : 'No'}',
+                  style: TextStyle(
+                    color: Theme.of(context).colorScheme.onSurface,
+                    fontSize: MediaQuery.of(context).size.width / 20,
+                  ),
+                ),
+              ],
+            ),
+            SizedBox(height: 8),
+            Wrap(
+              children: [
+                Text(
+                  'Categories: ',
+                  style: TextStyle(
+                    color: Theme.of(context).colorScheme.onSecondary,
+                    fontSize: MediaQuery.of(context).size.width / 20,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                ...categories.entries.where((entry) => entry.value).isEmpty
+                    ? [
+                        Text(
+                          'None',
+                          style: TextStyle(
+                            color: Theme.of(context).colorScheme.onSurface,
+                            fontSize: MediaQuery.of(context).size.width / 20,
+                          ),
+                        )
+                      ]
+                    : categories.entries.where((entry) => entry.value).map((entry) {
+                        String category = ref.read(profileProvider.notifier).enumToString(entry.key);
+                        return Text(
+                          categories.entries.where((e) => e.value).last.key == entry.key ? category : '$category, ',
+                          style: TextStyle(
+                            color: Theme.of(context).colorScheme.onSurface,
+                            fontSize: MediaQuery.of(context).size.width / 20,
+                          ),
+                        );
+                      }).toList(),
+              ],
+            )
+          ],
         ),
-        SizedBox(height: 16),
-        SwitchListTile(
-          title: const Text('Ticketed Event'),
-          value: _isTicketed,
-          onChanged: (bool value) {
-            setState(() {
-              _isTicketed = value;
-            });
-          },
-        ),
-      ],
+      ),
     );
   }
 
   Widget _buildStep4Content() {
-    return Padding(
-      padding: const EdgeInsets.all(8.0),
+    var themeMode = ref.watch(themeModeProvider);
+    return Container(
+      width: double.infinity,
+      height: double.infinity,
+      color: Theme.of(context).colorScheme.surface,
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          if (_selectedImage != null)
-            AspectRatio(
-              aspectRatio: 16 / 9,
-              child: Container(
-                width: double.infinity,
-                color: Colors.grey[300],
-                child: Image.file(_selectedImage!, fit: BoxFit.cover),
-              ),
-            )
-          else
-            AspectRatio(
-              aspectRatio: 16 / 9,
-              child: Container(
-                width: double.infinity,
-                color: Colors.grey[300],
-                child: Icon(Icons.image, size: 50),
-              ),
-            ),
-          Text(
-            'Title: ${_title.text}',
-            style: TextStyle(
-              color: Theme.of(context).colorScheme.onSurface,
-            ),
-          ),
-          Text(
-            'Event Dates:',
-            style: TextStyle(
-              color: Theme.of(context).colorScheme.onSurface,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-          for (int i = 0; i < eventDates.length; i++)
-            Padding(
-              padding: const EdgeInsets.only(left: 8.0, top: 2.0, bottom: 2),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+          Expanded(
+            child: Center(
+              child: Stack(
+                alignment: Alignment.center,
                 children: [
-                  Text(
-                    'Date ${i + 1}:',
-                    style: TextStyle(
-                      color: Theme.of(context).colorScheme.onSurface,
-                      fontWeight: FontWeight.bold,
+                  Container(
+                    width: MediaQuery.of(context).size.width / 1.5,
+                    height: MediaQuery.of(context).size.width / 1.5,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      gradient: themeMode == ThemeMode.dark
+                          ? const RadialGradient(
+                              colors: [
+                                Color.fromRGBO(2, 44, 34, 0.4),
+                                //    Color.fromRGBO(2, 44, 34, 0.1),
+                                Color.fromRGBO(2, 44, 34, 0.01),
+                              ],
+                            )
+                          : const RadialGradient(
+                              colors: [
+                                Color.fromRGBO(20, 184, 100, 0.4),
+                                //    Color.fromRGBO(2, 44, 34, 0.1),
+                                Color.fromRGBO(20, 184, 100, 0.01),
+                              ],
+                            ),
                     ),
                   ),
-                  Text(
-                    'Start: ${_formatDateTime(eventDates[i].startDate, eventDates[i].startTime)}',
-                    style: TextStyle(
-                      color: Theme.of(context).colorScheme.onSurface,
+                  Positioned(
+                    child: Container(
+                      width: MediaQuery.of(context).size.width / 4,
+                      height: MediaQuery.of(context).size.width / 4,
+                      decoration: themeMode == ThemeMode.dark
+                          ? const BoxDecoration(
+                              shape: BoxShape.circle,
+                              color: Color.fromRGBO(2, 44, 34, 0.8),
+                            )
+                          : const BoxDecoration(
+                              shape: BoxShape.circle,
+                              color: Color.fromRGBO(209, 250, 229, 1),
+                            ),
+                      child: Icon(
+                        Icons.calendar_today,
+                        size: MediaQuery.of(context).size.width / 12,
+                        color: Color.fromRGBO(4, 120, 87, 1),
+                      ),
                     ),
                   ),
-                  Text(
-                    'End: ${_formatDateTime(eventDates[i].endDate, eventDates[i].endTime)}',
-                    style: TextStyle(color: Theme.of(context).colorScheme.onSurface),
+                  Positioned(
+                    top: MediaQuery.of(context).size.width / 1.5 / 2 + MediaQuery.of(context).size.width / 6,
+                    child: Text(
+                      'Your event has been\nsuccessfully created!',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        fontSize: MediaQuery.of(context).size.width / 18,
+                        fontWeight: FontWeight.bold,
+                        color: Theme.of(context).colorScheme.onSurface,
+                      ),
+                    ),
                   ),
                 ],
               ),
             ),
-          Text(
-            'Description: ${_description.text}',
-            style: TextStyle(color: Theme.of(context).colorScheme.onSurface),
           ),
-          Text(
-            'Location: ${_locationController.text}',
-            style: TextStyle(color: Theme.of(context).colorScheme.onSurface),
-          ),
-          Text(
-            'Invitation Type: $dropDownValue',
-            style: TextStyle(color: Theme.of(context).colorScheme.onSurface),
-          ),
-          Text(
-            'Recurring: ${_isRecurring ? 'Yes' : 'No'}',
-            style: TextStyle(color: Theme.of(context).colorScheme.onSurface),
-          ),
-          Text(
-            'Ticketed: ${_isTicketed ? 'Yes' : 'No'}',
-            style: TextStyle(color: Theme.of(context).colorScheme.onSurface),
-          ),
-          Text(
-            categories.entries
-                    .where((entry) => entry.value)
-                    .map((entry) => ref.read(profileProvider.notifier).enumToString(entry.key))
-                    .join(', ')
-                    .isNotEmpty
-                ? 'Categories: ${categories.entries.where((entry) => entry.value).map((entry) => ref.read(profileProvider.notifier).enumToString(entry.key)).join(', ')}'
-                : 'Categories: None',
-            style: TextStyle(color: Theme.of(context).colorScheme.onSurface),
+          Padding(
+            padding: const EdgeInsets.all(16),
+            child: Row(
+              children: [
+                Expanded(
+                  child: ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Theme.of(context).colorScheme.primary,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      padding: const EdgeInsets.symmetric(vertical: 16),
+                    ),
+                    onPressed: () {
+                      Navigator.of(context, rootNavigator: true)
+                          .pushReplacement(MaterialPageRoute(builder: ((context) => const NavBar())));
+                      _resetScreen();
+                    },
+                    child: Text(
+                      'Go to Events',
+                      style: TextStyle(
+                        color: Theme.of(context).colorScheme.onPrimary,
+                        fontSize: MediaQuery.of(context).size.width / 25,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                ),
+                SizedBox(width: MediaQuery.of(context).size.width / 30),
+                Expanded(
+                  child: ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Theme.of(context).colorScheme.primary,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      padding: EdgeInsets.symmetric(vertical: 16),
+                    ),
+                    onPressed: () {
+                      Navigator.of(context)
+                          .push(MaterialPageRoute(builder: ((context) => DetailedEventScreen(eventData: eventData))));
+                      _resetScreen();
+                    },
+                    child: Text(
+                      'View Your Event',
+                      style: TextStyle(
+                        color: Theme.of(context).colorScheme.onPrimary,
+                        fontSize: MediaQuery.of(context).size.width / 25,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
           ),
         ],
       ),
@@ -1380,142 +1942,8 @@ class _EventCreateScreenState extends ConsumerState<EventCreateScreen> {
       _isTicketed = false;
       _step1Valid = false;
       _step2Valid = false;
-      _step3Valid = false;
+      _step3Valid = true;
     });
-  }
-
-  void _showConfirmationScreen() {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: const Text('Confirm Event Details'),
-          backgroundColor: Theme.of(context).cardColor,
-          content: SingleChildScrollView(
-            child: _isLoading
-                ? Container(
-                    color: Colors.black.withOpacity(0.5),
-                    child: Center(
-                      child: CircularProgressIndicator(),
-                    ),
-                  )
-                : _buildStep4Content(),
-          ),
-          actions: <Widget>[
-            TextButton(
-              child: const Text('Edit'),
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-            ),
-            InkWell(
-              onTap: () {
-                setState(() {
-                  _titleError = _title.text.isEmpty;
-                  _descriptionError = _description.text.isEmpty;
-                  _locationError = _locationController.text.isEmpty && !virtualEvent;
-                  _dateError = !sdate || !edate;
-                  _timeError = !stime || !etime;
-                });
-
-                if (_titleError || _descriptionError || _locationError || _dateError || _timeError) {
-                  ScaffoldMessenger.of(context).hideCurrentSnackBar();
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Please fill in all required fields')),
-                  );
-                } else if (_selectedImage == null && isNewEvent) {
-                  ScaffoldMessenger.of(context).hideCurrentSnackBar();
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Select an image for your event')),
-                  );
-                }
-              },
-              child: ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  textStyle: TextStyle(
-                      color: Theme.of(context).colorScheme.primary, fontSize: 15, fontWeight: FontWeight.w500),
-                ),
-                onPressed: _step3Valid
-                    ? isNewEvent
-                        ? () async {
-                            try {
-                              FocusManager.instance.primaryFocus?.unfocus();
-                              await createEvent(_selectedImage!, dropDownValue, _locationController.text, _title.text,
-                                  _description.text, _isRecurring, _isTicketed);
-                              if (widget.onEventCreated != null) {
-                                widget.onEventCreated!();
-                              }
-                              Navigator.of(context)
-                                  .pushReplacement(MaterialPageRoute(builder: ((context) => const NavBar())));
-                              Navigator.of(context, rootNavigator: false).push(
-                                  MaterialPageRoute(builder: ((context) => DetailedEventScreen(eventData: eventData))));
-
-                              // Navigator.of(context).pushReplacement(
-                              //     MaterialPageRoute(builder: ((context) => DetailedEventScreen(eventData: eventData))));
-                              ScaffoldMessenger.of(context).hideCurrentSnackBar();
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(
-                                  content: Text('Event Created'),
-                                ),
-                              );
-                            } finally {
-                              _resetScreen();
-                            }
-                          }
-                        : () {
-                            print(widget.event!.imageId);
-                            showDialog(
-                              context: context,
-                              builder: (context) => AlertDialog(
-                                title: Text(
-                                  'Are you sure you want to update this event?',
-                                  style: TextStyle(color: Theme.of(context).primaryColorDark),
-                                ),
-                                actions: [
-                                  TextButton(
-                                    onPressed: () async {
-                                      FocusManager.instance.primaryFocus?.unfocus();
-                                      await updateEvent(
-                                          _selectedStartTime!,
-                                          _selectedEndTime!,
-                                          _selectedStartDate!,
-                                          _selectedEndDate!,
-                                          _selectedImage,
-                                          dropDownValue,
-                                          _locationController.text,
-                                          _title.text,
-                                          _description.text,
-                                          _isRecurring,
-                                          _isTicketed);
-                                      Navigator.of(context)
-                                          .pushAndRemoveUntil(MaterialPageRoute(builder: ((context) => const NavBar())),
-                                              (route) => false)
-                                          .then((result) => Navigator.pop(context));
-                                      ScaffoldMessenger.of(context).hideCurrentSnackBar();
-                                      ScaffoldMessenger.of(context).showSnackBar(
-                                        const SnackBar(
-                                          content: Text('Event Updated'),
-                                        ),
-                                      );
-                                    },
-                                    child: const Text('YES'),
-                                  ),
-                                  TextButton(
-                                    onPressed: () => Navigator.pop(context),
-                                    child: const Text('CANCEL'),
-                                  ),
-                                ],
-                              ),
-                            );
-                          }
-                    : null,
-                child: Text(isNewEvent ? 'Create Event' : 'Update Event'),
-              ),
-            ),
-          ],
-        );
-      },
-    );
   }
 }
 

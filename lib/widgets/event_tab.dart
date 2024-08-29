@@ -466,7 +466,7 @@ class _EventTabState extends ConsumerState<EventTab> {
     return Container(
         padding: const EdgeInsets.symmetric(vertical: 8),
         child: (dateFormat.format(startDate) == dateFormat.format(endDate))
-            ? Row(mainAxisAlignment: MainAxisAlignment.start, children: [
+            ? Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
                 Container(
                     child: Row(children: [
                   Icon(Icons.calendar_today,
@@ -481,9 +481,6 @@ class _EventTabState extends ConsumerState<EventTab> {
                     ),
                   ),
                 ])),
-                SizedBox(
-                  width: MediaQuery.of(context).size.width * .05,
-                ),
                 Container(
                     child: Row(
                   children: [
@@ -540,7 +537,7 @@ class _EventTabState extends ConsumerState<EventTab> {
       style: ElevatedButton.styleFrom(
         backgroundColor: Theme.of(context).primaryColor, // Background color
         padding: EdgeInsets.symmetric(
-            vertical: MediaQuery.of(context).size.height * .0185, horizontal: MediaQuery.of(context).size.width * 0.23),
+            vertical: MediaQuery.of(context).size.height * .0185, horizontal: MediaQuery.of(context).size.width * 0.215),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(12.0), // Rounded corners
         ),
@@ -729,7 +726,7 @@ class _EventTabState extends ConsumerState<EventTab> {
   Widget _buildInfoItem(BuildContext context, String value, String label, bool isSmallScreen) {
     return Container(
       height: MediaQuery.of(context).size.height * 0.06,
-      width: MediaQuery.of(context).size.width * 0.27,
+      width: MediaQuery.of(context).size.width * 0.2645,
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(8.0),
         border: Border.all(

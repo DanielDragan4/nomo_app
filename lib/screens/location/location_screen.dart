@@ -86,7 +86,8 @@ class _LocationScreenState extends ConsumerState<LocationScreen> {
     });
     final saveLocation = await SharedPreferences.getInstance();
     saveLocation.setStringList('savedLocation', [jsonEncode(_currentPosition)]);
-    _getAddressFromLatLng(Position.fromMap(json.decode(saveLocation.getStringList('savedLocation')![0])));
+    print(saveLocation.getStringList('savedLocation')![0]);
+    _getAddressFromLatLng(_currentPosition!);
   }
 
   Future<void> _getAddressFromLatLng(Position position) async {
@@ -94,7 +95,7 @@ class _LocationScreenState extends ConsumerState<LocationScreen> {
         .then((List<Placemark> placemarks) {
       Placemark place = placemarks[0];
       setState(() {
-        _currentAddress = '${place.street}, ${place.subLocality}, ${place.subAdministrativeArea}, ${place.postalCode}';
+        _currentAddress = '${place.street}, ${place.locality}, ${place.administrativeArea}, ${place.postalCode}';
       });
     }).catchError((e) {
       debugPrint(e);
@@ -190,9 +191,10 @@ class _LocationScreenState extends ConsumerState<LocationScreen> {
                     ),
                     SizedBox(height: 16),
                     ElevatedButton.icon(
-                      onPressed: () {
+                      onPressed: () async {
                         scrollController.animateTo(100, duration: Duration(milliseconds: 200), curve: Curves.easeIn);
-                        _getCurrentPosition;
+                        await _getCurrentPosition();
+                        ref.read(eventsProvider.notifier).deCodeData();
                       },
                       icon: Icon(Icons.my_location),
                       label: Text('Use Current Location'),
@@ -217,6 +219,7 @@ class _LocationScreenState extends ConsumerState<LocationScreen> {
                       onPressed: () {
                         _setLocationManually();
                         scrollController.animateTo(100, duration: Duration(milliseconds: 200), curve: Curves.easeIn);
+                        ref.read(eventsProvider.notifier).deCodeData();
                       },
                       icon: Icon(Icons.edit_location),
                       label: Text('Set Manual Location'),

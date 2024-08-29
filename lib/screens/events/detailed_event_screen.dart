@@ -369,18 +369,18 @@ class _DetailedEventScreenState extends ConsumerState<DetailedEventScreen> {
               ? Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
                   Container(
                       child: Row(children: [
-                    Icon(
-                      Icons.calendar_today,
-                      size: MediaQuery.of(context).size.width * .055,
-                      color: Theme.of(context).colorScheme.onSurface,
-                    ),
+                    Icon(Icons.calendar_today,
+                        size: MediaQuery.of(context).size.width * .055,
+                        color: Theme.of(context).colorScheme.onSurface,
+                        ),
                     const SizedBox(width: 8),
                     Text(
                       displayedDates,
                       style: TextStyle(
-                          fontSize: MediaQuery.of(context).size.width * .0425,
-                          color: Theme.of(context).colorScheme.onSurface,
-                          fontWeight: FontWeight.w100),
+                        fontSize: MediaQuery.of(context).size.width * .0425,
+                        color: Theme.of(context).colorScheme.onSurface,
+                        fontWeight: FontWeight.w100
+                      ),
                     ),
                   ])),
                   Container(
@@ -393,9 +393,10 @@ class _DetailedEventScreenState extends ConsumerState<DetailedEventScreen> {
                       Text(
                         '${timeFormat.format(startDate)} - ${timeFormat.format(endDate)}',
                         style: TextStyle(
-                            fontSize: MediaQuery.of(context).size.width * .0425,
-                            color: Theme.of(context).colorScheme.onSurface,
-                            fontWeight: FontWeight.w100),
+                          fontSize: MediaQuery.of(context).size.width * .0425,
+                          color: Theme.of(context).colorScheme.onSurface,
+                          fontWeight: FontWeight.w100
+                        ),
                       ),
                     ],
                   ))
@@ -410,9 +411,10 @@ class _DetailedEventScreenState extends ConsumerState<DetailedEventScreen> {
                       Text(
                         displayedDates,
                         style: TextStyle(
-                            fontSize: MediaQuery.of(context).size.width * .0425,
-                            color: Theme.of(context).colorScheme.onSurface,
-                            fontWeight: FontWeight.w100),
+                          fontSize: MediaQuery.of(context).size.width * .0425,
+                          color: Theme.of(context).colorScheme.onSurface,
+                          fontWeight: FontWeight.w100
+                        ),
                       ),
                     ]),
                     Row(
@@ -424,9 +426,10 @@ class _DetailedEventScreenState extends ConsumerState<DetailedEventScreen> {
                         Text(
                           '${timeFormat.format(startDate)} - ${timeFormat.format(endDate)}',
                           style: TextStyle(
-                              fontSize: MediaQuery.of(context).size.width * .0425,
-                              color: Theme.of(context).colorScheme.onSurface,
-                              fontWeight: FontWeight.w100),
+                            fontSize: MediaQuery.of(context).size.width * .0425,
+                            color: Theme.of(context).colorScheme.onSurface,
+                            fontWeight: FontWeight.w100
+                          ),
                         ),
                       ],
                     )

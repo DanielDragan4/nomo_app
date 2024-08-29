@@ -110,7 +110,7 @@ void handleMessage(RemoteMessage message, BuildContext context, WidgetRef ref) a
     String eventTitle = message.data['eventTitle'];
     String hostUsername = message.data['hostUsername'];
     ref.read(unreadNotificationsProvider.notifier).addNotification(
-          "$hostUsername has deleted '$eventTitle'",
+          "$hostUsername has deleted: '$eventTitle'",
         );
     ref.read(notificationBellProvider.notifier).setBellState(true);
     showSimpleNotification(
@@ -127,7 +127,7 @@ void handleMessage(RemoteMessage message, BuildContext context, WidgetRef ref) a
     String eventId = message.data['eventId'];
     //String eventDescription = message.data['eventDescription'];
     ref.read(unreadNotificationsProvider.notifier).addNotification(
-      "$hostUsername has updated '$eventTitle'",
+      "$hostUsername has updated: '$eventTitle'",
       type: 'UPDATE',
       additionalData: {'eventId': eventId},
     );
@@ -151,7 +151,7 @@ void handleMessage(RemoteMessage message, BuildContext context, WidgetRef ref) a
       bool isFriend = await ref.read(profileProvider.notifier).isFriend(attendeeId);
       if (isFriend) {
         ref.read(unreadNotificationsProvider.notifier).addNotification(
-          "$attendeeName has joined your event, '$eventTitle'",
+          "$attendeeName has joined your event: '$eventTitle'",
           type: 'JOIN',
           additionalData: {'eventId': eventId},
         );
@@ -166,7 +166,7 @@ void handleMessage(RemoteMessage message, BuildContext context, WidgetRef ref) a
       // If setting toggle for only notifying if a friend joins is disabled (notify for all)
     } else {
       ref.read(unreadNotificationsProvider.notifier).addNotification(
-        "$attendeeName has joined your event, '$eventTitle'",
+        "$attendeeName has joined your event: '$eventTitle'",
         type: 'JOIN',
         additionalData: {'eventId': eventId},
       );
@@ -186,7 +186,7 @@ void handleMessage(RemoteMessage message, BuildContext context, WidgetRef ref) a
     String eventTitle = message.data['eventTitle'];
     String eventId = message.data['eventId'];
     ref.read(unreadNotificationsProvider.notifier).addNotification(
-      "$hostUsername has created an event, '$eventTitle'",
+      "$hostUsername has created an event: '$eventTitle'",
       type: 'CREATE',
       additionalData: {'eventId': eventId},
     );

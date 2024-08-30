@@ -339,7 +339,7 @@ class GroupMembersList extends ConsumerWidget {
                         return Text('Error: ${snapshot.error}');
                       } else {
                         return Text(
-                          snapshot.data ?? 'Unknown',
+                          '@${snapshot.data}' ?? 'Unknown',
                           overflow: TextOverflow.ellipsis,
                         );
                       }

@@ -111,7 +111,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                             child: TextFormField(
                               decoration: InputDecoration(
                                 labelText: "Email Address",
-                                labelStyle: TextStyle(color: Theme.of(context).colorScheme.onPrimary),
+                                labelStyle: TextStyle(color: Theme.of(context).colorScheme.onSurface),
                                 errorText: _emailError ? _emailErrorText : null,
                                 errorStyle: TextStyle(color: Colors.red),
                                 border: OutlineInputBorder(
@@ -153,7 +153,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                             child: TextFormField(
                               decoration: InputDecoration(
                                 labelText: "Password",
-                                labelStyle: TextStyle(color: Theme.of(context).colorScheme.onPrimary),
+                                labelStyle: TextStyle(color: Theme.of(context).colorScheme.onSurface),
                                 errorText: _passwordError ? _passwordErrorText : null,
                                 errorStyle: TextStyle(color: Colors.red),
                                 border: OutlineInputBorder(
@@ -182,8 +182,8 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                                     setState(() {});
                                   },
                                   icon: _obscurePass == true
-                                      ? Icon(Icons.visibility, color: Theme.of(context).colorScheme.onPrimary)
-                                      : Icon(Icons.visibility_off, color: Theme.of(context).colorScheme.onPrimary),
+                                      ? Icon(Icons.visibility, color: Theme.of(context).colorScheme.onSurface)
+                                      : Icon(Icons.visibility_off, color: Theme.of(context).colorScheme.onSurface),
                                 ),
                               ),
                               obscureText: _obscurePass,
@@ -252,7 +252,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                                   MaterialPageRoute(builder: (context) => ForgotPasswordScreen()),
                                 );
                               },
-                              child: Text('Forgot Password?', style: TextStyle(color: Theme.of(context).colorScheme.onPrimary)),
+                              child: Text('Forgot Password?', style: TextStyle(color: Theme.of(context).colorScheme.onSurface)),
                             ),
                           ),
                           const SizedBox(
@@ -282,7 +282,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                                   isLogin = !isLogin;
                                 });
                               },
-                              child: Text(isLogin ? 'Create an Account' : 'I already have an account.', style: TextStyle(color: Theme.of(context).colorScheme.onPrimary),),
+                              child: Text(isLogin ? 'Create an Account' : 'I already have an account.', style: TextStyle(color: Theme.of(context).colorScheme.onSurface),),
                             ),
                           ElevatedButton(
                               style: ElevatedButton.styleFrom(backgroundColor: Theme.of(context).canvasColor,),
@@ -329,7 +329,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                                         scale: MediaQuery.of(context).size.aspectRatio * 75,
                                       ),
                                       SizedBox(width: MediaQuery.of(context).size.width *.01,),
-                                      Text('Sign in with Apple', style: TextStyle(color: Theme.of(context).colorScheme.onPrimary),)
+                                      Text('Sign in with Apple', style: TextStyle(color: Theme.of(context).colorScheme.onSurface),)
                                     ],
                                   ),
                                 ),
@@ -386,7 +386,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                                         fit: BoxFit.cover,
                                         scale: MediaQuery.of(context).size.aspectRatio * 100,
                                       ),
-                                      Text('Sign in with Google', style: TextStyle(color: Theme.of(context).colorScheme.onPrimary),)
+                                      Text('Sign in with Google', style: TextStyle(color: Theme.of(context).colorScheme.onSurface),)
                                     ],
                                   ),
                                 ),

@@ -39,8 +39,8 @@ class NotificationItem extends StatelessWidget {
                     size: MediaQuery.of(context).size.width / 16,
                   ),
                 ),
-                const VerticalDivider(
-                  color: Colors.white54,
+                VerticalDivider(
+                  color: Theme.of(context).colorScheme.onSurface,
                   thickness: 1,
                   width: 1,
                 ),

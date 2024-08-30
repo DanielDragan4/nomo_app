@@ -327,6 +327,7 @@ class ProfileProvider extends StateNotifier<Profile?> {
     } else if (response.isNotEmpty) {
       await supabaseClient.from('Friends').insert(newFriendMapCurrent);
       await supabaseClient.from('Friends').insert(newFriendMapFriend);
+      await supabaseClient.from('New_Friend').update({'status': 'accepted'}).eq('id', response[0]['id']);
       await supabaseClient.from('New_Friend').delete().eq('id', response[0]['id']);
     }
 
@@ -356,6 +357,11 @@ class ProfileProvider extends StateNotifier<Profile?> {
   Future<String> removeRequest(friendId) async {
     final supabaseClient = (await supabase).client;
     final currentUserId = supabaseClient.auth.currentUser!.id;
+    await supabaseClient
+        .from('New_Friend')
+        .update({'status': 'rejected'})
+        .eq('reciever_id', currentUserId)
+        .eq('sender_id', friendId);
     await supabaseClient.from('New_Friend').delete().eq('reciever_id', currentUserId).eq('sender_id', friendId);
 
     return friendId;

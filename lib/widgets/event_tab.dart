@@ -296,12 +296,11 @@ class _EventTabState extends ConsumerState<EventTab> {
         onTap: () async {
           String currentUser = await ref.read(profileProvider.notifier).getCurrentUserId();
           if (widget.eventData.host != currentUser) {
-            await Navigator.of(context, rootNavigator: true)
-                .push(
-                  MaterialPageRoute(
-                    builder: (context) => OtherProfileScreen(userId: widget.eventData.host),
-                  ),
-                );
+            await Navigator.of(context, rootNavigator: true).push(
+              MaterialPageRoute(
+                builder: (context) => OtherProfileScreen(userId: widget.eventData.host),
+              ),
+            );
           } else {
             await Navigator.of(context, rootNavigator: true).push(
               MaterialPageRoute(
@@ -421,10 +420,9 @@ class _EventTabState extends ConsumerState<EventTab> {
               Expanded(
                 child: Text('Virtual',
                     style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                          fontWeight: FontWeight.w300,
-                          color: Theme.of(context).colorScheme.onSurface,
-                          fontSize: MediaQuery.of(context).size.width * .035
-                        )),
+                        fontWeight: FontWeight.w300,
+                        color: Theme.of(context).colorScheme.onSurface,
+                        fontSize: MediaQuery.of(context).size.width * .035)),
               ),
             ],
           )
@@ -470,8 +468,7 @@ class _EventTabState extends ConsumerState<EventTab> {
                 Container(
                     child: Row(children: [
                   Icon(Icons.calendar_today,
-                      size: MediaQuery.of(context).size.width * .05,
-                      color: Theme.of(context).colorScheme.onSurface),
+                      size: MediaQuery.of(context).size.width * .05, color: Theme.of(context).colorScheme.onSurface),
                   const SizedBox(width: 8),
                   Text(
                     displayedDates,
@@ -485,8 +482,7 @@ class _EventTabState extends ConsumerState<EventTab> {
                     child: Row(
                   children: [
                     Icon(Icons.access_time,
-                        size: MediaQuery.of(context).size.width * .05,
-                        color: Theme.of(context).colorScheme.onSurface),
+                        size: MediaQuery.of(context).size.width * .05, color: Theme.of(context).colorScheme.onSurface),
                     const SizedBox(width: 8),
                     Text(
                       '${timeFormat.format(startDate)} - ${timeFormat.format(endDate)}',
@@ -502,8 +498,7 @@ class _EventTabState extends ConsumerState<EventTab> {
                 children: [
                   Row(mainAxisAlignment: MainAxisAlignment.start, children: [
                     Icon(Icons.calendar_today,
-                        size: MediaQuery.of(context).size.width * .05,
-                        color: Theme.of(context).colorScheme.onSurface),
+                        size: MediaQuery.of(context).size.width * .05, color: Theme.of(context).colorScheme.onSurface),
                     const SizedBox(width: 8),
                     Text(
                       displayedDates,
@@ -537,7 +532,8 @@ class _EventTabState extends ConsumerState<EventTab> {
       style: ElevatedButton.styleFrom(
         backgroundColor: Theme.of(context).primaryColor, // Background color
         padding: EdgeInsets.symmetric(
-            vertical: MediaQuery.of(context).size.height * .0185, horizontal: MediaQuery.of(context).size.width * 0.215),
+            vertical: MediaQuery.of(context).size.height * .0185,
+            horizontal: MediaQuery.of(context).size.width * 0.215),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(12.0), // Rounded corners
         ),
@@ -846,7 +842,12 @@ class _EventTabState extends ConsumerState<EventTab> {
         }
       },
       itemBuilder: (context) => <PopupMenuEntry<Options>>[
-        PopupMenuItem(value: Options.itemOne, child: Text("Share Link", style: TextStyle(color: Theme.of(context).colorScheme.onPrimary),)),
+        PopupMenuItem(
+            value: Options.itemOne,
+            child: Text(
+              "Share Link",
+              style: TextStyle(color: Theme.of(context).colorScheme.onSecondary),
+            )),
       ],
     );
   }

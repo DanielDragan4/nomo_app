@@ -230,6 +230,22 @@ void handleMessage(RemoteMessage message, BuildContext context, WidgetRef ref) a
       onTap: navigateToFriendsScreen,
     );
   }
+  // Handles in-app notification for if user is added to a group
+  if (type == 'GROUP') {
+    print('GROUP notification handling');
+    String groupName = message.data['groupName'];
+    ref.read(unreadNotificationsProvider.notifier).addNotification(
+          "You have been added to the group '$groupName'",
+          type: 'GROUP',
+        );
+    ref.read(notificationBellProvider.notifier).setBellState(true);
+    showSimpleNotification(
+      context,
+      message.notification?.body ?? 'New Message',
+      message.notification?.title ?? 'Notification',
+      onTap: navigateToFriendsScreen,
+    );
+  }
   // Handles in-app notification for user recieving a direct-message
   if (type == 'DM') {
     print('DM notification handling');

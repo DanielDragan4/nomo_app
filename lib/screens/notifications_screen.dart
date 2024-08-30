@@ -41,8 +41,8 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen> {
         break;
       case 'REQUEST':
       case 'ACCEPT':
-        Navigator.push(
-          context,
+      case 'GROUP':
+        Navigator.of(context, rootNavigator: true).push(
           MaterialPageRoute(
               builder: (context) => const NavBar(
                     initialIndex: 3,
@@ -62,6 +62,8 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen> {
       case 'REQUEST':
       case 'ACCEPT':
         return Icons.person_add_alt_1;
+      case 'GROUP':
+        return Icons.group_add_sharp;
     }
     return Icons.notifications;
   }
@@ -96,7 +98,7 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen> {
       body: ListView.builder(
         itemCount: notifications.length,
         itemBuilder: (context, index) {
-          final notification = notifications[index]; // No need to reverse the index
+          final notification = notifications[notifications.length - 1 - index];
           return FadeOutDismissible(
             key: Key(notification.title),
             onDismissed: (direction) {

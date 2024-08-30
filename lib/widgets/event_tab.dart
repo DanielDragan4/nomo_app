@@ -892,7 +892,7 @@ class _EventTabState extends ConsumerState<EventTab> {
       stage: 'user_share',
     )
       ..addControlParam('\$fallback_url', 'https://example.com')
-      ..addControlParam('\$ios_url', 'https://apps.apple.com/app/id123456789')
+      ..addControlParam('\$ios_url', 'https://apps.apple.com/app/id6505129089')
       ..addControlParam('\$android_url', 'https://play.google.com/store/apps/details?id=com.nomo.nomoapp');
 
     BranchResponse response = await FlutterBranchSdk.getShortUrl(buo: buo, linkProperties: lp);

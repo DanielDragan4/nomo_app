@@ -62,7 +62,7 @@ class CommentWidget extends ConsumerWidget {
                       Text(
                         commentData.username,
                         style: TextStyle(
-                          color: Theme.of(context).colorScheme.onPrimary,
+                          color: Theme.of(context).colorScheme.onSurface,
                           fontWeight: FontWeight.bold,
                           fontSize: MediaQuery.of(context).size.width * 0.0435,
                         ),

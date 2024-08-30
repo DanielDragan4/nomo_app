@@ -52,6 +52,20 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen> {
     }
   }
 
+  IconData _notificationIcon(NotificationData notification) {
+    switch (notification.type) {
+      case 'UPDATE':
+      case 'JOIN':
+      case 'CREATE':
+      case 'DELETE':
+        return Icons.calendar_today;
+      case 'REQUEST':
+      case 'ACCEPT':
+        return Icons.person_add_alt_1;
+    }
+    return Icons.notifications;
+  }
+
   @override
   Widget build(BuildContext context) {
     final notifications = ref.watch(unreadNotificationsProvider);
@@ -66,11 +80,11 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen> {
         // ),
         title: Text('Notifications',
             style: TextStyle(
-              color: Theme.of(context).primaryColor,
+              color: Theme.of(context).colorScheme.onSurface,
               fontWeight: FontWeight.w800,
               fontSize: 20,
             )),
-        centerTitle: false,
+        centerTitle: true,
         bottom: PreferredSize(
           preferredSize: const Size.fromHeight(4.0),
           child: Container(
@@ -92,11 +106,16 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen> {
                 const SnackBar(content: Text('Notification dismissed')),
               );
             },
-            child: GestureDetector(
-              onTap: () => _handleNotificationTap(notification),
-              child: NotificationItem(
-                title: notification.title,
-                details: notification.description,
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 12.0),
+              child: GestureDetector(
+                onTap: () => _handleNotificationTap(notification),
+                child: NotificationItem(
+                    title: notification.title,
+                    details: notification.description,
+                    icon: _notificationIcon(
+                      notification,
+                    )),
               ),
             ),
           );

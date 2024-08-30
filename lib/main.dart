@@ -89,6 +89,7 @@ class _AppState extends ConsumerState<App> {
         enableLogging: true,
         disableTracking: false);
   }
+
   void initDeepLinkData() async {
     var linkData = await FlutterBranchSdk.getLatestReferringParams();
     if (linkData != null) {
@@ -98,8 +99,7 @@ class _AppState extends ConsumerState<App> {
 
   void listenDynamicLinks() {
     streamSubscription = FlutterBranchSdk.listSession().listen((data) {
-      if (data.containsKey("+clicked_branch_link") &&
-          data["+clicked_branch_link"] == true) {
+      if (data.containsKey("+clicked_branch_link") && data["+clicked_branch_link"] == true) {
         handleDeepLink(data);
       }
     }, onError: (error) {
@@ -120,14 +120,14 @@ class _AppState extends ConsumerState<App> {
     checkProfile();
     initDeepLinkData();
     listenDynamicLinks();
-    // streamSubscription = FlutterBranchSdk.listSession().listen((data) {
-    //   if (data.containsKey("+clicked_branch_link") && data["+clicked_branch_link"] == true) {
-    //     String eventId = data["event_id"];
-    //     navigateToEvent(eventId);
-    //   }
-    // }, onError: (error) {
-    //   print('listSession error: ${error.toString()}');
-    // });
+    streamSubscription = FlutterBranchSdk.listSession().listen((data) {
+      if (data.containsKey("+clicked_branch_link") && data["+clicked_branch_link"] == true) {
+        String eventId = data["event_id"];
+        navigateToEvent(eventId);
+      }
+    }, onError: (error) {
+      print('listSession error: ${error.toString()}');
+    });
 
     firebaseMessaging.setForegroundNotificationPresentationOptions(
       alert: true,
@@ -179,7 +179,7 @@ class _AppState extends ConsumerState<App> {
               ),
               colorScheme: ColorScheme.fromSeed(
                 primary: const Color.fromARGB(255, 106, 13, 173), // seen on 'Join' button in detailed view
-                onPrimary: Colors.black, // text on 'Join' button
+                onPrimary: Colors.white, // text on 'Join' button
                 secondary: Color.fromARGB(255, 207, 209, 213), // seen on 'Bookmark' + distance box in detailed view
                 onSecondary: const Color.fromARGB(255, 75, 85, 99), // bookmark + distance icon color
                 seedColor: const Color.fromARGB(255, 106, 13, 173), // same as primary

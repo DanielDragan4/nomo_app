@@ -836,6 +836,7 @@ class _EventTabState extends ConsumerState<EventTab> {
 
   Widget _buildMoreOptionsButton(BuildContext context) {
     return PopupMenuButton<Options>(
+      color: Theme.of(context).colorScheme.surface,
       icon: const Icon(Icons.more_horiz),
       iconColor: Theme.of(context).colorScheme.onSecondary,
       iconSize: MediaQuery.of(context).size.width * .07,
@@ -845,7 +846,7 @@ class _EventTabState extends ConsumerState<EventTab> {
         }
       },
       itemBuilder: (context) => <PopupMenuEntry<Options>>[
-        const PopupMenuItem(value: Options.itemOne, child: Text("Share Link")),
+        PopupMenuItem(value: Options.itemOne, child: Text("Share Link", style: TextStyle(color: Theme.of(context).colorScheme.onPrimary),)),
       ],
     );
   }

@@ -15,7 +15,7 @@ interface FriendRequest {
 }
 
 interface WebhookPayload {
-  type: 'INSERT' | 'DELETE'
+  type: 'INSERT' | 'UPDATE'
   table: string
   record: FriendRequest | null
   schema: 'public'
@@ -31,11 +31,11 @@ Deno.serve(async (req) => {
   const payload: WebhookPayload = await req.json()
   console.log('Received payload:', JSON.stringify(payload))
 
-  if (payload.type !== 'INSERT' && payload.type !== 'DELETE') {
+  if (payload.type !== 'INSERT' && payload.type !== 'UPDATE') {
     return new Response('Invalid event type', { status: 400 })
   }
 
-  const record = payload.type === 'DELETE' ? payload.old_record : payload.record
+  const record = payload.type === 'UPDATE' ? payload.old_record : payload.record
 
   if (!record || !record.sender_id || !record.reciever_id) {
     return new Response('Invalid payload structure', { status: 400 })
@@ -43,7 +43,7 @@ Deno.serve(async (req) => {
 
   if (payload.type === 'INSERT') {
     return await handleInsert(record)
-  } else if (payload.type === 'DELETE') {
+  } else if (payload.type === 'UPDATE') {
     return await handleDelete(record)
   }
 

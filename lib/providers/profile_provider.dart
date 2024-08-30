@@ -327,6 +327,7 @@ class ProfileProvider extends StateNotifier<Profile?> {
     } else if (response.isNotEmpty) {
       await supabaseClient.from('Friends').insert(newFriendMapCurrent);
       await supabaseClient.from('Friends').insert(newFriendMapFriend);
+      await supabaseClient.from('New_Friend').update({'status': 'accepted'}).eq('id', response[0]['id']);
       await supabaseClient.from('New_Friend').delete().eq('id', response[0]['id']);
     }
 

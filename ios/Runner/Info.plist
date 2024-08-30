@@ -22,31 +22,25 @@
 	<string>$(FLUTTER_BUILD_NAME)</string>
 	<key>CFBundleSignature</key>
 	<string>????</string>
-	<key>branch_key</key>
-    <string>key_live_gEnGD8evmYhzoLFO4n5wdgodsAnbiIVL</string>
-    <key>branch_app_domain</key>
-    <string>49nft.app.link</string>
 	<key>CFBundleURLTypes</key>
-    <array>
-        <!-- Existing URL type -->
-        <dict>
-            <key>CFBundleTypeRole</key>
-            <string>Editor</string>
-            <key>CFBundleURLSchemes</key>
-            <array>
-                <string>com.googleusercontent.apps.360184712841-mh9s1b58m7afvd7b06gbf2l5lssi8622</string>
-            </array>
-        </dict>
-        <!-- Add new URL type for Branch.io -->
-        <dict>
-            <key>CFBundleTypeRole</key>
-            <string>Editor</string>
-            <key>CFBundleURLSchemes</key>
-            <array>
-                <string>nomo-social://</string>
-            </array>
-        </dict>
-    </array>
+	<array>
+		<dict>
+			<key>CFBundleTypeRole</key>
+			<string>Editor</string>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>com.googleusercontent.apps.360184712841-mh9s1b58m7afvd7b06gbf2l5lssi8622</string>
+			</array>
+		</dict>
+		<dict>
+			<key>CFBundleTypeRole</key>
+			<string>Editor</string>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>nomosocial</string>
+			</array>
+		</dict>
+	</array>
 	<key>CFBundleVersion</key>
 	<string>$(FLUTTER_BUILD_NUMBER)</string>
 	<key>FirebaseAppDelegateProxyEnabled</key>
@@ -90,5 +84,9 @@
 		<string>UIInterfaceOrientationPortrait</string>
 		<string>UIInterfaceOrientationPortraitUpsideDown</string>
 	</array>
+	<key>branch_app_domain</key>
+	<string>49nft.app.link</string>
+	<key>branch_key</key>
+	<string>key_live_gEnGD8evmYhzoLFO4n5wdgodsAnbiIVL</string>
 </dict>
 </plist>

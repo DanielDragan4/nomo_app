@@ -79,7 +79,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Theme.of(context).colorScheme.onSecondary,
+      backgroundColor: Theme.of(context).colorScheme.surface,
       body: Center(
         child: SingleChildScrollView(
           child: Column(
@@ -96,6 +96,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                 child: Image.asset('assets/images/logo.png'),
               ),
               Card(
+                color: Theme.of(context).cardColor,
                 margin: const EdgeInsets.all(20),
                 child: SingleChildScrollView(
                   child: Padding(
@@ -110,6 +111,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                             child: TextFormField(
                               decoration: InputDecoration(
                                 labelText: "Email Address",
+                                labelStyle: TextStyle(color: Theme.of(context).colorScheme.onPrimary),
                                 errorText: _emailError ? _emailErrorText : null,
                                 errorStyle: TextStyle(color: Colors.red),
                                 border: OutlineInputBorder(
@@ -151,6 +153,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                             child: TextFormField(
                               decoration: InputDecoration(
                                 labelText: "Password",
+                                labelStyle: TextStyle(color: Theme.of(context).colorScheme.onPrimary),
                                 errorText: _passwordError ? _passwordErrorText : null,
                                 errorStyle: TextStyle(color: Colors.red),
                                 border: OutlineInputBorder(
@@ -179,8 +182,8 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                                     setState(() {});
                                   },
                                   icon: _obscurePass == true
-                                      ? const Icon(Icons.visibility)
-                                      : const Icon(Icons.visibility_off),
+                                      ? Icon(Icons.visibility, color: Theme.of(context).colorScheme.onPrimary)
+                                      : Icon(Icons.visibility_off, color: Theme.of(context).colorScheme.onPrimary),
                                 ),
                               ),
                               obscureText: _obscurePass,
@@ -249,7 +252,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                                   MaterialPageRoute(builder: (context) => ForgotPasswordScreen()),
                                 );
                               },
-                              child: Text('Forgot Password?', style: TextStyle(color: Theme.of(context).colorScheme.primary)),
+                              child: Text('Forgot Password?', style: TextStyle(color: Theme.of(context).colorScheme.onPrimary)),
                             ),
                           ),
                           const SizedBox(
@@ -262,10 +265,15 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                                 _submit(emailC.text, isLogin, passC.text);
                               },
                               style: ElevatedButton.styleFrom(
-                                backgroundColor: Theme.of(context).colorScheme.primaryContainer,
+                                backgroundColor: Theme.of(context).primaryColor, // Background color
+                                padding: EdgeInsets.symmetric(
+                                    vertical: MediaQuery.of(context).size.height * .0085, horizontal: MediaQuery.of(context).size.width * 0.175),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(12.0), // Rounded corners
+                                ),
                               ),
                               child: Text(isLogin ? 'Login' : 'Signup',
-                                  style: TextStyle(color: Theme.of(context).colorScheme.onPrimaryContainer)),
+                                  style: TextStyle(color: Theme.of(context).colorScheme.onPrimary)),
                             ),
                           if (!isAuthenticating)
                             TextButton(
@@ -274,9 +282,10 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                                   isLogin = !isLogin;
                                 });
                               },
-                              child: Text(isLogin ? 'Create an Account' : 'I already have an account.', style: TextStyle(color: Theme.of(context).colorScheme.primary),),
+                              child: Text(isLogin ? 'Create an Account' : 'I already have an account.', style: TextStyle(color: Theme.of(context).colorScheme.onPrimary),),
                             ),
                           ElevatedButton(
+                              style: ElevatedButton.styleFrom(backgroundColor: Theme.of(context).canvasColor,),
                               onPressed: () async {
                                 final rawNonce = supabase.auth.generateRawNonce();
                                 final hashedNonce = sha256.convert(utf8.encode(rawNonce)).toString();
@@ -320,12 +329,13 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                                         scale: MediaQuery.of(context).size.aspectRatio * 75,
                                       ),
                                       SizedBox(width: MediaQuery.of(context).size.width *.01,),
-                                      Text('Sign in with Apple')
+                                      Text('Sign in with Apple', style: TextStyle(color: Theme.of(context).colorScheme.onPrimary),)
                                     ],
                                   ),
                                 ),
                               )),
                           ElevatedButton(
+                              style: ElevatedButton.styleFrom(backgroundColor: Theme.of(context).canvasColor,),
                               onPressed: () async {
                                 const webClientId =
                                     '360184712841-clbo4mf1nmbkitr4of35spnmcrsqidgq.apps.googleusercontent.com';
@@ -366,6 +376,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                               child: Padding(
                                 padding: EdgeInsets.symmetric(horizontal: MediaQuery.of(context).size.width * 0.1),
                                 child: Container(
+                                  
                                   //width: MediaQuery.of(context).size.width * .40,
                                   child: Row(
                                     mainAxisAlignment: MainAxisAlignment.center,
@@ -375,7 +386,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                                         fit: BoxFit.cover,
                                         scale: MediaQuery.of(context).size.aspectRatio * 100,
                                       ),
-                                      Text('Sign in with Google')
+                                      Text('Sign in with Google', style: TextStyle(color: Theme.of(context).colorScheme.onPrimary),)
                                     ],
                                   ),
                                 ),

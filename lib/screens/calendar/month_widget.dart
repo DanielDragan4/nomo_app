@@ -287,7 +287,7 @@ class DayButton extends ConsumerWidget {
 
     return GestureDetector(
       onTap: () {
-        if (currentDate.isAfter(DateTime.now())) {
+        if (currentDate.isAfter((DateTime.now().subtract(Duration(days: 1))))) {
           if (currentDate.month == selectedMonth) {
             Navigator.of(context)
                 .push(MaterialPageRoute(
@@ -319,7 +319,7 @@ class DayButton extends ConsumerWidget {
             ),
           ),
           color: (isCurrentMonth)
-              ? (currentDate.isAfter(DateTime.now()))
+              ? (currentDate.isAfter((DateTime.now().subtract(Duration(days: 1)))))
                   ? cellColor
                   : const Color.fromARGB(255, 89, 57, 95)
               : Color.fromARGB(120, 128, 128, 128),
@@ -340,7 +340,7 @@ class DayButton extends ConsumerWidget {
                 ),
               ),
             ),
-            if ((currentDate.isAfter(DateTime.now())) && (hasTimeSelected || hasBlockedTime))
+            if ((currentDate.isAfter((DateTime.now().subtract(Duration(days: 1))))) && (hasTimeSelected || hasBlockedTime))
               Positioned(
                 left: 0,
                 top: 0,

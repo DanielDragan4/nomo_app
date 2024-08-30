@@ -24,7 +24,7 @@ class AuthProvider extends StateNotifier<Session?> {
   Future<Supabase> supabase;
   var session;
 
-  void submit(String email, bool isLogin, String pass, bool isValid) async {
+  Future<void> submit(String email, bool isLogin, String pass, bool isValid) async {
     /*
       submits a users credentials based on wether it is login or creating an account. THis 
       then creates a new session and saves it onto the phone.
@@ -52,8 +52,10 @@ class AuthProvider extends StateNotifier<Session?> {
         state = res.session;
         saveData();
       }
+    } on AuthException catch (error) {
+      throw error; // Re-throw the AuthException
     } catch (error) {
-      return;
+      throw Exception('An unexpected error occurred: $error');
     }
   }
 
@@ -158,6 +160,7 @@ class AuthProvider extends StateNotifier<Session?> {
       }
     }
   }
+
   void deleteAccount() async {
     /*
       signs the user out by ending the session and removing the session data off of the phone
@@ -184,7 +187,6 @@ class AuthProvider extends StateNotifier<Session?> {
   }
 }
 
-
 Future<void> checkProfile() async {
   /*
       Checks to see if the profile was fully set up before allowing for entry onto the app
@@ -194,18 +196,17 @@ Future<void> checkProfile() async {
       Returns: none
     */
   late final checkProf;
-  if(supabase.auth.currentUser == null) {
+  if (supabase.auth.currentUser == null) {
     checkProf = null;
-  }
-  else {
-   checkProf =
-      await supabase.from("Profiles").select('profile_id, username').eq('profile_id', supabase.auth.currentUser!.id);
+  } else {
+    checkProf =
+        await supabase.from("Profiles").select('profile_id, username').eq('profile_id', supabase.auth.currentUser!.id);
   }
   final removeSession = await SharedPreferences.getInstance();
-  if ( checkProf == null || checkProf.isEmpty) {
+  if (checkProf == null || checkProf.isEmpty) {
     removeSession.remove("savedSession");
-    if(supabase.auth.currentUser != null)
-    await supabase.from("auth.users").delete().eq('id', (supabase.auth.currentUser!.id));
+    if (supabase.auth.currentUser != null)
+      await supabase.from("auth.users").delete().eq('id', (supabase.auth.currentUser!.id));
   } else if ((checkProf.first['profile_id'] == supabase.auth.currentUser!.id) &&
       (checkProf.first['username'] == null)) {
     await supabase.from("Profiles").delete().eq('profile_id', (supabase.auth.currentUser!.id));

@@ -29,11 +29,19 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
   void _submit(String email, bool login, String pass) async {
     final isValid = _form.currentState!.validate();
 
+    if (!isValid) {
+      return;
+    }
+
+    setState(() {
+      isAuthenticating = true;
+    });
+
     try {
-      ref.watch(currentUserProvider.notifier).submit(email, login, pass, isValid);
+      await ref.read(currentUserProvider.notifier).submit(email, login, pass, isValid);
 
       if (!login) {
-        ref.watch(onSignUp.notifier).notifyAccountCreation();
+        ref.read(onSignUp.notifier).notifyAccountCreation();
       }
 
       setState(() {
@@ -42,23 +50,33 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
         _emailErrorText = '';
         _passwordErrorText = '';
       });
+    } on AuthException catch (error) {
+      setState(() {
+        if (error.message.contains('Invalid login credentials')) {
+          _emailError = true;
+          _passwordError = true;
+          _emailErrorText = 'Invalid Credentials';
+          _passwordErrorText = 'Invalid Credentials';
+        } else if (error.message.contains('Email not confirmed')) {
+          _emailError = true;
+          _emailErrorText = 'Please confirm your email';
+        } else {
+          _emailError = true;
+          _passwordError = true;
+          _emailErrorText = error.message;
+          _passwordErrorText = error.message;
+        }
+      });
     } catch (error) {
       setState(() {
-        if (error.toString().contains('Invalid email')) {
-          _emailError = true;
-          _emailErrorText = 'Invalid email address';
-        } else if (error.toString().contains('Invalid password')) {
-          _passwordError = true;
-          _passwordErrorText = 'Incorrect password';
-        } else {
-          // Generic error handling
-          ScaffoldMessenger.of(context).clearSnackBars();
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Authentication Failed'),
-            ),
-          );
-        }
+        _emailError = true;
+        _passwordError = true;
+        _emailErrorText = 'An unexpected error occurred';
+        _passwordErrorText = 'An unexpected error occurred';
+      });
+    } finally {
+      setState(() {
+        isAuthenticating = false;
       });
     }
     ref.read(savedSessionProvider.notifier).changeSessionDataList();
@@ -70,7 +88,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
   TextEditingController passConfirmC = TextEditingController();
   bool _obscurePass = true;
   bool _obscurePassConfirm = true;
-  final isAuthenticating = false;
+  bool isAuthenticating = false;
   bool _emailError = false;
   bool _passwordError = false;
   String _emailErrorText = '';
@@ -252,7 +270,8 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                                   MaterialPageRoute(builder: (context) => ForgotPasswordScreen()),
                                 );
                               },
-                              child: Text('Forgot Password?', style: TextStyle(color: Theme.of(context).colorScheme.onSurface)),
+                              child: Text('Forgot Password?',
+                                  style: TextStyle(color: Theme.of(context).colorScheme.onSurface)),
                             ),
                           ),
                           const SizedBox(
@@ -267,7 +286,8 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                               style: ElevatedButton.styleFrom(
                                 backgroundColor: Theme.of(context).primaryColor, // Background color
                                 padding: EdgeInsets.symmetric(
-                                    vertical: MediaQuery.of(context).size.height * .0085, horizontal: MediaQuery.of(context).size.width * 0.175),
+                                    vertical: MediaQuery.of(context).size.height * .0085,
+                                    horizontal: MediaQuery.of(context).size.width * 0.175),
                                 shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(12.0), // Rounded corners
                                 ),
@@ -282,30 +302,35 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                                   isLogin = !isLogin;
                                 });
                               },
-                              child: Text(isLogin ? 'Create an Account' : 'I already have an account.', style: TextStyle(color: Theme.of(context).colorScheme.onSurface),),
+                              child: Text(
+                                isLogin ? 'Create an Account' : 'I already have an account.',
+                                style: TextStyle(color: Theme.of(context).colorScheme.onSurface),
+                              ),
                             ),
                           ElevatedButton(
-                              style: ElevatedButton.styleFrom(backgroundColor: Theme.of(context).canvasColor,),
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: Theme.of(context).canvasColor,
+                              ),
                               onPressed: () async {
                                 final rawNonce = supabase.auth.generateRawNonce();
                                 final hashedNonce = sha256.convert(utf8.encode(rawNonce)).toString();
-                                  final credential = await SignInWithApple.getAppleIDCredential(
-                                    scopes: [
-                                      AppleIDAuthorizationScopes.email,
-                                      AppleIDAuthorizationScopes.fullName,
-                                    ],
-                                    nonce: hashedNonce,
-                                  );
+                                final credential = await SignInWithApple.getAppleIDCredential(
+                                  scopes: [
+                                    AppleIDAuthorizationScopes.email,
+                                    AppleIDAuthorizationScopes.fullName,
+                                  ],
+                                  nonce: hashedNonce,
+                                );
 
-                                  final idToken = credential.identityToken;
-                                  if (idToken == null) {
-                                    throw const AuthException(
-                                        'Could not find ID Token from generated credential.');
-                                  }
-                                  bool firstSignIn = await ref.read(currentUserProvider.notifier)
-                                  .signInWithIdTokenApple(idToken, rawNonce);
+                                final idToken = credential.identityToken;
+                                if (idToken == null) {
+                                  throw const AuthException('Could not find ID Token from generated credential.');
+                                }
+                                bool firstSignIn = await ref
+                                    .read(currentUserProvider.notifier)
+                                    .signInWithIdTokenApple(idToken, rawNonce);
 
-                                  if (firstSignIn) {
+                                if (firstSignIn) {
                                   print('1');
                                   ref.watch(onSignUp.notifier).notifyAccountCreation();
                                 } else {
@@ -314,9 +339,9 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                                 }
                                 ref.read(savedSessionProvider.notifier).changeSessionDataList();
 
-                                  // Now send the credential (especially `credential.authorizationCode`) to your server to create a session
-                                  // after they have been validated with Apple (see `Integration` section for more information on how to do this)
-                                },
+                                // Now send the credential (especially `credential.authorizationCode`) to your server to create a session
+                                // after they have been validated with Apple (see `Integration` section for more information on how to do this)
+                              },
                               child: Padding(
                                 padding: EdgeInsets.symmetric(horizontal: MediaQuery.of(context).size.width * 0.1),
                                 child: Container(
@@ -328,14 +353,21 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                                         fit: BoxFit.cover,
                                         scale: MediaQuery.of(context).size.aspectRatio * 75,
                                       ),
-                                      SizedBox(width: MediaQuery.of(context).size.width *.01,),
-                                      Text('Sign in with Apple', style: TextStyle(color: Theme.of(context).colorScheme.onSurface),)
+                                      SizedBox(
+                                        width: MediaQuery.of(context).size.width * .01,
+                                      ),
+                                      Text(
+                                        'Sign in with Apple',
+                                        style: TextStyle(color: Theme.of(context).colorScheme.onSurface),
+                                      )
                                     ],
                                   ),
                                 ),
                               )),
                           ElevatedButton(
-                              style: ElevatedButton.styleFrom(backgroundColor: Theme.of(context).canvasColor,),
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: Theme.of(context).canvasColor,
+                              ),
                               onPressed: () async {
                                 const webClientId =
                                     '360184712841-clbo4mf1nmbkitr4of35spnmcrsqidgq.apps.googleusercontent.com';
@@ -376,7 +408,6 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                               child: Padding(
                                 padding: EdgeInsets.symmetric(horizontal: MediaQuery.of(context).size.width * 0.1),
                                 child: Container(
-                                  
                                   //width: MediaQuery.of(context).size.width * .40,
                                   child: Row(
                                     mainAxisAlignment: MainAxisAlignment.center,
@@ -386,7 +417,10 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                                         fit: BoxFit.cover,
                                         scale: MediaQuery.of(context).size.aspectRatio * 100,
                                       ),
-                                      Text('Sign in with Google', style: TextStyle(color: Theme.of(context).colorScheme.onSurface),)
+                                      Text(
+                                        'Sign in with Google',
+                                        style: TextStyle(color: Theme.of(context).colorScheme.onSurface),
+                                      )
                                     ],
                                   ),
                                 ),

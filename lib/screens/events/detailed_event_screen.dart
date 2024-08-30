@@ -83,7 +83,7 @@ class _DetailedEventScreenState extends ConsumerState<DetailedEventScreen> {
                     Text(
                       widget.eventData.title,
                       style: TextStyle(
-                          color: Theme.of(context).colorScheme.onPrimary,
+                          color: Theme.of(context).colorScheme.onSurface,
                           fontWeight: FontWeight.bold,
                           fontSize: MediaQuery.of(context).size.height * 0.03),
                     ),
@@ -246,7 +246,7 @@ class _DetailedEventScreenState extends ConsumerState<DetailedEventScreen> {
                     style: TextStyle(
                       color: Theme.of(context).colorScheme.onSurface,
                       fontWeight: FontWeight.w600,
-                      fontSize: MediaQuery.of(context).size.width * 0.0525,
+                      fontSize: MediaQuery.of(context).size.width * 0.0465,
                     ),
                     overflow: TextOverflow.ellipsis,
                     maxLines: 1,
@@ -445,7 +445,7 @@ class _DetailedEventScreenState extends ConsumerState<DetailedEventScreen> {
         Text(
           'About',
           style: TextStyle(
-            color: Theme.of(context).colorScheme.onPrimary,
+            color: Theme.of(context).colorScheme.onSurface,
             fontWeight: FontWeight.w600,
             fontSize: MediaQuery.of(context).size.width * .0575,
           ),
@@ -469,7 +469,7 @@ class _DetailedEventScreenState extends ConsumerState<DetailedEventScreen> {
         Text(
           'Comments',
           style: TextStyle(
-            color: Theme.of(context).colorScheme.onPrimary,
+            color: Theme.of(context).colorScheme.onSurface,
             fontWeight: FontWeight.w600,
             fontSize: MediaQuery.of(context).size.width * .0575,
           ),

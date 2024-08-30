@@ -115,7 +115,7 @@ class _CommentsSectionState extends ConsumerState<CommentsSection> {
                       }
                     },
                     icon: Icon(Icons.send),
-                    color: Theme.of(context).colorScheme.onPrimary,
+                    color: Theme.of(context).colorScheme.onSurface,
                   ),
                 ],
               ),

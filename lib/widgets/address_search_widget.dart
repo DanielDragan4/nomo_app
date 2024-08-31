@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:nomo/providers/location-providers/nominatim_service.dart';
 
@@ -157,7 +159,11 @@ class _AddressSearchFieldState extends State<AddressSearchField> {
         onChanged: (value) {
           widget.onChanged?.call(value);
           if (value.length > 3) {
-            _searchLocation(value);
+            var var1 = value;
+            sleep(const Duration(milliseconds: 30));
+            if(var1 == value) {
+              _searchLocation(value);
+            }
           } else {
             setState(() {
               _searchResults = [];

@@ -50,6 +50,7 @@ class _DetailedEventScreenState extends ConsumerState<DetailedEventScreen> {
       });
     }
   }
+
   void _incrementCounter() {
     setState(() {
       widget.eventData.numOfComments = (widget.eventData.numOfComments + 1);
@@ -374,18 +375,18 @@ class _DetailedEventScreenState extends ConsumerState<DetailedEventScreen> {
               ? Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
                   Container(
                       child: Row(children: [
-                    Icon(Icons.calendar_today,
-                        size: MediaQuery.of(context).size.width * .055,
-                        color: Theme.of(context).colorScheme.onSurface,
-                        ),
+                    Icon(
+                      Icons.calendar_today,
+                      size: MediaQuery.of(context).size.width * .055,
+                      color: Theme.of(context).colorScheme.onSurface,
+                    ),
                     const SizedBox(width: 8),
                     Text(
                       displayedDates,
                       style: TextStyle(
-                        fontSize: MediaQuery.of(context).size.width * .0425,
-                        color: Theme.of(context).colorScheme.onSurface,
-                        fontWeight: FontWeight.w100
-                      ),
+                          fontSize: MediaQuery.of(context).size.width * .0425,
+                          color: Theme.of(context).colorScheme.onSurface,
+                          fontWeight: FontWeight.w100),
                     ),
                   ])),
                   Container(
@@ -398,10 +399,9 @@ class _DetailedEventScreenState extends ConsumerState<DetailedEventScreen> {
                       Text(
                         '${timeFormat.format(startDate)} - ${timeFormat.format(endDate)}',
                         style: TextStyle(
-                          fontSize: MediaQuery.of(context).size.width * .0425,
-                          color: Theme.of(context).colorScheme.onSurface,
-                          fontWeight: FontWeight.w100
-                        ),
+                            fontSize: MediaQuery.of(context).size.width * .0425,
+                            color: Theme.of(context).colorScheme.onSurface,
+                            fontWeight: FontWeight.w100),
                       ),
                     ],
                   ))
@@ -416,10 +416,9 @@ class _DetailedEventScreenState extends ConsumerState<DetailedEventScreen> {
                       Text(
                         displayedDates,
                         style: TextStyle(
-                          fontSize: MediaQuery.of(context).size.width * .0425,
-                          color: Theme.of(context).colorScheme.onSurface,
-                          fontWeight: FontWeight.w100
-                        ),
+                            fontSize: MediaQuery.of(context).size.width * .0425,
+                            color: Theme.of(context).colorScheme.onSurface,
+                            fontWeight: FontWeight.w100),
                       ),
                     ]),
                     Row(
@@ -431,10 +430,9 @@ class _DetailedEventScreenState extends ConsumerState<DetailedEventScreen> {
                         Text(
                           '${timeFormat.format(startDate)} - ${timeFormat.format(endDate)}',
                           style: TextStyle(
-                            fontSize: MediaQuery.of(context).size.width * .0425,
-                            color: Theme.of(context).colorScheme.onSurface,
-                            fontWeight: FontWeight.w100
-                          ),
+                              fontSize: MediaQuery.of(context).size.width * .0425,
+                              color: Theme.of(context).colorScheme.onSurface,
+                              fontWeight: FontWeight.w100),
                         ),
                       ],
                     )
@@ -483,7 +481,10 @@ class _DetailedEventScreenState extends ConsumerState<DetailedEventScreen> {
           height: (!(widget.eventData.numOfComments == 0))
               ? MediaQuery.of(context).size.height * .6
               : MediaQuery.of(context).size.height * .25,
-          child: CommentsSection(eventId: widget.eventData!.eventId, onIncrementCounter: _incrementCounter,),
+          child: CommentsSection(
+            eventId: widget.eventData!.eventId,
+            onIncrementCounter: _incrementCounter,
+          ),
         ),
       ],
     );
@@ -499,8 +500,8 @@ class _DetailedEventScreenState extends ConsumerState<DetailedEventScreen> {
       parsedEndDates.add(DateTime.parse(event));
     }
     int? _selectedIndex = 0;
-    for(var i = 0; i < parsedStartDates.length; i++) {
-      if(parsedStartDates[i].isAtSameMomentAs(_selectedStartDate)) {
+    for (var i = 0; i < parsedStartDates.length; i++) {
+      if (parsedStartDates[i].isAtSameMomentAs(_selectedStartDate)) {
         setState(() {
           _selectedIndex = i;
         });
@@ -588,7 +589,14 @@ class _DetailedEventScreenState extends ConsumerState<DetailedEventScreen> {
                   children: [
                     TextButton(
                       onPressed: () => Navigator.of(context).pop(),
-                      child: Text('Cancel'),
+                      child: Text(
+                        'Cancel',
+                        style: TextStyle(
+                          color: Theme.of(context).colorScheme.onSecondary,
+                          fontSize: MediaQuery.of(context).size.width * 0.045,
+                          fontWeight: FontWeight.w400,
+                        ),
+                      ),
                       style: TextButton.styleFrom(
                         padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                       ),
@@ -604,9 +612,22 @@ class _DetailedEventScreenState extends ConsumerState<DetailedEventScreen> {
                               });
                             }
                           : null,
-                      child: Text('Set Date'),
+                      child: Text(
+                        'Set Date',
+                        style: TextStyle(
+                          fontSize: MediaQuery.of(context).size.width * .04,
+                          color: Theme.of(context).colorScheme.onPrimaryContainer,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
                       style: ElevatedButton.styleFrom(
-                        padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                        backgroundColor: Theme.of(context).primaryColor, // Background color
+                        padding: EdgeInsets.symmetric(
+                            vertical: MediaQuery.of(context).size.height * .0085,
+                            horizontal: MediaQuery.of(context).size.width * 0.075),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12.0), // Rounded corners
+                        ),
                       ),
                     ),
                   ],

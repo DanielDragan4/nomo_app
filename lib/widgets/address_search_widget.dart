@@ -26,10 +26,25 @@ class _AddressSearchFieldState extends State<AddressSearchField> {
   List<Map<String, dynamic>> _searchResults = [];
   final LayerLink _layerLink = LayerLink();
   OverlayEntry? _overlayEntry;
+  FocusNode _focusNode = FocusNode();
+
+  @override
+  void initState() {
+    super.initState();
+    _focusNode.addListener(_onFocusChange);
+  }
+
+  void _onFocusChange() {
+    if (!_focusNode.hasFocus) {
+      _removeOverlay();
+    }
+  }
 
   @override
   void dispose() {
     _removeOverlay();
+    _focusNode.removeListener(_onFocusChange);
+    _focusNode.dispose();
     super.dispose();
   }
 
@@ -93,7 +108,7 @@ class _AddressSearchFieldState extends State<AddressSearchField> {
     final results = await _nominatimService.autocomplete(query, country: country);
     setState(() {
       _searchResults = results;
-      if (results.isNotEmpty) {
+      if (results.isNotEmpty && _focusNode.hasFocus) {
         _showOverlay();
       } else {
         _removeOverlay();
@@ -106,6 +121,7 @@ class _AddressSearchFieldState extends State<AddressSearchField> {
     return CompositedTransformTarget(
       link: _layerLink,
       child: TextField(
+        focusNode: _focusNode,
         enabled: !widget.isVirtual,
         controller: widget.controller,
         style: TextStyle(color: Theme.of(context).colorScheme.onPrimary),

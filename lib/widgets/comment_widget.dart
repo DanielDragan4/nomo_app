@@ -32,7 +32,11 @@ class CommentWidget extends ConsumerWidget {
         borderRadius: BorderRadius.circular(8),
       ),
       child: Padding(
-        padding: EdgeInsets.fromLTRB(MediaQuery.of(context).size.width * 0.015, MediaQuery.of(context).size.width * 0.03, MediaQuery.of(context).size.width * 0.015, MediaQuery.of(context).size.width * 0.03),
+        padding: EdgeInsets.fromLTRB(
+            MediaQuery.of(context).size.width * 0.015,
+            MediaQuery.of(context).size.width * 0.03,
+            MediaQuery.of(context).size.width * 0.015,
+            MediaQuery.of(context).size.width * 0.03),
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -59,17 +63,23 @@ class CommentWidget extends ConsumerWidget {
                 children: [
                   Row(
                     children: [
-                      Text(
-                        commentData.username,
-                        style: TextStyle(
-                          color: Theme.of(context).colorScheme.onSurface,
-                          fontWeight: FontWeight.bold,
-                          fontSize: MediaQuery.of(context).size.width * 0.0435,
+                      Expanded(
+                        child: Text(
+                          commentData.username,
+                          style: TextStyle(
+                            color: Theme.of(context).colorScheme.onSurface,
+                            fontWeight: FontWeight.bold,
+                            fontSize: MediaQuery.of(context).size.width * 0.0435,
+                          ),
+                          overflow: TextOverflow.ellipsis,
                         ),
                       ),
                       SizedBox(width: MediaQuery.of(context).size.width * 0.02),
-                      Icon(Icons.circle, size: MediaQuery.of(context).size.width * 0.012,
-                       color: Theme.of(context).colorScheme.onSecondary.withOpacity(0.6),),
+                      Icon(
+                        Icons.circle,
+                        size: MediaQuery.of(context).size.width * 0.012,
+                        color: Theme.of(context).colorScheme.onSecondary.withOpacity(0.6),
+                      ),
                       SizedBox(width: MediaQuery.of(context).size.width * 0.015),
                       Text(
                         Jiffy.parseFromDateTime(DateTime.parse(commentData.timeStamp)).fromNow(),

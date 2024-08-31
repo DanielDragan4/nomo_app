@@ -219,7 +219,7 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
               Text(
                 profile?.profile_name ?? 'Loading...',
                 style: TextStyle(
-                  fontSize: 24,
+                  fontSize: MediaQuery.of(context).size.width / 18,
                   fontWeight: FontWeight.bold,
                   color: Theme.of(context).colorScheme.onPrimary,
                 ),
@@ -227,7 +227,7 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
               Text(
                 '@${profile?.username ?? 'username'}',
                 style: TextStyle(
-                  fontSize: 16,
+                  fontSize: MediaQuery.of(context).size.width / 24,
                   color: Theme.of(context).colorScheme.onPrimary.withOpacity(0.7),
                 ),
               ),
@@ -331,13 +331,14 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
                   SliverAppBar(
                     toolbarHeight: kToolbarHeight + toolbar,
                     backgroundColor: Theme.of(context).colorScheme.surface,
-                    expandedHeight: appBarHeight / 1.3,
+                    expandedHeight: appBarHeight / 1.25,
                     floating: false,
                     pinned: false,
                     snap: false,
                     flexibleSpace: FlexibleSpaceBar(
                       background: Container(
-                        padding: EdgeInsets.only(top: MediaQuery.of(context).padding.top + 10),
+                        padding: EdgeInsets.only(
+                            top: MediaQuery.of(context).padding.top + MediaQuery.of(context).size.height / 60),
                         decoration: BoxDecoration(
                           gradient: LinearGradient(
                             begin: Alignment.topCenter,

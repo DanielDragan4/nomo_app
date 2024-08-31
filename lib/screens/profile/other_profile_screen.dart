@@ -147,12 +147,59 @@ class ProfileScreenState extends ConsumerState<OtherProfileScreen> {
     }
   }
 
+  Widget _buildProfileHeader(Profile profile) {
+    return Padding(
+      padding: EdgeInsets.only(
+        left: MediaQuery.of(context).size.width / 12,
+      ),
+      child: Row(
+        children: [
+          CircleAvatar(
+            radius: MediaQuery.of(context).size.width / 12,
+            backgroundImage: profile.avatar != null ? NetworkImage(profile.avatar!) : null,
+            child: profile.avatar == null ? Icon(Icons.person, size: 40) : null,
+          ),
+          SizedBox(width: 16),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  profile.profile_name ?? 'Loading...',
+                  style: TextStyle(
+                    fontSize: MediaQuery.of(context).size.width / 18,
+                    fontWeight: FontWeight.bold,
+                    color: Theme.of(context).colorScheme.onPrimary,
+                  ),
+                ),
+                Text(
+                  '@${profile.username ?? 'username'}',
+                  style: TextStyle(
+                    fontSize: MediaQuery.of(context).size.width / 24,
+                    color: Theme.of(context).colorScheme.onPrimary.withOpacity(0.7),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
-    //Calculation to prevent appbar overflow on all devices
-    double appBarHeight = MediaQuery.of(context).padding.top + MediaQuery.of(context).size.width * 0.24 + 270;
-    double toolbar;
-    toolbar = 50;
+    // Calculation of appBarHeight
+    double appBarHeight = MediaQuery.of(context).padding.top; // Start with top padding
+    appBarHeight += MediaQuery.of(context).size.width * 0.24; // Avatar size
+    appBarHeight += 16; // Padding below avatar
+    appBarHeight += 24 + 16 + 5; // Text heights and spacing
+    appBarHeight += MediaQuery.of(context).size.width / 20; // Text size for number
+    appBarHeight += MediaQuery.of(context).size.width / 24; // Text size for label
+    //appBarHeight += 20; // Extra padding
+    appBarHeight += 40; // Height of toggle buttons
+    appBarHeight += 24; // Padding around toggle buttons
+    //appBarHeight += 20; // Extra padding for visual comfort
 
     // Listen to changes in the profileProvider
     ref.listen<Profile?>(profileProvider, (previous, next) {
@@ -185,7 +232,7 @@ class ProfileScreenState extends ConsumerState<OtherProfileScreen> {
               child: CustomScrollView(
                 slivers: [
                   SliverAppBar(
-                    toolbarHeight: kToolbarHeight + toolbar,
+                    toolbarHeight: kToolbarHeight + 50,
                     backgroundColor: Theme.of(context).colorScheme.surface,
                     expandedHeight: appBarHeight,
                     floating: false,
@@ -193,12 +240,14 @@ class ProfileScreenState extends ConsumerState<OtherProfileScreen> {
                     snap: false,
                     flexibleSpace: FlexibleSpaceBar(
                       background: Container(
-                        padding: EdgeInsets.only(top: MediaQuery.of(context).padding.top + 10),
+                        padding: EdgeInsets.only(
+                            top: MediaQuery.of(context).padding.top + MediaQuery.of(context).size.height / 60),
                         decoration: BoxDecoration(
                           gradient: LinearGradient(
                             begin: Alignment.topCenter,
                             end: Alignment.bottomCenter,
                             colors: [
+                              Theme.of(context).primaryColor,
                               Theme.of(context).primaryColor,
                               Theme.of(context).colorScheme.surface,
                             ],
@@ -206,196 +255,184 @@ class ProfileScreenState extends ConsumerState<OtherProfileScreen> {
                         ),
                         child: Column(
                           children: [
-                            FutureBuilder(
+                            FutureBuilder<Profile>(
                               key: _futureBuilderKey,
                               future: profileInfo,
                               builder: (context, snapshot) {
-                                if (snapshot.hasError) {
-                                  return Column(
-                                    children: [
-                                      const SizedBox(height: 10),
-                                      CircleAvatar(
-                                        radius: MediaQuery.of(context).size.width * 0.12,
-                                        child: const Text("No Image"),
-                                      ),
-                                      const SizedBox(height: 10),
-                                      Text(
-                                        'Loading...',
-                                        style: TextStyle(
-                                          fontSize: 24,
-                                          fontWeight: FontWeight.bold,
-                                          color: Theme.of(context).colorScheme.onPrimary,
-                                        ),
-                                      ),
-                                      const SizedBox(height: 5),
-                                      Text(
-                                        '@username',
-                                        style: TextStyle(
-                                          fontSize: 16,
-                                          color: Theme.of(context).colorScheme.onPrimary,
-                                        ),
-                                      ),
-                                    ],
-                                  );
-                                } else if (snapshot.connectionState != ConnectionState.done) {
-                                  return const CircularProgressIndicator();
-                                } else if (!snapshot.hasData || snapshot.data!.avatar == null) {
-                                  return Column(
-                                    children: [
-                                      const SizedBox(height: 10),
-                                      CircleAvatar(
-                                        radius: MediaQuery.of(context).size.width * 0.12,
-                                        child: const Text("No Image"),
-                                      ),
-                                      const SizedBox(height: 10),
-                                      Text(
-                                        'Loading...',
-                                        style: TextStyle(
-                                          fontSize: 24,
-                                          fontWeight: FontWeight.bold,
-                                          color: Theme.of(context).colorScheme.onSecondary,
-                                        ),
-                                      ),
-                                      const SizedBox(height: 5),
-                                      Text(
-                                        '@username',
-                                        style: TextStyle(
-                                          fontSize: 16,
-                                          color: Theme.of(context).colorScheme.onSecondary,
-                                        ),
-                                      ),
-                                    ],
+                                if (snapshot.connectionState == ConnectionState.done && snapshot.hasData) {
+                                  return Container(
+                                    padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                                    child: _buildProfileHeader(snapshot.data!),
                                   );
                                 } else {
-                                  var profile = snapshot.data!;
-                                  return Column(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    children: [
-                                      const SizedBox(height: 10),
-                                      CircleAvatar(
-                                        radius: MediaQuery.of(context).size.width * 0.12,
-                                        backgroundImage: profile?.avatar != null ? NetworkImage(profile.avatar!) : null,
-                                        child: profile?.avatar == null
-                                            ? Icon(Icons.person, size: MediaQuery.of(context).size.width * 0.12)
-                                            : null,
-                                      ),
-                                      const SizedBox(height: 10),
-                                      Text(
-                                        profile.profile_name ?? 'Loading...',
-                                        style: TextStyle(
-                                          fontSize: 24,
-                                          fontWeight: FontWeight.bold,
-                                          color: Theme.of(context).colorScheme.onPrimary,
-                                        ),
-                                      ),
-                                      const SizedBox(height: 5),
-                                      Text(
-                                        '@${profile.username}',
-                                        style: TextStyle(
-                                          fontSize: 16,
-                                          color: Theme.of(context).colorScheme.onPrimary,
-                                        ),
-                                      ),
-                                    ],
-                                  );
+                                  return CircularProgressIndicator();
                                 }
                               },
                             ),
+                            const SizedBox(height: 10),
                             Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceAround,
+                              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                               children: [
                                 Column(
                                   children: [
-                                    Row(
-                                      children: [
-                                        Column(
-                                          children: [
-                                            Text(
-                                              "Upcoming Events",
-                                              style: TextStyle(
-                                                  fontSize: 18,
+                                    StreamBuilder<List<Event>>(
+                                      stream: ref.read(otherEventsProvider.notifier).stream,
+                                      builder: (context, snapshot) {
+                                        if (snapshot.hasData) {
+                                          final events = snapshot.data!;
+                                          final now = DateTime.now();
+                                          int upcomingEventCount = events.where((event) {
+                                            final eventStartDate = DateTime.parse(event.attendeeDates['time_start']);
+                                            final isUpcoming = eventStartDate.isAfter(now);
+
+                                            return isUpcoming;
+                                          }).length;
+
+                                          return Column(
+                                            children: [
+                                              Text(
+                                                upcomingEventCount.toString(),
+                                                style: TextStyle(
+                                                  fontSize: MediaQuery.of(context).size.width / 20,
                                                   fontWeight: FontWeight.bold,
-                                                  color: Theme.of(context).colorScheme.onPrimary),
+                                                  color: Theme.of(context).colorScheme.onPrimary,
+                                                ),
+                                              ),
+                                              Text(
+                                                "Upcoming Events",
+                                                style: TextStyle(
+                                                  fontSize: MediaQuery.of(context).size.width / 24,
+                                                  color: Theme.of(context).colorScheme.onPrimary,
+                                                ),
+                                              ),
+                                            ],
+                                          );
+                                        } else {
+                                          return Text(
+                                            "0",
+                                            style: TextStyle(
+                                              fontSize: 18,
+                                              color: Theme.of(context).colorScheme.onPrimary,
                                             ),
-                                            StreamBuilder(
-                                              stream: ref.read(otherEventsProvider.notifier).stream,
-                                              builder: (context, snapshot) {
-                                                if (snapshot.data != null) {
-                                                  final attendingEvents = snapshot.data!
-                                                      .where((event) => (event.otherHost == null)
-                                                          ? event.attending || event.isHost
-                                                          : event.otherAttend || event.otherHost)
-                                                      .toList();
-                                                  var attendingEventCount = attendingEvents.length;
-                                                  for (Event event in attendingEvents) {
-                                                    if (event.sdate.last.compareTo(DateTime.now().toString()) < 0) {
-                                                      attendingEventCount--;
-                                                    }
-                                                  }
-                                                  return Text(
-                                                    attendingEventCount.toString(),
-                                                    style: TextStyle(
-                                                        fontSize: 18, color: Theme.of(context).colorScheme.onPrimary),
-                                                  );
-                                                } else {
-                                                  return Text(
-                                                    "0",
-                                                    style: TextStyle(
-                                                        fontSize: 18, color: Theme.of(context).colorScheme.onPrimary),
-                                                  );
-                                                }
-                                              },
-                                            ),
-                                          ],
-                                        ),
-                                      ],
+                                          );
+                                        }
+                                      },
                                     ),
                                   ],
+                                ),
+                                Padding(
+                                  padding: const EdgeInsets.only(top: 8.0),
+                                  child: Row(
+                                    children: [
+                                      isFriend
+                                          ? ElevatedButton(
+                                              onPressed: () {
+                                                // Unfriend functionality
+                                                showDialog(
+                                                  context: context,
+                                                  builder: (context) => AlertDialog(
+                                                    title: Text('Are you sure you want to unfriend this user?'),
+                                                    actions: [
+                                                      TextButton(
+                                                        onPressed: () async {
+                                                          await removeFriend();
+                                                          Navigator.pop(context);
+                                                          ScaffoldMessenger.of(context).showSnackBar(
+                                                            SnackBar(content: Text("User unfriended")),
+                                                          );
+                                                        },
+                                                        child: Text('Unfriend'),
+                                                      ),
+                                                      TextButton(
+                                                        onPressed: () => Navigator.pop(context),
+                                                        child: Text('Cancel'),
+                                                      ),
+                                                    ],
+                                                  ),
+                                                );
+                                              },
+                                              child: Text("Unfriend"),
+                                            )
+                                          : ElevatedButton(
+                                              onPressed: friendPending ? null : addFriend,
+                                              child: Text(friendPending
+                                                  ? "Pending"
+                                                  : (private == false ? "Friend" : "Request Friend")),
+                                            ),
+                                      SizedBox(width: MediaQuery.of(context).size.width / 20),
+                                      Container(
+                                        decoration: BoxDecoration(
+                                          borderRadius: BorderRadius.circular(100),
+                                          color: Theme.of(context).primaryColor,
+                                        ),
+                                        child: IconButton(
+                                          onPressed: () async {
+                                            // Chat functionality
+                                          },
+                                          icon: const Icon(Icons.message),
+                                          color: Theme.of(context).colorScheme.onPrimary,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
                                 ),
                               ],
                             ),
                             const SizedBox(height: 20),
                             Center(
                               child: Padding(
-                                padding: const EdgeInsets.only(bottom: 8.0),
-                                child: ToggleButtons(
-                                  constraints: BoxConstraints(
-                                    minHeight: 40,
-                                    minWidth: MediaQuery.of(context).size.width * 0.44,
+                                padding: const EdgeInsets.all(12.0),
+                                child: Container(
+                                  width: MediaQuery.of(context).size.width * 0.8,
+                                  height: 40,
+                                  decoration: BoxDecoration(
+                                    color: Theme.of(context).cardColor,
+                                    borderRadius: BorderRadius.circular(8),
                                   ),
-                                  borderRadius: BorderRadius.circular(8),
-                                  selectedBorderColor: Theme.of(context).primaryColor,
-                                  selectedColor: Theme.of(context).primaryColor,
-                                  fillColor: Theme.of(context).primaryColor.withOpacity(0.1),
-                                  color: Colors.grey,
-                                  onPressed: (int index) {
-                                    setState(() {
-                                      for (int i = 0; i < isSelected.length; i++) {
-                                        isSelected[i] = (i == index);
+                                  child: Row(
+                                    children: List.generate(2 * 2 - 1, (index) {
+                                      if (index.isOdd) {
+                                        return Container(
+                                          width: 1,
+                                          height: 20,
+                                          color: Theme.of(context).dividerColor,
+                                        );
                                       }
-                                    });
-                                  },
-                                  isSelected: isSelected,
-                                  children: [
-                                    Padding(
-                                        padding: const EdgeInsets.symmetric(vertical: 3),
-                                        child: Text(
-                                          "Attending Events",
-                                          style: TextStyle(
-                                              fontSize: 14,
-                                              fontWeight: FontWeight.w700,
-                                              color: Theme.of(context).colorScheme.onPrimary),
-                                        )),
-                                    Padding(
-                                        padding: const EdgeInsets.symmetric(vertical: 3),
-                                        child: Text(
-                                          "Hosting Events",
-                                          style: TextStyle(
-                                              fontSize: 14,
-                                              fontWeight: FontWeight.w700,
-                                              color: Theme.of(context).colorScheme.onPrimary),
-                                        )),
-                                  ],
+                                      int buttonIndex = index ~/ 2;
+                                      return Expanded(
+                                        child: GestureDetector(
+                                          onTap: () {
+                                            setState(() {
+                                              for (int i = 0; i < isSelected.length; i++) {
+                                                isSelected[i] = i == buttonIndex;
+                                              }
+                                            });
+                                          },
+                                          child: Container(
+                                            height: 40,
+                                            decoration: BoxDecoration(
+                                              color: isSelected[buttonIndex]
+                                                  ? Theme.of(context).primaryColorLight
+                                                  : Colors.transparent,
+                                              borderRadius: BorderRadius.circular(8),
+                                            ),
+                                            child: Center(
+                                              child: Text(
+                                                buttonIndex == 0 ? 'Attending Events' : 'Hosting Events',
+                                                style: TextStyle(
+                                                  fontSize: MediaQuery.of(context).size.width / 30,
+                                                  fontWeight: FontWeight.w700,
+                                                  color: isSelected[buttonIndex]
+                                                      ? Theme.of(context).colorScheme.onPrimary
+                                                      : Theme.of(context).colorScheme.onSecondary,
+                                                ),
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                      );
+                                    }),
+                                  ),
                                 ),
                               ),
                             ),

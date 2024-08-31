@@ -38,7 +38,7 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
   bool _isLoading = true;
   bool showUpcoming = true;
   bool showPassed = false;
-  bool showHosting = true;
+  bool showHosting = false;
   bool friendPending = false;
   var profile;
 
@@ -653,13 +653,30 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
                           if (snapshot.data != null && snapshot.data!.isNotEmpty) {
                             final relevantEvents = snapshot.data!.where((event) {
                               final now = DateTime.now();
-                              if (showHosting && event.isHost) return true;
+                              if (showHosting && !showUpcoming && !showPassed && event.isHost) return true;
                               if (showUpcoming &&
+                                  !showHosting &&
                                   event.attending &&
+                                  !event.isHost &&
                                   event.attendeeDates['time_start'].compareTo(now.toString()) > 0) return true;
                               if (showPassed &&
+                                  !showHosting &&
                                   event.attending &&
+                                  !event.isHost &&
                                   event.attendeeDates['time_end'].compareTo(now.toString()) < 0) return true;
+                              if (showUpcoming && showPassed && !showHosting && event.attending && !event.isHost)
+                                return true;
+                              if (showHosting &&
+                                  showUpcoming &&
+                                  !showPassed &&
+                                  event.isHost &&
+                                  event.attendeeDates['time_start'].compareTo(now.toString()) > 0) return true;
+                              if (showHosting &&
+                                  !showUpcoming &&
+                                  showPassed &&
+                                  event.isHost &&
+                                  event.attendeeDates['time_end'].compareTo(now.toString()) < 0) return true;
+                              //if (showHosting && (showUpcoming || showPassed) && event.isHost) return true;
                               return false;
                             }).toList();
                             if (relevantEvents.isEmpty) {
@@ -879,6 +896,7 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
                     onChanged: (bool? value) {
                       setState(() {
                         showUpcoming = value!;
+                        if (showUpcoming && showPassed) showHosting = false;
                       });
                     },
                   ),
@@ -888,6 +906,7 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
                     onChanged: (bool? value) {
                       setState(() {
                         showPassed = value!;
+                        if (showUpcoming && showPassed) showHosting = false;
                       });
                     },
                   ),
@@ -897,6 +916,10 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
                     onChanged: (bool? value) {
                       setState(() {
                         showHosting = value!;
+                        if (showHosting && showUpcoming && showPassed) {
+                          showUpcoming = false;
+                          showPassed = false;
+                        }
                       });
                     },
                   ),

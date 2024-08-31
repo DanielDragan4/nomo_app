@@ -41,8 +41,8 @@ class ProfileScreenState extends ConsumerState<OtherProfileScreen> {
     super.initState();
     _fetchData();
 
-      ref.read(otherEventsProvider.notifier).deCodeDataWithId(widget.userId!);
-      checkPendingRequest();
+    ref.read(otherEventsProvider.notifier).deCodeDataWithId(widget.userId!);
+    checkPendingRequest();
   }
 
   @override
@@ -60,7 +60,7 @@ class ProfileScreenState extends ConsumerState<OtherProfileScreen> {
       });
     }
 
-      ref.read(otherEventsProvider.notifier).deCodeDataWithId(widget.userId!);
+    ref.read(otherEventsProvider.notifier).deCodeDataWithId(widget.userId!);
   }
 
 // Loads profile info and event info
@@ -68,7 +68,7 @@ class ProfileScreenState extends ConsumerState<OtherProfileScreen> {
     setState(() {
       _isLoading = true;
     });
-      await _fetchProfileInfo();
+    await _fetchProfileInfo();
     await _fetchEvents();
     if (mounted) {
       setState(() {
@@ -87,7 +87,7 @@ class ProfileScreenState extends ConsumerState<OtherProfileScreen> {
 
 // Gets all relevant event/attendance information for profile being viewed
   Future<void> _fetchEvents() async {
-      ref.read(otherEventsProvider.notifier).deCodeDataWithId(widget.userId!);
+    ref.read(otherEventsProvider.notifier).deCodeDataWithId(widget.userId!);
   }
 
 // Returns relevant profile information to _fetchProfileInfo, or sets default values to avoid error
@@ -95,9 +95,9 @@ class ProfileScreenState extends ConsumerState<OtherProfileScreen> {
     await Future.delayed(const Duration(microseconds: 1));
     Profile profileState;
 
-      profileState = await ref.read(profileProvider.notifier).fetchProfileById(userId);
-      isFriend = await ref.read(profileProvider.notifier).isFriend(userId);
-      private = profileState.private;
+    profileState = await ref.read(profileProvider.notifier).fetchProfileById(userId);
+    isFriend = await ref.read(profileProvider.notifier).isFriend(userId);
+    private = profileState.private;
     return profileState;
   }
 
@@ -152,7 +152,7 @@ class ProfileScreenState extends ConsumerState<OtherProfileScreen> {
     //Calculation to prevent appbar overflow on all devices
     double appBarHeight = MediaQuery.of(context).padding.top + MediaQuery.of(context).size.width * 0.24 + 270;
     double toolbar;
-      toolbar = 50;
+    toolbar = 50;
 
     // Listen to changes in the profileProvider
     ref.listen<Profile?>(profileProvider, (previous, next) {
@@ -207,101 +207,100 @@ class ProfileScreenState extends ConsumerState<OtherProfileScreen> {
                         child: Column(
                           children: [
                             FutureBuilder(
-                                      key: _futureBuilderKey,
-                                      future: profileInfo,
-                                      builder: (context, snapshot) {
-                                        if (snapshot.hasError) {
-                                          return Column(
-                                            children: [
-                                              const SizedBox(height: 10),
-                                              CircleAvatar(
-                                                radius: MediaQuery.of(context).size.width * 0.12,
-                                                child: const Text("No Image"),
-                                              ),
-                                              const SizedBox(height: 10),
-                                              Text(
-                                                'Loading...',
-                                                style: TextStyle(
-                                                  fontSize: 24,
-                                                  fontWeight: FontWeight.bold,
-                                                  color: Theme.of(context).colorScheme.onPrimary,
-                                                ),
-                                              ),
-                                              const SizedBox(height: 5),
-                                              Text(
-                                                '@username',
-                                                style: TextStyle(
-                                                  fontSize: 16,
-                                                  color: Theme.of(context).colorScheme.onPrimary,
-                                                ),
-                                              ),
-                                            ],
-                                          );
-                                        } else if (snapshot.connectionState != ConnectionState.done) {
-                                          return const CircularProgressIndicator();
-                                        } else if (!snapshot.hasData || snapshot.data!.avatar == null) {
-                                          return Column(
-                                            children: [
-                                              const SizedBox(height: 10),
-                                              CircleAvatar(
-                                                radius: MediaQuery.of(context).size.width * 0.12,
-                                                child: const Text("No Image"),
-                                              ),
-                                              const SizedBox(height: 10),
-                                              Text(
-                                                'Loading...',
-                                                style: TextStyle(
-                                                  fontSize: 24,
-                                                  fontWeight: FontWeight.bold,
-                                                  color: Theme.of(context).colorScheme.onSecondary,
-                                                ),
-                                              ),
-                                              const SizedBox(height: 5),
-                                              Text(
-                                                '@username',
-                                                style: TextStyle(
-                                                  fontSize: 16,
-                                                  color: Theme.of(context).colorScheme.onSecondary,
-                                                ),
-                                              ),
-                                            ],
-                                          );
-                                        } else {
-                                          var profile = snapshot.data!;
-                                          return Column(
-                                            mainAxisAlignment: MainAxisAlignment.center,
-                                            children: [
-                                              const SizedBox(height: 10),
-                                              CircleAvatar(
-                                                radius: MediaQuery.of(context).size.width * 0.12,
-                                                backgroundImage:
-                                                    profile?.avatar != null ? NetworkImage(profile.avatar!) : null,
-                                                child: profile?.avatar == null
-                                                    ? Icon(Icons.person, size: MediaQuery.of(context).size.width * 0.12)
-                                                    : null,
-                                              ),
-                                              const SizedBox(height: 10),
-                                              Text(
-                                                profile.profile_name ?? 'Loading...',
-                                                style: TextStyle(
-                                                  fontSize: 24,
-                                                  fontWeight: FontWeight.bold,
-                                                  color: Theme.of(context).colorScheme.onPrimary,
-                                                ),
-                                              ),
-                                              const SizedBox(height: 5),
-                                              Text(
-                                                '@${profile.username}',
-                                                style: TextStyle(
-                                                  fontSize: 16,
-                                                  color: Theme.of(context).colorScheme.onPrimary,
-                                                ),
-                                              ),
-                                            ],
-                                          );
-                                        }
-                                      },
-                                    ),
+                              key: _futureBuilderKey,
+                              future: profileInfo,
+                              builder: (context, snapshot) {
+                                if (snapshot.hasError) {
+                                  return Column(
+                                    children: [
+                                      const SizedBox(height: 10),
+                                      CircleAvatar(
+                                        radius: MediaQuery.of(context).size.width * 0.12,
+                                        child: const Text("No Image"),
+                                      ),
+                                      const SizedBox(height: 10),
+                                      Text(
+                                        'Loading...',
+                                        style: TextStyle(
+                                          fontSize: 24,
+                                          fontWeight: FontWeight.bold,
+                                          color: Theme.of(context).colorScheme.onPrimary,
+                                        ),
+                                      ),
+                                      const SizedBox(height: 5),
+                                      Text(
+                                        '@username',
+                                        style: TextStyle(
+                                          fontSize: 16,
+                                          color: Theme.of(context).colorScheme.onPrimary,
+                                        ),
+                                      ),
+                                    ],
+                                  );
+                                } else if (snapshot.connectionState != ConnectionState.done) {
+                                  return const CircularProgressIndicator();
+                                } else if (!snapshot.hasData || snapshot.data!.avatar == null) {
+                                  return Column(
+                                    children: [
+                                      const SizedBox(height: 10),
+                                      CircleAvatar(
+                                        radius: MediaQuery.of(context).size.width * 0.12,
+                                        child: const Text("No Image"),
+                                      ),
+                                      const SizedBox(height: 10),
+                                      Text(
+                                        'Loading...',
+                                        style: TextStyle(
+                                          fontSize: 24,
+                                          fontWeight: FontWeight.bold,
+                                          color: Theme.of(context).colorScheme.onSecondary,
+                                        ),
+                                      ),
+                                      const SizedBox(height: 5),
+                                      Text(
+                                        '@username',
+                                        style: TextStyle(
+                                          fontSize: 16,
+                                          color: Theme.of(context).colorScheme.onSecondary,
+                                        ),
+                                      ),
+                                    ],
+                                  );
+                                } else {
+                                  var profile = snapshot.data!;
+                                  return Column(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      const SizedBox(height: 10),
+                                      CircleAvatar(
+                                        radius: MediaQuery.of(context).size.width * 0.12,
+                                        backgroundImage: profile?.avatar != null ? NetworkImage(profile.avatar!) : null,
+                                        child: profile?.avatar == null
+                                            ? Icon(Icons.person, size: MediaQuery.of(context).size.width * 0.12)
+                                            : null,
+                                      ),
+                                      const SizedBox(height: 10),
+                                      Text(
+                                        profile.profile_name ?? 'Loading...',
+                                        style: TextStyle(
+                                          fontSize: 24,
+                                          fontWeight: FontWeight.bold,
+                                          color: Theme.of(context).colorScheme.onPrimary,
+                                        ),
+                                      ),
+                                      const SizedBox(height: 5),
+                                      Text(
+                                        '@${profile.username}',
+                                        style: TextStyle(
+                                          fontSize: 16,
+                                          color: Theme.of(context).colorScheme.onPrimary,
+                                        ),
+                                      ),
+                                    ],
+                                  );
+                                }
+                              },
+                            ),
                             Row(
                               mainAxisAlignment: MainAxisAlignment.spaceAround,
                               children: [
@@ -381,21 +380,21 @@ class ProfileScreenState extends ConsumerState<OtherProfileScreen> {
                                     Padding(
                                         padding: const EdgeInsets.symmetric(vertical: 3),
                                         child: Text(
-                                                "Attending Events",
-                                                style: TextStyle(
-                                                    fontSize: 14,
-                                                    fontWeight: FontWeight.w700,
-                                                    color: Theme.of(context).colorScheme.onPrimary),
-                                              )),
+                                          "Attending Events",
+                                          style: TextStyle(
+                                              fontSize: 14,
+                                              fontWeight: FontWeight.w700,
+                                              color: Theme.of(context).colorScheme.onPrimary),
+                                        )),
                                     Padding(
                                         padding: const EdgeInsets.symmetric(vertical: 3),
-                                        child:  Text(
-                                                "Hosting Events",
-                                                style: TextStyle(
-                                                    fontSize: 14,
-                                                    fontWeight: FontWeight.w700,
-                                                    color: Theme.of(context).colorScheme.onPrimary),
-                                              )),
+                                        child: Text(
+                                          "Hosting Events",
+                                          style: TextStyle(
+                                              fontSize: 14,
+                                              fontWeight: FontWeight.w700,
+                                              color: Theme.of(context).colorScheme.onPrimary),
+                                        )),
                                   ],
                                 ),
                               ),
@@ -499,23 +498,23 @@ class ProfileScreenState extends ConsumerState<OtherProfileScreen> {
                       stream: ref.read(otherEventsProvider.notifier).stream,
                       builder: (context, snapshot) {
                         if (snapshot.data != null) {
-                            // Only useful when viewing a profile through means other than an event header
-                            final hostingEvents = snapshot.data!.where((event) => event.otherHost).toList();
-                            if (hostingEvents.isEmpty) {
-                              return const SliverFillRemaining(
-                                child: Center(
-                                  child: Text("This User Is Not Hosting Any Events at the Moment"),
-                                ),
-                              );
-                            } else {
-                              return SliverList(
-                                delegate: SliverChildListDelegate(
-                                  hostingEvents.map((event) {
-                                    return EventTab(eventData: event, bookmarkSet: true);
-                                  }).toList(),
-                                ),
-                              );
-                            }
+                          // Only useful when viewing a profile through means other than an event header
+                          final hostingEvents = snapshot.data!.where((event) => event.otherHost).toList();
+                          if (hostingEvents.isEmpty) {
+                            return const SliverFillRemaining(
+                              child: Center(
+                                child: Text("This User Is Not Hosting Any Events at the Moment"),
+                              ),
+                            );
+                          } else {
+                            return SliverList(
+                              delegate: SliverChildListDelegate(
+                                hostingEvents.map((event) {
+                                  return EventTab(eventData: event, bookmarkSet: true);
+                                }).toList(),
+                              ),
+                            );
+                          }
                         } else {
                           return const SliverFillRemaining(
                             child: Center(
@@ -537,63 +536,6 @@ class ProfileScreenState extends ConsumerState<OtherProfileScreen> {
                 ],
               ),
             ),
-    );
-  }
-
-  void _showFilterDialog() {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: Text("Filter Events", style: TextStyle(color: Theme.of(context).colorScheme.primary)),
-          backgroundColor: Theme.of(context).cardColor,
-          content: StatefulBuilder(
-            builder: (BuildContext context, StateSetter setState) {
-              return Column(
-                mainAxisSize: MainAxisSize.min,
-                children: <Widget>[
-                  CheckboxListTile(
-                    title: Text("Upcoming"),
-                    value: showUpcoming,
-                    onChanged: (bool? value) {
-                      setState(() {
-                        showUpcoming = value!;
-                      });
-                    },
-                  ),
-                  CheckboxListTile(
-                    title: Text("Passed"),
-                    value: showPassed,
-                    onChanged: (bool? value) {
-                      setState(() {
-                        showPassed = value!;
-                      });
-                    },
-                  ),
-                  CheckboxListTile(
-                    title: Text("Hosting"),
-                    value: showHosting,
-                    onChanged: (bool? value) {
-                      setState(() {
-                        showHosting = value!;
-                      });
-                    },
-                  ),
-                ],
-              );
-            },
-          ),
-          actions: <Widget>[
-            TextButton(
-              child: Text("Apply"),
-              onPressed: () {
-                Navigator.of(context).pop();
-                setState(() {}); // Refresh the main screen
-              },
-            ),
-          ],
-        );
-      },
     );
   }
 }

@@ -50,6 +50,11 @@ class _DetailedEventScreenState extends ConsumerState<DetailedEventScreen> {
       });
     }
   }
+  void _incrementCounter() {
+    setState(() {
+      widget.eventData.numOfComments = (widget.eventData.numOfComments + 1);
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -478,7 +483,7 @@ class _DetailedEventScreenState extends ConsumerState<DetailedEventScreen> {
           height: (!(widget.eventData.numOfComments == 0))
               ? MediaQuery.of(context).size.height * .6
               : MediaQuery.of(context).size.height * .25,
-          child: CommentsSection(eventId: widget.eventData!.eventId),
+          child: CommentsSection(eventId: widget.eventData!.eventId, onIncrementCounter: _incrementCounter,),
         ),
       ],
     );
@@ -717,53 +722,7 @@ class _DetailedEventScreenState extends ConsumerState<DetailedEventScreen> {
           child: _buildInfoItem(context, '${widget.eventData!.friends.length}', 'Friends', isSmallScreen),
         ),
         SizedBox(width: MediaQuery.of(context).size.width * .02),
-        GestureDetector(
-          onTap: () {
-            if (!Navigator.of(context).canPop()) {
-              showModalBottomSheet(
-                  context: context,
-                  isScrollControlled: true,
-                  isDismissible: true,
-                  builder: (context) {
-                    return Container(
-                      height: MediaQuery.of(context).size.height * .6,
-                      decoration: BoxDecoration(
-                        color: Theme.of(context).cardColor,
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Text(
-                                'Comments',
-                                style: TextStyle(
-                                  color: Theme.of(context).primaryColor,
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 30,
-                                ),
-                              ),
-                              IconButton(
-                                icon: const Icon(Icons.close),
-                                onPressed: () => Navigator.of(context).pop(),
-                              ),
-                            ],
-                          ),
-                          const SizedBox(height: 8),
-                          Flexible(
-                            child: CommentsSection(eventId: widget.eventData!.eventId),
-                          ),
-                        ],
-                      ),
-                    );
-                  });
-            }
-          },
-          child: _buildInfoItem(context, '${widget.eventData!.numOfComments}', 'Comments', isSmallScreen),
-        ),
+        _buildInfoItem(context, '${widget.eventData!.numOfComments}', 'Comments', isSmallScreen),
       ],
     );
   }

@@ -11,9 +11,10 @@ import 'package:nomo/widgets/comment_widget.dart';
 // - 'eventId': ID of event for which to retreive list of comments
 
 class CommentsSection extends ConsumerStatefulWidget {
-  const CommentsSection({super.key, required this.eventId});
+   const CommentsSection({super.key, required this.eventId, required this.onIncrementCounter});
 
   final eventId;
+  final VoidCallback onIncrementCounter;
 
   @override
   ConsumerState<CommentsSection> createState() => _CommentsSectionState();
@@ -112,6 +113,7 @@ class _CommentsSectionState extends ConsumerState<CommentsSection> {
                         postComment(newComment.text);
                         newComment.clear();
                         receiveComments();
+                        widget.onIncrementCounter();
                       }
                     },
                     icon: Icon(Icons.send),

@@ -48,7 +48,7 @@ class Event {
   late bool attending;
   late bool isHost;
   final friends;
-  final int numOfComments;
+  int numOfComments;
   final bool isVirtual;
   final bool isRecurring;
   final bool isTicketed;

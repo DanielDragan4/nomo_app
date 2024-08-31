@@ -35,8 +35,8 @@ class _DetailedEventScreenState extends ConsumerState<DetailedEventScreen> {
     super.initState();
     bookmarkBool = widget.eventData.bookmarked;
     setState(() {
-      _selectedStartDate = DateTime.parse(widget.eventData.sdate.first);
-      _selectedEndDate = DateTime.parse(widget.eventData.edate.first);
+      _selectedStartDate = DateTime.parse(widget.eventData.attendeeDates['time_start']);
+      _selectedEndDate = DateTime.parse(widget.eventData.attendeeDates['time_end']);
     });
   }
 

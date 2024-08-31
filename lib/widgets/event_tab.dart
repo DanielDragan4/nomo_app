@@ -79,6 +79,12 @@ class _EventTabState extends ConsumerState<EventTab> {
     });
   }
 
+  void _incrementCounter() {
+    setState(() {
+      widget.eventData.numOfComments = (widget.eventData.numOfComments + 1);
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     final bool isHostOrAttending = widget.eventData.isHost || widget.eventData.attending;
@@ -710,7 +716,7 @@ class _EventTabState extends ConsumerState<EventTab> {
                             ),
                             SliverFillRemaining(
                               hasScrollBody: true,
-                              child: CommentsSection(eventId: widget.eventData.eventId),
+                              child: CommentsSection(eventId: widget.eventData.eventId, onIncrementCounter: _incrementCounter,),
                             ),
                           ],
                         ),
@@ -782,6 +788,9 @@ class _EventTabState extends ConsumerState<EventTab> {
     }
     if (widget.eventData.distanceAway != null) {
       newEventData.distanceAway = widget.eventData.distanceAway;
+    }
+    if ( widget.eventData.attendeeDates['time_start'] != null) {
+      newEventData.attendeeDates = {'time_start' : widget.eventData.attendeeDates['time_start'], 'time_end' : widget.eventData.attendeeDates['time_end']};
     }
     setState(() {
       widget.eventData = newEventData;

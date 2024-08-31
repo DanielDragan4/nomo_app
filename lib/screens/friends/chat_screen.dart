@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:nomo/main.dart';
 import 'package:nomo/models/friend_model.dart';
-import 'package:nomo/models/profile_model.dart';
 import 'package:nomo/providers/chat-providers/chats_provider.dart';
 import 'package:nomo/providers/profile_provider.dart';
 import 'package:nomo/widgets/message_widget.dart';
@@ -188,7 +187,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> with RouteAware {
                     backgroundImage: NetworkImage(widget.chatterUser?.avatar ?? ''),
                     radius: 20,
                   ),
-                  SizedBox(width: 12),
+                  const SizedBox(width: 12),
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [

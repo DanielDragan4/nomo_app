@@ -26,6 +26,10 @@ class _RecommendedScreenState extends ConsumerState<RecommendedScreen> {
   List<bool> selectedDays = List.generate(7, (_) => false);
   double maxDistance = 50.0; // Default max distance in miles
   bool filtersSet = false;
+  DateTime? tempStartDate;
+  DateTime? tempEndDate;
+  List<bool> tempSelectedDays = List.generate(7, (_) => false);
+  double tempMaxDistance = 50.0;
 
   Future<void> _onRefresh(BuildContext context, WidgetRef ref) async {
     if (!filtersSet) {
@@ -58,6 +62,10 @@ class _RecommendedScreenState extends ConsumerState<RecommendedScreen> {
   // }
 
   void _showFilterDialog() {
+    tempStartDate = startDate;
+    tempEndDate = endDate;
+    tempSelectedDays = List.from(selectedDays);
+    tempMaxDistance = maxDistance;
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -94,21 +102,30 @@ class _RecommendedScreenState extends ConsumerState<RecommendedScreen> {
               ),
               actions: <Widget>[
                 TextButton(
-                  child: Text("Clear"),
+                  child: Text("Clear",
+                      style: TextStyle(
+                          color: Theme.of(context).colorScheme.onSecondary,
+                          fontSize: MediaQuery.of(context).size.width / 30)),
                   onPressed: () {
                     setState(() {
-                      startDate = null;
-                      endDate = null;
-                      selectedDays = List.generate(7, (_) => false);
-                      maxDistance = 50.0;
-                      filtersSet = false;
+                      tempStartDate = null;
+                      tempEndDate = null;
+                      tempSelectedDays = List.generate(7, (_) => false);
+                      tempMaxDistance = 50.0;
                     });
                   },
                 ),
                 TextButton(
-                  child: Text("Apply"),
+                  child: Text("Apply",
+                      style: TextStyle(
+                          color: Theme.of(context).colorScheme.onSecondary,
+                          fontSize: MediaQuery.of(context).size.width / 30)),
                   onPressed: () {
-                    setState(() {
+                    this.setState(() {
+                      startDate = tempStartDate;
+                      endDate = tempEndDate;
+                      selectedDays = List.from(tempSelectedDays);
+                      maxDistance = tempMaxDistance;
                       filtersSet = true;
                     });
                     Navigator.of(context).pop();
@@ -127,46 +144,92 @@ class _RecommendedScreenState extends ConsumerState<RecommendedScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text("Date Range"),
+        Padding(
+          padding: const EdgeInsets.only(bottom: 8.0),
+          child: Text("Date Range",
+              style: TextStyle(
+                color: Theme.of(context).colorScheme.onPrimary,
+                fontSize: MediaQuery.of(context).size.width / 30,
+              )),
+        ),
         Row(
           children: [
             Expanded(
-              child: TextButton(
-                onPressed: () async {
-                  final picked = await showDatePicker(
-                    context: context,
-                    initialDate: startDate ?? DateTime.now(),
-                    firstDate: DateTime.now(),
-                    lastDate: DateTime.now().add(Duration(days: 365)),
-                  );
-                  if (picked != null) {
-                    setState(() {
-                      startDate = picked;
-                    });
-                  }
-                },
-                child: Text(
-                  startDate != null ? DateFormat.yMd().format(startDate!.toLocal()) : "Start Date",
+              child: Container(
+                decoration: BoxDecoration(
+                  border: Border.all(
+                    color: Theme.of(context).colorScheme.onSecondary.withOpacity(0.3),
+                    width: 1,
+                  ),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: TextButton(
+                  onPressed: () async {
+                    final picked = await showDatePicker(
+                      context: context,
+                      initialDate: tempStartDate ?? DateTime.now(),
+                      firstDate: DateTime.now(),
+                      lastDate: DateTime.now().add(Duration(days: 365)),
+                    );
+                    if (picked != null) {
+                      setState(() {
+                        tempStartDate = picked;
+                      });
+                    }
+                  },
+                  style: TextButton.styleFrom(
+                    padding: EdgeInsets.symmetric(vertical: 12),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                  ),
+                  child: Text(
+                    tempStartDate != null ? DateFormat.yMd().format(tempStartDate!.toLocal()) : "Start Date",
+                    style: TextStyle(
+                      color: Theme.of(context).colorScheme.onSecondary,
+                      fontSize: MediaQuery.of(context).size.width / 30,
+                    ),
+                  ),
                 ),
               ),
             ),
+            SizedBox(width: 16),
             Expanded(
-              child: TextButton(
-                onPressed: () async {
-                  final picked = await showDatePicker(
-                    context: context,
-                    initialDate: endDate ?? (startDate ?? DateTime.now()),
-                    firstDate: startDate ?? DateTime.now(),
-                    lastDate: DateTime.now().add(Duration(days: 365)),
-                  );
-                  if (picked != null) {
-                    setState(() {
-                      endDate = picked;
-                    });
-                  }
-                },
-                child: Text(
-                  endDate != null ? DateFormat.yMd().format(endDate!.toLocal()) : "End Date",
+              child: Container(
+                decoration: BoxDecoration(
+                  border: Border.all(
+                    color: Theme.of(context).colorScheme.onSecondary.withOpacity(0.3),
+                    width: 1,
+                  ),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: TextButton(
+                  onPressed: () async {
+                    final picked = await showDatePicker(
+                      context: context,
+                      initialDate: tempEndDate ?? (tempStartDate ?? DateTime.now()),
+                      firstDate: tempStartDate ?? DateTime.now(),
+                      lastDate: DateTime.now().add(Duration(days: 365)),
+                    );
+                    if (picked != null) {
+                      setState(() {
+                        tempEndDate = picked;
+                      });
+                    }
+                  },
+                  style: TextButton.styleFrom(
+                    padding: EdgeInsets.symmetric(vertical: 12),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                  ),
+                  child: Text(
+                    tempEndDate != null ? DateFormat.yMd().format(tempEndDate!.toLocal()) : "End Date",
+                    style: TextStyle(
+                      color: Theme.of(context).colorScheme.onSecondary,
+                      fontSize: MediaQuery.of(context).size.width / 30,
+                    ),
+                  ),
                 ),
               ),
             ),
@@ -181,16 +244,21 @@ class _RecommendedScreenState extends ConsumerState<RecommendedScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text("Days of Week"),
+        Padding(
+          padding: const EdgeInsets.only(bottom: 8.0),
+          child: Text("Days of Week",
+              style: TextStyle(
+                  color: Theme.of(context).colorScheme.onPrimary, fontSize: MediaQuery.of(context).size.width / 30)),
+        ),
         Wrap(
           spacing: 8,
           children: List.generate(7, (index) {
             return FilterChip(
               label: Text(days[index]),
-              selected: selectedDays[index],
+              selected: tempSelectedDays[index],
               onSelected: (bool selected) {
                 setState(() {
-                  selectedDays[index] = selected;
+                  tempSelectedDays[index] = selected;
                 });
               },
               checkmarkColor: Theme.of(context).colorScheme.onPrimary,
@@ -212,10 +280,13 @@ class _RecommendedScreenState extends ConsumerState<RecommendedScreen> {
           children: [
             Text(
               "Maximum Distance",
-              style: TextStyle(color: Theme.of(context).colorScheme.onPrimary),
+              style: TextStyle(
+                color: Theme.of(context).colorScheme.onPrimary,
+                fontSize: MediaQuery.of(context).size.width / 30,
+              ),
             ),
             Text(
-              "${maxDistance.round()} miles",
+              "${tempMaxDistance.round()} miles",
               style: TextStyle(
                 color: Theme.of(context).primaryColorLight,
                 fontWeight: FontWeight.bold,
@@ -224,14 +295,14 @@ class _RecommendedScreenState extends ConsumerState<RecommendedScreen> {
           ],
         ),
         Slider(
-          value: maxDistance,
+          value: tempMaxDistance,
           min: 0,
           max: 100,
           divisions: 100,
-          label: maxDistance.round().toString(),
+          label: tempMaxDistance.round().toString(),
           onChanged: (double value) {
             setState(() {
-              maxDistance = value;
+              tempMaxDistance = value;
             });
           },
           activeColor: Theme.of(context).primaryColorLight,

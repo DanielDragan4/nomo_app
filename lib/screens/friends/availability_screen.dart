@@ -63,24 +63,56 @@ class _AvailableTimesScreenState extends ConsumerState<AvailableTimesScreen> {
       builder: (BuildContext context) {
         return AlertDialog(
           backgroundColor: Theme.of(context).cardColor,
-          title: Text('How to use', style: TextStyle(color: Theme.of(context).colorScheme.primary)),
+          title: Text(
+            'How to use',
+            style: TextStyle(
+              color: Theme.of(context).primaryColorLight,
+              fontSize: MediaQuery.of(context).size.width * 0.065,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
           content: Column(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text('1. Select a start date and end date',
-                  style: TextStyle(color: Theme.of(context).colorScheme.secondary)),
+              Text(
+                '1. Select a start date and end date',
+                style: TextStyle(
+                  color: Theme.of(context).colorScheme.onSecondary,
+                  fontSize: MediaQuery.of(context).size.width * 0.045,
+                  fontWeight: FontWeight.w400,
+                ),
+              ),
               SizedBox(height: 8),
-              Text('2. Enter a minimum duration (in hours) of your desired availability blocks',
-                  style: TextStyle(color: Theme.of(context).colorScheme.secondary)),
+              Text(
+                '2. Enter a minimum duration (in hours) of your desired availability blocks',
+                style: TextStyle(
+                  color: Theme.of(context).colorScheme.onSecondary,
+                  fontSize: MediaQuery.of(context).size.width * 0.045,
+                  fontWeight: FontWeight.w400,
+                ),
+              ),
               SizedBox(height: 8),
-              Text('3. Tap "Find Free Times" to see when both users are available',
-                  style: TextStyle(color: Theme.of(context).colorScheme.secondary)),
+              Text(
+                '3. Tap "Find Free Times" to see when both users are available',
+                style: TextStyle(
+                  color: Theme.of(context).colorScheme.onSecondary,
+                  fontSize: MediaQuery.of(context).size.width * 0.045,
+                  fontWeight: FontWeight.w400,
+                ),
+              ),
             ],
           ),
           actions: [
             TextButton(
-              child: Text('Close'),
+              child: Text(
+                'Close',
+                style: TextStyle(
+                  color: Theme.of(context).primaryColorLight,
+                  fontSize: MediaQuery.of(context).size.width * 0.045,
+                  fontWeight: FontWeight.w400,
+                ),
+              ),
               onPressed: () {
                 Navigator.of(context).pop();
               },
@@ -96,11 +128,21 @@ class _AvailableTimesScreenState extends ConsumerState<AvailableTimesScreen> {
     return Scaffold(
       backgroundColor: Theme.of(context).canvasColor,
       appBar: AppBar(
-        title: const Text('Available Times'),
+        title: Text(
+          'Mutual Availability',
+          style: TextStyle(
+            fontWeight: FontWeight.bold,
+            color: Theme.of(context).colorScheme.onPrimaryContainer,
+            fontSize: MediaQuery.of(context).size.width * .045,
+          ),
+        ),
         centerTitle: true,
         actions: [
           IconButton(
-            icon: Icon(Icons.info_outline),
+            icon: Icon(
+              Icons.info_outline,
+              color: Theme.of(context).colorScheme.onSecondary,
+            ),
             onPressed: _showInfoDialog,
           ),
         ],
@@ -111,34 +153,54 @@ class _AvailableTimesScreenState extends ConsumerState<AvailableTimesScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-               Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Card(
-                        elevation: 4,
-                        child: Padding(
-                          padding: const EdgeInsets.all(16.0),
-                          child: Text('The Following Allows you to find Available times between you and the person you have selecte. Enter A range of days you would like to meet, A number of hours you would like to meet for, and then hit enter To see the available times'
-                                                ,style: TextStyle(fontSize: 16, color: Theme.of(context).colorScheme.onSecondary),),
-                        ),),
-                      Card(
-                        elevation: 4,
-                        child:Padding(
-                          padding: const EdgeInsets.all(16.0),
-                          child: _buildDateSelectionRow(context),
-                        ),),
-                      Card(
-                        elevation: 4,
-                        child:
-                      Padding(
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Card(
+                    color: Theme.of(context).cardColor,
+                    elevation: 4,
+                    child: Padding(
+                      padding: const EdgeInsets.all(16.0),
+                      child: Column(
+                        children: [
+                          Text(
+                            'Availability Info',
+                            style: TextStyle(
+                                fontSize: MediaQuery.of(context).size.width * .06,
+                                color: Theme.of(context).colorScheme.onPrimaryContainer),
+                          ),
+                          SizedBox(height: 8),
+                          Text(
+                            'The Following Allows you to find Available times between you and the person you have selecte. Enter A range of days you would like to meet, A number of hours you would like to meet for, and then hit enter To see the available times',
+                            style: TextStyle(
+                                fontSize: MediaQuery.of(context).size.width * .04,
+                                color: Theme.of(context).colorScheme.onPrimaryContainer),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                  Card(
+                    color: Theme.of(context).cardColor,
+                    elevation: 4,
+                    child: Padding(
+                      padding: const EdgeInsets.all(16.0),
+                      child: _buildDateSelectionRow(context),
+                    ),
+                  ),
+                  SizedBox(
+                    width: MediaQuery.of(context).size.width * 0.95,
+                    child: Card(
+                      color: Theme.of(context).cardColor,
+                      elevation: 4,
+                      child: Padding(
                         padding: const EdgeInsets.all(16.0),
                         child: _buildDurationAndSubmitRow(context),
-                      ),)
-                    ],
-                  ),
-                ),
+                      ),
+                    ),
+                  )
+                ],
+              ),
               const SizedBox(height: 16),
               Expanded(
                 child: _buildFreeTimesList(context),
@@ -150,49 +212,14 @@ class _AvailableTimesScreenState extends ConsumerState<AvailableTimesScreen> {
     );
   }
 
-  // Widget _buildInfoCard(BuildContext context) {
-  //   return Card(
-  //     color: Theme.of(context).colorScheme.onPrimary,
-  //     child: Padding(
-  //       padding: const EdgeInsets.all(16.0),
-  //       child: Column(
-  //         crossAxisAlignment: CrossAxisAlignment.start,
-  //         children: [
-  //           Text(
-  //             'How to use:',
-  //             style: TextStyle(
-  //               fontSize: 18,
-  //               fontWeight: FontWeight.bold,
-  //               color: Theme.of(context).colorScheme.onSecondary,
-  //             ),
-  //           ),
-  //           const SizedBox(height: 8),
-  //           Text(
-  //             '1. Select a start date and end date',
-  //             style: TextStyle(color: Theme.of(context).colorScheme.onSecondary),
-  //           ),
-  //           Text(
-  //             '2. Enter a minimum duration (in hours) of your desired availability blocks',
-  //             style: TextStyle(color: Theme.of(context).colorScheme.onSecondary),
-  //           ),
-  //           Text(
-  //             '3. Tap "Find Free Times" to see when both users are available',
-  //             style: TextStyle(color: Theme.of(context).colorScheme.onSecondary),
-  //           ),
-  //         ],
-  //       ),
-  //     ),
-  //   );
-  // }
-
   Widget _buildDateSelectionRow(BuildContext context) {
     return Row(
       children: [
         Expanded(
           child: _buildDateSelector(
             context,
-            "Start",
-            formattedStart ?? "Select Start Date",
+            "From",
+            formattedStart ?? "Select From Date",
             () async {
               startPicked = await showDatePicker(
                 context: context,
@@ -221,8 +248,8 @@ class _AvailableTimesScreenState extends ConsumerState<AvailableTimesScreen> {
         Expanded(
           child: _buildDateSelector(
             context,
-            "End",
-            formattedEnd ?? "Select End Date",
+            "To",
+            formattedEnd ?? "Select To Date",
             () async {
               endPicked = await showDatePicker(
                 context: context,
@@ -245,74 +272,77 @@ class _AvailableTimesScreenState extends ConsumerState<AvailableTimesScreen> {
     );
   }
 
-  Widget _buildDateSelector(
-      BuildContext context, String label, String displayText, VoidCallback onPressed, bool hasError) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          label,
-          style: TextStyle(fontSize: 14, color: Theme.of(context).colorScheme.onSecondary),
+  Widget _buildDateSelector(BuildContext context, String title, String value, VoidCallback onTap, bool hasError) {
+    return InkWell(
+      onTap: onTap,
+      child: Container(
+        padding: EdgeInsets.symmetric(vertical: 8, horizontal: 12),
+        decoration: BoxDecoration(
+          border: Border.all(color: Colors.grey),
+          borderRadius: BorderRadius.circular(4),
         ),
-        const SizedBox(height: 4),
-        OutlinedButton(
-          onPressed: onPressed,
-          style: OutlinedButton.styleFrom(
-            side: BorderSide(color: hasError ? Colors.red : Theme.of(context).colorScheme.onSecondary),
-          ),
-          child: Text(
-            displayText,
-            style: TextStyle(fontSize: 14, color: Theme.of(context).colorScheme.onSecondary),
-          ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(title, style: TextStyle(fontSize: 12, color: Theme.of(context).colorScheme.onSurface)),
+            SizedBox(height: 4),
+            Text(value, style: TextStyle(fontSize: 16, color: Theme.of(context).colorScheme.onSurface)),
+          ],
         ),
-        if (hasError)
-          Text(
-            'Please select a date',
-            style: TextStyle(color: Colors.red, fontSize: 12),
-          ),
-      ],
+      ),
     );
   }
 
   Widget _buildDurationAndSubmitRow(BuildContext context) {
-    return Row(
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Expanded(
-          flex: 2,
-          child: TextFormField(
-            decoration: InputDecoration(
-              labelText: 'Duration',
-              border: OutlineInputBorder(),
-              errorText: _durationError ? 'Please enter a valid duration' : null,
-              errorStyle: TextStyle(color: Colors.red),
-              enabledBorder: OutlineInputBorder(
-                borderSide: BorderSide(color: _durationError ? Colors.red : Colors.grey),
+          SizedBox(
+            width: MediaQuery.of(context).size.width * 0.25,
+            child: TextFormField(
+              decoration: InputDecoration(
+                labelText: 'Duration',
+                labelStyle: TextStyle(
+                    fontSize: MediaQuery.of(context).size.width * .04, color: Theme.of(context).colorScheme.onPrimaryContainer),
+                border: OutlineInputBorder(),
+                errorText: _durationError ? 'Please enter a valid duration' : null,
+                errorStyle: TextStyle(color: Colors.red),
+                enabledBorder: OutlineInputBorder(
+                  borderSide: BorderSide(color: _durationError ? Colors.red : Colors.grey),
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderSide: BorderSide(color: _durationError ? Colors.red : Theme.of(context).primaryColor),
+                ),
               ),
-              focusedBorder: OutlineInputBorder(
-                borderSide: BorderSide(color: _durationError ? Colors.red : Theme.of(context).primaryColor),
-              ),
+              style: TextStyle(color: Theme.of(context).colorScheme.onSecondary),
+              keyboardType: TextInputType.number,
+              controller: durationController,
+              onChanged: (value) {
+                setState(() {
+                  _durationError = value.isEmpty || int.tryParse(value) == null;
+                });
+              },
             ),
-            style: TextStyle(color: Theme.of(context).colorScheme.onSecondary),
-            keyboardType: TextInputType.number,
-            controller: durationController,
-            onChanged: (value) {
-              setState(() {
-                _durationError = value.isEmpty || int.tryParse(value) == null;
-              });
-            },
           ),
-        ),
-        const SizedBox(width: 16),
-        Expanded(
-          flex: 3,
-          child: ElevatedButton(
+        const SizedBox(height: 12),
+           ElevatedButton(
             onPressed: _submitForm,
-            child: const Padding(
-              padding: EdgeInsets.symmetric(vertical: 12),
-              child: Text('Find Free Times'),
-            ),
+              child: Text('Find Free Times',
+                        style: TextStyle(
+                          fontSize: MediaQuery.of(context).size.width * .04,
+                          color: Theme.of(context).colorScheme.onPrimaryContainer,
+                          fontWeight: FontWeight.bold,
+                        ),),
+            style: ElevatedButton.styleFrom(
+                        backgroundColor: Theme.of(context).primaryColor, // Background color
+                        padding: EdgeInsets.symmetric(
+                            vertical: MediaQuery.of(context).size.height * .0175,
+                            horizontal: MediaQuery.of(context).size.width * 0.175),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12.0), // Rounded corners
+                        ),
+                      ),
           ),
-        ),
       ],
     );
   }
@@ -330,11 +360,14 @@ class _AvailableTimesScreenState extends ConsumerState<AvailableTimesScreen> {
             itemBuilder: (context, index) {
               final time = _freeTimes[index];
               return Card(
+                color: Theme.of(context).cardColor,
                 margin: const EdgeInsets.symmetric(vertical: 4),
                 child: ListTile(
                   title: Text(
                     'Free from ${DateFormat.yMd().add_jm().format(time['start_time'])} \nto ${DateFormat.yMd().add_jm().format(time['end_time'])}',
-                    style: const TextStyle(fontWeight: FontWeight.bold),
+                    style: TextStyle(
+                                fontSize: MediaQuery.of(context).size.width * .04,
+                                color: Theme.of(context).colorScheme.onSecondary),
                   ),
                 ),
               );

@@ -159,7 +159,10 @@ class _LocationScreenState extends ConsumerState<LocationScreen> {
       appBar: AppBar(
         title: Text(
           'Set Location',
-          style: TextStyle(fontWeight: FontWeight.bold, color: Theme.of(context).colorScheme.onPrimary, fontSize: MediaQuery.of(context).size.width * .045),
+          style: TextStyle(
+              fontWeight: FontWeight.bold,
+              color: Theme.of(context).colorScheme.onPrimaryContainer,
+              fontSize: MediaQuery.of(context).size.width * .045),
         ),
         centerTitle: true,
       ),
@@ -181,14 +184,14 @@ class _LocationScreenState extends ConsumerState<LocationScreen> {
                       'Choose Your Location',
                       style: TextStyle(
                           fontSize: MediaQuery.of(context).size.width * .06,
-                          color: Theme.of(context).colorScheme.onPrimary),
+                          color: Theme.of(context).colorScheme.onPrimaryContainer),
                     ),
                     SizedBox(height: 8),
                     Text(
                       'We use your location to show events in your local community.',
                       style: TextStyle(
                           fontSize: MediaQuery.of(context).size.width * .04,
-                          color: Theme.of(context).colorScheme.onPrimary),
+                          color: Theme.of(context).colorScheme.onPrimaryContainer),
                     ),
                     SizedBox(height: 16),
                     ElevatedButton.icon(
@@ -197,17 +200,24 @@ class _LocationScreenState extends ConsumerState<LocationScreen> {
                         await _getCurrentPosition();
                         ref.read(eventsProvider.notifier).deCodeData();
                       },
-                      icon: Icon(Icons.my_location, size: MediaQuery.of(context).size.width * .04,
-                          color: Theme.of(context).colorScheme.onPrimary,),
-                                      label: Text('Use Current Location', style: TextStyle(
+                      icon: Icon(
+                        Icons.my_location,
+                        size: MediaQuery.of(context).size.width * .04,
+                        color: Theme.of(context).colorScheme.onPrimaryContainer,
+                      ),
+                      label: Text(
+                        'Use Current Location',
+                        style: TextStyle(
                           fontSize: MediaQuery.of(context).size.width * .04,
-                          color: Theme.of(context).colorScheme.onPrimary,
+                          color: Theme.of(context).colorScheme.onPrimaryContainer,
                           fontWeight: FontWeight.bold,
-                        ),),
+                        ),
+                      ),
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Theme.of(context).primaryColor, // Background color
                         padding: EdgeInsets.symmetric(
-                            vertical: MediaQuery.of(context).size.height * .0085, horizontal: MediaQuery.of(context).size.width * 0.175),
+                            vertical: MediaQuery.of(context).size.height * .0085,
+                            horizontal: MediaQuery.of(context).size.width * 0.175),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(12.0), // Rounded corners
                         ),
@@ -218,7 +228,7 @@ class _LocationScreenState extends ConsumerState<LocationScreen> {
                       'Or enter location manually:',
                       style: TextStyle(
                           fontSize: MediaQuery.of(context).size.width * .04,
-                          color: Theme.of(context).colorScheme.onPrimary),
+                          color: Theme.of(context).colorScheme.onPrimaryContainer),
                     ),
                     SizedBox(height: 8),
                     AddressSearchField(
@@ -232,17 +242,24 @@ class _LocationScreenState extends ConsumerState<LocationScreen> {
                         scrollController.animateTo(100, duration: Duration(milliseconds: 200), curve: Curves.easeIn);
                         ref.read(eventsProvider.notifier).deCodeData();
                       },
-                      icon: Icon(Icons.edit_location, size: MediaQuery.of(context).size.width * .04,
-                          color: Theme.of(context).colorScheme.onPrimary,),
-                      label: Text('Set Manual Location', style: TextStyle(
+                      icon: Icon(
+                        Icons.edit_location,
+                        size: MediaQuery.of(context).size.width * .04,
+                        color: Theme.of(context).colorScheme.onPrimaryContainer,
+                      ),
+                      label: Text(
+                        'Set Manual Location',
+                        style: TextStyle(
                           fontSize: MediaQuery.of(context).size.width * .04,
-                          color: Theme.of(context).colorScheme.onPrimary,
+                          color: Theme.of(context).colorScheme.onPrimaryContainer,
                           fontWeight: FontWeight.bold,
-                        ),),
+                        ),
+                      ),
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Theme.of(context).primaryColor, // Background color
                         padding: EdgeInsets.symmetric(
-                            vertical: MediaQuery.of(context).size.height * .0085, horizontal: MediaQuery.of(context).size.width * 0.175),
+                            vertical: MediaQuery.of(context).size.height * .0085,
+                            horizontal: MediaQuery.of(context).size.width * 0.175),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(12.0), // Rounded corners
                         ),
@@ -265,7 +282,7 @@ class _LocationScreenState extends ConsumerState<LocationScreen> {
                       'Set Event Range',
                       style: TextStyle(
                           fontSize: MediaQuery.of(context).size.width * .06,
-                          color: Theme.of(context).colorScheme.onPrimary,
+                          color: Theme.of(context).colorScheme.onPrimaryContainer,
                           fontWeight: FontWeight.w700),
                     ),
                     SizedBox(height: 8),
@@ -273,7 +290,7 @@ class _LocationScreenState extends ConsumerState<LocationScreen> {
                       'Choose the maximum distance for events you want to see:',
                       style: TextStyle(
                           fontSize: MediaQuery.of(context).size.width * .04,
-                          color: Theme.of(context).colorScheme.onPrimary),
+                          color: Theme.of(context).colorScheme.onPrimaryContainer),
                     ),
                     SizedBox(height: 16),
                     Row(
@@ -284,7 +301,7 @@ class _LocationScreenState extends ConsumerState<LocationScreen> {
                           style: TextStyle(
                             fontSize: MediaQuery.of(context).size.height * .06,
                             fontWeight: FontWeight.bold,
-                            color: Theme.of(context).colorScheme.onPrimary,
+                            color: Theme.of(context).colorScheme.onPrimaryContainer,
                           ),
                         ),
                         SizedBox(width: 8),
@@ -292,7 +309,7 @@ class _LocationScreenState extends ConsumerState<LocationScreen> {
                           'miles',
                           style: TextStyle(
                             fontSize: MediaQuery.of(context).size.height * .028,
-                            color: Theme.of(context).colorScheme.onPrimary,
+                            color: Theme.of(context).colorScheme.onPrimaryContainer,
                           ),
                         ),
                       ],
@@ -327,16 +344,16 @@ class _LocationScreenState extends ConsumerState<LocationScreen> {
                       Text(
                         'Current Saved Address:',
                         style: TextStyle(
-                          fontWeight: FontWeight.w700,
+                            fontWeight: FontWeight.w700,
                             fontSize: MediaQuery.of(context).size.height * .025,
-                            color: Theme.of(context).colorScheme.onPrimary),
+                            color: Theme.of(context).colorScheme.onPrimaryContainer),
                       ),
                       SizedBox(height: 8),
                       Text(
                         _currentAddress ?? "",
                         style: TextStyle(
                           fontSize: MediaQuery.of(context).size.height * .02,
-                          color: Theme.of(context).colorScheme.onPrimary,
+                          color: Theme.of(context).colorScheme.onPrimaryContainer,
                         ),
                       ),
                     ],
@@ -359,19 +376,23 @@ class _LocationScreenState extends ConsumerState<LocationScreen> {
                       }
                     }
                   : null,
-              child: Text(widget.isCreation ? 'See Events' : 'Save Location Data', style: TextStyle(
-                          fontSize: MediaQuery.of(context).size.width * .04,
-                          color: Theme.of(context).colorScheme.onPrimary,
-                          fontWeight: FontWeight.bold,
-                        ),),
+              child: Text(
+                widget.isCreation ? 'See Events' : 'Save Location Data',
+                style: TextStyle(
+                  fontSize: MediaQuery.of(context).size.width * .04,
+                  color: Theme.of(context).colorScheme.onPrimaryContainer,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
               style: ElevatedButton.styleFrom(
-                        backgroundColor: Theme.of(context).primaryColor, // Background color
-                        padding: EdgeInsets.symmetric(
-                            vertical: MediaQuery.of(context).size.height * .0175, horizontal: MediaQuery.of(context).size.width * 0.175),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12.0), // Rounded corners
-                        ),
-                      ),
+                backgroundColor: Theme.of(context).primaryColor, // Background color
+                padding: EdgeInsets.symmetric(
+                    vertical: MediaQuery.of(context).size.height * .0175,
+                    horizontal: MediaQuery.of(context).size.width * 0.175),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12.0), // Rounded corners
+                ),
+              ),
             ),
           ],
         ),

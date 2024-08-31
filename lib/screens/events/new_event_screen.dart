@@ -826,9 +826,14 @@ class _NewEventScreenState extends ConsumerState<NewEventScreen> {
                 showDialog(
                     context: context,
                     builder: (context) => AlertDialog(
+                          backgroundColor: Theme.of(context).cardColor,
                           title: Text(
                             'Are you sure you want to delete this event?',
-                            style: TextStyle(color: Theme.of(context).primaryColorDark),
+                            style: TextStyle(
+                              color: Theme.of(context).primaryColorLight,
+                              fontSize: MediaQuery.of(context).size.width * 0.065,
+                              fontWeight: FontWeight.w600,
+                            ),
                           ),
                           actions: [
                             TextButton(
@@ -845,8 +850,24 @@ class _NewEventScreenState extends ConsumerState<NewEventScreen> {
                                     ),
                                   );
                                 },
-                                child: const Text('DELETE')),
-                            TextButton(onPressed: () => Navigator.pop(context), child: const Text('CANCEL')),
+                                child: Text(
+                                  'Delete Event',
+                                  style: TextStyle(
+                                    color: Theme.of(context).colorScheme.onSecondary,
+                                    fontSize: MediaQuery.of(context).size.width * 0.045,
+                                    fontWeight: FontWeight.w400,
+                                  ),
+                                )),
+                            TextButton(
+                                onPressed: () => Navigator.pop(context),
+                                child: Text(
+                                  'Cancel',
+                                  style: TextStyle(
+                                    color: Theme.of(context).colorScheme.onSecondary,
+                                    fontSize: MediaQuery.of(context).size.width * 0.045,
+                                    fontWeight: FontWeight.w400,
+                                  ),
+                                )),
                           ],
                         ));
               },
@@ -1366,9 +1387,14 @@ class _NewEventScreenState extends ConsumerState<NewEventScreen> {
                                     showDialog(
                                       context: context,
                                       builder: (context) => AlertDialog(
+                                        backgroundColor: Theme.of(context).cardColor,
                                         title: Text(
                                           'Are you sure you want to update this event?',
-                                          style: TextStyle(color: Theme.of(context).primaryColorDark),
+                                          style: TextStyle(
+                                            color: Theme.of(context).primaryColorLight,
+                                            fontSize: MediaQuery.of(context).size.width * 0.065,
+                                            fontWeight: FontWeight.w600,
+                                          ),
                                         ),
                                         actions: [
                                           TextButton(
@@ -1388,11 +1414,25 @@ class _NewEventScreenState extends ConsumerState<NewEventScreen> {
                                                 ),
                                               );
                                             },
-                                            child: const Text('YES'),
+                                            child: Text(
+                                              'Update Event',
+                                              style: TextStyle(
+                                                color: Theme.of(context).colorScheme.onSecondary,
+                                                fontSize: MediaQuery.of(context).size.width * 0.045,
+                                                fontWeight: FontWeight.w400,
+                                              ),
+                                            ),
                                           ),
                                           TextButton(
                                             onPressed: () => Navigator.pop(context),
-                                            child: const Text('CANCEL'),
+                                            child: Text(
+                                              'Cancel',
+                                              style: TextStyle(
+                                                color: Theme.of(context).colorScheme.onSecondary,
+                                                fontSize: MediaQuery.of(context).size.width * 0.045,
+                                                fontWeight: FontWeight.w400,
+                                              ),
+                                            ),
                                           ),
                                         ],
                                       ),

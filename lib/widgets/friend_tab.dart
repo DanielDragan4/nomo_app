@@ -149,7 +149,7 @@ class _FriendTabState extends ConsumerState<FriendTab> {
                           ref
                               .read(friendNotificationProvider.notifier)
                               .resetNotification(widget.friendData.friendProfileId);
-                              var profileId = ref.read(profileProvider.notifier).state!.profile_id;
+                          var profileId = ref.read(profileProvider.notifier).state!.profile_id;
                           Navigator.of(
                             context,
                             rootNavigator: true,
@@ -286,7 +286,11 @@ class _FriendTabState extends ConsumerState<FriendTab> {
                                 builder: (context) => AlertDialog(
                                       title: Text(
                                         'Are you sure you unfriend this user?',
-                                        style: TextStyle(color: Theme.of(context).primaryColorDark),
+                                        style: TextStyle(
+                                          color: Theme.of(context).primaryColorLight,
+                                          fontSize: MediaQuery.of(context).size.width * 0.065,
+                                          fontWeight: FontWeight.w600,
+                                        ),
                                       ),
                                       actions: [
                                         TextButton(
@@ -303,9 +307,24 @@ class _FriendTabState extends ConsumerState<FriendTab> {
                                                 ),
                                               );
                                             },
-                                            child: const Text('YES')),
+                                            child: Text(
+                                              'Unfriend',
+                                              style: TextStyle(
+                                                color: Theme.of(context).colorScheme.onSecondary,
+                                                fontSize: MediaQuery.of(context).size.width * 0.045,
+                                                fontWeight: FontWeight.w400,
+                                              ),
+                                            )),
                                         TextButton(
-                                            onPressed: () => Navigator.pop(context), child: const Text('CANCEL')),
+                                            onPressed: () => Navigator.pop(context),
+                                            child: Text(
+                                              'Cancel',
+                                              style: TextStyle(
+                                                color: Theme.of(context).colorScheme.onSecondary,
+                                                fontSize: MediaQuery.of(context).size.width * 0.045,
+                                                fontWeight: FontWeight.w400,
+                                              ),
+                                            )),
                                       ],
                                     ));
                           });
@@ -375,7 +394,11 @@ class _FriendTabState extends ConsumerState<FriendTab> {
                                       builder: (context) => AlertDialog(
                                             title: Text(
                                               'Are you sure you unfriend this user?',
-                                              style: TextStyle(color: Theme.of(context).primaryColorDark),
+                                              style: TextStyle(
+                                                color: Theme.of(context).primaryColorLight,
+                                                fontSize: MediaQuery.of(context).size.width * 0.065,
+                                                fontWeight: FontWeight.w600,
+                                              ),
                                             ),
                                             actions: [
                                               TextButton(
@@ -392,9 +415,24 @@ class _FriendTabState extends ConsumerState<FriendTab> {
                                                       ),
                                                     );
                                                   },
-                                                  child: const Text('YES')),
+                                                  child: Text(
+                                                    'Unfriend',
+                                                    style: TextStyle(
+                                                      color: Theme.of(context).colorScheme.onSecondary,
+                                                      fontSize: MediaQuery.of(context).size.width * 0.045,
+                                                      fontWeight: FontWeight.w400,
+                                                    ),
+                                                  )),
                                               TextButton(
-                                                  onPressed: () => Navigator.pop(context), child: const Text('CANCEL')),
+                                                  onPressed: () => Navigator.pop(context),
+                                                  child: Text(
+                                                    'Cancel',
+                                                    style: TextStyle(
+                                                      color: Theme.of(context).colorScheme.onSecondary,
+                                                      fontSize: MediaQuery.of(context).size.width * 0.045,
+                                                      fontWeight: FontWeight.w400,
+                                                    ),
+                                                  )),
                                             ],
                                           ));
                                 });

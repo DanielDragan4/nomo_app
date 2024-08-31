@@ -528,35 +528,55 @@ class _SettingScreenState extends ConsumerState<SettingScreen> {
           TextButton(
             onPressed: () {
               showDialog(
-                    context: context,
-                    builder: (context) => AlertDialog(
-                          title: Text(
-                            'Are you sure you want to delete your account, all data will be deleted?',
-                            style: TextStyle(color: Theme.of(context).primaryColorDark),
+                  context: context,
+                  builder: (context) => AlertDialog(
+                        title: Text(
+                          'Are you sure you want to delete your account, all data will be deleted?',
+                          style: TextStyle(
+                            color: Theme.of(context).primaryColorLight,
+                            fontSize: MediaQuery.of(context).size.width * 0.065,
+                            fontWeight: FontWeight.w600,
                           ),
-                          actions: [
-                            TextButton(
-                                onPressed: () async {
-                                  ref.watch(currentUserProvider.notifier).signOut();
-              ref.read(savedSessionProvider.notifier).changeSessionDataList();
-              ref.read(currentUserProvider.notifier).deleteAccount();
-              Navigator.of(context).push(MaterialPageRoute(builder: ((context) => const LoginScreen())));
-                                  ScaffoldMessenger.of(context).hideCurrentSnackBar();
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    const SnackBar(
-                                      content: Text("Account Deleted"),
-                                    ),
-                                  );
-                                },
-                                child: const Text('DELETE')),
-                            TextButton(onPressed: () => Navigator.pop(context), child: const Text('CANCEL')),
-                          ],
-                        ));
-              
+                        ),
+                        actions: [
+                          TextButton(
+                              onPressed: () async {
+                                ref.watch(currentUserProvider.notifier).signOut();
+                                ref.read(savedSessionProvider.notifier).changeSessionDataList();
+                                ref.read(currentUserProvider.notifier).deleteAccount();
+                                Navigator.of(context)
+                                    .push(MaterialPageRoute(builder: ((context) => const LoginScreen())));
+                                ScaffoldMessenger.of(context).hideCurrentSnackBar();
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(
+                                    content: Text("Account Deleted"),
+                                  ),
+                                );
+                              },
+                              child: Text(
+                                'Delete',
+                                style: TextStyle(
+                                  color: Theme.of(context).colorScheme.onSecondary,
+                                  fontSize: MediaQuery.of(context).size.width * 0.045,
+                                  fontWeight: FontWeight.w400,
+                                ),
+                              )),
+                          TextButton(
+                              onPressed: () => Navigator.pop(context),
+                              child: Text(
+                                'Cancel',
+                                style: TextStyle(
+                                  color: Theme.of(context).colorScheme.onSecondary,
+                                  fontSize: MediaQuery.of(context).size.width * 0.045,
+                                  fontWeight: FontWeight.w400,
+                                ),
+                              )),
+                        ],
+                      ));
             },
-            child: const Text(
+            child: Text(
               'Delete Account',
-              style: TextStyle(color: Colors.red, fontSize: 15),
+              style: TextStyle(color: Colors.red, fontSize: MediaQuery.of(context).size.width * 0.039),
             ),
           ),
         ],

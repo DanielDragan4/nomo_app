@@ -2,15 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:nomo/models/friend_model.dart';
 import 'package:nomo/providers/chat-providers/chats_provider.dart';
-import 'package:nomo/providers/notification-providers/notification-bell-provider.dart';
-import 'package:nomo/providers/notification-providers/notification-provider.dart';
 import 'package:nomo/providers/profile_provider.dart';
 import 'package:nomo/providers/theme_provider.dart';
 import 'package:nomo/screens/friends/groupchat_create_screen.dart';
 import 'package:nomo/screens/search_screen.dart';
 import 'package:nomo/widgets/friend_tab.dart';
 import 'package:nomo/widgets/group_tab.dart';
-import 'package:nomo/widgets/toggle_buttons.dart';
 
 class FriendsScreen extends ConsumerStatefulWidget {
   const FriendsScreen({super.key, required this.isGroupChats});
@@ -256,10 +253,14 @@ class _FriendsScreenState extends ConsumerState<FriendsScreen> {
                         showDialog(
                           context: context,
                           builder: (context) => AlertDialog(
-                            backgroundColor: Theme.of(context).colorScheme.onPrimary,
-                            title: const Text(
+                            backgroundColor: Theme.of(context).cardColor,
+                            title: Text(
                               'Create Group?',
-                              style: TextStyle(color: Colors.white),
+                              style: TextStyle(
+                                color: Theme.of(context).primaryColorLight,
+                                fontSize: MediaQuery.of(context).size.width * 0.065,
+                                fontWeight: FontWeight.w600,
+                              ),
                             ),
                             actions: [
                               TextButton(
@@ -272,13 +273,27 @@ class _FriendsScreenState extends ConsumerState<FriendsScreen> {
                                       )
                                       .then((result) => Navigator.pop(context));
                                 },
-                                child: const Text('Continue'),
+                                child: Text(
+                                  'Continue',
+                                  style: TextStyle(
+                                    color: Theme.of(context).colorScheme.onSecondary,
+                                    fontSize: MediaQuery.of(context).size.width * 0.045,
+                                    fontWeight: FontWeight.w400,
+                                  ),
+                                ),
                               ),
                               TextButton(
                                 onPressed: () {
                                   Navigator.pop(context);
                                 },
-                                child: const Text('Cancel'),
+                                child: Text(
+                                  'Cancel',
+                                  style: TextStyle(
+                                    color: Theme.of(context).colorScheme.onSecondary,
+                                    fontSize: MediaQuery.of(context).size.width * 0.045,
+                                    fontWeight: FontWeight.w400,
+                                  ),
+                                ),
                               )
                             ],
                           ),

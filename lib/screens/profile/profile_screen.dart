@@ -259,39 +259,30 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
     );
   }
 
-  @override
-  Widget build(BuildContext context) {
-    // Calculation of appBarHeight
-    double appBarHeight = MediaQuery.of(context).padding.top; // Start with top padding
+  double calculateAppBarHeight(BuildContext context, bool isUser, bool showFilterIcon) {
+    double appBarHeight = MediaQuery.of(context).padding.top +
+        MediaQuery.of(context).size.height / 60 +
+        kToolbarHeight +
+        10; // Top padding + toolbar height
 
-    // Add height for profile header
-    appBarHeight += MediaQuery.of(context).size.width * 0.24; // Avatar size (assuming it's proportional to width)
-    appBarHeight += 16; // Padding below avatar
+    // Profile header
+    appBarHeight += MediaQuery.of(context).size.width / 6; // Avatar height
+    appBarHeight += 16; // Padding around header (vertical)
 
-    // Add height for profile name and username
-    appBarHeight += 24 + 16 + 5; // Text heights and spacing
+    // Upcoming events column height
+    appBarHeight += MediaQuery.of(context).size.width / 20 + MediaQuery.of(context).size.width / 24;
 
-    // Add height for stats row (Upcoming Events, etc.)
-    appBarHeight += MediaQuery.of(context).size.width / 20; // Text size for number
-    appBarHeight += MediaQuery.of(context).size.width / 24; // Text size for label
-    appBarHeight += 20; // Extra padding
+    // Toggle buttons
+    appBarHeight += 40 + 24;
 
-    // Add height for toggle buttons
-    appBarHeight += 40; // Height of toggle buttons
-    appBarHeight += 24; // Padding around toggle buttons
-
-    // Add height for filter icon (if present)
-    if (widget.isUser && isSelected[0]) {
-      appBarHeight += MediaQuery.of(context).size.width / 15; // Icon size
-      appBarHeight += 16; // Padding around icon
-    }
-
-    // Add some extra padding for visual comfort
+    // Extra padding
     appBarHeight += 20;
 
-    // Assign toolbar height
-    double toolbar = widget.isUser ? 10 : 50;
+    return appBarHeight;
+  }
 
+  @override
+  Widget build(BuildContext context) {
     ref.read(attendEventsProvider.notifier).state;
     if (widget.isUser) {
       print('build');
@@ -329,9 +320,9 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
               child: CustomScrollView(
                 slivers: [
                   SliverAppBar(
-                    toolbarHeight: kToolbarHeight + toolbar,
+                    toolbarHeight: kToolbarHeight + 10,
                     backgroundColor: Theme.of(context).colorScheme.surface,
-                    expandedHeight: appBarHeight / 1.25,
+                    expandedHeight: calculateAppBarHeight(context, widget.isUser, isSelected[0]),
                     floating: false,
                     pinned: false,
                     snap: false,
@@ -492,7 +483,7 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
                                                   return Text(
                                                     "Error",
                                                     style: TextStyle(
-                                                      fontSize: 18,
+                                                      fontSize: MediaQuery.of(context).size.width / 20,
                                                       color: Theme.of(context).colorScheme.error,
                                                     ),
                                                   );
@@ -500,7 +491,7 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
                                                   return Text(
                                                     "0",
                                                     style: TextStyle(
-                                                      fontSize: 18,
+                                                      fontSize: MediaQuery.of(context).size.width / 20,
                                                       color: Theme.of(context).colorScheme.onPrimary,
                                                     ),
                                                   );

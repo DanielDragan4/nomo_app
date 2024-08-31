@@ -67,8 +67,16 @@ class _EventTabState extends ConsumerState<EventTab> {
       setState(() {
         widget.eventData = widget.eventData;
         bookmarkBool = widget.eventData.bookmarked;
+        _updateDates();
       });
     }
+  }
+
+  void _updateDates() {
+    setState(() {
+      _selectedStartDate = DateTime.parse(widget.eventData.attendeeDates['time_start']);
+      _selectedEndDate = DateTime.parse(widget.eventData.attendeeDates['time_end']);
+    });
   }
 
   @override

@@ -110,7 +110,7 @@ class AttendEventProvider extends StateNotifier<List<Event>> {
           deCodedEvent.isHost = true;
           deCodedEvent.attendeeDates = {'time_start': deCodedEvent.sdate.first, 'time_end': deCodedEvent.edate.first};
         }
-        if (attending) {
+        else if (attending) {
           if (eventData['attendee_start'] != null) {
             deCodedEvent.attendeeDates = {
               'time_start': eventData['attendee_start'],

@@ -168,7 +168,7 @@ class _NewGroupChatScreenState extends ConsumerState<NewGroupChatScreen> {
     } else {
       imgId = await supabase.client
           .from('Images')
-          .insert({'image_url': 'default/avatar/nomo_logo_2.jgp'}).select('images_id');
+          .insert({'image_url': 'default/avatar/nomo_logo_2.jpg'}).select('images_id');
     }
     return imgId[0]["images_id"];
   }

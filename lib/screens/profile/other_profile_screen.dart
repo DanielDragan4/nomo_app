@@ -187,20 +187,30 @@ class ProfileScreenState extends ConsumerState<OtherProfileScreen> {
     );
   }
 
+  double calculateAppBarHeight(BuildContext context) {
+    double appBarHeight = MediaQuery.of(context).padding.top +
+        MediaQuery.of(context).size.height / 60 +
+        kToolbarHeight +
+        10; // Top padding + toolbar height
+
+    // Profile header
+    appBarHeight += MediaQuery.of(context).size.width / 6; // Avatar height
+    appBarHeight += 16; // Padding around header (vertical)
+
+    // Upcoming events column height
+    appBarHeight += MediaQuery.of(context).size.width / 20 + MediaQuery.of(context).size.width / 24;
+
+    // Toggle buttons
+    appBarHeight += 40 + 24;
+
+    // Extra padding
+    //appBarHeight += 20;
+
+    return appBarHeight;
+  }
+
   @override
   Widget build(BuildContext context) {
-    // Calculation of appBarHeight
-    double appBarHeight = MediaQuery.of(context).padding.top; // Start with top padding
-    appBarHeight += MediaQuery.of(context).size.width * 0.24; // Avatar size
-    appBarHeight += 16; // Padding below avatar
-    appBarHeight += 24 + 16 + 5; // Text heights and spacing
-    appBarHeight += MediaQuery.of(context).size.width / 20; // Text size for number
-    appBarHeight += MediaQuery.of(context).size.width / 24; // Text size for label
-    //appBarHeight += 20; // Extra padding
-    appBarHeight += 40; // Height of toggle buttons
-    appBarHeight += 24; // Padding around toggle buttons
-    //appBarHeight += 20; // Extra padding for visual comfort
-
     // Listen to changes in the profileProvider
     ref.listen<Profile?>(profileProvider, (previous, next) {
       if (next != null && next != profile) {
@@ -234,7 +244,7 @@ class ProfileScreenState extends ConsumerState<OtherProfileScreen> {
                   SliverAppBar(
                     toolbarHeight: kToolbarHeight + 50,
                     backgroundColor: Theme.of(context).colorScheme.surface,
-                    expandedHeight: appBarHeight,
+                    expandedHeight: calculateAppBarHeight(context),
                     floating: false,
                     pinned: false,
                     snap: false,
@@ -308,12 +318,24 @@ class ProfileScreenState extends ConsumerState<OtherProfileScreen> {
                                             ],
                                           );
                                         } else {
-                                          return Text(
-                                            "0",
-                                            style: TextStyle(
-                                              fontSize: 18,
-                                              color: Theme.of(context).colorScheme.onPrimary,
-                                            ),
+                                          return Column(
+                                            children: [
+                                              Text(
+                                                '0',
+                                                style: TextStyle(
+                                                  fontSize: MediaQuery.of(context).size.width / 20,
+                                                  fontWeight: FontWeight.bold,
+                                                  color: Theme.of(context).colorScheme.onPrimary,
+                                                ),
+                                              ),
+                                              Text(
+                                                "Upcoming Events",
+                                                style: TextStyle(
+                                                  fontSize: MediaQuery.of(context).size.width / 24,
+                                                  color: Theme.of(context).colorScheme.onPrimary,
+                                                ),
+                                              ),
+                                            ],
                                           );
                                         }
                                       },

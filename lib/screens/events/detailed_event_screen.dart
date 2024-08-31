@@ -174,7 +174,7 @@ class _DetailedEventScreenState extends ConsumerState<DetailedEventScreen> {
           child: PopupMenuButton<Options>(
             icon: Icon(
               Icons.more_horiz,
-              color: Colors.white,
+              color: Theme.of(context).colorScheme.surface,
               size: MediaQuery.of(context).size.width * .075,
             ),
             onSelected: (Options item) {
@@ -1014,7 +1014,7 @@ class _DetailedEventScreenState extends ConsumerState<DetailedEventScreen> {
         stage: 'user_share',
       )
         ..addControlParam('\$fallback_url', 'https://example.com')
-        ..addControlParam('\$ios_url', 'https://apps.apple.com/app/id123456789')
+        ..addControlParam('\$ios_url', 'https://apps.apple.com/app/id6505129089')
         ..addControlParam('\$android_url', 'https://play.google.com/store/apps/details?id=com.nomo.nomoapp');
 
       BranchResponse response = await FlutterBranchSdk.getShortUrl(buo: buo, linkProperties: lp);

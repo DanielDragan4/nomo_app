@@ -145,10 +145,11 @@ class _FriendTabState extends ConsumerState<FriendTab> {
                       ),
                       child: IconButton(
                         onPressed: () async {
-                          ref.read(profileProvider.notifier).decodeData();
+                          await ref.read(profileProvider.notifier).decodeData();
                           ref
                               .read(friendNotificationProvider.notifier)
                               .resetNotification(widget.friendData.friendProfileId);
+                              var profileId = ref.read(profileProvider.notifier).state!.profile_id;
                           Navigator.of(
                             context,
                             rootNavigator: true,
@@ -156,7 +157,7 @@ class _FriendTabState extends ConsumerState<FriendTab> {
                               .push(MaterialPageRoute(
                                 builder: (context) => ChatScreen(
                                   chatterUser: widget.friendData,
-                                  currentUser: ref.read(profileProvider.notifier).state!.profile_id,
+                                  currentUser: profileId,
                                 ),
                               ))
                               .then((value) => ref.read(activeChatIdProvider.notifier).setActiveChatId(null));

@@ -12,12 +12,11 @@ import 'package:nomo/providers/supabase-providers/saved_session_provider.dart';
 import 'package:nomo/providers/supabase-providers/supabase_provider.dart';
 
 class SettingScreen extends ConsumerStatefulWidget {
-  SettingScreen({super.key, this.isCorp});
-  bool? isCorp;
+  const SettingScreen({super.key, this.isCorp});
+  final bool? isCorp;
+
   @override
-  createState() {
-    return _SettingScreenState();
-  }
+  ConsumerState<SettingScreen> createState() => _SettingScreenState();
 }
 
 class _SettingScreenState extends ConsumerState<SettingScreen> {
@@ -27,11 +26,9 @@ class _SettingScreenState extends ConsumerState<SettingScreen> {
   late bool contactSwitch = false;
   late bool notifSwitch = false;
   late bool newEventSwitch = true;
-  //late bool newEventFriendsOnlySwitch = false;
   late bool joinedEventSwitch = true;
   late bool joinedEventFriendsOnlySwitch = false;
   late bool eventDeletedSwitch = true;
-  //late bool eventDeletedFriendsOnlySwitch = false;
   late bool messageSwitch = true;
   late bool messageFriendsOnlySwitch = false;
 
@@ -39,6 +36,36 @@ class _SettingScreenState extends ConsumerState<SettingScreen> {
   void initState() {
     loadData();
     super.initState();
+  }
+
+  void loadData() async {
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    setState(() {
+      privateSwitch = prefs.getBool('private') ?? false;
+      cameraSwitch = prefs.getBool('camera') ?? false;
+      locationSwitch = prefs.getBool('location') ?? false;
+      contactSwitch = prefs.getBool('contact') ?? false;
+      notifSwitch = prefs.getBool('notif') ?? false;
+      newEventSwitch = prefs.getBool('newEvent') ?? true;
+      joinedEventSwitch = prefs.getBool('joinedEvent') ?? true;
+      joinedEventFriendsOnlySwitch = prefs.getBool('joinedEventFriendsOnly') ?? false;
+      eventDeletedSwitch = prefs.getBool('eventDeleted') ?? true;
+      messageSwitch = prefs.getBool('message') ?? true;
+      messageFriendsOnlySwitch = prefs.getBool('messageFriendsOnly') ?? false;
+    });
+
+    // Check permissions
+    final cameraStatus = await perm_handler.Permission.camera.status;
+    final locationStatus = await perm_handler.Permission.location.status;
+    final contactsStatus = await perm_handler.Permission.contacts.status;
+    final notificationStatus = await perm_handler.Permission.notification.status;
+
+    setState(() {
+      cameraSwitch = cameraStatus.isGranted;
+      locationSwitch = locationStatus.isGranted;
+      contactSwitch = contactsStatus.isGranted;
+      notifSwitch = notificationStatus.isGranted;
+    });
   }
 
   void updateSwitchValue(String switchType) async {
@@ -59,31 +86,21 @@ class _SettingScreenState extends ConsumerState<SettingScreen> {
           locationSwitch = !locationSwitch;
           handlePermissionToggle(perm_handler.Permission.location, locationSwitch);
           prefs.setBool('location', locationSwitch);
-
           break;
         case 'contact':
           contactSwitch = !contactSwitch;
           handlePermissionToggle(perm_handler.Permission.contacts, contactSwitch);
           prefs.setBool('contact', contactSwitch);
-
           break;
         case 'notif':
           notifSwitch = !notifSwitch;
-          prefs.setBool('notif', notifSwitch); // Save notification switch state
+          prefs.setBool('notif', notifSwitch);
           handleNotificationSwitch();
           break;
         case 'newEvent':
           newEventSwitch = !newEventSwitch;
           prefs.setBool('newEvent', newEventSwitch);
-          //   if (!newEventSwitch) {
-          //     newEventFriendsOnlySwitch = false;
-          //     prefs.setBool('newEventFriendsOnly', false);
-          //   }
           break;
-        // case 'newEventFriendsOnly':
-        //   newEventFriendsOnlySwitch = !newEventFriendsOnlySwitch;
-        //   prefs.setBool('newEventFriendsOnly', newEventFriendsOnlySwitch);
-        //  break;
         case 'joinedEvent':
           joinedEventSwitch = !joinedEventSwitch;
           prefs.setBool('joinedEvent', joinedEventSwitch);
@@ -99,16 +116,7 @@ class _SettingScreenState extends ConsumerState<SettingScreen> {
         case 'eventDeleted':
           eventDeletedSwitch = !eventDeletedSwitch;
           prefs.setBool('eventDeleted', eventDeletedSwitch);
-          // if (!eventDeletedSwitch) {
-          //   eventDeletedFriendsOnlySwitch = false;
-          //   prefs.setBool('eventDeletedFriendsOnly', false);
-          // }
           break;
-        // case 'eventDeletedFriendsOnly':
-        //   eventDeletedFriendsOnlySwitch = !eventDeletedFriendsOnlySwitch;
-        //   prefs.setBool(
-        //       'eventDeletedFriendsOnly', eventDeletedFriendsOnlySwitch);
-        //   break;
         case 'message':
           messageSwitch = !messageSwitch;
           prefs.setBool('message', messageSwitch);
@@ -180,412 +188,204 @@ class _SettingScreenState extends ConsumerState<SettingScreen> {
     }
   }
 
-  void loadData() async {
-    final SharedPreferences prefs = await SharedPreferences.getInstance();
-    setState(() {
-      privateSwitch = prefs.getBool('private') ?? false;
-      cameraSwitch = prefs.getBool('camera') ?? false;
-      locationSwitch = prefs.getBool('location') ?? false;
-      contactSwitch = prefs.getBool('contact') ?? false;
-      notifSwitch = prefs.getBool('notif') ?? false;
-
-      newEventSwitch = prefs.getBool('newEvent') ?? false;
-      //newEventFriendsOnlySwitch = prefs.getBool('newEventFriendsOnly') ?? false;
-      joinedEventSwitch = prefs.getBool('joinedEvent') ?? false;
-      joinedEventFriendsOnlySwitch = prefs.getBool('joinedEventFriendsOnly') ?? false;
-      eventDeletedSwitch = prefs.getBool('eventDeleted') ?? false;
-      //eventDeletedFriendsOnlySwitch =
-      //    prefs.getBool('eventDeletedFriendsOnly') ?? false;
-      messageSwitch = prefs.getBool('message') ?? false;
-      messageFriendsOnlySwitch = prefs.getBool('messageFriendsOnly') ?? false;
-    });
-    // Check camera permission status
-    final cameraStatus = await perm_handler.Permission.camera.status;
-    print('_________________________cameraStatus: $cameraStatus');
-    if (cameraStatus.isGranted) {
-      setState(() {
-        cameraSwitch = true;
-      });
-    } else {
-      setState(() {
-        cameraSwitch = false;
-      });
-    }
-
-    // Check location permission status
-    final locationStatus = await perm_handler.Permission.location.status;
-    if (locationStatus.isGranted) {
-      setState(() {
-        locationSwitch = true;
-      });
-    }
-
-    // Check contacts permission status
-    final contactsStatus = await perm_handler.Permission.contacts.status;
-    if (contactsStatus.isGranted) {
-      setState(() {
-        contactSwitch = true;
-      });
-    }
-
-    // Check notification permission status
-    final notificationStatus = await perm_handler.Permission.notification.status;
-    if (notificationStatus.isGranted) {
-      setState(() {
-        notifSwitch = true;
-      });
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     return Scaffold(
-      backgroundColor: Theme.of(context).colorScheme.surface,
+      backgroundColor: theme.canvasColor,
       appBar: AppBar(
-        backgroundColor: Theme.of(context).colorScheme.surface,
-        flexibleSpace: PreferredSize(
-          preferredSize: const Size.fromHeight(kToolbarHeight),
-          child: Container(
-            padding: const EdgeInsets.only(
-              top: 20,
-              bottom: 5,
-            ),
-            alignment: Alignment.bottomCenter,
-            child: Text('Settings',
-                style: TextStyle(
-                  color: Theme.of(context).primaryColor,
-                  fontWeight: FontWeight.w400,
-                  fontSize: 30,
-                )),
+        backgroundColor: theme.appBarTheme.backgroundColor,
+        title: Text(
+          'Settings',
+          style: theme.textTheme.titleMedium?.copyWith(
+            fontWeight: FontWeight.w600,
+            fontSize: 24,
           ),
         ),
       ),
       body: ListView(
         children: [
-          const ListTile(
-            title: Text('Account', style: TextStyle(fontSize: 25)),
-          ),
-          const Divider(),
-          SettingButton(
-            title: 'Data Management',
-            onPressed: () {
-              redirect("Data");
-            },
-          ),
-          SettingButton(
-            title: 'Authentication',
-            onPressed: () {
-              redirect("Auth");
-            },
-          ),
-          SettingButton(
-            title: 'Security',
-            onPressed: () {
-              redirect("Security");
-            },
-          ),
-          const ListTile(
-            title: Text('Privacy', style: TextStyle(fontSize: 25)),
-          ),
-          const Divider(),
-          ListTile(
-            title: const Text('Make Private', style: TextStyle(fontSize: 20)),
-            trailing: Switch(
-              value: privateSwitch,
-              onChanged: (newValue) {
-                updateSwitchValue('private');
-              },
-            ),
-          ),
-          SettingButton(
-            title: 'Blocked Accounts',
-            onPressed: () {
-              redirect("Blocked");
-            },
-          ),
-          const ListTile(
-            title: Text('In-App Notifications', style: TextStyle(fontSize: 25)),
-          ),
-          const Divider(),
-          ListTile(
-            title: Text('New Event Created', style: TextStyle(fontSize: 20)),
-            trailing: Switch(
-              value: newEventSwitch,
-              onChanged: (newValue) {
-                updateSwitchValue('newEvent');
-              },
-            ),
-          ),
-          // Padding(
-          //   padding: const EdgeInsets.only(left: 40.0),
-          //   child: ListTile(
-          //     title: const Text('Friends Only', style: TextStyle(fontSize: 20)),
-          //     trailing: Switch(
-          //       value: newEventSwitch ? newEventFriendsOnlySwitch : false,
-          //       onChanged: newEventSwitch
-          //           ? (newValue) {
-          //               updateSwitchValue('newEventFriendsOnly');
-          //             }
-          //           : null,
-          //       activeColor: newEventSwitch
-          //           ? Theme.of(context).primaryColor
-          //           : Colors.grey,
-          //     ),
-          //   ),
-          // ),
-          ListTile(
-            title: Text('New Event Joined', style: TextStyle(fontSize: 20)),
-            trailing: Switch(
-              value: joinedEventSwitch,
-              onChanged: (newValue) {
-                updateSwitchValue('joinedEvent');
-              },
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.only(left: 40.0),
-            child: ListTile(
-              title: const Text('Friends Only', style: TextStyle(fontSize: 20)),
-              trailing: Switch(
-                value: joinedEventSwitch ? joinedEventFriendsOnlySwitch : false,
-                onChanged: joinedEventSwitch
-                    ? (newValue) {
-                        updateSwitchValue('joinedEventFriendsOnly');
-                      }
-                    : null,
-                activeColor: joinedEventSwitch ? Theme.of(context).primaryColor : Colors.grey,
+          _buildSection('Account', [
+            _buildSettingItem('Data Management', onTap: () => redirect("Data")),
+            _buildSettingItem('Authentication', onTap: () => redirect("Auth")),
+            _buildSettingItem('Security', onTap: () => redirect("Security")),
+          ]),
+          _buildSection('Privacy', [
+            _buildSwitchItem('Make Private', value: privateSwitch, onChanged: (val) => updateSwitchValue('private')),
+            _buildSettingItem('Blocked Accounts', onTap: () => redirect("Blocked")),
+          ]),
+          _buildSection('In-App Notifications', [
+            _buildSwitchItem('New Event Created', value: newEventSwitch, onChanged: (val) => updateSwitchValue('newEvent')),
+            _buildSwitchItem('New Event Joined', value: joinedEventSwitch, onChanged: (val) => updateSwitchValue('joinedEvent')),
+            if (joinedEventSwitch)
+              Padding(
+                padding: const EdgeInsets.only(left: 40.0),
+                child: _buildSwitchItem('Friends Only', value: joinedEventFriendsOnlySwitch, onChanged: (val) => updateSwitchValue('joinedEventFriendsOnly')),
               ),
-            ),
-          ),
-          ListTile(
-            title: const Text('Event Deleted or Updated', style: TextStyle(fontSize: 20)),
-            trailing: Switch(
-              value: eventDeletedSwitch,
-              onChanged: (newValue) {
-                updateSwitchValue('eventDeleted');
-              },
-            ),
-          ),
-          // Padding(
-          //   padding: const EdgeInsets.only(left: 40.0),
-          //   child: ListTile(
-          //     title: const Text('Friends Only', style: TextStyle(fontSize: 20)),
-          //     trailing: Switch(
-          //       value:
-          //           eventDeletedSwitch ? eventDeletedFriendsOnlySwitch : false,
-          //       onChanged: eventDeletedSwitch
-          //           ? (newValue) {
-          //               updateSwitchValue('eventDeletedFriendsOnly');
-          //             }
-          //           : null,
-          //       activeColor: eventDeletedSwitch
-          //           ? Theme.of(context).primaryColor
-          //           : Colors.grey,
-          //     ),
-          //   ),
-          // ),
-          ListTile(
-            title: Text('Incoming Message', style: TextStyle(fontSize: 20)),
-            trailing: Switch(
-              value: messageSwitch,
-              onChanged: (newValue) {
-                updateSwitchValue('message');
-              },
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.only(left: 40.0),
-            child: ListTile(
-              title: const Text('Friends Only', style: TextStyle(fontSize: 20)),
-              trailing: Switch(
-                value: messageSwitch ? messageFriendsOnlySwitch : false,
-                onChanged: messageSwitch
-                    ? (newValue) {
-                        updateSwitchValue('messageFriendsOnly');
-                      }
-                    : null,
-                activeColor: messageSwitch ? Theme.of(context).primaryColor : Colors.grey,
+            _buildSwitchItem('Event Deleted or Updated', value: eventDeletedSwitch, onChanged: (val) => updateSwitchValue('eventDeleted')),
+            _buildSwitchItem('Incoming Message', value: messageSwitch, onChanged: (val) => updateSwitchValue('message')),
+            if (messageSwitch)
+              Padding(
+                padding: const EdgeInsets.only(left: 40.0),
+                child: _buildSwitchItem('Friends Only', value: messageFriendsOnlySwitch, onChanged: (val) => updateSwitchValue('messageFriendsOnly')),
               ),
-            ),
-          ),
-          const ListTile(
-            title: Text('Customization', style: TextStyle(fontSize: 25)),
-          ),
-          const Divider(),
-          SettingButton(
-            title: 'Theme',
-            onPressed: () {
-              redirect("Theme");
-            },
-          ),
-          const ListTile(
-            title: Text('Permissions', style: TextStyle(fontSize: 25)),
-          ),
-          const Divider(),
-          ListTile(
-            title: const Text('Camera', style: TextStyle(fontSize: 20)),
-            trailing: Switch(
-              value: cameraSwitch,
-              onChanged: (newValue) async {
-                updateSwitchValue('camera');
-              },
-            ),
-          ),
-
-          ListTile(
-            title: Text('Location', style: TextStyle(fontSize: 20)),
-            trailing: Switch(
-              value: locationSwitch,
-              onChanged: (newValue) async {
-                updateSwitchValue('location');
-              },
-            ),
-          ),
-
-          ListTile(
-            title: const Text('Contacts', style: TextStyle(fontSize: 20)),
-            trailing: Switch(
-              value: contactSwitch,
-              onChanged: (newValue) async {
-                updateSwitchValue('contact');
-              },
-            ),
-          ),
-
-          ListTile(
-            title: const Text('Device Notifications', style: TextStyle(fontSize: 20)),
-            trailing: Switch(
-              value: notifSwitch,
-              onChanged: (newValue) {
-                updateSwitchValue('notif');
-              },
-            ),
-          ),
-          if (widget.isCorp != null && widget.isCorp == true)
-            const ListTile(
-              title: Row(
-                children: [
-                  Text('Corporate Account', style: TextStyle(fontSize: 25)),
-                  Icon(Icons.workspace_premium_outlined)
-                ],
-              ),
-            ),
-          if (widget.isCorp != null && widget.isCorp == true) const Divider(),
-          if (widget.isCorp != null && widget.isCorp == true)
-            SettingButton(
-              title: 'Event Analytics',
-              onPressed: () {
-                redirect("Analytics");
-              },
-            ),
-          if (widget.isCorp != null && widget.isCorp == true)
-            SettingButton(
-              title: 'Payment',
-              onPressed: () {
-                redirect("Payment");
-              },
-            ),
-          if (widget.isCorp != null && widget.isCorp == true)
-            SettingButton(
-              title: 'Customer Support',
-              onPressed: () {
-                redirect("Support");
-              },
-            ),
-          const ListTile(
-            title: Text('Support', style: TextStyle(fontSize: 25)),
-          ),
-          const Divider(),
-          SettingButton(
-            title: 'About',
-            onPressed: () {
-              redirect("About");
-            },
-          ),
-          SettingButton(
-            title: 'Help',
-            onPressed: () {
-              redirect("Help");
-            },
-          ),
-          SettingButton(
-            title: 'Account Status',
-            onPressed: () {
-              redirect("Status");
-            },
-          ),
-          TextButton(
-            onPressed: () {
-              ref.watch(currentUserProvider.notifier).signOut();
-              ref.read(savedSessionProvider.notifier).changeSessionDataList();
-              Navigator.of(context).push(MaterialPageRoute(builder: ((context) => const LoginScreen())));
-            },
-            child: const Text(
-              'Log Out',
-              style: TextStyle(color: Colors.red, fontSize: 18),
-            ),
-          ),
-          TextButton(
-            onPressed: () {
-              showDialog(
-                  context: context,
-                  builder: (context) => AlertDialog(
-                        title: Text(
-                          'Are you sure you want to delete your account, all data will be deleted?',
-                          style: TextStyle(
-                            color: Theme.of(context).primaryColorLight,
-                            fontSize: MediaQuery.of(context).size.width * 0.065,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                        actions: [
-                          TextButton(
-                              onPressed: () async {
-                                ref.watch(currentUserProvider.notifier).signOut();
-                                ref.read(savedSessionProvider.notifier).changeSessionDataList();
-                                ref.read(currentUserProvider.notifier).deleteAccount();
-                                Navigator.of(context)
-                                    .push(MaterialPageRoute(builder: ((context) => const LoginScreen())));
-                                ScaffoldMessenger.of(context).hideCurrentSnackBar();
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  const SnackBar(
-                                    content: Text("Account Deleted"),
-                                  ),
-                                );
-                              },
-                              child: Text(
-                                'Delete',
-                                style: TextStyle(
-                                  color: Theme.of(context).colorScheme.onSecondary,
-                                  fontSize: MediaQuery.of(context).size.width * 0.045,
-                                  fontWeight: FontWeight.w400,
-                                ),
-                              )),
-                          TextButton(
-                              onPressed: () => Navigator.pop(context),
-                              child: Text(
-                                'Cancel',
-                                style: TextStyle(
-                                  color: Theme.of(context).colorScheme.onSecondary,
-                                  fontSize: MediaQuery.of(context).size.width * 0.045,
-                                  fontWeight: FontWeight.w400,
-                                ),
-                              )),
-                        ],
-                      ));
-            },
-            child: Text(
-              'Delete Account',
-              style: TextStyle(color: Colors.red, fontSize: MediaQuery.of(context).size.width * 0.039),
-            ),
-          ),
+          ]),
+          _buildSection('Customization', [
+            _buildSettingItem('Theme', onTap: () => redirect("Theme")),
+          ]),
+          _buildSection('Permissions', [
+            _buildSwitchItem('Camera', value: cameraSwitch, onChanged: (val) => updateSwitchValue('camera')),
+            _buildSwitchItem('Location', value: locationSwitch, onChanged: (val) => updateSwitchValue('location')),
+            _buildSwitchItem('Contacts', value: contactSwitch, onChanged: (val) => updateSwitchValue('contact')),
+            _buildSwitchItem('Device Notifications', value: notifSwitch, onChanged: (val) => updateSwitchValue('notif')),
+          ]),
+          if (widget.isCorp == true)
+            _buildSection('Corporate Account', [
+              _buildSettingItem('Event Analytics', onTap: () => redirect("Analytics")),
+              _buildSettingItem('Payment', onTap: () => redirect("Payment")),
+              _buildSettingItem('Customer Support', onTap: () => redirect("Support")),
+            ]),
+          _buildSection('Support', [
+            _buildSettingItem('About', onTap: () => redirect("About")),
+            _buildSettingItem('Help', onTap: () => redirect("Help")),
+            _buildSettingItem('Account Status', onTap: () => redirect("Status")),
+          ]),
+          _buildLogoutButton(),
+          _buildDeleteAccountButton(),
         ],
       ),
     );
   }
 
-  redirect(String screen) {
-    return Navigator.of(context).push(MaterialPageRoute(
+  Widget _buildSection(String title, List<Widget> children) {
+    final theme = Theme.of(context);
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding: const EdgeInsets.fromLTRB(16, 24, 16, 8),
+          child: Text(
+            title,
+            style: theme.textTheme.bodyMedium?.copyWith(
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+        ),
+        ...children,
+      ],
+    );
+  }
+
+  Widget _buildSettingItem(String title, {required VoidCallback onTap}) {
+    final theme = Theme.of(context);
+    return ListTile(
+      title: Text(
+        title,
+        style: theme.textTheme.titleMedium,
+      ),
+      trailing: Icon(Icons.arrow_forward_ios_rounded, color: theme.colorScheme.onSecondary),
+      onTap: onTap,
+    );
+  }
+
+  Widget _buildSwitchItem(String title, {required bool value, required ValueChanged<bool> onChanged}) {
+    final theme = Theme.of(context);
+    return SwitchListTile(
+      title: Text(
+        title,
+        style: theme.textTheme.titleMedium,
+      ),
+      value: value,
+      onChanged: onChanged,
+      activeColor: theme.primaryColor,
+    );
+  }
+
+  Widget _buildLogoutButton() {
+    final theme = Theme.of(context);
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 16),
+      child: TextButton(
+        style: TextButton.styleFrom(
+          foregroundColor: Colors.red,
+        ),
+        onPressed: () {
+          ref.read(currentUserProvider.notifier).signOut();
+          ref.read(savedSessionProvider.notifier).changeSessionDataList();
+          Navigator.of(context).push(MaterialPageRoute(builder: ((context) => const LoginScreen())));
+        },
+        child: const Text(
+          'Log Out',
+          style: TextStyle(fontSize: 18),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildDeleteAccountButton() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+      child: TextButton(
+        onPressed: () {
+          showDialog(
+            context: context,
+            builder: (context) => AlertDialog(
+              title: Text(
+                'Are you sure you want to delete your account? All data will be deleted.',
+                style: TextStyle(
+                  color: Theme.of(context).primaryColorLight,
+                  fontSize: MediaQuery.of(context).size.width * 0.065,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () async {
+                    ref.watch(currentUserProvider.notifier).signOut();
+                    ref.read(savedSessionProvider.notifier).changeSessionDataList();
+                    ref.read(currentUserProvider.notifier).deleteAccount();
+                    Navigator.of(context).push(MaterialPageRoute(builder: ((context) => const LoginScreen())));
+                    ScaffoldMessenger.of(context).hideCurrentSnackBar();
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text("Account Deleted"),
+                      ),
+                    );
+                  },
+                child: Text(
+                    'Delete',
+                    style: TextStyle(
+                      color: Theme.of(context).colorScheme.onSecondary,
+                      fontSize: MediaQuery.of(context).size.width * 0.045,
+                      fontWeight: FontWeight.w400,
+                    ),
+                  ),
+                ),
+                TextButton(
+                  onPressed: () => Navigator.pop(context),
+                  child: Text(
+                    'Cancel',
+                    style: TextStyle(
+                      color: Theme.of(context).colorScheme.onSecondary,
+                      fontSize: MediaQuery.of(context).size.width * 0.045,
+                      fontWeight: FontWeight.w400,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          );
+        },
+        child: Text(
+          'Delete Account',
+          style: TextStyle(color: Colors.red, fontSize: MediaQuery.of(context).size.width * 0.039),
+        ),
+      ),
+    );
+  }
+
+  void redirect(String screen) {
+    Navigator.of(context).push(MaterialPageRoute(
       builder: (context) => SettingsTemplate(type: screen),
     ));
   }

@@ -499,6 +499,13 @@ class _DetailedEventScreenState extends ConsumerState<DetailedEventScreen> {
       parsedEndDates.add(DateTime.parse(event));
     }
     int? _selectedIndex = 0;
+    for(var i = 0; i < parsedStartDates.length; i++) {
+      if(parsedStartDates[i].isAtSameMomentAs(_selectedStartDate)) {
+        setState(() {
+          _selectedIndex = i;
+        });
+      }
+    }
     showDialog(
       context: context,
       builder: (BuildContext context) {

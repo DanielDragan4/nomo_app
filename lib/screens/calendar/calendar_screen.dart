@@ -445,7 +445,11 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
                                                   backgroundColor: Theme.of(context).cardColor,
                                                   title: Text(
                                                     'What would you like to do?',
-                                                    style: TextStyle(color: Theme.of(context).colorScheme.onPrimary),
+                                                    style: TextStyle(
+                                                      color: Theme.of(context).primaryColorLight,
+                                                      fontSize: MediaQuery.of(context).size.width * 0.065,
+                                                      fontWeight: FontWeight.w600,
+                                                    ),
                                                   ),
                                                   actions: [
                                                     TextButton(
@@ -456,7 +460,11 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
                                                                   builder: ((context) =>
                                                                       const EventCreateScreen(event: null))));
                                                         },
-                                                        child: const Text('CREATE EVENT')),
+                                                        child: Text('Create an Event', style: TextStyle(
+                                                      color: Theme.of(context).colorScheme.onSecondary,
+                                                      fontSize: MediaQuery.of(context).size.width * 0.045,
+                                                      fontWeight: FontWeight.w400,
+                                                    ),)),
                                                     TextButton(
                                                         onPressed: () async {
                                                           selectedDate = await _showDatePickerDialog(context);
@@ -464,12 +472,17 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
                                                             _showTimeRangePicker(context);
                                                           }
                                                         },
-                                                        child: const Text('CREATE BLOCKED TIME')),
+                                                        child:  Text('Block Time', style: TextStyle(
+                                                      color: Theme.of(context).colorScheme.onSecondary,
+                                                      fontSize: MediaQuery.of(context).size.width * 0.045,
+                                                      fontWeight: FontWeight.w400,
+                                                    ),)),
                                                   ],
                                                 ));
                                       },
                                       icon: Icon(Icons.add_box_rounded,
-                                          size: 30, color: Theme.of(context).colorScheme.onSecondary),
+                                          size: MediaQuery.of(context).size.width * 0.075,
+                                          color: Theme.of(context).colorScheme.onSecondary),
                                     ),
                                   ],
                                 ),

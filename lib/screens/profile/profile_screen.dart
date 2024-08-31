@@ -535,7 +535,10 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
                                                               title: Text(
                                                                 'Are you sure you unfriend this user?',
                                                                 style: TextStyle(
-                                                                    color: Theme.of(context).primaryColorDark),
+                                                                  color: Theme.of(context).primaryColorLight,
+                                                                  fontSize: MediaQuery.of(context).size.width * 0.065,
+                                                                  fontWeight: FontWeight.w600,
+                                                                ),
                                                               ),
                                                               actions: [
                                                                 TextButton(
@@ -551,10 +554,28 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
                                                                         ),
                                                                       );
                                                                     },
-                                                                    child: const Text('YES')),
+                                                                    child: Text(
+                                                                      'Unfriend',
+                                                                      style: TextStyle(
+                                                                        color:
+                                                                            Theme.of(context).colorScheme.onSecondary,
+                                                                        fontSize:
+                                                                            MediaQuery.of(context).size.width * 0.045,
+                                                                        fontWeight: FontWeight.w400,
+                                                                      ),
+                                                                    )),
                                                                 TextButton(
                                                                     onPressed: () => Navigator.pop(context),
-                                                                    child: const Text('CANCEL')),
+                                                                    child: Text(
+                                                                      'Cancel',
+                                                                      style: TextStyle(
+                                                                        color:
+                                                                            Theme.of(context).colorScheme.onSecondary,
+                                                                        fontSize:
+                                                                            MediaQuery.of(context).size.width * 0.045,
+                                                                        fontWeight: FontWeight.w400,
+                                                                      ),
+                                                                    )),
                                                               ],
                                                             ));
                                                   });

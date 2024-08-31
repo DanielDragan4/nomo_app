@@ -174,7 +174,7 @@ class _DetailedEventScreenState extends ConsumerState<DetailedEventScreen> {
           child: PopupMenuButton<Options>(
             icon: Icon(
               Icons.more_horiz,
-              color: Theme.of(context).colorScheme.surface,
+              color: Theme.of(context).colorScheme.onPrimaryContainer,
               size: MediaQuery.of(context).size.width * .075,
             ),
             onSelected: (Options item) {

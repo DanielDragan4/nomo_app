@@ -141,8 +141,8 @@ class AttendEventProvider extends StateNotifier<List<Event>> {
     final List<Event> allAttend = state;
 
     for (var event in allAttend) {
-      DateTime startDate = DateTime.parse(event.sdate.first);
-      DateTime endDate = DateTime.parse(event.edate.first);
+      DateTime startDate = DateTime.parse(event.attendeeDates['time_start']);
+      DateTime endDate = DateTime.parse(event.attendeeDates['time_end']);
 
       // Iterate over each day between startDate and endDate
       for (DateTime day = startDate; day.isBefore(endDate.add(Duration(days: 1))); day = day.add(Duration(days: 1))) {

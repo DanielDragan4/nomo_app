@@ -190,15 +190,15 @@ class _EventTabState extends ConsumerState<EventTab> {
         children: [
           Icon(
             Icons.repeat,
-            size: 16,
-            color: Theme.of(context).colorScheme.secondary,
+            size: MediaQuery.of(context).size.width * 0.0425,
+            color: Theme.of(context).colorScheme.onPrimaryContainer,
           ),
           const SizedBox(width: 4),
           Text(
             'Recurring Event',
             style: TextStyle(
-              fontSize: 14,
-              color: Theme.of(context).colorScheme.secondary,
+              fontSize: MediaQuery.of(context).size.width * 0.035,
+              color: Theme.of(context).colorScheme.onPrimaryContainer,
               fontWeight: FontWeight.bold,
             ),
           ),

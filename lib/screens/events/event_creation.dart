@@ -1019,7 +1019,7 @@ class _EventCreateScreenState extends ConsumerState<EventCreateScreen> {
             Text(
               'Add an image',
               style: TextStyle(
-                color: Colors.white,
+                color: Theme.of(context).colorScheme.onSecondary,
                 fontSize: MediaQuery.of(context).size.width / 20,
                 fontWeight: FontWeight.bold,
               ),
@@ -1067,7 +1067,7 @@ class _EventCreateScreenState extends ConsumerState<EventCreateScreen> {
                       onPressed: _showImageSelectionOptions,
                       icon: Icon(
                         Icons.add,
-                        color: Colors.white,
+                        color: Theme.of(context).colorScheme.onSecondary,
                         size: MediaQuery.of(context).size.width / 20,
                       ),
                       label: Text(
@@ -1095,7 +1095,7 @@ class _EventCreateScreenState extends ConsumerState<EventCreateScreen> {
             Text(
               'Info',
               style: TextStyle(
-                color: Colors.white,
+                color: Theme.of(context).colorScheme.onSecondary,
                 fontSize: MediaQuery.of(context).size.width / 20,
                 fontWeight: FontWeight.bold,
               ),
@@ -1173,7 +1173,7 @@ class _EventCreateScreenState extends ConsumerState<EventCreateScreen> {
                   ),
                 ),
               ),
-              style: TextStyle(color: Theme.of(context).colorScheme.onPrimary),
+              style: TextStyle(color: Theme.of(context).colorScheme.onSecondary),
               onChanged: (value) {
                 setState(() {
                   _validateStep1(false);
@@ -1210,7 +1210,7 @@ class _EventCreateScreenState extends ConsumerState<EventCreateScreen> {
                   ),
                 ),
               ),
-              style: TextStyle(color: Theme.of(context).colorScheme.onPrimary),
+              style: TextStyle(color: Theme.of(context).colorScheme.onSecondary),
               maxLines: 3,
               onChanged: (value) {
                 setState(() {
@@ -1236,14 +1236,14 @@ class _EventCreateScreenState extends ConsumerState<EventCreateScreen> {
               style: TextStyle(
                   fontWeight: FontWeight.bold,
                   fontSize: MediaQuery.of(context).size.width / 20,
-                  color: Theme.of(context).colorScheme.onPrimary),
+                  color: Theme.of(context).colorScheme.onSecondary),
             ),
             SizedBox(height: 16),
             Text(
               'Invitation Type',
               style: TextStyle(
                 fontWeight: FontWeight.bold,
-                color: Theme.of(context).colorScheme.onPrimary,
+                color: Theme.of(context).colorScheme.onSurface,
                 fontSize: MediaQuery.of(context).size.width / 30,
               ),
             ),
@@ -1269,7 +1269,7 @@ class _EventCreateScreenState extends ConsumerState<EventCreateScreen> {
               'Event Categories',
               style: TextStyle(
                 fontWeight: FontWeight.bold,
-                color: Theme.of(context).colorScheme.onPrimary,
+                color: Theme.of(context).colorScheme.onSurface,
                 fontSize: MediaQuery.of(context).size.width / 30,
               ),
             ),
@@ -1314,7 +1314,7 @@ class _EventCreateScreenState extends ConsumerState<EventCreateScreen> {
                   style: TextStyle(
                       fontWeight: FontWeight.bold,
                       fontSize: MediaQuery.of(context).size.width / 30,
-                      color: Theme.of(context).colorScheme.onPrimary),
+                      color: Theme.of(context).colorScheme.onSurface),
                 ),
               ],
             ),
@@ -1326,7 +1326,7 @@ class _EventCreateScreenState extends ConsumerState<EventCreateScreen> {
               style: TextStyle(
                   fontWeight: FontWeight.bold,
                   fontSize: MediaQuery.of(context).size.width / 20,
-                  color: Theme.of(context).colorScheme.onPrimary),
+                  color: Theme.of(context).colorScheme.onSecondary),
             ),
             Row(
               children: [
@@ -1343,7 +1343,7 @@ class _EventCreateScreenState extends ConsumerState<EventCreateScreen> {
                   style: TextStyle(
                       fontWeight: FontWeight.bold,
                       fontSize: MediaQuery.of(context).size.width / 30,
-                      color: Theme.of(context).colorScheme.onPrimary),
+                      color: Theme.of(context).colorScheme.onSurface),
                 ),
               ],
             ),
@@ -1534,7 +1534,7 @@ class _EventCreateScreenState extends ConsumerState<EventCreateScreen> {
               style: TextStyle(
                   fontWeight: FontWeight.bold,
                   fontSize: MediaQuery.of(context).size.width / 20,
-                  color: Theme.of(context).colorScheme.onPrimary),
+                  color: Theme.of(context).colorScheme.onSurface),
             ),
             SizedBox(height: 16),
             if (_selectedImage != null)

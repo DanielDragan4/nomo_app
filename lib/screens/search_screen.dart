@@ -338,14 +338,11 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
                           style: TextStyle(color: Theme.of(context).colorScheme.onSecondary, fontSize: 18),
                         ),
                       ))
-                : Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 10),
-                    child: ListView.builder(
-                      itemCount: _searchResults.length,
-                      itemBuilder: (context, index) {
-                        return _searchResults[index];
-                      },
-                    ),
+                : ListView.builder(
+                    itemCount: _searchResults.length,
+                    itemBuilder: (context, index) {
+                      return _searchResults[index];
+                    },
                   ),
           ),
         ],

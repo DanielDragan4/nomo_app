@@ -339,11 +339,11 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
                         ),
                       ))
                 : ListView.builder(
-                      itemCount: _searchResults.length,
-                      itemBuilder: (context, index) {
-                        return _searchResults[index];
-                      },
-                    ),
+                    itemCount: _searchResults.length,
+                    itemBuilder: (context, index) {
+                      return _searchResults[index];
+                    },
+                  ),
           ),
         ],
       ),

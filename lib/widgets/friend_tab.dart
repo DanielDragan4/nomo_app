@@ -7,6 +7,7 @@ import 'package:nomo/providers/profile_provider.dart';
 import 'package:nomo/providers/supabase-providers/supabase_provider.dart';
 import 'package:nomo/screens/friends/availability_screen.dart';
 import 'package:nomo/screens/friends/chat_screen.dart';
+import 'package:nomo/screens/profile/other_profile_screen.dart';
 import 'package:nomo/screens/profile/profile_screen.dart';
 
 // Widget displaying friend name and avatar in friends and requests lists
@@ -54,11 +55,14 @@ class _FriendTabState extends ConsumerState<FriendTab> {
   void navigateToProfile() async {
     String currentId = await getCurrentUser();
     Navigator.of(context).push(MaterialPageRoute(
-      builder: ((context) => ProfileScreen(
-            isUser: widget.friendData.friendProfileId != currentId ? false : true,
-            userId: widget.friendData.friendProfileId,
-          )),
-    ));
+        builder: ((context) => widget.friendData.friendProfileId == currentId
+            ? ProfileScreen(
+                isUser: widget.friendData.friendProfileId != currentId ? false : true,
+                userId: widget.friendData.friendProfileId,
+              )
+            : OtherProfileScreen(
+                userId: widget.friendData.friendProfileId,
+              ))));
   }
 
   Future<void> checkPendingRequest() async {
@@ -466,10 +470,14 @@ class _FriendTabState extends ConsumerState<FriendTab> {
           onTap: () async {
             String currentId = await getCurrentUser();
             Navigator.of(context).push(MaterialPageRoute(
-                builder: ((context) => ProfileScreen(
-                      isUser: widget.friendData.friendProfileId != currentId ? false : true,
-                      userId: widget.friendData.friendProfileId,
-                    ))));
+                builder: ((context) => widget.friendData.friendProfileId == currentId
+                    ? ProfileScreen(
+                        isUser: widget.friendData.friendProfileId != currentId ? false : true,
+                        userId: widget.friendData.friendProfileId,
+                      )
+                    : OtherProfileScreen(
+                        userId: widget.friendData.friendProfileId,
+                      ))));
           },
           child: Row(
             children: [

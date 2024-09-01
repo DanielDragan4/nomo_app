@@ -22,11 +22,17 @@ class _AuthSettingState extends ConsumerState<AuthSetting> {
 
   @override
   Widget build(BuildContext context) {
+    var theme = Theme.of(context);
     return Scaffold(
-      backgroundColor: Theme.of(context).colorScheme.surface,
+      backgroundColor: theme.colorScheme.surface,
       body: ListView(
         children: [
-          const ListTile(title: Text("Authentication Settings:", style: TextStyle(fontSize: 25))),
+          ListTile(
+              title: Text(
+            "Authentication Settings:",
+            style: theme.textTheme.bodyMedium
+                ?.copyWith(fontWeight: FontWeight.w600, fontSize: MediaQuery.of(context).size.width / 24),
+          )),
           ListTile(
               onTap: () {
                 getUserEmail();
@@ -35,7 +41,10 @@ class _AuthSettingState extends ConsumerState<AuthSetting> {
                           email: userEmail,
                         )));
               },
-              title: const Text("Change Password", style: TextStyle(fontSize: 20))),
+              title: Text(
+                "Change Password",
+                style: theme.textTheme.titleMedium,
+              )),
         ],
       ),
     );

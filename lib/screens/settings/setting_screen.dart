@@ -207,7 +207,7 @@ class _SettingScreenState extends ConsumerState<SettingScreen> {
         children: [
           _buildSection('Account', [
             _buildSettingItem('Data Management', onTap: () => redirect("Data")),
-            _buildSettingItem('Authentication', onTap: () => redirect("Auth")),
+            _buildSettingItem('Authentication', onTap: () => redirect("Authentication")),
             _buildSettingItem('Security', onTap: () => redirect("Security")),
           ]),
           _buildSection('Privacy', [
@@ -215,19 +215,26 @@ class _SettingScreenState extends ConsumerState<SettingScreen> {
             _buildSettingItem('Blocked Accounts', onTap: () => redirect("Blocked")),
           ]),
           _buildSection('In-App Notifications', [
-            _buildSwitchItem('New Event Created', value: newEventSwitch, onChanged: (val) => updateSwitchValue('newEvent')),
-            _buildSwitchItem('New Event Joined', value: joinedEventSwitch, onChanged: (val) => updateSwitchValue('joinedEvent')),
+            _buildSwitchItem('New Event Created',
+                value: newEventSwitch, onChanged: (val) => updateSwitchValue('newEvent')),
+            _buildSwitchItem('New Event Joined',
+                value: joinedEventSwitch, onChanged: (val) => updateSwitchValue('joinedEvent')),
             if (joinedEventSwitch)
               Padding(
                 padding: const EdgeInsets.only(left: 40.0),
-                child: _buildSwitchItem('Friends Only', value: joinedEventFriendsOnlySwitch, onChanged: (val) => updateSwitchValue('joinedEventFriendsOnly')),
+                child: _buildSwitchItem('Friends Only',
+                    value: joinedEventFriendsOnlySwitch,
+                    onChanged: (val) => updateSwitchValue('joinedEventFriendsOnly')),
               ),
-            _buildSwitchItem('Event Deleted or Updated', value: eventDeletedSwitch, onChanged: (val) => updateSwitchValue('eventDeleted')),
-            _buildSwitchItem('Incoming Message', value: messageSwitch, onChanged: (val) => updateSwitchValue('message')),
+            _buildSwitchItem('Event Deleted or Updated',
+                value: eventDeletedSwitch, onChanged: (val) => updateSwitchValue('eventDeleted')),
+            _buildSwitchItem('Incoming Message',
+                value: messageSwitch, onChanged: (val) => updateSwitchValue('message')),
             if (messageSwitch)
               Padding(
                 padding: const EdgeInsets.only(left: 40.0),
-                child: _buildSwitchItem('Friends Only', value: messageFriendsOnlySwitch, onChanged: (val) => updateSwitchValue('messageFriendsOnly')),
+                child: _buildSwitchItem('Friends Only',
+                    value: messageFriendsOnlySwitch, onChanged: (val) => updateSwitchValue('messageFriendsOnly')),
               ),
           ]),
           _buildSection('Customization', [
@@ -237,7 +244,8 @@ class _SettingScreenState extends ConsumerState<SettingScreen> {
             _buildSwitchItem('Camera', value: cameraSwitch, onChanged: (val) => updateSwitchValue('camera')),
             _buildSwitchItem('Location', value: locationSwitch, onChanged: (val) => updateSwitchValue('location')),
             _buildSwitchItem('Contacts', value: contactSwitch, onChanged: (val) => updateSwitchValue('contact')),
-            _buildSwitchItem('Device Notifications', value: notifSwitch, onChanged: (val) => updateSwitchValue('notif')),
+            _buildSwitchItem('Device Notifications',
+                value: notifSwitch, onChanged: (val) => updateSwitchValue('notif')),
           ]),
           if (widget.isCorp == true)
             _buildSection('Corporate Account', [
@@ -266,12 +274,15 @@ class _SettingScreenState extends ConsumerState<SettingScreen> {
           padding: const EdgeInsets.fromLTRB(16, 24, 16, 8),
           child: Text(
             title,
-            style: theme.textTheme.bodyMedium?.copyWith(
-              fontWeight: FontWeight.w600,
-            ),
+            style: theme.textTheme.bodyMedium
+                ?.copyWith(fontWeight: FontWeight.w600, fontSize: MediaQuery.of(context).size.width / 24),
           ),
         ),
         ...children,
+        Divider(
+          thickness: 4,
+          color: Theme.of(context).colorScheme.onSurface.withOpacity(0.2),
+        )
       ],
     );
   }
@@ -352,7 +363,7 @@ class _SettingScreenState extends ConsumerState<SettingScreen> {
                       ),
                     );
                   },
-                child: Text(
+                  child: Text(
                     'Delete',
                     style: TextStyle(
                       color: Theme.of(context).colorScheme.onSecondary,

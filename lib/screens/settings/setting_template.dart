@@ -35,7 +35,7 @@ class _SettingsTemplateState extends State<SettingsTemplate> {
       content = const About();
     } else if (widget.type == "Analytics")
       content = const Analytics();
-    else if (widget.type == "Auth")
+    else if (widget.type == "Authentication")
       content = const AuthSetting();
     else if (widget.type == "Blocked")
       content = const Blocked();

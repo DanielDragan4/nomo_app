@@ -339,7 +339,7 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
                         ),
                       ))
                 : Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    padding: const EdgeInsets.symmetric(horizontal: 10),
                     child: ListView.builder(
                       itemCount: _searchResults.length,
                       itemBuilder: (context, index) {

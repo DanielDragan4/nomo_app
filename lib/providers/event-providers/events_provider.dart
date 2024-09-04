@@ -33,32 +33,32 @@ class EventProvider extends StateNotifier<List?> {
     final _currentPosition;
     var _preferredRadius;
 
-    if(setRadius != null){
-    String radStr = setRadius.first.trim();
-    print("radStr after trim: '$radStr'");
-    _preferredRadius = double.tryParse(radStr);
-    if (_preferredRadius == null) {
+    if (setRadius != null) {
+      String radStr = setRadius.first.trim();
+      print("radStr after trim: '$radStr'");
+      _preferredRadius = double.tryParse(radStr);
+      if (_preferredRadius == null) {
         print("Failed to parse '$radStr' as a double");
         // You could set a default value here
         _preferredRadius = 10.0;
-    }
+      }
     } else {
-        _preferredRadius = null;
+      _preferredRadius = null;
     }
-    final _finalRadius; 
+    final _finalRadius;
     _finalRadius = overrideRadius != null
         ? overrideRadius > _preferredRadius
             ? overrideRadius
             : _preferredRadius
         : _preferredRadius;
-    if(exsistingLocation != null) {
+    if (exsistingLocation != null) {
       _currentPosition = Position.fromMap(json.decode(exsistingLocation[0]));
     } else {
       _currentPosition = null;
     }
     var events = [];
 
-    if(_currentPosition != null) {
+    if (_currentPosition != null) {
       events = await supabaseClient.rpc('get_recommended_events', params: {
         'user_lon': _currentPosition.longitude,
         'user_lat': _currentPosition.latitude,
@@ -143,10 +143,10 @@ class EventProvider extends StateNotifier<List?> {
         deCodedEvent.isHost = true;
       }
       if (deCodedEvent.attending && (eventData['attendee_start'] != null)) {
-          deCodedEvent.attendeeDates = {'time_start': eventData['attendee_start'], 'time_end': eventData['attendee_end']};
-        } else {
-          deCodedEvent.attendeeDates = {'time_start': deCodedEvent.sdate.first, 'time_end': deCodedEvent.edate.first};
-        }
+        deCodedEvent.attendeeDates = {'time_start': eventData['attendee_start'], 'time_end': eventData['attendee_end']};
+      } else {
+        deCodedEvent.attendeeDates = {'time_start': deCodedEvent.sdate.first, 'time_end': deCodedEvent.edate.first};
+      }
 
       deCodedList.add(deCodedEvent);
     }
@@ -164,8 +164,13 @@ class EventProvider extends StateNotifier<List?> {
       Returns: none
     */
     final supabaseClient = (await supabase).client;
-    final dateId = await supabaseClient.from('Dates').select('date_id').eq('event_id', eventToJoin).eq('time_start', selectedStart.toString()).single();
-    final newAttendeeMap = {'event_id': eventToJoin, 'user_id': currentUser, 'date_id' : dateId['date_id']};
+    final dateId = await supabaseClient
+        .from('Dates')
+        .select('date_id')
+        .eq('event_id', eventToJoin)
+        .eq('time_start', selectedStart.toString())
+        .single();
+    final newAttendeeMap = {'event_id': eventToJoin, 'user_id': currentUser, 'date_id': dateId['date_id']};
     await supabaseClient.from('Attendees').insert(newAttendeeMap);
   }
 

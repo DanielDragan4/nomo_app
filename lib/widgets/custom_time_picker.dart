@@ -33,9 +33,12 @@ class _CustomTimePickerState extends State<CustomTimePicker> {
 
     return Dialog(
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-      backgroundColor: isDarkMode ? Colors.black : Colors.white,
+      backgroundColor: colorScheme.surface,
       child: Container(
         padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(16),
+        ),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -72,14 +75,14 @@ class _CustomTimePickerState extends State<CustomTimePicker> {
               style: TextStyle(
                 fontWeight: FontWeight.bold,
                 fontSize: 36,
-                color: colorScheme.primary,
+                color: Theme.of(context).primaryColorLight,
               ),
             ),
             const SizedBox(height: 24),
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
               decoration: BoxDecoration(
-                color: isDarkMode ? Color.fromARGB(255, 27, 27, 27) : colorScheme.surface,
+                color: isDarkMode ? Color.fromARGB(255, 27, 27, 27) : colorScheme.secondary,
                 borderRadius: BorderRadius.circular(16),
                 border: Border.all(color: colorScheme.primary.withOpacity(0.5)),
               ),
@@ -143,11 +146,11 @@ class _CustomTimePickerState extends State<CustomTimePicker> {
       },
       textStyle: TextStyle(color: Theme.of(context).colorScheme.onSurface.withOpacity(0.5), fontSize: 16),
       selectedTextStyle:
-          TextStyle(color: Theme.of(context).colorScheme.primary, fontSize: 24, fontWeight: FontWeight.bold),
+          TextStyle(color: Theme.of(context).primaryColorLight, fontSize: 24, fontWeight: FontWeight.bold),
       decoration: BoxDecoration(
         border: Border(
-          top: BorderSide(color: Theme.of(context).colorScheme.primary.withOpacity(0.2)),
-          bottom: BorderSide(color: Theme.of(context).colorScheme.primary.withOpacity(0.2)),
+          top: BorderSide(color: Theme.of(context).primaryColorLight.withOpacity(0.2)),
+          bottom: BorderSide(color: Theme.of(context).primaryColorLight.withOpacity(0.2)),
         ),
       ),
     );

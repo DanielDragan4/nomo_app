@@ -61,7 +61,7 @@ class _EventCreateScreenState extends ConsumerState<EventCreateScreen> {
   bool virtualEvent = false;
   Map<Interests, bool> categories = {};
   late bool isNewEvent;
-  late Event eventData;
+  late var eventData;
   bool _isImageProcessing = false;
   bool _isLoading = false;
   bool _titleError = false;
@@ -75,7 +75,7 @@ class _EventCreateScreenState extends ConsumerState<EventCreateScreen> {
   bool _step2Valid = false;
   bool _step3Valid = true;
   List<EventDate> eventDates = [];
-  static const int MAX_DATES = 5;
+  //static const int MAX_DATES = 5;
 
   @override
   void initState() {
@@ -610,103 +610,12 @@ class _EventCreateScreenState extends ConsumerState<EventCreateScreen> {
             );
       }
 
+      print(responseId['event_id']);
+
       eventData = await ref.read(eventsProvider.notifier).deCodeLinkEvent(responseId['event_id']);
     } finally {
       _hideLoadingOverlay();
     }
-  }
-
-  Future<void> updateEvent(
-      TimeOfDay selectedStart,
-      TimeOfDay selectedEnd,
-      DateTime selectedStartDate,
-      DateTime selectedEndDate,
-      File? selectedImage,
-      String inviteType,
-      var location,
-      String title,
-      String description,
-      bool isRecurring,
-      bool isTicketed) async {
-    DateTime start = DateTime(selectedStartDate.year, selectedStartDate.month, selectedStartDate.day,
-        selectedStart.hour, selectedStart.minute);
-    DateTime end = DateTime(
-        selectedEndDate.year, selectedEndDate.month, selectedEndDate.day, selectedEnd.hour, selectedEnd.minute);
-
-    final Map newEventRowMap;
-    final supabase = (await ref.watch(supabaseInstance)).client;
-    var point;
-
-    if (virtualEvent) {
-      point = null;
-      location = null;
-    } else {
-      point = await getCords(location);
-    }
-
-    if (selectedImage != null) {
-      await supabase.storage.from('Images').remove([widget.event!.imageUrl]);
-      var imageId = await uploadImage(selectedImage);
-
-      newEventRowMap = {
-        'location': location,
-        'description': description,
-        'invitationType': inviteType,
-        'image_id': imageId,
-        'title': title,
-        'point': point,
-        'recurring': isRecurring,
-        'ticketed': isTicketed
-      };
-    } else {
-      newEventRowMap = {
-        'location': location,
-        'description': description,
-        'invitationType': inviteType,
-        'title': title,
-        'point': point
-      };
-    }
-    if (categories.isNotEmpty) {
-      final List<String> interestStrings = categories.entries
-          .where((entry) => entry.value)
-          .map((entry) => ref.read(profileProvider.notifier).enumToString(entry.key))
-          .toList();
-
-      newEventRowMap['event_interests'] = interestStrings;
-    }
-
-    await supabase.from('Event').update(newEventRowMap).eq('event_id', widget.event?.eventId);
-    ref.read(attendEventsProvider.notifier).deCodeData();
-    final newDateRowMap = {
-      'event_id': widget.event?.eventId,
-      'time_start': DateFormat('yyyy-MM-dd HH:mm:ss').format(start),
-      'time_end': DateFormat('yyyy-MM-dd HH:mm:ss').format(end),
-    };
-    await supabase.from('Dates').update(newDateRowMap).eq('event_id', widget.event?.eventId);
-  }
-
-  Widget _buildInvitationTypeItem(BuildContext context, String title, String description) {
-    return Column(
-      //crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          title,
-          style: TextStyle(
-            fontSize: 16,
-            fontWeight: FontWeight.bold,
-            color: Theme.of(context).colorScheme.onSurface,
-          ),
-        ),
-        Text(
-          description,
-          style: TextStyle(
-            fontSize: 14,
-            color: Theme.of(context).colorScheme.onSurface.withOpacity(0.8),
-          ),
-        ),
-      ],
-    );
   }
 
   @override
@@ -1349,19 +1258,19 @@ class _EventCreateScreenState extends ConsumerState<EventCreateScreen> {
             ),
             for (int i = 0; i < eventDates.length; i++) _buildDateTimeFields(i),
             SizedBox(height: 8),
-            if (eventDates.length < MAX_DATES)
-              Center(
-                child: ElevatedButton.icon(
-                  onPressed: _step2Valid
-                      ? () {
-                          _addNewDate();
-                          _validateStep2();
-                        }
-                      : null,
-                  icon: Icon(Icons.add),
-                  label: Text('Add Another Date'),
-                ),
+            //if (eventDates.length < MAX_DATES)
+            Center(
+              child: ElevatedButton.icon(
+                onPressed: _step2Valid
+                    ? () {
+                        _addNewDate();
+                        _validateStep2();
+                      }
+                    : null,
+                icon: Icon(Icons.add),
+                label: Text('Add Another Date'),
               ),
+            ),
           ],
         ),
       ),
@@ -1503,16 +1412,16 @@ class _EventCreateScreenState extends ConsumerState<EventCreateScreen> {
   }
 
   void _addNewDate() {
-    if (eventDates.length < MAX_DATES) {
-      setState(() {
-        eventDates.add(EventDate());
-        _validateStep2();
-      });
-    } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Maximum of $MAX_DATES dates allowed')),
-      );
-    }
+    //if (eventDates.length < MAX_DATES) {
+    setState(() {
+      eventDates.add(EventDate());
+      _validateStep2();
+    });
+    // } else {
+    //   ScaffoldMessenger.of(context).showSnackBar(
+    //     SnackBar(content: Text('Maximum of $MAX_DATES dates allowed')),
+    //   );
+    // }
   }
 
   void _deleteDate(int index) {
@@ -1945,6 +1854,7 @@ class _EventCreateScreenState extends ConsumerState<EventCreateScreen> {
       _step1Valid = false;
       _step2Valid = false;
       _step3Valid = true;
+      eventDates.add(EventDate());
     });
   }
 }

@@ -282,22 +282,32 @@ class _EventCreateScreenState extends ConsumerState<EventCreateScreen> {
 
   Future<void> _selectDate(BuildContext context, bool isStartDate, int index) async {
     FocusManager.instance.primaryFocus?.unfocus();
+    final DateTime currentDate = DateTime.now();
+    final DateTime initialDate = isStartDate
+        ? eventDates[index].startDate ?? currentDate
+        : eventDates[index].endDate ?? eventDates[index].startDate ?? currentDate;
+
+    final DateTime firstDate = isStartDate ? currentDate : eventDates[index].startDate ?? currentDate;
+
     final DateTime? picked = await showDatePicker(
       context: context,
-      initialDate: isStartDate
-          ? eventDates[index].startDate ?? DateTime.now()
-          : eventDates[index].endDate ?? eventDates[index].startDate ?? DateTime.now(),
-      firstDate: isStartDate ? DateTime.now() : eventDates[index].startDate ?? DateTime.now(),
+      initialDate: initialDate,
+      firstDate: firstDate,
       lastDate: DateTime(2100),
     );
+
     if (picked != null) {
       setState(() {
         if (isStartDate) {
           eventDates[index].startDate = picked;
-          _adjustEndDateTime(index);
+          // If the new start date is after the current end date, update the end date
+          if (eventDates[index].endDate != null && picked.isAfter(eventDates[index].endDate!)) {
+            eventDates[index].endDate = picked;
+          }
         } else {
           eventDates[index].endDate = picked;
         }
+        _adjustEndDateTime(index);
         _validateStep2();
       });
     }

@@ -1218,70 +1218,97 @@ class _NewEventScreenState extends ConsumerState<NewEventScreen> {
                       ),
                     ),
                     Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                      child: AddressSearchField(
-                        controller: _locationController,
-                        isEvent: false,
-                        hasError: _locationError,
-                        isVirtual: virtualEvent,
+                      padding: const EdgeInsets.all(8.0),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text('Location',
+                              style: TextStyle(
+                                  fontWeight: FontWeight.bold, fontSize: MediaQuery.of(context).size.width / 30)),
+                          AddressSearchField(
+                            controller: _locationController,
+                            isEvent: true,
+                            hasError: _locationError,
+                            isVirtual: virtualEvent,
+                          ),
+                        ],
                       ),
                     ),
                     Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                      child: TextField(
-                        controller: _title,
-                        decoration: InputDecoration(
-                          border: OutlineInputBorder(
-                            borderSide: BorderSide(color: _titleError ? Colors.red : Colors.grey),
+                      padding: const EdgeInsets.all(8.0),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text('Title',
+                              style: TextStyle(
+                                  fontWeight: FontWeight.bold, fontSize: MediaQuery.of(context).size.width / 30)),
+                          TextField(
+                            controller: _title,
+                            decoration: InputDecoration(
+                              filled: true,
+                              fillColor: Theme.of(context).colorScheme.secondary,
+                              hintText: 'Enter event title',
+                              hintStyle: TextStyle(
+                                color: Theme.of(context).colorScheme.onSecondary,
+                              ),
+                              border: OutlineInputBorder(
+                                borderSide: BorderSide(
+                                  color: _titleError ? Colors.red : Theme.of(context).colorScheme.secondary,
+                                ),
+                              ),
+                              enabledBorder: OutlineInputBorder(
+                                borderSide: BorderSide(
+                                  color: _titleError ? Colors.red : Theme.of(context).colorScheme.secondary,
+                                ),
+                              ),
+                              focusedBorder: OutlineInputBorder(
+                                borderSide: BorderSide(
+                                  color: Theme.of(context).colorScheme.secondary,
+                                ),
+                              ),
+                            ),
+                            style: TextStyle(color: Theme.of(context).colorScheme.onSecondary),
                           ),
-                          enabledBorder: OutlineInputBorder(
-                            borderSide: BorderSide(color: _titleError ? Colors.red : Colors.grey),
-                          ),
-                          focusedBorder: OutlineInputBorder(
-                            borderSide:
-                                BorderSide(color: _titleError ? Colors.red : Theme.of(context).colorScheme.primary),
-                          ),
-                          labelText: "Enter Your Event Title",
-                          labelStyle: TextStyle(color: Theme.of(context).colorScheme.onSecondary),
-                          contentPadding: const EdgeInsets.all(5),
-                          errorText: _titleError ? "Please add a title to your event" : null,
-                        ),
-                        keyboardType: TextInputType.multiline,
-                        textInputAction: TextInputAction.done,
-                        maxLines: null,
-                        textAlign: TextAlign.start,
-                        textCapitalization: TextCapitalization.sentences,
-                        maxLength: 100,
-                        style: TextStyle(color: Theme.of(context).colorScheme.onSecondary),
+                        ],
                       ),
                     ),
                     Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                      child: TextField(
-                        controller: _description,
-                        decoration: InputDecoration(
-                          border: OutlineInputBorder(
-                            borderSide: BorderSide(color: _descriptionError ? Colors.red : Colors.grey),
+                      padding: const EdgeInsets.all(8.0),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text('Description',
+                              style: TextStyle(
+                                  fontWeight: FontWeight.bold, fontSize: MediaQuery.of(context).size.width / 30)),
+                          TextField(
+                            controller: _description,
+                            decoration: InputDecoration(
+                              filled: true,
+                              fillColor: Theme.of(context).colorScheme.secondary,
+                              hintText: 'Enter event description',
+                              hintStyle: TextStyle(
+                                color: Theme.of(context).colorScheme.onSecondary,
+                              ),
+                              border: OutlineInputBorder(
+                                borderSide: BorderSide(
+                                  color: _descriptionError ? Colors.red : Theme.of(context).colorScheme.secondary,
+                                ),
+                              ),
+                              enabledBorder: OutlineInputBorder(
+                                borderSide: BorderSide(
+                                  color: _descriptionError ? Colors.red : Theme.of(context).colorScheme.secondary,
+                                ),
+                              ),
+                              focusedBorder: OutlineInputBorder(
+                                borderSide: BorderSide(
+                                  color: Theme.of(context).colorScheme.secondary,
+                                ),
+                              ),
+                            ),
+                            style: TextStyle(color: Theme.of(context).colorScheme.onSecondary),
+                            maxLines: 3,
                           ),
-                          enabledBorder: OutlineInputBorder(
-                            borderSide: BorderSide(color: _descriptionError ? Colors.red : Colors.grey),
-                          ),
-                          focusedBorder: OutlineInputBorder(
-                            borderSide: BorderSide(
-                                color: _descriptionError ? Colors.red : Theme.of(context).colorScheme.primary),
-                          ),
-                          labelText: "Enter Your Event Description",
-                          labelStyle: TextStyle(color: Theme.of(context).colorScheme.onSecondary),
-                          contentPadding: const EdgeInsets.all(5),
-                          errorText: _descriptionError ? "Please enter a description for your event" : null,
-                        ),
-                        keyboardType: TextInputType.multiline,
-                        textInputAction: TextInputAction.done,
-                        maxLines: null,
-                        textAlign: TextAlign.start,
-                        textCapitalization: TextCapitalization.sentences,
-                        maxLength: 1500,
-                        style: TextStyle(color: Theme.of(context).colorScheme.onSecondary),
+                        ],
                       ),
                     ),
                     Padding(

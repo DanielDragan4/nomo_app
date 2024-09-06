@@ -23,7 +23,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:image/image.dart' as img;
 import 'package:path_provider/path_provider.dart';
 
-const List<String> list = <String>['Public', 'Selective', 'Private'];
+const List<String> list = <String>['Public', 'Invite Only', 'Private'];
 
 class NewEventScreen extends ConsumerStatefulWidget {
   const NewEventScreen({super.key, this.event, this.isEdit, this.onEventCreated});
@@ -750,7 +750,7 @@ class _NewEventScreenState extends ConsumerState<NewEventScreen> {
       newEventRowMap = {
         'location': location,
         'description': description,
-        'invitationType': inviteType,
+        'invitationType': inviteType == 'Invite Only' ? 'Selective' : inviteType,
         'image_id': imageId,
         'title': title,
         'point': point,
@@ -761,7 +761,7 @@ class _NewEventScreenState extends ConsumerState<NewEventScreen> {
       newEventRowMap = {
         'location': location,
         'description': description,
-        'invitationType': inviteType,
+        'invitationType': inviteType == 'Invite Only' ? 'Selective' : inviteType,
         'title': title,
         'point': point
       };
@@ -1151,7 +1151,7 @@ class _NewEventScreenState extends ConsumerState<NewEventScreen> {
                                             _buildInvitationTypeItem(
                                                 context, 'Private Events', 'Only visible to your Friends'),
                                             const SizedBox(height: 8),
-                                            _buildInvitationTypeItem(context, 'Selective Events',
+                                            _buildInvitationTypeItem(context, 'Invite Only Events',
                                                 'Only visible to those you have shared a link with'),
                                           ],
                                         ),

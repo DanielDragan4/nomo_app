@@ -24,7 +24,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:image/image.dart' as img;
 import 'package:path_provider/path_provider.dart';
 
-const List<String> list = <String>['Public', 'Selective', 'Private'];
+final List<String> list = <String>['Public', 'Invite Only', 'Private'];
 
 class EventCreateScreen extends ConsumerStatefulWidget {
   const EventCreateScreen({super.key, this.event, this.isEdit, this.onEventCreated});
@@ -585,7 +585,7 @@ class _EventCreateScreenState extends ConsumerState<EventCreateScreen> {
         'location': location,
         'description': description,
         'host': supabase.auth.currentUser!.id,
-        'invitationType': inviteType,
+        'invitationType': inviteType == 'Invite Only' ? 'Selective' : inviteType,
         'image_id': imageId,
         'title': title,
         'is_virtual': virtualEvent,
@@ -1176,7 +1176,7 @@ class _EventCreateScreenState extends ConsumerState<EventCreateScreen> {
                   _buildVerticalDivider(),
                   _buildInvitationTypeOption('Private'),
                   _buildVerticalDivider(),
-                  _buildInvitationTypeOption('Selective'),
+                  _buildInvitationTypeOption('Invite Only'),
                 ],
               ),
             ),

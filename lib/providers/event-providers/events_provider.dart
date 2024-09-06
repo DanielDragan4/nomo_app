@@ -287,9 +287,8 @@ class EventProvider extends StateNotifier<List?> {
     var events = await supabaseClient
         .from('link_events')
         .select('*, Attendees!public_Attendees_event_id_fkey(user_id), Bookmarked(user_id)')
-        .eq('event_id', eventId)
-        .single();
-    return events;
+        .eq('event_id', eventId);
+    return events.toList().first;
   }
 
   Future<Event> deCodeLinkEvent(eventId) async {
@@ -346,6 +345,9 @@ class EventProvider extends StateNotifier<List?> {
         break;
       }
     }
+
+    deCodedEvent.attendeeDates = {'time_start': deCodedEvent.sdate.first, 'time_end': deCodedEvent.edate.first};
+
     return deCodedEvent;
   }
 

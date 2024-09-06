@@ -796,9 +796,6 @@ class _EventCreateScreenState extends ConsumerState<EventCreateScreen> {
         _showLoadingOverlay();
         await createEvent(_selectedImage!, dropDownValue, _locationController.text, _title.text, _description.text,
             _isRecurring, _isTicketed);
-        if (widget.onEventCreated != null) {
-          widget.onEventCreated!();
-        }
         setState(() {
           _currentStep = 3; // Move to step 4 after event creation
         });

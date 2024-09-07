@@ -135,7 +135,7 @@ class _DetailedEventScreenState extends ConsumerState<DetailedEventScreen> {
 
   Widget _buildBackButton() {
     return Positioned(
-      top: MediaQuery.of(context).size.height * .03 + MediaQuery.of(context).padding.top,
+      top: MediaQuery.of(context).size.height * .0033 + MediaQuery.of(context).padding.top,
       left: MediaQuery.of(context).size.width * .033,
       child: Container(
         padding: const EdgeInsets.only(left: 10),
@@ -167,7 +167,7 @@ class _DetailedEventScreenState extends ConsumerState<DetailedEventScreen> {
 
   Widget _buildMoreOptionsButton() {
     return Positioned(
-      top: MediaQuery.of(context).size.height * .03 + MediaQuery.of(context).padding.top,
+      top: MediaQuery.of(context).size.height * .0033 + MediaQuery.of(context).padding.top,
       right: MediaQuery.of(context).size.width * .033,
       child: Container(
         height: MediaQuery.of(context).size.width * .11,

@@ -10,7 +10,7 @@
 
 
     <application
-        android:label="nomo_app"
+        android:label="Nomo"
         android:name="${applicationName}"
         android:icon="@mipmap/nomo_logo">
         <activity

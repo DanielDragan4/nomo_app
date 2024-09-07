@@ -602,10 +602,10 @@ class _EventCreateScreenState extends ConsumerState<EventCreateScreen> {
         newEventRowMap['event_interests'] = interestStrings;
       }
 
-      final responseId = await supabase.from('Event').insert(newEventRowMap).select('event_id').single();
+      final responseId = await supabase.from('Event').insert(newEventRowMap).select('event_id');
       for (var i = 0; i < start.length; i++) {
         final newDateRowMap = {
-          'event_id': responseId['event_id'],
+          'event_id': responseId.first['event_id'],
           'time_start': start[i],
           'time_end': end[i],
         };
@@ -616,13 +616,12 @@ class _EventCreateScreenState extends ConsumerState<EventCreateScreen> {
               start[i],
               end[i],
               title,
-              responseId['event_id'],
+              responseId.first['event_id'],
             );
       }
 
-      print(responseId['event_id']);
+      eventData = await ref.read(eventsProvider.notifier).deCodeLinkEvent(responseId.first['event_id']);
 
-      eventData = await ref.read(eventsProvider.notifier).deCodeLinkEvent(responseId['event_id']);
     } finally {
       _hideLoadingOverlay();
     }

@@ -24,7 +24,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:image/image.dart' as img;
 import 'package:path_provider/path_provider.dart';
 
-const List<String> list = <String>['Public', 'Selective', 'Private'];
+final List<String> list = <String>['Public', 'Invite Only', 'Private'];
 
 class EventCreateScreen extends ConsumerStatefulWidget {
   const EventCreateScreen({super.key, this.event, this.isEdit, this.onEventCreated});
@@ -61,7 +61,7 @@ class _EventCreateScreenState extends ConsumerState<EventCreateScreen> {
   bool virtualEvent = false;
   Map<Interests, bool> categories = {};
   late bool isNewEvent;
-  late Event eventData;
+  late var eventData;
   bool _isImageProcessing = false;
   bool _isLoading = false;
   bool _titleError = false;
@@ -75,7 +75,7 @@ class _EventCreateScreenState extends ConsumerState<EventCreateScreen> {
   bool _step2Valid = false;
   bool _step3Valid = true;
   List<EventDate> eventDates = [];
-  static const int MAX_DATES = 5;
+  //static const int MAX_DATES = 5;
 
   @override
   void initState() {
@@ -282,22 +282,32 @@ class _EventCreateScreenState extends ConsumerState<EventCreateScreen> {
 
   Future<void> _selectDate(BuildContext context, bool isStartDate, int index) async {
     FocusManager.instance.primaryFocus?.unfocus();
+    final DateTime currentDate = DateTime.now();
+    final DateTime initialDate = isStartDate
+        ? eventDates[index].startDate ?? currentDate
+        : eventDates[index].endDate ?? eventDates[index].startDate ?? currentDate;
+
+    final DateTime firstDate = isStartDate ? currentDate : eventDates[index].startDate ?? currentDate;
+
     final DateTime? picked = await showDatePicker(
       context: context,
-      initialDate: isStartDate
-          ? eventDates[index].startDate ?? DateTime.now()
-          : eventDates[index].endDate ?? eventDates[index].startDate ?? DateTime.now(),
-      firstDate: isStartDate ? DateTime.now() : eventDates[index].startDate ?? DateTime.now(),
+      initialDate: initialDate,
+      firstDate: firstDate,
       lastDate: DateTime(2100),
     );
+
     if (picked != null) {
       setState(() {
         if (isStartDate) {
           eventDates[index].startDate = picked;
-          _adjustEndDateTime(index);
+          // If the new start date is after the current end date, update the end date
+          if (eventDates[index].endDate != null && picked.isAfter(eventDates[index].endDate!)) {
+            eventDates[index].endDate = picked;
+          }
         } else {
           eventDates[index].endDate = picked;
         }
+        _adjustEndDateTime(index);
         _validateStep2();
       });
     }
@@ -575,7 +585,7 @@ class _EventCreateScreenState extends ConsumerState<EventCreateScreen> {
         'location': location,
         'description': description,
         'host': supabase.auth.currentUser!.id,
-        'invitationType': inviteType,
+        'invitationType': inviteType == 'Invite Only' ? 'Selective' : inviteType,
         'image_id': imageId,
         'title': title,
         'is_virtual': virtualEvent,
@@ -610,104 +620,13 @@ class _EventCreateScreenState extends ConsumerState<EventCreateScreen> {
             );
       }
 
+      print(responseId['event_id']);
+
       eventData = await ref.read(eventsProvider.notifier).deCodeLinkEvent(responseId.first['event_id']);
 
     } finally {
       _hideLoadingOverlay();
     }
-  }
-
-  Future<void> updateEvent(
-      TimeOfDay selectedStart,
-      TimeOfDay selectedEnd,
-      DateTime selectedStartDate,
-      DateTime selectedEndDate,
-      File? selectedImage,
-      String inviteType,
-      var location,
-      String title,
-      String description,
-      bool isRecurring,
-      bool isTicketed) async {
-    DateTime start = DateTime(selectedStartDate.year, selectedStartDate.month, selectedStartDate.day,
-        selectedStart.hour, selectedStart.minute);
-    DateTime end = DateTime(
-        selectedEndDate.year, selectedEndDate.month, selectedEndDate.day, selectedEnd.hour, selectedEnd.minute);
-
-    final Map newEventRowMap;
-    final supabase = (await ref.watch(supabaseInstance)).client;
-    var point;
-
-    if (virtualEvent) {
-      point = null;
-      location = null;
-    } else {
-      point = await getCords(location);
-    }
-
-    if (selectedImage != null) {
-      await supabase.storage.from('Images').remove([widget.event!.imageUrl]);
-      var imageId = await uploadImage(selectedImage);
-
-      newEventRowMap = {
-        'location': location,
-        'description': description,
-        'invitationType': inviteType,
-        'image_id': imageId,
-        'title': title,
-        'point': point,
-        'recurring': isRecurring,
-        'ticketed': isTicketed
-      };
-    } else {
-      newEventRowMap = {
-        'location': location,
-        'description': description,
-        'invitationType': inviteType,
-        'title': title,
-        'point': point
-      };
-    }
-    if (categories.isNotEmpty) {
-      final List<String> interestStrings = categories.entries
-          .where((entry) => entry.value)
-          .map((entry) => ref.read(profileProvider.notifier).enumToString(entry.key))
-          .toList();
-
-      newEventRowMap['event_interests'] = interestStrings;
-    }
-
-    await supabase.from('Event').update(newEventRowMap).eq('event_id', widget.event?.eventId);
-    ref.read(attendEventsProvider.notifier).deCodeData();
-    final newDateRowMap = {
-      'event_id': widget.event?.eventId,
-      'time_start': DateFormat('yyyy-MM-dd HH:mm:ss').format(start),
-      'time_end': DateFormat('yyyy-MM-dd HH:mm:ss').format(end),
-    };
-    await supabase.from('Dates').update(newDateRowMap).eq('event_id', widget.event?.eventId);
-  }
-
-  Widget _buildInvitationTypeItem(BuildContext context, String title, String description) {
-    return Column(
-      //crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          title,
-          style: TextStyle(
-            fontSize: 16,
-            fontWeight: FontWeight.bold,
-            color: Theme.of(context).colorScheme.onSurface,
-          ),
-        ),
-        Text(
-          description,
-          style: TextStyle(
-            fontSize: 14,
-            color: Theme.of(context).colorScheme.onSurface.withOpacity(0.8),
-          ),
-        ),
-      ],
-    );
   }
 
   @override
@@ -878,9 +797,6 @@ class _EventCreateScreenState extends ConsumerState<EventCreateScreen> {
         _showLoadingOverlay();
         await createEvent(_selectedImage!, dropDownValue, _locationController.text, _title.text, _description.text,
             _isRecurring, _isTicketed);
-        if (widget.onEventCreated != null) {
-          widget.onEventCreated!();
-        }
         setState(() {
           _currentStep = 3; // Move to step 4 after event creation
         });
@@ -1020,7 +936,7 @@ class _EventCreateScreenState extends ConsumerState<EventCreateScreen> {
             Text(
               'Add an image',
               style: TextStyle(
-                color: Colors.white,
+                color: Theme.of(context).colorScheme.onSecondary,
                 fontSize: MediaQuery.of(context).size.width / 20,
                 fontWeight: FontWeight.bold,
               ),
@@ -1068,7 +984,7 @@ class _EventCreateScreenState extends ConsumerState<EventCreateScreen> {
                       onPressed: _showImageSelectionOptions,
                       icon: Icon(
                         Icons.add,
-                        color: Colors.white,
+                        color: Theme.of(context).colorScheme.onSecondary,
                         size: MediaQuery.of(context).size.width / 20,
                       ),
                       label: Text(
@@ -1096,7 +1012,7 @@ class _EventCreateScreenState extends ConsumerState<EventCreateScreen> {
             Text(
               'Info',
               style: TextStyle(
-                color: Colors.white,
+                color: Theme.of(context).colorScheme.onSecondary,
                 fontSize: MediaQuery.of(context).size.width / 20,
                 fontWeight: FontWeight.bold,
               ),
@@ -1174,7 +1090,7 @@ class _EventCreateScreenState extends ConsumerState<EventCreateScreen> {
                   ),
                 ),
               ),
-              style: TextStyle(color: Theme.of(context).colorScheme.onPrimary),
+              style: TextStyle(color: Theme.of(context).colorScheme.onSecondary),
               onChanged: (value) {
                 setState(() {
                   _validateStep1(false);
@@ -1211,7 +1127,7 @@ class _EventCreateScreenState extends ConsumerState<EventCreateScreen> {
                   ),
                 ),
               ),
-              style: TextStyle(color: Theme.of(context).colorScheme.onPrimary),
+              style: TextStyle(color: Theme.of(context).colorScheme.onSecondary),
               maxLines: 3,
               onChanged: (value) {
                 setState(() {
@@ -1237,14 +1153,14 @@ class _EventCreateScreenState extends ConsumerState<EventCreateScreen> {
               style: TextStyle(
                   fontWeight: FontWeight.bold,
                   fontSize: MediaQuery.of(context).size.width / 20,
-                  color: Theme.of(context).colorScheme.onPrimary),
+                  color: Theme.of(context).colorScheme.onSecondary),
             ),
             SizedBox(height: 16),
             Text(
               'Invitation Type',
               style: TextStyle(
                 fontWeight: FontWeight.bold,
-                color: Theme.of(context).colorScheme.onPrimary,
+                color: Theme.of(context).colorScheme.onSurface,
                 fontSize: MediaQuery.of(context).size.width / 30,
               ),
             ),
@@ -1261,7 +1177,7 @@ class _EventCreateScreenState extends ConsumerState<EventCreateScreen> {
                   _buildVerticalDivider(),
                   _buildInvitationTypeOption('Private'),
                   _buildVerticalDivider(),
-                  _buildInvitationTypeOption('Selective'),
+                  _buildInvitationTypeOption('Invite Only'),
                 ],
               ),
             ),
@@ -1270,7 +1186,7 @@ class _EventCreateScreenState extends ConsumerState<EventCreateScreen> {
               'Event Categories',
               style: TextStyle(
                 fontWeight: FontWeight.bold,
-                color: Theme.of(context).colorScheme.onPrimary,
+                color: Theme.of(context).colorScheme.onSurface,
                 fontSize: MediaQuery.of(context).size.width / 30,
               ),
             ),
@@ -1315,7 +1231,7 @@ class _EventCreateScreenState extends ConsumerState<EventCreateScreen> {
                   style: TextStyle(
                       fontWeight: FontWeight.bold,
                       fontSize: MediaQuery.of(context).size.width / 30,
-                      color: Theme.of(context).colorScheme.onPrimary),
+                      color: Theme.of(context).colorScheme.onSurface),
                 ),
               ],
             ),
@@ -1327,7 +1243,7 @@ class _EventCreateScreenState extends ConsumerState<EventCreateScreen> {
               style: TextStyle(
                   fontWeight: FontWeight.bold,
                   fontSize: MediaQuery.of(context).size.width / 20,
-                  color: Theme.of(context).colorScheme.onPrimary),
+                  color: Theme.of(context).colorScheme.onSecondary),
             ),
             Row(
               children: [
@@ -1344,25 +1260,25 @@ class _EventCreateScreenState extends ConsumerState<EventCreateScreen> {
                   style: TextStyle(
                       fontWeight: FontWeight.bold,
                       fontSize: MediaQuery.of(context).size.width / 30,
-                      color: Theme.of(context).colorScheme.onPrimary),
+                      color: Theme.of(context).colorScheme.onSurface),
                 ),
               ],
             ),
             for (int i = 0; i < eventDates.length; i++) _buildDateTimeFields(i),
             SizedBox(height: 8),
-            if (eventDates.length < MAX_DATES)
-              Center(
-                child: ElevatedButton.icon(
-                  onPressed: _step2Valid
-                      ? () {
-                          _addNewDate();
-                          _validateStep2();
-                        }
-                      : null,
-                  icon: Icon(Icons.add),
-                  label: Text('Add Another Date'),
-                ),
+            //if (eventDates.length < MAX_DATES)
+            Center(
+              child: ElevatedButton.icon(
+                onPressed: _step2Valid
+                    ? () {
+                        _addNewDate();
+                        _validateStep2();
+                      }
+                    : null,
+                icon: Icon(Icons.add),
+                label: Text('Add Another Date'),
               ),
+            ),
           ],
         ),
       ),
@@ -1504,16 +1420,16 @@ class _EventCreateScreenState extends ConsumerState<EventCreateScreen> {
   }
 
   void _addNewDate() {
-    if (eventDates.length < MAX_DATES) {
-      setState(() {
-        eventDates.add(EventDate());
-        _validateStep2();
-      });
-    } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Maximum of $MAX_DATES dates allowed')),
-      );
-    }
+    //if (eventDates.length < MAX_DATES) {
+    setState(() {
+      eventDates.add(EventDate());
+      _validateStep2();
+    });
+    // } else {
+    //   ScaffoldMessenger.of(context).showSnackBar(
+    //     SnackBar(content: Text('Maximum of $MAX_DATES dates allowed')),
+    //   );
+    // }
   }
 
   void _deleteDate(int index) {
@@ -1535,7 +1451,7 @@ class _EventCreateScreenState extends ConsumerState<EventCreateScreen> {
               style: TextStyle(
                   fontWeight: FontWeight.bold,
                   fontSize: MediaQuery.of(context).size.width / 20,
-                  color: Theme.of(context).colorScheme.onPrimary),
+                  color: Theme.of(context).colorScheme.onSurface),
             ),
             SizedBox(height: 16),
             if (_selectedImage != null)
@@ -1946,6 +1862,7 @@ class _EventCreateScreenState extends ConsumerState<EventCreateScreen> {
       _step1Valid = false;
       _step2Valid = false;
       _step3Valid = true;
+      eventDates.add(EventDate());
     });
   }
 }

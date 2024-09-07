@@ -77,10 +77,10 @@ class _RecommendedScreenState extends ConsumerState<RecommendedScreen> {
                 children: [
                   Text(
                     "Filter Events",
-                    style: TextStyle(color: Theme.of(context).colorScheme.onPrimary),
+                    style: TextStyle(color: Theme.of(context).colorScheme.onSurface),
                   ),
                   IconButton(
-                    icon: Icon(Icons.close, color: Theme.of(context).colorScheme.onPrimary),
+                    icon: Icon(Icons.close, color: Theme.of(context).colorScheme.onSurface),
                     onPressed: () {
                       Navigator.of(context).pop();
                     },
@@ -148,7 +148,7 @@ class _RecommendedScreenState extends ConsumerState<RecommendedScreen> {
           padding: const EdgeInsets.only(bottom: 8.0),
           child: Text("Date Range",
               style: TextStyle(
-                color: Theme.of(context).colorScheme.onPrimary,
+                color: Theme.of(context).colorScheme.onSurface,
                 fontSize: MediaQuery.of(context).size.width / 30,
               )),
         ),
@@ -246,9 +246,13 @@ class _RecommendedScreenState extends ConsumerState<RecommendedScreen> {
       children: [
         Padding(
           padding: const EdgeInsets.only(bottom: 8.0),
-          child: Text("Days of Week",
-              style: TextStyle(
-                  color: Theme.of(context).colorScheme.onPrimary, fontSize: MediaQuery.of(context).size.width / 30)),
+          child: Text(
+            "Days of Week",
+            style: TextStyle(
+              color: Theme.of(context).colorScheme.onSurface,
+              fontSize: MediaQuery.of(context).size.width / 30,
+            ),
+          ),
         ),
         Wrap(
           spacing: 8,
@@ -263,7 +267,7 @@ class _RecommendedScreenState extends ConsumerState<RecommendedScreen> {
               },
               checkmarkColor: Theme.of(context).colorScheme.onPrimary,
               selectedColor: Theme.of(context).primaryColorLight,
-              labelStyle: TextStyle(color: Theme.of(context).colorScheme.onPrimary),
+              labelStyle: TextStyle(color: Theme.of(context).colorScheme.onSurface),
             );
           }),
         ),
@@ -281,7 +285,7 @@ class _RecommendedScreenState extends ConsumerState<RecommendedScreen> {
             Text(
               "Maximum Distance",
               style: TextStyle(
-                color: Theme.of(context).colorScheme.onPrimary,
+                color: Theme.of(context).colorScheme.onSurface,
                 fontSize: MediaQuery.of(context).size.width / 30,
               ),
             ),

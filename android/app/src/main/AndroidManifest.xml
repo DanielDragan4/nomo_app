@@ -12,7 +12,7 @@
     <application
         android:label="nomo_app"
         android:name="${applicationName}"
-        android:icon="@mipmap/ic_launcher">
+        android:icon="@mipmap/nomo_logo">
         <activity
             android:name=".MainActivity"
             android:exported="true"

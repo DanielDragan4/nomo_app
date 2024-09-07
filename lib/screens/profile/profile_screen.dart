@@ -725,34 +725,40 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
                       StreamBuilder(
                         stream: ref.read(attendEventsProvider.notifier).stream,
                         builder: (context, snapshot) {
+                          final now = DateTime.now();
                           if (snapshot.data != null && snapshot.data!.isNotEmpty) {
                             final relevantEvents = snapshot.data!.where((event) {
-                              final now = DateTime.now();
-                              if (showHosting && !showUpcoming && !showPassed && event.isHost) return true;
-                              if (showUpcoming &&
-                                  !showHosting &&
-                                  event.attending &&
-                                  !event.isHost &&
-                                  event.attendeeDates['time_start'].compareTo(now.toString()) > 0) return true;
-                              if (showPassed &&
-                                  !showHosting &&
-                                  event.attending &&
-                                  !event.isHost &&
-                                  event.attendeeDates['time_end'].compareTo(now.toString()) < 0) return true;
-                              if (showUpcoming && showPassed && !showHosting && event.attending && !event.isHost)
-                                return true;
-                              if (showHosting &&
-                                  showUpcoming &&
-                                  !showPassed &&
-                                  event.isHost &&
-                                  event.attendeeDates['time_start'].compareTo(now.toString()) > 0) return true;
-                              if (showHosting &&
-                                  !showUpcoming &&
-                                  showPassed &&
-                                  event.isHost &&
-                                  event.attendeeDates['time_end'].compareTo(now.toString()) < 0) return true;
+                              bool upcoming = event.attendeeDates['time_start'].compareTo(now.toString()) > 0;
+                              bool passed = event.attendeeDates['time_end'].compareTo(now.toString()) < 0;
+                              if (showHosting && !event.isHost) return false;
+                              if (showUpcoming && showPassed) return true;
+                              if (showUpcoming && !upcoming) return false;
+                              if (showPassed && !passed) return false;
+                              // if (showUpcoming && showPassed && !showHosting && event.attending) return true;
+                              // if (showHosting && !showUpcoming && !showPassed && event.isHost) return true;
+                              // if (showUpcoming &&
+                              //     !showHosting &&
+                              //     event.attending &&
+                              //     !event.isHost &&
+                              //     event.attendeeDates['time_start'].compareTo(now.toString()) > 0) return true;
+                              // if (showPassed &&
+                              //     !showHosting &&
+                              //     event.attending &&
+                              //     !event.isHost &&
+                              //     event.attendeeDates['time_end'].compareTo(now.toString()) < 0) return true;
+
+                              // if (showHosting &&
+                              //     showUpcoming &&
+                              //     !showPassed &&
+                              //     event.isHost &&
+                              //     event.attendeeDates['time_start'].compareTo(now.toString()) > 0) return true;
+                              // if (showHosting &&
+                              //     !showUpcoming &&
+                              //     showPassed &&
+                              //     event.isHost &&
+                              //     event.attendeeDates['time_end'].compareTo(now.toString()) < 0) return true;
                               //if (showHosting && (showUpcoming || showPassed) && event.isHost) return true;
-                              return false;
+                              return true;
                             }).toList();
                             if (relevantEvents.isEmpty) {
                               return SliverFillRemaining(

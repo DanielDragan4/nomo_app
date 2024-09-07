@@ -58,23 +58,14 @@ class _InterestsScreenState extends ConsumerState<InterestsScreen> {
   }
 
   void _handleInterestSelection(Interests interest) {
-    if (widget.isEditing || (!widget.isEditing && _selectedCount < 5) || _selectedOptions[interest] == true) {
-      setState(() {
-        _selectedOptions[interest] = !_selectedOptions[interest]!;
-        _selectedCount = _selectedOptions.values.where((value) => value).length;
+    setState(() {
+      _selectedOptions[interest] = !_selectedOptions[interest]!;
+      _selectedCount = _selectedOptions.values.where((value) => value).length;
 
-        if (widget.onSelectionChanged != null) {
-          widget.onSelectionChanged!(_selectedOptions);
-        }
-      });
-    } else {
-      ScaffoldMessenger.of(context).hideCurrentSnackBar();
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text("You can only select up to 5 options. You can edit these later."),
-        ),
-      );
-    }
+      if (widget.onSelectionChanged != null) {
+        widget.onSelectionChanged!(_selectedOptions);
+      }
+    });
   }
 
   @override

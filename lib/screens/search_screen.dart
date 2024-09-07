@@ -71,16 +71,10 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
 
   Future<void> _searchEvents(String query) async {
     try {
-      final List<String> categories = query.split(',').map((e) => e.trim()).toList();
-      List<Event> allEvents = [];
-
-      for (String category in categories) {
-        final List<Event> events = await ref.read(searchProvider.notifier).decodeEventSearch(category);
-        allEvents.addAll(events);
-      }
+      final List<Event> events = await ref.read(searchProvider.notifier).decodeEventSearch(query);
 
       setState(() {
-        _searchResults = allEvents
+        _searchResults = events
             .map((event) => EventTab(
                   eventData: event,
                   bookmarkSet: event.bookmarked,
@@ -88,8 +82,17 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
             .toList();
         print('Search results updated: $_searchResults');
       });
+
+      if (_searchResults.isEmpty) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('No events found for "$query"')),
+        );
+      }
     } catch (e) {
       print('Error during event search: $e');
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('An error occurred while searching')),
+      );
     }
   }
 

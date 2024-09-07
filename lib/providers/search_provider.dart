@@ -67,7 +67,6 @@ class SearchProvider extends StateNotifier<List<dynamic>> {
     final supabaseClient = (await supabase).client;
 
     for (var eventData in codedList) {
-      print(eventData);
       String profilePictureUrl = supabaseClient.storage.from('Images').getPublicUrl(eventData['profile_path']);
       String eventUrl = supabaseClient.storage.from('Images').getPublicUrl(eventData['event_path']);
       bool bookmarked = eventData['bookmarked'].contains(supabaseClient.auth.currentUser!.id);
@@ -140,7 +139,6 @@ class SearchProvider extends StateNotifier<List<dynamic>> {
     final supabaseClient = (await supabase).client;
 
     for (var eventData in codedList) {
-      print('Event Data: $eventData');
       String profilePictureUrl = supabaseClient.storage.from('Images').getPublicUrl(eventData['profile_path']);
       String eventUrl = supabaseClient.storage.from('Images').getPublicUrl(eventData['event_path']);
       bool bookmarked = eventData['bookmarked']?.contains(supabaseClient.auth.currentUser!.id) ?? false;

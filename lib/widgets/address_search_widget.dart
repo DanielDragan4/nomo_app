@@ -126,7 +126,7 @@ class _AddressSearchFieldState extends State<AddressSearchField> {
         focusNode: _focusNode,
         enabled: !widget.isVirtual,
         controller: widget.controller,
-        style: TextStyle(color: Theme.of(context).colorScheme.onPrimary),
+        style: TextStyle(color: Theme.of(context).colorScheme.onSecondary),
         decoration: InputDecoration(
           filled: true,
           fillColor: Theme.of(context).colorScheme.secondary,
@@ -161,7 +161,7 @@ class _AddressSearchFieldState extends State<AddressSearchField> {
           if (value.length > 3) {
             var var1 = value;
             sleep(const Duration(milliseconds: 30));
-            if(var1 == value) {
+            if (var1 == value) {
               _searchLocation(value);
             }
           } else {

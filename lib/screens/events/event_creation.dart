@@ -620,8 +620,6 @@ class _EventCreateScreenState extends ConsumerState<EventCreateScreen> {
             );
       }
 
-      print(responseId['event_id']);
-
       eventData = await ref.read(eventsProvider.notifier).deCodeLinkEvent(responseId.first['event_id']);
 
     } finally {

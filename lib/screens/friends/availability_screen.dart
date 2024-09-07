@@ -218,8 +218,8 @@ class _AvailableTimesScreenState extends ConsumerState<AvailableTimesScreen> {
         Expanded(
           child: _buildDateSelector(
             context,
-            "From",
-            formattedStart ?? "Select From Date",
+            formattedStart != null ? "From" : '',
+            formattedStart ?? 'From',
             () async {
               startPicked = await showDatePicker(
                 context: context,
@@ -248,8 +248,8 @@ class _AvailableTimesScreenState extends ConsumerState<AvailableTimesScreen> {
         Expanded(
           child: _buildDateSelector(
             context,
-            "To",
-            formattedEnd ?? "Select To Date",
+            formattedEnd != null ? "To" : '',
+            formattedEnd ?? 'To',
             () async {
               endPicked = await showDatePicker(
                 context: context,
@@ -332,7 +332,7 @@ class _AvailableTimesScreenState extends ConsumerState<AvailableTimesScreen> {
             'Find Free Times',
             style: TextStyle(
               fontSize: MediaQuery.of(context).size.width * .035,
-              color: Theme.of(context).colorScheme.onPrimaryContainer,
+              color: Theme.of(context).colorScheme.onPrimary,
               fontWeight: FontWeight.bold,
             ),
           ),

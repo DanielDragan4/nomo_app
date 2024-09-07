@@ -29,7 +29,8 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
       appBar: AppBar(
         title: Text(
           'Reset Password',
-          style: TextStyle(color: theme.primaryColor, fontSize: 30, fontWeight: FontWeight.w600),
+          // style: TextStyle(
+          //     color: theme.primaryColor, fontSize: MediaQuery.of(context).size.width / 20, fontWeight: FontWeight.w600),
         ),
       ),
       body: SingleChildScrollView(
@@ -105,13 +106,14 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
                 ElevatedButton(
                   onPressed: _resetPassword,
                   style: ElevatedButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(vertical: 16),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                  ),
+                      padding: const EdgeInsets.symmetric(vertical: 16),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      backgroundColor: Theme.of(context).primaryColor),
                   child: Text(
                     'Reset Password',
+                    style: theme.textTheme.bodyLarge,
                   ),
                 ),
               ],
@@ -139,29 +141,30 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
     String? Function(String?)? validator,
   }) {
     return TextFormField(
-      controller: controller,
-      obscureText: obscureText,
-      decoration: InputDecoration(
-        filled: true,
-        fillColor: Colors.grey[200],
-        hintText: hintText,
-        prefixIcon: Icon(icon, color: Theme.of(context).primaryColor),
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(8),
-          borderSide: BorderSide.none,
+        controller: controller,
+        obscureText: obscureText,
+        decoration: InputDecoration(
+          filled: true,
+          fillColor: Theme.of(context).colorScheme.secondary,
+          hintText: hintText,
+          hintStyle: TextStyle(color: Theme.of(context).colorScheme.onSurface),
+          prefixIcon: Icon(icon, color: Theme.of(context).primaryColorLight),
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(8),
+            borderSide: BorderSide.none,
+          ),
+          suffixIcon: toggleVisibility != null
+              ? IconButton(
+                  onPressed: toggleVisibility,
+                  icon: Icon(
+                    obscureText ? Icons.visibility : Icons.visibility_off,
+                    color: Theme.of(context).primaryColor,
+                  ),
+                )
+              : null,
         ),
-        suffixIcon: toggleVisibility != null
-            ? IconButton(
-                onPressed: toggleVisibility,
-                icon: Icon(
-                  obscureText ? Icons.visibility : Icons.visibility_off,
-                  color: Theme.of(context).primaryColor,
-                ),
-              )
-            : null,
-      ),
-      validator: validator,
-    );
+        validator: validator,
+        style: TextStyle(color: Theme.of(context).colorScheme.onSurface));
   }
 
 // Handles password reset logic. If entered token is valid and passwords match, sets new password and automatically logs user in

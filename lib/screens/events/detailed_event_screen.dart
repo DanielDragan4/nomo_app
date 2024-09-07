@@ -551,7 +551,7 @@ class _DetailedEventScreenState extends ConsumerState<DetailedEventScreen> {
                       child: Container(
                         padding: EdgeInsets.symmetric(vertical: 12, horizontal: 16),
                         decoration: BoxDecoration(
-                          color: isSelected ? Theme.of(context).primaryColor.withOpacity(0.1) : null,
+                          color: isSelected ? Theme.of(context).primaryColor.withOpacity(0.4) : null,
                           borderRadius: BorderRadius.circular(8),
                         ),
                         child: Column(
@@ -562,19 +562,20 @@ class _DetailedEventScreenState extends ConsumerState<DetailedEventScreen> {
                                   ? '${_formatDate(startDate)}'
                                   : '${_formatDate(startDate)} - ${_formatDate(endDate)}',
                               style: TextStyle(
-                                fontWeight: FontWeight.bold,
-                                color: isSelected
-                                    ? Theme.of(context).primaryColor
-                                    : Theme.of(context).colorScheme.onSecondary,
-                              ),
+                                  fontWeight: FontWeight.bold,
+                                  color: isSelected
+                                      ? Theme.of(context).colorScheme.onSurface
+                                      : Theme.of(context).colorScheme.onSecondary,
+                                  fontSize: MediaQuery.of(context).size.width / 30),
                             ),
                             SizedBox(height: 4),
                             Text(
                               '${_formatTime(startDate)} - ${_formatTime(endDate)}',
                               style: TextStyle(
                                 color: isSelected
-                                    ? Theme.of(context).primaryColor
+                                    ? Theme.of(context).colorScheme.onSurface
                                     : Theme.of(context).colorScheme.onSecondary,
+                                fontSize: MediaQuery.of(context).size.width / 32,
                               ),
                             ),
                           ],
@@ -593,7 +594,7 @@ class _DetailedEventScreenState extends ConsumerState<DetailedEventScreen> {
                         'Cancel',
                         style: TextStyle(
                           color: Theme.of(context).colorScheme.onSecondary,
-                          fontSize: MediaQuery.of(context).size.width * 0.045,
+                          fontSize: MediaQuery.of(context).size.width * 0.035,
                           fontWeight: FontWeight.w400,
                         ),
                       ),
@@ -615,8 +616,8 @@ class _DetailedEventScreenState extends ConsumerState<DetailedEventScreen> {
                       child: Text(
                         'Set Date',
                         style: TextStyle(
-                          fontSize: MediaQuery.of(context).size.width * .04,
-                          color: Theme.of(context).colorScheme.onPrimaryContainer,
+                          fontSize: MediaQuery.of(context).size.width * .035,
+                          color: Theme.of(context).colorScheme.onPrimary,
                           fontWeight: FontWeight.bold,
                         ),
                       ),

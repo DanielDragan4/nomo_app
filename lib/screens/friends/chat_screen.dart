@@ -230,6 +230,10 @@ class _ChatScreenState extends ConsumerState<ChatScreen> with RouteAware {
                           itemCount: snapshot.data!.length,
                           controller: _scrollController,
                           itemBuilder: (context, index) {
+                            var nextMessage;
+                            if(index < snapshot.data!.length -1) {
+                              nextMessage = snapshot.data![index + 1]['created_at'];
+                            }
                             var message = snapshot.data![index];
                             var avatar;
                             if (widget.chatterUser != null) {
@@ -243,7 +247,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> with RouteAware {
                               }
                             }
                             return MessageWidget(
-                                message: message, otherAvatar: avatar, currentUser: widget.currentUser);
+                                message: message, otherAvatar: avatar, currentUser: widget.currentUser, nextMessage: nextMessage,);
                           },
                         );
                       } else {

@@ -231,7 +231,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> with RouteAware {
                           controller: _scrollController,
                           itemBuilder: (context, index) {
                             var nextMessage;
-                            if(index < snapshot.data!.length -1) {
+                            if (index < snapshot.data!.length - 1) {
                               nextMessage = snapshot.data![index + 1]['created_at'];
                             }
                             var message = snapshot.data![index];
@@ -247,7 +247,11 @@ class _ChatScreenState extends ConsumerState<ChatScreen> with RouteAware {
                               }
                             }
                             return MessageWidget(
-                                message: message, otherAvatar: avatar, currentUser: widget.currentUser, nextMessage: nextMessage,);
+                              message: message,
+                              otherAvatar: avatar,
+                              currentUser: widget.currentUser,
+                              nextMessage: nextMessage,
+                            );
                           },
                         );
                       } else {
@@ -307,7 +311,6 @@ class GroupMembersList extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    
     Future<String> getUsername(String id) async {
       var profile = await ref.read(profileProvider.notifier).fetchProfileById(id);
       return profile.username;

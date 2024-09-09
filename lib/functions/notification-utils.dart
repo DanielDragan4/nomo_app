@@ -38,7 +38,9 @@ void handleMessage(RemoteMessage message, BuildContext context, WidgetRef ref) a
   bool newEventSwitch = prefs.getBool('newEvent') ?? true;
   bool messageSwitch = prefs.getBool('message') ?? true;
   bool messageFriendsOnlySwitch = prefs.getBool('messageFriendsOnly') ?? false;
-
+  bool groupMessageSwitch = prefs.getBool('groupMessage') ?? true;
+  bool eventCommentSwitch = prefs.getBool('eventComment') ?? true;
+  String? activeChatId = ref.read(activeChatIdProvider);
   String? type = message.data['type'];
 
   // Function to navigate to Friends Screen
@@ -80,6 +82,32 @@ void handleMessage(RemoteMessage message, BuildContext context, WidgetRef ref) a
         MaterialPageRoute(
           builder: (context) => ChatScreen(
             chatterUser: friendData,
+            currentUser: ref.read(profileProvider)!.profile_id,
+          ),
+        ),
+      );
+    });
+  }
+
+  // Function to navigate to Chat Screen
+  void navigateToGroupChatScreen(String groupId, String groupName) {
+    ref.read(chatsProvider.notifier).getGroupChatInfo().then((groupChats) {
+      var groupInfo = groupChats.firstWhere((chat) => chat['group_id'] == groupId);
+      navigatorKey.currentState?.pushAndRemoveUntil(
+        MaterialPageRoute(builder: (context) => NavBar()),
+        (route) => false,
+      );
+      navigatorKey.currentState?.push(
+        MaterialPageRoute(
+          builder: (context) => const NavBar(
+            initialIndex: 3,
+          ),
+        ),
+      );
+      navigatorKey.currentState?.push(
+        MaterialPageRoute(
+          builder: (context) => ChatScreen(
+            groupInfo: groupInfo,
             currentUser: ref.read(profileProvider)!.profile_id,
           ),
         ),
@@ -246,12 +274,53 @@ void handleMessage(RemoteMessage message, BuildContext context, WidgetRef ref) a
       onTap: navigateToFriendsScreen,
     );
   }
+  // Handles in-app notification for group messages
+  if (type == 'GroupMessage' && groupMessageSwitch) {
+    print('Group Message notification handling');
+    String senderName = message.data['sender'];
+    String groupId = message.data['group_id'];
+    String groupName = message.data['group'];
+    String messageContent = message.data['message'];
+
+    print('active: $activeChatId');
+    print('current: $groupId');
+
+    if (activeChatId != groupId) {
+      showSimpleNotification(
+        context,
+        "$senderName: $messageContent",
+        'New message in $groupName',
+        onTap: () => navigateToGroupChatScreen(groupId, groupName),
+      );
+    }
+  }
+
+  // Handles in-app notification for event comments
+  if (type == 'EventComment' && eventCommentSwitch) {
+    print('Event Comment notification handling');
+    String commenterName = message.data['commenter_name'];
+    String eventId = message.data['event_id'];
+    String eventTitle = message.data['title'];
+    String commentContent = message.data['comment_content'];
+
+    ref.read(unreadNotificationsProvider.notifier).addNotification(
+      "$commenterName commented on your event '$eventTitle': $commentContent",
+      type: 'EventComment',
+      additionalData: {'eventId': eventId},
+    );
+    ref.read(notificationBellProvider.notifier).setBellState(true);
+    showSimpleNotification(
+      context,
+      "$commenterName: $commentContent",
+      "New comment on $eventTitle",
+      onTap: () => navigateToDetailedEventScreen(eventId),
+    );
+  }
   // Handles in-app notification for user recieving a direct-message
   if (type == 'DM') {
     print('DM notification handling');
     String? senderId = message.data['senderId'];
     String? chatId = message.data['chat_id'];
-    String? activeChatId = ref.read(activeChatIdProvider);
 
     print('active: $activeChatId');
     print('current: $chatId');
@@ -319,12 +388,6 @@ void showSimpleNotification(BuildContext context, String message, String message
                   message,
                   style: TextStyle(color: Colors.white),
                 ),
-                // trailing: IconButton(
-                //   icon: Icon(Icons.close, color: Colors.white),
-                //   onPressed: () {
-                //     OverlaySupportEntry.of(context)?.dismiss();
-                //   },
-                // ),
               ),
             ),
           ),

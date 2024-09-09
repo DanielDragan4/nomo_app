@@ -24,6 +24,7 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen> {
       case 'UPDATE':
       case 'JOIN':
       case 'CREATE':
+      case 'EventComment':
         String? eventId = notification.additionalData?['eventId'];
         if (eventId != null) {
           ref.read(eventsProvider.notifier).deCodeLinkEvent(eventId).then((event) {
@@ -64,6 +65,8 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen> {
         return Icons.person_add_alt_1;
       case 'GROUP':
         return Icons.group_add_sharp;
+      case 'EventComment':
+        return Icons.message_rounded;
     }
     return Icons.notifications;
   }

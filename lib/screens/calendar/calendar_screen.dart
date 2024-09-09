@@ -93,8 +93,10 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
                     Text(
                       'Select Time Range',
                       style: TextStyle(
-                        color: Theme.of(context).colorScheme.onSurface,
-                      ),
+                    color: Theme.of(context).primaryColorLight,
+                    fontSize: MediaQuery.of(context).size.width * 0.045,
+                    fontWeight: FontWeight.w600,
+                  ),
                     ),
                     const SizedBox(height: 20),
                     CheckboxListTile(

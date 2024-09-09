@@ -307,63 +307,63 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                                 style: TextStyle(color: Theme.of(context).colorScheme.onSurface),
                               ),
                             ),
-                          ElevatedButton(
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: Theme.of(context).canvasColor,
-                              ),
-                              onPressed: () async {
-                                final rawNonce = supabase.auth.generateRawNonce();
-                                final hashedNonce = sha256.convert(utf8.encode(rawNonce)).toString();
-                                final credential = await SignInWithApple.getAppleIDCredential(
-                                  scopes: [
-                                    AppleIDAuthorizationScopes.email,
-                                    AppleIDAuthorizationScopes.fullName,
-                                  ],
-                                  nonce: hashedNonce,
-                                );
+                          // ElevatedButton(
+                          //     style: ElevatedButton.styleFrom(
+                          //       backgroundColor: Theme.of(context).canvasColor,
+                          //     ),
+                          //     onPressed: () async {
+                          //       final rawNonce = supabase.auth.generateRawNonce();
+                          //       final hashedNonce = sha256.convert(utf8.encode(rawNonce)).toString();
+                          //       final credential = await SignInWithApple.getAppleIDCredential(
+                          //         scopes: [
+                          //           AppleIDAuthorizationScopes.email,
+                          //           AppleIDAuthorizationScopes.fullName,
+                          //         ],
+                          //         nonce: hashedNonce,
+                          //       );
 
-                                final idToken = credential.identityToken;
-                                if (idToken == null) {
-                                  throw const AuthException('Could not find ID Token from generated credential.');
-                                }
-                                bool firstSignIn = await ref
-                                    .read(currentUserProvider.notifier)
-                                    .signInWithIdTokenApple(idToken, rawNonce);
+                          //       final idToken = credential.identityToken;
+                          //       if (idToken == null) {
+                          //         throw const AuthException('Could not find ID Token from generated credential.');
+                          //       }
+                          //       bool firstSignIn = await ref
+                          //           .read(currentUserProvider.notifier)
+                          //           .signInWithIdTokenApple(idToken, rawNonce);
 
-                                if (firstSignIn) {
-                                  print('1');
-                                  ref.watch(onSignUp.notifier).notifyAccountCreation();
-                                } else {
-                                  print('2');
-                                  makeFcm(supabase);
-                                }
-                                ref.read(savedSessionProvider.notifier).changeSessionDataList();
+                          //       if (firstSignIn) {
+                          //         print('1');
+                          //         ref.watch(onSignUp.notifier).notifyAccountCreation();
+                          //       } else {
+                          //         print('2');
+                          //         makeFcm(supabase);
+                          //       }
+                          //       ref.read(savedSessionProvider.notifier).changeSessionDataList();
 
-                                // Now send the credential (especially `credential.authorizationCode`) to your server to create a session
-                                // after they have been validated with Apple (see `Integration` section for more information on how to do this)
-                              },
-                              child: Padding(
-                                padding: EdgeInsets.symmetric(horizontal: MediaQuery.of(context).size.width * 0.1),
-                                child: Container(
-                                  child: Row(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    children: [
-                                      Image.asset(
-                                        'assets/images/apple.png',
-                                        fit: BoxFit.cover,
-                                        scale: MediaQuery.of(context).size.aspectRatio * 75,
-                                      ),
-                                      SizedBox(
-                                        width: MediaQuery.of(context).size.width * .01,
-                                      ),
-                                      Text(
-                                        'Sign in with Apple',
-                                        style: TextStyle(color: Theme.of(context).colorScheme.onSurface),
-                                      )
-                                    ],
-                                  ),
-                                ),
-                              )),
+                          //       // Now send the credential (especially `credential.authorizationCode`) to your server to create a session
+                          //       // after they have been validated with Apple (see `Integration` section for more information on how to do this)
+                          //     },
+                          //     child: Padding(
+                          //       padding: EdgeInsets.symmetric(horizontal: MediaQuery.of(context).size.width * 0.1),
+                          //       child: Container(
+                          //         child: Row(
+                          //           mainAxisAlignment: MainAxisAlignment.center,
+                          //           children: [
+                          //             Image.asset(
+                          //               'assets/images/apple.png',
+                          //               fit: BoxFit.cover,
+                          //               scale: MediaQuery.of(context).size.aspectRatio * 75,
+                          //             ),
+                          //             SizedBox(
+                          //               width: MediaQuery.of(context).size.width * .01,
+                          //             ),
+                          //             Text(
+                          //               'Sign in with Apple',
+                          //               style: TextStyle(color: Theme.of(context).colorScheme.onSurface),
+                          //             )
+                          //           ],
+                          //         ),
+                          //       ),
+                          //     )),
                           ElevatedButton(
                               style: ElevatedButton.styleFrom(
                                 backgroundColor: Theme.of(context).canvasColor,

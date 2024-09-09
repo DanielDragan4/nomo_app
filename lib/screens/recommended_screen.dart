@@ -184,9 +184,9 @@ class _RecommendedScreenState extends ConsumerState<RecommendedScreen> {
                     ),
                   ),
                   child: Text(
-                    tempStartDate != null ? DateFormat.yMd().format(tempStartDate!.toLocal()) : "Start Date",
+                    tempStartDate != null ? DateFormat.yMd().format(tempStartDate!.toLocal()) : "From",
                     style: TextStyle(
-                      color: Theme.of(context).colorScheme.onSecondary,
+                      color: Theme.of(context).colorScheme.onSurface,
                       fontSize: MediaQuery.of(context).size.width / 30,
                     ),
                   ),
@@ -224,9 +224,9 @@ class _RecommendedScreenState extends ConsumerState<RecommendedScreen> {
                     ),
                   ),
                   child: Text(
-                    tempEndDate != null ? DateFormat.yMd().format(tempEndDate!.toLocal()) : "End Date",
+                    tempEndDate != null ? DateFormat.yMd().format(tempEndDate!.toLocal()) : "To",
                     style: TextStyle(
-                      color: Theme.of(context).colorScheme.onSecondary,
+                      color: Theme.of(context).colorScheme.onSurface,
                       fontSize: MediaQuery.of(context).size.width / 30,
                     ),
                   ),

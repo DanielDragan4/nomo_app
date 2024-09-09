@@ -31,7 +31,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
     return Scaffold(
       backgroundColor: theme.canvasColor,
       appBar: AppBar(
-        title: widget.email != null ? Text('Forgot Password') : Text('Reset Password'),
+        title: widget.email == null ? Text('Forgot Password') : Text('Reset Password'),
       ),
       body: SingleChildScrollView(
         child: Padding(
@@ -58,14 +58,14 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                 ElevatedButton(
                   onPressed: _sendResetEmail,
                   style: ElevatedButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(vertical: 16),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                  ),
+                      padding: const EdgeInsets.symmetric(vertical: 16),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      backgroundColor: Theme.of(context).colorScheme.primary),
                   child: Text(
                     'Send Reset Email',
-                    style: theme.textTheme.bodyMedium?.copyWith(color: Colors.white),
+                    style: theme.textTheme.bodyLarge,
                   ),
                 ),
                 const SizedBox(height: 24),
@@ -74,7 +74,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                   child: Text(
                     'Already have a token? Reset your password',
                     style: theme.textTheme.bodyMedium?.copyWith(
-                      color: theme.primaryColor,
+                      color: theme.primaryColorLight,
                       decoration: TextDecoration.underline,
                     ),
                   ),
@@ -98,20 +98,21 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
     String? Function(String?)? validator,
   }) {
     return TextFormField(
-      controller: controller,
-      decoration: InputDecoration(
-        filled: true,
-        fillColor: Colors.grey[200],
-        hintText: hintText,
-        prefixIcon: Icon(icon, color: Theme.of(context).primaryColor),
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(8),
-          borderSide: BorderSide.none,
+        controller: controller,
+        decoration: InputDecoration(
+          filled: true,
+          fillColor: Theme.of(context).colorScheme.secondary,
+          hintText: hintText,
+          hintStyle: TextStyle(color: Theme.of(context).colorScheme.onSurface),
+          prefixIcon: Icon(icon, color: Theme.of(context).primaryColorLight),
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(8),
+            borderSide: BorderSide.none,
+          ),
         ),
-      ),
-      autovalidateMode: AutovalidateMode.onUserInteraction,
-      validator: validator,
-    );
+        autovalidateMode: AutovalidateMode.onUserInteraction,
+        validator: validator,
+        style: TextStyle(color: Theme.of(context).colorScheme.onSurface));
   }
 
 // Sends an email to the entered email address containing a password reset token

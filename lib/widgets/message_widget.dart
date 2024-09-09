@@ -15,41 +15,55 @@ class MessageWidget extends ConsumerWidget {
     required this.message,
     required this.currentUser,
     required this.otherAvatar,
+    this.nextMessage,
   });
 
   final message;
   final currentUser;
   final String otherAvatar;
+  final nextMessage;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final isMe = (message['sender_id'] == currentUser);
 
     if (message.isNotEmpty) {
+
+      bool includeStamp;
+
+      if(nextMessage != null) {
+        includeStamp = ((DateTime.parse(message['created_at']).difference(DateTime.parse(nextMessage))).inHours > 1);
+      } else {
+        includeStamp = true;
+      }
       return Container(
           width: MediaQuery.of(context).size.width * .85,
           child: Align(
             alignment: isMe ? Alignment.centerRight : Alignment.centerLeft,
             child: Column(
               children: [
-                Row(
-                  mainAxisAlignment: isMe ? MainAxisAlignment.end : MainAxisAlignment.start,
+                Column(
+                  crossAxisAlignment: isMe ? CrossAxisAlignment.end : CrossAxisAlignment.start,
                   children: [
                     !isMe
                         ? CircleAvatar(
                             backgroundImage: NetworkImage(otherAvatar),
                           )
-                        : SizedBox(
+                        : 
+                        includeStamp ?
+                        SizedBox(
                             child: Text(
-                              Jiffy.parseFromDateTime(DateTime.parse(message['created_at']).subtract(const Duration(hours: 4))).fromNow(),
+                              Jiffy.parseFromDateTime(DateTime.parse(message['created_at']).subtract(const Duration(seconds: 1))).fromNow(),
                               style: TextStyle(
                                 color: Theme.of(context).colorScheme.onSecondary.withOpacity(0.6),
                                 fontSize: MediaQuery.of(context).size.width * 0.035,
                               ),
                             ),
-                          ),
+                          )
+                          :
+                          SizedBox(),
                     SizedBox(
-                      width: MediaQuery.of(context).size.width * .05,
+                      width: MediaQuery.of(context).size.width * .005,
                     ),
                     Container(
                       constraints: BoxConstraints(maxWidth: MediaQuery.of(context).size.width * .8),

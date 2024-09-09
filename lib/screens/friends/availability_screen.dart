@@ -171,7 +171,7 @@ class _AvailableTimesScreenState extends ConsumerState<AvailableTimesScreen> {
                           ),
                           SizedBox(height: 8),
                           Text(
-                            'The Following Allows you to find Available times between you and the person you have selecte. Enter A range of days you would like to meet, A number of hours you would like to meet for, and then hit enter To see the available times',
+                            'This screen allows you to find Available times between you and the person you have selecte. Enter a range of days you would like to meet, a number of hours you would like to meet for, and then hit enter to see the times you are mutually available.',
                             style: TextStyle(
                                 fontSize: MediaQuery.of(context).size.width * .04,
                                 color: Theme.of(context).colorScheme.onPrimaryContainer),
@@ -218,8 +218,8 @@ class _AvailableTimesScreenState extends ConsumerState<AvailableTimesScreen> {
         Expanded(
           child: _buildDateSelector(
             context,
-            "From",
-            formattedStart ?? "Select From Date",
+            formattedStart != null ? "From" : '',
+            formattedStart ?? 'From',
             () async {
               startPicked = await showDatePicker(
                 context: context,
@@ -248,8 +248,8 @@ class _AvailableTimesScreenState extends ConsumerState<AvailableTimesScreen> {
         Expanded(
           child: _buildDateSelector(
             context,
-            "To",
-            formattedEnd ?? "Select To Date",
+            formattedEnd != null ? "To" : '',
+            formattedEnd ?? 'To',
             () async {
               endPicked = await showDatePicker(
                 context: context,
@@ -295,54 +295,57 @@ class _AvailableTimesScreenState extends ConsumerState<AvailableTimesScreen> {
 
   Widget _buildDurationAndSubmitRow(BuildContext context) {
     return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
+      crossAxisAlignment: CrossAxisAlignment.center,
       children: [
-          SizedBox(
-            width: MediaQuery.of(context).size.width * 0.25,
-            child: TextFormField(
-              decoration: InputDecoration(
-                labelText: 'Duration',
-                labelStyle: TextStyle(
-                    fontSize: MediaQuery.of(context).size.width * .04, color: Theme.of(context).colorScheme.onPrimaryContainer),
-                border: OutlineInputBorder(),
-                errorText: _durationError ? 'Please enter a valid duration' : null,
-                errorStyle: TextStyle(color: Colors.red),
-                enabledBorder: OutlineInputBorder(
-                  borderSide: BorderSide(color: _durationError ? Colors.red : Colors.grey),
-                ),
-                focusedBorder: OutlineInputBorder(
-                  borderSide: BorderSide(color: _durationError ? Colors.red : Theme.of(context).primaryColor),
-                ),
+        SizedBox(
+          width: MediaQuery.of(context).size.width * 0.55,
+          child: TextFormField(
+            decoration: InputDecoration(
+              labelText: 'Minimum Duration (hours)',
+              labelStyle: TextStyle(
+                  fontSize: MediaQuery.of(context).size.width * .035,
+                  color: Theme.of(context).colorScheme.onPrimaryContainer),
+              border: OutlineInputBorder(),
+              errorText: _durationError ? 'Please enter a valid duration' : null,
+              errorStyle: TextStyle(color: Colors.red),
+              enabledBorder: OutlineInputBorder(
+                borderSide: BorderSide(color: _durationError ? Colors.red : Colors.grey),
               ),
-              style: TextStyle(color: Theme.of(context).colorScheme.onSecondary),
-              keyboardType: TextInputType.number,
-              controller: durationController,
-              onChanged: (value) {
-                setState(() {
-                  _durationError = value.isEmpty || int.tryParse(value) == null;
-                });
-              },
+              focusedBorder: OutlineInputBorder(
+                borderSide: BorderSide(color: _durationError ? Colors.red : Theme.of(context).primaryColor),
+              ),
+            ),
+            style: TextStyle(color: Theme.of(context).colorScheme.onSecondary),
+            keyboardType: TextInputType.number,
+            controller: durationController,
+            onChanged: (value) {
+              setState(() {
+                _durationError = value.isEmpty || int.tryParse(value) == null;
+              });
+            },
+          ),
+        ),
+        const SizedBox(height: 12),
+        ElevatedButton(
+          onPressed: _submitForm,
+          child: Text(
+            'Find Free Times',
+            style: TextStyle(
+              fontSize: MediaQuery.of(context).size.width * .035,
+              color: Theme.of(context).colorScheme.onPrimary,
+              fontWeight: FontWeight.bold,
             ),
           ),
-        const SizedBox(height: 12),
-           ElevatedButton(
-            onPressed: _submitForm,
-              child: Text('Find Free Times',
-                        style: TextStyle(
-                          fontSize: MediaQuery.of(context).size.width * .04,
-                          color: Theme.of(context).colorScheme.onPrimaryContainer,
-                          fontWeight: FontWeight.bold,
-                        ),),
-            style: ElevatedButton.styleFrom(
-                        backgroundColor: Theme.of(context).primaryColor, // Background color
-                        padding: EdgeInsets.symmetric(
-                            vertical: MediaQuery.of(context).size.height * .0175,
-                            horizontal: MediaQuery.of(context).size.width * 0.175),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12.0), // Rounded corners
-                        ),
-                      ),
+          style: ElevatedButton.styleFrom(
+            backgroundColor: Theme.of(context).primaryColor, // Background color
+            padding: EdgeInsets.symmetric(
+                vertical: MediaQuery.of(context).size.height * .0175,
+                horizontal: MediaQuery.of(context).size.width * 0.175),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12.0), // Rounded corners
+            ),
           ),
+        ),
       ],
     );
   }
@@ -366,8 +369,8 @@ class _AvailableTimesScreenState extends ConsumerState<AvailableTimesScreen> {
                   title: Text(
                     'Free from ${DateFormat.yMd().add_jm().format(time['start_time'])} \nto ${DateFormat.yMd().add_jm().format(time['end_time'])}',
                     style: TextStyle(
-                                fontSize: MediaQuery.of(context).size.width * .04,
-                                color: Theme.of(context).colorScheme.onSecondary),
+                        fontSize: MediaQuery.of(context).size.width * .04,
+                        color: Theme.of(context).colorScheme.onSecondary),
                   ),
                 ),
               );

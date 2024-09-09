@@ -8,6 +8,7 @@ import 'package:nomo/providers/event-providers/other_attending_profile.dart';
 import 'package:nomo/providers/notification-providers/friend-notif-manager.dart';
 import 'package:nomo/providers/profile_provider.dart';
 import 'package:nomo/providers/supabase-providers/supabase_provider.dart';
+import 'package:nomo/screens/friends/chat_screen.dart';
 import 'package:nomo/widgets/event_tab.dart';
 
 class OtherProfileScreen extends ConsumerStatefulWidget {
@@ -353,7 +354,11 @@ class ProfileScreenState extends ConsumerState<OtherProfileScreen> {
                                                 showDialog(
                                                   context: context,
                                                   builder: (context) => AlertDialog(
-                                                    title: Text('Are you sure you want to unfriend this user?'),
+                                                    title: Text(
+                                                      'Are you sure you want to unfriend this user?',
+                                                      style: TextStyle(color: Theme.of(context).colorScheme.onSurface),
+                                                    ),
+                                                    backgroundColor: Theme.of(context).cardColor,
                                                     actions: [
                                                       TextButton(
                                                         onPressed: () async {
@@ -363,11 +368,17 @@ class ProfileScreenState extends ConsumerState<OtherProfileScreen> {
                                                             SnackBar(content: Text("User unfriended")),
                                                           );
                                                         },
-                                                        child: Text('Unfriend'),
+                                                        child: Text('Unfriend',
+                                                            style: TextStyle(
+                                                                color: Theme.of(context).primaryColorLight,
+                                                                fontSize: MediaQuery.of(context).size.width / 30)),
                                                       ),
                                                       TextButton(
                                                         onPressed: () => Navigator.pop(context),
-                                                        child: Text('Cancel'),
+                                                        child: Text('Cancel',
+                                                            style: TextStyle(
+                                                                color: Theme.of(context).colorScheme.onSecondary,
+                                                                fontSize: MediaQuery.of(context).size.width / 30)),
                                                       ),
                                                     ],
                                                   ),
@@ -389,7 +400,16 @@ class ProfileScreenState extends ConsumerState<OtherProfileScreen> {
                                         ),
                                         child: IconButton(
                                           onPressed: () async {
-                                            // Chat functionality
+                                            Friend friend = Friend(
+                                                avatar: (await profileInfo)?.avatar,
+                                                friendProfileId: widget.userId!,
+                                                friendProfileName: (await profileInfo)!.profile_name,
+                                                friendUsername: (await profileInfo)!.username);
+                                            Navigator.of(context, rootNavigator: true).push(MaterialPageRoute(
+                                                builder: (context) => ChatScreen(
+                                                      chatterUser: friend,
+                                                      currentUser: ref.read(profileProvider.notifier).state!.profile_id,
+                                                    )));
                                           },
                                           icon: const Icon(Icons.message),
                                           color: Theme.of(context).colorScheme.onPrimary,

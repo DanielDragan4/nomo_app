@@ -200,6 +200,7 @@ class _DayScreenState extends ConsumerState<DayScreen> {
 
     showModalBottomSheet(
       context: context,
+      backgroundColor: Theme.of(context).cardColor,
       builder: (BuildContext context) {
         return StatefulBuilder(builder: (context, StateSetter setModalState) {
           return SingleChildScrollView(
@@ -215,14 +216,20 @@ class _DayScreenState extends ConsumerState<DayScreen> {
                   Text(
                     'Select Time Range',
                     style: TextStyle(
-                      color: Theme.of(context).colorScheme.onSecondary,
+                      color: Theme.of(context).primaryColorLight,
+                      fontSize: MediaQuery.of(context).size.width * 0.045,
+                      fontWeight: FontWeight.w600,
                     ),
                   ),
                   const SizedBox(height: 20),
                   CheckboxListTile(
                     title: Text(
                       'Block Entire Day',
-                      style: TextStyle(color: Theme.of(context).colorScheme.onSurface),
+                      style: TextStyle(
+                        color: Theme.of(context).colorScheme.onSecondary,
+                        fontSize: MediaQuery.of(context).size.width * 0.035,
+                        fontWeight: FontWeight.w400,
+                      ),
                     ),
                     value: isAllDay,
                     onChanged: (bool? value) {

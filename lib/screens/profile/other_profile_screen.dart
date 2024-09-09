@@ -355,6 +355,7 @@ class ProfileScreenState extends ConsumerState<OtherProfileScreen> {
                                                   context: context,
                                                   builder: (context) => AlertDialog(
                                                     title: Text('Are you sure you want to unfriend this user?'),
+                                                    backgroundColor: Theme.of(context).cardColor,
                                                     actions: [
                                                       TextButton(
                                                         onPressed: () async {
@@ -364,11 +365,17 @@ class ProfileScreenState extends ConsumerState<OtherProfileScreen> {
                                                             SnackBar(content: Text("User unfriended")),
                                                           );
                                                         },
-                                                        child: Text('Unfriend'),
+                                                        child: Text('Unfriend',
+                                                            style: TextStyle(
+                                                                color: Theme.of(context).primaryColorLight,
+                                                                fontSize: MediaQuery.of(context).size.width / 30)),
                                                       ),
                                                       TextButton(
                                                         onPressed: () => Navigator.pop(context),
-                                                        child: Text('Cancel'),
+                                                        child: Text('Cancel',
+                                                            style: TextStyle(
+                                                                color: Theme.of(context).colorScheme.onSecondary,
+                                                                fontSize: MediaQuery.of(context).size.width / 30)),
                                                       ),
                                                     ],
                                                   ),

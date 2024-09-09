@@ -31,6 +31,8 @@ class _SettingScreenState extends ConsumerState<SettingScreen> {
   late bool eventDeletedSwitch = true;
   late bool messageSwitch = true;
   late bool messageFriendsOnlySwitch = false;
+  late bool eventCommentSwitch = true;
+  late bool eventCommentFriendsOnlySwitch = false;
 
   @override
   void initState() {
@@ -52,6 +54,8 @@ class _SettingScreenState extends ConsumerState<SettingScreen> {
       eventDeletedSwitch = prefs.getBool('eventDeleted') ?? true;
       messageSwitch = prefs.getBool('message') ?? true;
       messageFriendsOnlySwitch = prefs.getBool('messageFriendsOnly') ?? false;
+      eventCommentSwitch = prefs.getBool('eventComment') ?? true;
+      eventCommentFriendsOnlySwitch = prefs.getBool('eventCommentFriendsOnly') ?? false;
     });
 
     // Check permissions
@@ -128,6 +132,17 @@ class _SettingScreenState extends ConsumerState<SettingScreen> {
         case 'messageFriendsOnly':
           messageFriendsOnlySwitch = !messageFriendsOnlySwitch;
           prefs.setBool('messageFriendsOnly', messageFriendsOnlySwitch);
+        case 'eventComment':
+          eventCommentSwitch = !eventCommentSwitch;
+          prefs.setBool('eventComment', eventCommentSwitch);
+          if (!eventCommentSwitch) {
+            eventCommentFriendsOnlySwitch = false;
+            prefs.setBool('eventCommentFriendsOnly', false);
+          }
+          break;
+        case 'eventCommentFriendsOnly':
+          eventCommentFriendsOnlySwitch = !eventCommentFriendsOnlySwitch;
+          prefs.setBool('eventCommentFriendsOnly', eventCommentFriendsOnlySwitch);
           break;
       }
     });
@@ -228,6 +243,15 @@ class _SettingScreenState extends ConsumerState<SettingScreen> {
               ),
             _buildSwitchItem('Event Deleted or Updated',
                 value: eventDeletedSwitch, onChanged: (val) => updateSwitchValue('eventDeleted')),
+            _buildSwitchItem('Event Comments',
+                value: eventCommentSwitch, onChanged: (val) => updateSwitchValue('eventComment')),
+            if (eventCommentSwitch)
+              Padding(
+                padding: const EdgeInsets.only(left: 40.0),
+                child: _buildSwitchItem('Friends Only',
+                    value: eventCommentFriendsOnlySwitch,
+                    onChanged: (val) => updateSwitchValue('eventCommentFriendsOnly')),
+              ),
             _buildSwitchItem('Incoming Message',
                 value: messageSwitch, onChanged: (val) => updateSwitchValue('message')),
             if (messageSwitch)

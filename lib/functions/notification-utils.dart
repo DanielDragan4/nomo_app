@@ -38,8 +38,8 @@ void handleMessage(RemoteMessage message, BuildContext context, WidgetRef ref) a
   bool newEventSwitch = prefs.getBool('newEvent') ?? true;
   bool messageSwitch = prefs.getBool('message') ?? true;
   bool messageFriendsOnlySwitch = prefs.getBool('messageFriendsOnly') ?? false;
-  bool groupMessageSwitch = prefs.getBool('groupMessage') ?? true;
   bool eventCommentSwitch = prefs.getBool('eventComment') ?? true;
+  bool eventCommentFriendOnlySwitch = prefs.getBool('eventCommentFriendsOnly') ?? false;
   String? activeChatId = ref.read(activeChatIdProvider);
   String? type = message.data['type'];
 
@@ -275,7 +275,7 @@ void handleMessage(RemoteMessage message, BuildContext context, WidgetRef ref) a
     );
   }
   // Handles in-app notification for group messages
-  if (type == 'GroupMessage' && groupMessageSwitch) {
+  if (type == 'GroupMessage') {
     print('Group Message notification handling');
     String senderName = message.data['sender'];
     String groupId = message.data['group_id'];
@@ -285,7 +285,7 @@ void handleMessage(RemoteMessage message, BuildContext context, WidgetRef ref) a
     print('active: $activeChatId');
     print('current: $groupId');
 
-    if (activeChatId != groupId) {
+    if ((activeChatId != groupId || activeChatId == null) && messageSwitch) {
       showSimpleNotification(
         context,
         "$senderName: $messageContent",
@@ -299,22 +299,41 @@ void handleMessage(RemoteMessage message, BuildContext context, WidgetRef ref) a
   if (type == 'EventComment' && eventCommentSwitch) {
     print('Event Comment notification handling');
     String commenterName = message.data['commenter_name'];
+    String commenterId = message.data['commenter_id'];
     String eventId = message.data['event_id'];
     String eventTitle = message.data['title'];
     String commentContent = message.data['comment_content'];
 
-    ref.read(unreadNotificationsProvider.notifier).addNotification(
-      "$commenterName commented on your event '$eventTitle': $commentContent",
-      type: 'EventComment',
-      additionalData: {'eventId': eventId},
-    );
-    ref.read(notificationBellProvider.notifier).setBellState(true);
-    showSimpleNotification(
-      context,
-      "$commenterName: $commentContent",
-      "New comment on $eventTitle",
-      onTap: () => navigateToDetailedEventScreen(eventId),
-    );
+    if (eventCommentFriendOnlySwitch) {
+      bool isFriend = await ref.read(profileProvider.notifier).isFriend(commenterId);
+      if (isFriend) {
+        ref.read(unreadNotificationsProvider.notifier).addNotification(
+          "$commenterName commented on your event '$eventTitle': $commentContent",
+          type: 'EventComment',
+          additionalData: {'eventId': eventId},
+        );
+        ref.read(notificationBellProvider.notifier).setBellState(true);
+        showSimpleNotification(
+          context,
+          "$commenterName: $commentContent",
+          "New comment on $eventTitle",
+          onTap: () => navigateToDetailedEventScreen(eventId),
+        );
+      }
+    } else {
+      ref.read(unreadNotificationsProvider.notifier).addNotification(
+        "$commenterName commented on your event '$eventTitle': $commentContent",
+        type: 'EventComment',
+        additionalData: {'eventId': eventId},
+      );
+      ref.read(notificationBellProvider.notifier).setBellState(true);
+      showSimpleNotification(
+        context,
+        "$commenterName: $commentContent",
+        "New comment on $eventTitle",
+        onTap: () => navigateToDetailedEventScreen(eventId),
+      );
+    }
   }
   // Handles in-app notification for user recieving a direct-message
   if (type == 'DM') {

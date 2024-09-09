@@ -341,6 +341,7 @@ class EventProvider extends StateNotifier<List?> {
         break;
       }
     }
+    deCodedEvent.attendeeDates = {'time_start' : deCodedEvent.sdate.first, 'time_end' : deCodedEvent.edate.first};
     return deCodedEvent;
   }
 

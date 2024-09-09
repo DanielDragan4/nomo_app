@@ -354,7 +354,10 @@ class ProfileScreenState extends ConsumerState<OtherProfileScreen> {
                                                 showDialog(
                                                   context: context,
                                                   builder: (context) => AlertDialog(
-                                                    title: Text('Are you sure you want to unfriend this user?'),
+                                                    title: Text(
+                                                      'Are you sure you want to unfriend this user?',
+                                                      style: TextStyle(color: Theme.of(context).colorScheme.onSurface),
+                                                    ),
                                                     backgroundColor: Theme.of(context).cardColor,
                                                     actions: [
                                                       TextButton(

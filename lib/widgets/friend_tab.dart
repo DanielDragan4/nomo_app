@@ -47,6 +47,7 @@ class FriendTab extends ConsumerStatefulWidget {
 class _FriendTabState extends ConsumerState<FriendTab> {
   bool currentFriend = true; // if the request is current and hasnt been interacted with
   bool selectedUser = false;
+  bool isRequestInProgress = false;
 
   Future<String> getCurrentUser() async {
     return await ref.read(profileProvider.notifier).getCurrentUserId();
@@ -70,24 +71,119 @@ class _FriendTabState extends ConsumerState<FriendTab> {
     final currentUserId = (await ref.read(supabaseInstance)).client.auth.currentUser!.id;
     setState(() {
       widget.isPending = requests.any((request) =>
-              (request['sender_id'] == currentUserId && request['reciever_id'] == widget.friendData.friendProfileId)
-          //     ||
-          // (request['reciever_id'] == currentUserId &&
-          //     request['sender_id'] == widget.userId)
-          );
+          (request['sender_id'] == currentUserId && request['reciever_id'] == widget.friendData.friendProfileId));
     });
   }
 
   Future<void> addFriend() async {
-    await ref.read(profileProvider.notifier).addFriend(widget.friendData.friendProfileId, false);
-    await checkPendingRequest();
+    if (isRequestInProgress) return;
+
+    setState(() {
+      isRequestInProgress = true;
+      widget.isPending = true;
+    });
+
+    try {
+      String friendId = await ref.read(profileProvider.notifier).addFriend(widget.friendData.friendProfileId, false);
+      await FriendNotificationManager.handleAddFriend(ref, friendId);
+      ScaffoldMessenger.of(context).clearSnackBars();
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text('Friend request sent to @${widget.friendData.friendUsername}')));
+    } finally {
+      if (mounted) {
+        setState(() {
+          isRequestInProgress = false;
+        });
+      }
+    }
+  }
+
+  void showUnfriendDialog() {
+    FocusManager.instance.primaryFocus?.unfocus();
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text(
+          'Are you sure you want to unfriend this user?',
+          style: TextStyle(
+            color: Theme.of(context).primaryColorLight,
+            fontSize: MediaQuery.of(context).size.width * 0.065,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () async {
+              Navigator.pop(context);
+              await removeFriend();
+            },
+            child: Text(
+              'Unfriend',
+              style: TextStyle(
+                color: Theme.of(context).colorScheme.onSecondary,
+                fontSize: MediaQuery.of(context).size.width * 0.045,
+                fontWeight: FontWeight.w400,
+              ),
+            ),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: Text(
+              'Cancel',
+              style: TextStyle(
+                color: Theme.of(context).colorScheme.onSecondary,
+                fontSize: MediaQuery.of(context).size.width * 0.045,
+                fontWeight: FontWeight.w400,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
   }
 
   Future<void> removeFriend() async {
-    final supabase = (await ref.read(supabaseInstance)).client;
-    await ref
-        .read(profileProvider.notifier)
-        .removeFriend(supabase.auth.currentUser!.id, widget.friendData.friendProfileId);
+    if (isRequestInProgress) return;
+
+    setState(() {
+      isRequestInProgress = true;
+    });
+
+    try {
+      final supabase = (await ref.read(supabaseInstance)).client;
+      await ref
+          .read(profileProvider.notifier)
+          .removeFriend(supabase.auth.currentUser!.id, widget.friendData.friendProfileId);
+      if (mounted) {
+        setState(() {
+          widget.isFriend = false;
+        });
+      }
+      ScaffoldMessenger.of(context).hideCurrentSnackBar();
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Unfriended @${widget.friendData.friendUsername}")),
+      );
+    } finally {
+      if (mounted) {
+        setState(() {
+          isRequestInProgress = false;
+        });
+      }
+    }
+  }
+
+  Widget buildFriendButton() {
+    if (widget.isFriend) {
+      return ElevatedButton(
+        onPressed: isRequestInProgress ? null : showUnfriendDialog,
+        child: const Text("Unfriend"),
+      );
+    } else {
+      return ElevatedButton(
+        onPressed: widget.isPending || isRequestInProgress ? null : addFriend,
+        child: widget.isPending ? const Text("Pending") : const Text("Friend"),
+      );
+    }
   }
 
   Future<void> getFriend() async {
@@ -101,7 +197,12 @@ class _FriendTabState extends ConsumerState<FriendTab> {
   @override
   void initState() {
     super.initState();
-    getFriend();
+    _initializeFriendStatus();
+  }
+
+  Future<void> _initializeFriendStatus() async {
+    await getFriend();
+    await checkPendingRequest();
   }
 
   @override
@@ -278,74 +379,7 @@ class _FriendTabState extends ConsumerState<FriendTab> {
           ]);
         }
       } else {
-        return (currentUser != widget.friendData.friendProfileId)
-            ? Container(
-                child: widget.isFriend //If profile is private, make this a request instead of instant
-                    ? ElevatedButton(
-                        onPressed: () {
-                          setState(() {
-                            FocusManager.instance.primaryFocus?.unfocus();
-                            showDialog(
-                                context: context,
-                                builder: (context) => AlertDialog(
-                                      title: Text(
-                                        'Are you sure you unfriend this user?',
-                                        style: TextStyle(
-                                          color: Theme.of(context).primaryColorLight,
-                                          fontSize: MediaQuery.of(context).size.width * 0.065,
-                                          fontWeight: FontWeight.w600,
-                                        ),
-                                      ),
-                                      actions: [
-                                        TextButton(
-                                            onPressed: () async {
-                                              setState(() {
-                                                removeFriend();
-                                              });
-                                              widget.isFriend = !widget.isFriend;
-                                              Navigator.pop(context);
-                                              ScaffoldMessenger.of(context).hideCurrentSnackBar();
-                                              ScaffoldMessenger.of(context).showSnackBar(
-                                                const SnackBar(
-                                                  content: Text("User unfriended"),
-                                                ),
-                                              );
-                                            },
-                                            child: Text(
-                                              'Unfriend',
-                                              style: TextStyle(
-                                                color: Theme.of(context).colorScheme.onSecondary,
-                                                fontSize: MediaQuery.of(context).size.width * 0.045,
-                                                fontWeight: FontWeight.w400,
-                                              ),
-                                            )),
-                                        TextButton(
-                                            onPressed: () => Navigator.pop(context),
-                                            child: Text(
-                                              'Cancel',
-                                              style: TextStyle(
-                                                color: Theme.of(context).colorScheme.onSecondary,
-                                                fontSize: MediaQuery.of(context).size.width * 0.045,
-                                                fontWeight: FontWeight.w400,
-                                              ),
-                                            )),
-                                      ],
-                                    ));
-                          });
-                        },
-                        child: const Text("Unfriend"),
-                      )
-                    : ElevatedButton(
-                        onPressed: widget.isPending
-                            ? null
-                            : () {
-                                setState(() {
-                                  addFriend();
-                                });
-                              },
-                        child: widget.isPending ? const Text("Pending") : const Text("Friend")),
-              )
-            : SizedBox();
+        return (currentUser != widget.friendData.friendProfileId) ? buildFriendButton() : SizedBox();
       }
     }
 
@@ -386,74 +420,7 @@ class _FriendTabState extends ConsumerState<FriendTab> {
                   ],
                 ),
               )),
-              (currentUser != widget.friendData.friendProfileId)
-                  ? Container(
-                      child: widget.isFriend //If profile is private, make this a request instead of instant
-                          ? ElevatedButton(
-                              onPressed: () {
-                                setState(() {
-                                  FocusManager.instance.primaryFocus?.unfocus();
-                                  showDialog(
-                                      context: context,
-                                      builder: (context) => AlertDialog(
-                                            title: Text(
-                                              'Are you sure you unfriend this user?',
-                                              style: TextStyle(
-                                                color: Theme.of(context).primaryColorLight,
-                                                fontSize: MediaQuery.of(context).size.width * 0.065,
-                                                fontWeight: FontWeight.w600,
-                                              ),
-                                            ),
-                                            actions: [
-                                              TextButton(
-                                                  onPressed: () async {
-                                                    setState(() {
-                                                      removeFriend();
-                                                    });
-                                                    widget.isFriend = !widget.isFriend;
-                                                    Navigator.pop(context);
-                                                    ScaffoldMessenger.of(context).hideCurrentSnackBar();
-                                                    ScaffoldMessenger.of(context).showSnackBar(
-                                                      const SnackBar(
-                                                        content: Text("User unfriended"),
-                                                      ),
-                                                    );
-                                                  },
-                                                  child: Text(
-                                                    'Unfriend',
-                                                    style: TextStyle(
-                                                      color: Theme.of(context).colorScheme.onSecondary,
-                                                      fontSize: MediaQuery.of(context).size.width * 0.045,
-                                                      fontWeight: FontWeight.w400,
-                                                    ),
-                                                  )),
-                                              TextButton(
-                                                  onPressed: () => Navigator.pop(context),
-                                                  child: Text(
-                                                    'Cancel',
-                                                    style: TextStyle(
-                                                      color: Theme.of(context).colorScheme.onSecondary,
-                                                      fontSize: MediaQuery.of(context).size.width * 0.045,
-                                                      fontWeight: FontWeight.w400,
-                                                    ),
-                                                  )),
-                                            ],
-                                          ));
-                                });
-                              },
-                              child: const Text("Unfriend"),
-                            )
-                          : ElevatedButton(
-                              onPressed: widget.isPending
-                                  ? null
-                                  : () {
-                                      setState(() {
-                                        addFriend();
-                                      });
-                                    },
-                              child: widget.isPending ? const Text("Pending") : const Text("Friend")),
-                    )
-                  : SizedBox()
+              (currentUser != widget.friendData.friendProfileId) ? buildFriendButton() : SizedBox()
             ],
           ),
         ),

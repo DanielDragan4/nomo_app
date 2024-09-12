@@ -682,7 +682,7 @@ class _DetailedEventScreenState extends ConsumerState<DetailedEventScreen> {
                               ),
                             ),
                             IconButton(
-                              icon: const Icon(Icons.close),
+                              icon: Icon(Icons.close, color: Theme.of(context).colorScheme.onSurface),
                               onPressed: () => Navigator.of(context).pop(),
                             ),
                           ],
@@ -731,7 +731,7 @@ class _DetailedEventScreenState extends ConsumerState<DetailedEventScreen> {
                               ),
                             ),
                             IconButton(
-                              icon: const Icon(Icons.close),
+                              icon: Icon(Icons.close, color: Theme.of(context).colorScheme.onSurface),
                               onPressed: () => Navigator.of(context).pop(),
                             ),
                           ],

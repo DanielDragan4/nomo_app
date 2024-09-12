@@ -212,15 +212,7 @@ class _CreateAccountScreenState extends ConsumerState<CreateAccountScreen> {
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                widget.isNew
-                    ? const Padding(
-                        padding: EdgeInsets.only(left: 12.0),
-                        child: Text(
-                          "Create Account",
-                          style: TextStyle(fontSize: 20),
-                        ),
-                      )
-                    : SizedBox(height: 20),
+                SizedBox(height: 20),
                 Center(
                   child: GestureDetector(
                     onTap: () {
@@ -305,25 +297,39 @@ class _CreateAccountScreenState extends ConsumerState<CreateAccountScreen> {
                         },
                       );
                     },
-                    child: CircleAvatar(
-                      backgroundColor: const Color.fromARGB(255, 0, 0, 0),
-                      radius: radius,
-                      child: CircleAvatar(
-                        radius: radius - 2,
-                        backgroundImage: _selectedImage != null
-                            ? FileImage(_selectedImage!)
-                            : (avatar != null ? NetworkImage(avatar!) as ImageProvider : null),
-                        child: _selectedImage == null && avatar == null
-                            ? Container(
-                                decoration: BoxDecoration(
-                                    gradient: const LinearGradient(colors: [
-                                      Color.fromARGB(255, 63, 53, 78),
-                                      Color.fromARGB(255, 112, 9, 167),
-                                    ], begin: Alignment.topLeft, end: Alignment.bottomRight),
-                                    borderRadius: BorderRadius.circular(radius - 2)),
+                    child: Column(
+                      children: [
+                        CircleAvatar(
+                          backgroundColor: const Color.fromARGB(255, 0, 0, 0),
+                          radius: radius,
+                          child: CircleAvatar(
+                            radius: radius - 2,
+                            backgroundImage: _selectedImage != null
+                                ? FileImage(_selectedImage!)
+                                : (avatar != null ? NetworkImage(avatar!) as ImageProvider : null),
+                            child: _selectedImage == null && avatar == null
+                                ? Container(
+                                    decoration: BoxDecoration(
+                                        gradient: const LinearGradient(colors: [
+                                          Color.fromARGB(255, 63, 53, 78),
+                                          Color.fromARGB(255, 112, 9, 167),
+                                        ], begin: Alignment.topLeft, end: Alignment.bottomRight),
+                                        borderRadius: BorderRadius.circular(radius - 2)),
+                                  )
+                                : null,
+                          ),
+                        ),
+                        SizedBox(height: MediaQuery.of(context).size.height / 90),
+                        !widget.isNew
+                            ? Text(
+                                'Edit Your Avatar',
+                                style: Theme.of(context).textTheme.bodyLarge,
                               )
-                            : null,
-                      ),
+                            : Text(
+                                'Add an Avatar',
+                                style: Theme.of(context).textTheme.bodyLarge,
+                              )
+                      ],
                     ),
                   ),
                 ),

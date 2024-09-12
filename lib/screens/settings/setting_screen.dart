@@ -347,7 +347,10 @@ class _SettingScreenState extends ConsumerState<SettingScreen> {
         onPressed: () {
           ref.read(currentUserProvider.notifier).signOut();
           ref.read(savedSessionProvider.notifier).changeSessionDataList();
-          Navigator.of(context).push(MaterialPageRoute(builder: ((context) => const LoginScreen())));
+          Navigator.of(context).pushAndRemoveUntil(
+            MaterialPageRoute(builder: (context) => const LoginScreen()),
+            (Route<dynamic> route) => false,
+          );
         },
         child: const Text(
           'Log Out',

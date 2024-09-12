@@ -612,7 +612,7 @@ class _EventTabState extends ConsumerState<EventTab> {
                               ),
                             ),
                             IconButton(
-                              icon: const Icon(Icons.close),
+                              icon: Icon(Icons.close, color: Theme.of(context).colorScheme.onSurface),
                               onPressed: () => Navigator.of(context).pop(),
                             ),
                           ],
@@ -662,7 +662,7 @@ class _EventTabState extends ConsumerState<EventTab> {
                               ),
                             ),
                             IconButton(
-                              icon: const Icon(Icons.close),
+                              icon: Icon(Icons.close, color: Theme.of(context).colorScheme.onSurface),
                               onPressed: () => Navigator.of(context).pop(),
                             ),
                           ],
@@ -716,7 +716,10 @@ class _EventTabState extends ConsumerState<EventTab> {
                             ),
                             SliverFillRemaining(
                               hasScrollBody: true,
-                              child: CommentsSection(eventId: widget.eventData.eventId, onIncrementCounter: _incrementCounter,),
+                              child: CommentsSection(
+                                eventId: widget.eventData.eventId,
+                                onIncrementCounter: _incrementCounter,
+                              ),
                             ),
                           ],
                         ),
@@ -789,8 +792,11 @@ class _EventTabState extends ConsumerState<EventTab> {
     if (widget.eventData.distanceAway != null) {
       newEventData.distanceAway = widget.eventData.distanceAway;
     }
-    if ( widget.eventData.attendeeDates['time_start'] != null) {
-      newEventData.attendeeDates = {'time_start' : widget.eventData.attendeeDates['time_start'], 'time_end' : widget.eventData.attendeeDates['time_end']};
+    if (widget.eventData.attendeeDates['time_start'] != null) {
+      newEventData.attendeeDates = {
+        'time_start': widget.eventData.attendeeDates['time_start'],
+        'time_end': widget.eventData.attendeeDates['time_end']
+      };
     }
     setState(() {
       widget.eventData = newEventData;

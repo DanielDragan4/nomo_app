@@ -105,10 +105,14 @@ class _ProfileDropdownState extends ConsumerState<ProfileDropdown> {
               PopupMenuItem(
                 value: options.itemFive,
                 child: const Text("Sign Out"),
-                onTap: () {
-                  ref.watch(currentUserProvider.notifier).signOut();
+                onTap: () async {
+                  ref.read(currentUserProvider.notifier).signOut();
                   ref.read(savedSessionProvider.notifier).changeSessionDataList();
-                  Navigator.of(context).push(MaterialPageRoute(builder: ((context) => const LoginScreen())));
+                  await Future.delayed(const Duration(milliseconds: 300));
+                  Navigator.of(context).pushAndRemoveUntil(
+                    MaterialPageRoute(builder: (context) => const LoginScreen()),
+                    (Route<dynamic> route) => false,
+                  );
                 },
               ),
             ],

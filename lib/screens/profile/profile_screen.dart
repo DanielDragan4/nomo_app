@@ -991,19 +991,19 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
                       });
                     },
                   ),
-                  CheckboxListTile(
-                    title: Text("Hosting"),
-                    value: showHosting,
-                    onChanged: (bool? value) {
-                      setState(() {
-                        showHosting = value!;
-                        if (showHosting && showUpcoming && showPassed) {
-                          showUpcoming = false;
-                          showPassed = false;
-                        }
-                      });
-                    },
-                  ),
+                  // CheckboxListTile(
+                  //   title: Text("Hosting"),
+                  //   value: showHosting,
+                  //   onChanged: (bool? value) {
+                  //     setState(() {
+                  //       showHosting = value!;
+                  //       if (showHosting && showUpcoming && showPassed) {
+                  //         showUpcoming = false;
+                  //         showPassed = false;
+                  //       }
+                  //     });
+                  //   },
+                  // ),
                 ],
               );
             },

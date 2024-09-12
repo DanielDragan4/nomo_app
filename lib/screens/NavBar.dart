@@ -31,7 +31,7 @@ class _NavBarState extends ConsumerState<NavBar> {
   final List<GlobalKey<NavigatorState>> _navigatorKeys = [
     GlobalKey<NavigatorState>(),
     GlobalKey<NavigatorState>(),
-    GlobalKey<NavigatorState>(),
+    //GlobalKey<NavigatorState>(),
     GlobalKey<NavigatorState>(),
     GlobalKey<NavigatorState>(),
   ];
@@ -82,17 +82,17 @@ class _NavBarState extends ConsumerState<NavBar> {
                 children: [
                   _buildNavItem(0, Icons.event_available_outlined, Icons.event_available, 'Events'),
                   _buildNavItem(1, Icons.search_rounded, Icons.search_rounded, 'Search'),
-                  SizedBox(width: 60), // Space for the center button
-                  _buildNavItem(3, Icons.people_alt_outlined, Icons.people, 'Friends'),
-                  _buildNavItem(4, Icons.person_2_outlined, Icons.person_2, 'Profile'),
+                  //SizedBox(width: 60), // Space for the center button
+                  _buildNavItem(2, Icons.people_alt_outlined, Icons.people, 'Friends'),
+                  _buildNavItem(3, Icons.person_2_outlined, Icons.person_2, 'Profile'),
                 ],
               ),
-              Positioned(
-                top: 5, // Adjust this value to raise the button
-                left: 0,
-                right: 0,
-                child: _buildCenterButton(),
-              ),
+              // Positioned(
+              //   top: 5, // Adjust this value to raise the button
+              //   left: 0,
+              //   right: 0,
+              //   child: _buildCenterButton(),
+              // ),
             ],
           ),
         ),
@@ -124,7 +124,7 @@ class _NavBarState extends ConsumerState<NavBar> {
                   color: isSelected
                       ? Theme.of(context).bottomNavigationBarTheme.selectedItemColor
                       : Theme.of(context).bottomNavigationBarTheme.unselectedItemColor,
-                  size: 24,
+                  size: MediaQuery.of(context).size.width * 0.065,
                 ),
               ),
             ),
@@ -143,26 +143,26 @@ class _NavBarState extends ConsumerState<NavBar> {
     );
   }
 
-  Widget _buildCenterButton() {
-    return Container(
-      width: 50,
-      height: 50,
-      decoration: BoxDecoration(
-        shape: BoxShape.circle,
-        color: Theme.of(context).colorScheme.primary,
-      ),
-      child: Center(
-        child: IconButton(
-          icon: Icon(
-            Icons.add_circle_outline_outlined,
-            color: Colors.white,
-            size: 30,
-          ),
-          onPressed: () => _onItemTapped(2),
-        ),
-      ),
-    );
-  }
+  // Widget _buildCenterButton() {
+  //   return Container(
+  //     width: 50,
+  //     height: 50,
+  //     decoration: BoxDecoration(
+  //       shape: BoxShape.circle,
+  //       color: Theme.of(context).colorScheme.primary,
+  //     ),
+  //     child: Center(
+  //       child: IconButton(
+  //         icon: Icon(
+  //           Icons.add_circle_outline_outlined,
+  //           color: Colors.white,
+  //           size: 30,
+  //         ),
+  //         onPressed: () => _onItemTapped(2),
+  //       ),
+  //     ),
+  //   );
+  // }
 
   Widget _buildOffstageNavigator(int index) {
     return Offstage(
@@ -184,11 +184,11 @@ class _NavBarState extends ConsumerState<NavBar> {
         return RecommendedScreen();
       case 1:
         return SearchScreen(searchingPeople: false);
+      // case 2:
+      //   return EventCreateScreen(); //NewEventScreen();
       case 2:
-        return EventCreateScreen(); //NewEventScreen();
-      case 3:
         return FriendsScreen(isGroupChats: false);
-      case 4:
+      case 3:
         return ProfileScreen(isUser: true);
       default:
         return Container();

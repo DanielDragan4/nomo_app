@@ -73,7 +73,7 @@ class AttendEventProvider extends StateNotifier<List<Event>> {
       final Event deCodedEvent = Event(
           description: eventData['description'],
           eventId: eventData['event_id'],
-          eventType: eventData['invitationType'],
+          //eventType: eventData['invitationType'],
           host: eventData['host'],
           imageId: eventData['image_id'],
           imageUrl: eventUrl,
@@ -82,12 +82,12 @@ class AttendEventProvider extends StateNotifier<List<Event>> {
           sdate: eventData['time_start'],
           edate: eventData['time_end'],
           attendees: eventData['Attendees'],
-          hostProfileUrl: profileUrl,
-          hostUsername: eventData['username'],
-          profileName: eventData['profile_name'],
+          //hostProfileUrl: profileUrl,
+          //hostUsername: eventData['username'],
+          //profileName: eventData['profile_name'],
           bookmarked: bookmarked,
           attending: false,
-          isHost: false,
+          //isHost: false,
           friends: eventData['friends_attending'],
           numOfComments: eventData['comments_num'].length,
           isVirtual: eventData['is_virtual'],
@@ -106,11 +106,11 @@ class AttendEventProvider extends StateNotifier<List<Event>> {
         }
       }
       if ((attending) || ((deCodedEvent.host == supabaseClient.auth.currentUser!.id) || (bookmarked))) {
-        if (deCodedEvent.host == supabaseClient.auth.currentUser!.id) {
-          deCodedEvent.isHost = true;
-          deCodedEvent.attendeeDates = {'time_start': deCodedEvent.sdate.first, 'time_end': deCodedEvent.edate.first};
-        }
-        else if (attending) {
+        // if (deCodedEvent.host == supabaseClient.auth.currentUser!.id) {
+        //   //deCodedEvent.isHost = true;
+        //   deCodedEvent.attendeeDates = {'time_start': deCodedEvent.sdate.first, 'time_end': deCodedEvent.edate.first};
+        // }
+        if (attending) {
           if (eventData['attendee_start'] != null) {
             deCodedEvent.attendeeDates = {
               'time_start': eventData['attendee_start'],

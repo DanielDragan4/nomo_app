@@ -167,7 +167,7 @@ class _DetailedEventScreenState extends ConsumerState<DetailedEventScreen> {
 
   Widget _buildMoreOptionsButton() {
     return Positioned(
-      top: MediaQuery.of(context).size.height * .0033 + MediaQuery.of(context).padding.top,
+      top: MediaQuery.of(context).size.height * .003 + MediaQuery.of(context).padding.top,
       right: MediaQuery.of(context).size.width * .033,
       child: Container(
         height: MediaQuery.of(context).size.width * .11,
@@ -177,30 +177,15 @@ class _DetailedEventScreenState extends ConsumerState<DetailedEventScreen> {
           borderRadius: BorderRadius.circular(8), // Rounded corners
         ),
         child: Center(
-          child: PopupMenuButton<Options>(
-            icon: Icon(
-              Icons.more_horiz,
+          child: IconButton(
+              icon: Icon(Icons.ios_share_sharp),
               color: Theme.of(context).colorScheme.onPrimaryContainer,
-              size: MediaQuery.of(context).size.width * .075,
-            ),
-            onSelected: (Options item) {
-              if (item == Options.itemOne) {
+              iconSize: MediaQuery.of(context).size.width * .07,
+              onPressed: () {
                 _shareEventLink();
-              }
-            },
-            itemBuilder: (context) => <PopupMenuEntry<Options>>[
-              PopupMenuItem(
-                  value: Options.itemOne,
-                  child: Text(
-                    "Share Link",
-                    style: TextStyle(color: Theme.of(context).colorScheme.onSecondary),
-                  )),
-            ],
-            padding: EdgeInsets.zero,
-            constraints: BoxConstraints(),
-            splashRadius: 24,
-            color: Theme.of(context).colorScheme.secondary,
-          ),
+              },
+            ),
+
         ),
       ),
     );
@@ -228,19 +213,19 @@ class _DetailedEventScreenState extends ConsumerState<DetailedEventScreen> {
   Widget _buildEventHost() {
     return Row(
       children: [
-        GestureDetector(
-          onTap: () {
-            Navigator.of(context)
-                .push(MaterialPageRoute(
-                  builder: (context) => OtherProfileScreen(userId: widget.eventData.host),
-                ))
-                .whenComplete(getOriginalProfileInfo);
-          },
-          child: Row(children: [
-            CircleAvatar(
-              radius: MediaQuery.of(context).size.width * 0.0525,
-              backgroundImage: NetworkImage(widget.eventData.hostProfileUrl),
-            ),
+        // GestureDetector(
+        //   onTap: () {
+        //     Navigator.of(context)
+        //         .push(MaterialPageRoute(
+        //           builder: (context) => OtherProfileScreen(userId: widget.eventData.host),
+        //         ))
+        //         .whenComplete(getOriginalProfileInfo);
+        //   },
+        //   child: Row(children: [
+            // CircleAvatar(
+            //   radius: MediaQuery.of(context).size.width * 0.0525,
+            //   backgroundImage: NetworkImage(widget.eventData.hostProfileUrl),
+            // ),
             SizedBox(width: MediaQuery.of(context).size.width * 0.032),
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -248,7 +233,7 @@ class _DetailedEventScreenState extends ConsumerState<DetailedEventScreen> {
                 Container(
                   width: MediaQuery.of(context).size.width * 0.75, // Adjust this value as needed
                   child: Text(
-                    '@${widget.eventData.hostUsername}',
+                    '${widget.eventData.host}',
                     style: TextStyle(
                       color: Theme.of(context).colorScheme.onSurface,
                       fontWeight: FontWeight.w600,
@@ -267,9 +252,10 @@ class _DetailedEventScreenState extends ConsumerState<DetailedEventScreen> {
                 ),
               ],
             ),
-          ]),
-        )
-      ],
+          ]
+          //),
+      //   )
+      // ],
     );
   }
 

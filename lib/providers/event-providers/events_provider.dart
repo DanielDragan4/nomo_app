@@ -59,7 +59,7 @@ class EventProvider extends StateNotifier<List?> {
     var events = [];
 
     if (_currentPosition != null) {
-      events = await supabaseClient.rpc('get_recommended_events', params: {
+      events = await supabaseClient.rpc('get_recommended_events_testing', params: {
         'user_lon': _currentPosition.longitude,
         'user_lat': _currentPosition.latitude,
         'radius': _finalRadius
@@ -91,7 +91,7 @@ class EventProvider extends StateNotifier<List?> {
 
     for (var eventData in codedList) {
       print(eventData);
-      String profilePictureUrl = supabaseClient.storage.from('Images').getPublicUrl(eventData['profile_path']);
+      //String profilePictureUrl = supabaseClient.storage.from('Images').getPublicUrl(eventData['profile_path']);
       String eventUrl = supabaseClient.storage.from('Images').getPublicUrl(eventData['event_path']);
       bool bookmarked = false;
       for (var bookmark in eventData['bookmarked']) {
@@ -106,7 +106,7 @@ class EventProvider extends StateNotifier<List?> {
           description: eventData['description'],
           sdate: eventData['time_start'],
           eventId: eventData['event_id'],
-          eventType: eventData['invitationtype'],
+          //eventType: eventData['invitationtype'],
           host: eventData['host'],
           imageId: eventData['image_id'],
           imageUrl: eventUrl,
@@ -114,11 +114,11 @@ class EventProvider extends StateNotifier<List?> {
           title: eventData['title'],
           edate: eventData['time_end'],
           attendees: eventData['attendees'],
-          hostProfileUrl: profilePictureUrl,
-          hostUsername: eventData['username'],
-          profileName: eventData['profile_name'],
+          //hostProfileUrl: profilePictureUrl,
+          //hostUsername: eventData['username'],
+          //profileName: eventData['profile_name'],
           bookmarked: bookmarked,
-          isHost: false,
+          //isHost: false,
           friends: eventData['friends_attending'],
           numOfComments: eventData['comments_num'].length,
           isVirtual: eventData['is_virtual'],
@@ -137,11 +137,11 @@ class EventProvider extends StateNotifier<List?> {
         }
       }
 
-      if ((deCodedEvent.host != supabaseClient.auth.currentUser!.id)) {
-        deCodedEvent.isHost = false;
-      } else {
-        deCodedEvent.isHost = true;
-      }
+      // if ((deCodedEvent.host != supabaseClient.auth.currentUser!.id)) {
+      //   //deCodedEvent.isHost = false;
+      // } else {
+      //   deCodedEvent.isHost = true;
+      // }
       if (deCodedEvent.attending && (eventData['attendee_start'] != null)) {
         deCodedEvent.attendeeDates = {'time_start': eventData['attendee_start'], 'time_end': eventData['attendee_end']};
       } else {
@@ -318,7 +318,7 @@ class EventProvider extends StateNotifier<List?> {
         description: codedEvent['description'],
         sdate: codedEvent['time_start'],
         eventId: codedEvent['event_id'],
-        eventType: codedEvent['invitationType'],
+        //eventType: codedEvent['invitationType'],
         host: codedEvent['host'],
         imageId: codedEvent['image_id'],
         imageUrl: eventUrl,
@@ -326,12 +326,12 @@ class EventProvider extends StateNotifier<List?> {
         title: codedEvent['title'],
         edate: codedEvent['time_end'],
         attendees: codedEvent['Attendees'],
-        hostProfileUrl: profilePictureUrl,
-        hostUsername: codedEvent['username'],
-        profileName: codedEvent['profile_name'],
+        //hostProfileUrl: profilePictureUrl,
+        // hostUsername: codedEvent['username'],
+        // profileName: codedEvent['profile_name'],
         bookmarked: bookmarked,
         attending: false,
-        isHost: false,
+        //isHost: false,
         friends: codedEvent['friends_attending'],
         numOfComments: codedEvent['comments_num'].length,
         isVirtual: codedEvent['is_virtual'],

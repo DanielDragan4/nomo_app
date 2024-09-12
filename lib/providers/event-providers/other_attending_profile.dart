@@ -71,7 +71,7 @@ class OtherEventProvider extends StateNotifier<List<Event>> {
           description: eventData['description'],
           sdate: eventData['time_start'],
           eventId: eventData['event_id'],
-          eventType: eventData['invitationType'],
+          //eventType: eventData['invitationType'],
           host: eventData['host'],
           imageId: eventData['image_id'],
           imageUrl: eventUrl,
@@ -79,12 +79,12 @@ class OtherEventProvider extends StateNotifier<List<Event>> {
           title: eventData['title'],
           edate: eventData['time_end'],
           attendees: eventData['Attendees'],
-          hostProfileUrl: profileUrl,
-          hostUsername: eventData['username'],
-          profileName: eventData['profile_name'],
+          //hostProfileUrl: profileUrl,
+          //hostUsername: eventData['username'],
+          //profileName: eventData['profile_name'],
           bookmarked: bookmarked,
           attending: false,
-          isHost: false,
+          //isHost: false,
           friends: eventData['friends_attending'],
           numOfComments: eventData['comments_num'].length,
           isVirtual: eventData['is_virtual'],
@@ -93,7 +93,7 @@ class OtherEventProvider extends StateNotifier<List<Event>> {
           categories: eventData['event_interests'],
           otherBookmark: otherBookmark,
           otherAttend: false,
-          otherHost: false,
+          //otherHost: false,
           distanceAway: distance);
 
       bool attending = false;
@@ -115,9 +115,9 @@ class OtherEventProvider extends StateNotifier<List<Event>> {
         }
       }
 
-      if (deCodedEvent.host == userId) {
-        deCodedEvent.otherHost = true;
-      }
+      // if (deCodedEvent.host == userId) {
+      //   deCodedEvent.otherHost = true;
+      // }
       if((deCodedEvent.attendeeDates == null) || deCodedEvent.attendeeDates.isEmpty) {
         deCodedEvent.attendeeDates = {'time_start': deCodedEvent.sdate.first, 'time_end': deCodedEvent.edate.first};
       }

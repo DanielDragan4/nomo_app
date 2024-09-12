@@ -101,12 +101,12 @@ class _NewEventScreenState extends ConsumerState<NewEventScreen> {
         categories = convertCategoriesToMap(widget.event!.categories);
       }
 
-      for (int i = 0; i < list.length; i++) {
-        if (list[i] == widget.event!.eventType) {
-          dropDownValue = list[i];
-          break;
-        }
-      }
+      // for (int i = 0; i < list.length; i++) {
+      //   if (list[i] == widget.event!.eventType) {
+      //     dropDownValue = list[i];
+      //     break;
+      //   }
+      // }
     } else {
       categories = {for (var interest in Interests.values) interest: false};
     }

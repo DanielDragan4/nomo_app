@@ -219,6 +219,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                             TextFormField(
                               decoration: InputDecoration(
                                 labelText: "Confirm Password",
+                                labelStyle: TextStyle(color: Theme.of(context).colorScheme.onSurface),
                                 errorText: _passwordError ? _passwordErrorText : null,
                                 errorStyle: TextStyle(color: Colors.red),
                                 border: OutlineInputBorder(
@@ -242,14 +243,13 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                                   borderSide: BorderSide(color: Colors.red),
                                 ),
                                 suffixIcon: IconButton(
-                                  onPressed: () {
-                                    _obscurePassConfirm = !_obscurePassConfirm;
-                                    setState(() {});
-                                  },
-                                  icon: _obscurePassConfirm == true
-                                      ? const Icon(Icons.visibility)
-                                      : const Icon(Icons.visibility_off),
-                                ),
+                                    onPressed: () {
+                                      _obscurePassConfirm = !_obscurePassConfirm;
+                                      setState(() {});
+                                    },
+                                    icon: _obscurePassConfirm == true
+                                        ? Icon(Icons.visibility, color: Theme.of(context).colorScheme.onSurface)
+                                        : Icon(Icons.visibility_off, color: Theme.of(context).colorScheme.onSurface)),
                               ),
                               obscureText: _obscurePassConfirm,
                               style: TextStyle(color: Theme.of(context).colorScheme.onSecondary),

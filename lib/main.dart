@@ -21,6 +21,7 @@ import 'package:nomo/screens/events/detailed_event_screen.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:nomo/firebase_options.dart';
+import 'package:nomo/screens/profile/university_screen.dart';
 import 'package:nomo/screens/recommended_screen.dart';
 import 'package:overlay_support/overlay_support.dart';
 import 'package:permission_handler/permission_handler.dart';
@@ -275,9 +276,10 @@ class _AppState extends ConsumerState<App> {
               builder: (context, snapshot) {
                 setSystemOverlay(Theme.of(context).bottomNavigationBarTheme.backgroundColor!);
                 if (ref.watch(onSignUp.notifier).state == 1) {
-                  return CreateAccountScreen(
-                    isNew: true,
-                  );
+                  // return CreateAccountScreen(
+                  //   isNew: true,
+                  // );
+                  return UniversityScreen();
                 } else if (snapshot.data != null ||
                     (ref.watch(savedSessionProvider) != null && ref.watch(savedSessionProvider)!.isNotEmpty)) {
                   loadData();

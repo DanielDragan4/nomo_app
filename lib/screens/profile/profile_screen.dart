@@ -190,7 +190,7 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
         GestureDetector(
           onTap: () {
             if (profile != null && widget.isUser && widget.userId == null) {
-              Navigator.of(context)
+              Navigator.of(context, rootNavigator: true)
                   .push(
                     MaterialPageRoute(
                       builder: (contex) => CreateAccountScreen(
@@ -239,7 +239,7 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
             icon: Icon(Icons.edit, color: Theme.of(context).colorScheme.onPrimary),
             onPressed: () {
               if (profile != null && widget.isUser && widget.userId == null) {
-                Navigator.of(context)
+                Navigator.of(context, rootNavigator: true)
                     .push(
                       MaterialPageRoute(
                         builder: (contex) => CreateAccountScreen(

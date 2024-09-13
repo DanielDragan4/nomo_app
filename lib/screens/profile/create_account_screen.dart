@@ -15,13 +15,20 @@ import 'package:image/image.dart' as img;
 
 class CreateAccountScreen extends ConsumerStatefulWidget {
   CreateAccountScreen(
-      {super.key, required this.isNew, this.avatar, this.profilename, this.username, this.onUpdateProfile});
+      {super.key,
+      required this.isNew,
+      this.avatar,
+      this.profilename,
+      this.username,
+      this.onUpdateProfile,
+      this.university});
 
   bool isNew;
   final String? avatar;
   final String? username;
   final String? profilename;
   final VoidCallback? onUpdateProfile;
+  final String? university;
 
   @override
   ConsumerState<CreateAccountScreen> createState() {
@@ -131,7 +138,8 @@ class _CreateAccountScreenState extends ConsumerState<CreateAccountScreen> {
       'avatar_id': avatarId,
       'username': user,
       'profile_name': _profileName.text,
-      'private': false
+      'private': false,
+      if (widget.university != null) 'university': widget.university,
     };
 
     if (_profileName.text.replaceAll(' ', '') != '') {
@@ -340,9 +348,10 @@ class _CreateAccountScreenState extends ConsumerState<CreateAccountScreen> {
                     maxLength: 25,
                     controller: _profileName,
                     style: TextStyle(color: Theme.of(context).colorScheme.onSecondary),
-                    decoration: const InputDecoration(
+                    decoration: InputDecoration(
                       border: OutlineInputBorder(),
                       labelText: "Name",
+                      labelStyle: TextStyle(color: Theme.of(context).colorScheme.onSurface),
                       contentPadding: EdgeInsets.all(5),
                     ),
                   ),
@@ -353,9 +362,10 @@ class _CreateAccountScreenState extends ConsumerState<CreateAccountScreen> {
                     maxLength: 25,
                     style: TextStyle(color: Theme.of(context).colorScheme.onSecondary),
                     controller: _userName,
-                    decoration: const InputDecoration(
+                    decoration: InputDecoration(
                       border: OutlineInputBorder(),
                       labelText: "Username",
+                      labelStyle: TextStyle(color: Theme.of(context).colorScheme.onSurface),
                       contentPadding: EdgeInsets.all(5),
                     ),
                   ),

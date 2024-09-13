@@ -109,12 +109,12 @@ class _EventCreateScreenState extends ConsumerState<EventCreateScreen> {
       _isTicketed = widget.event!.isTicketed;
       categories = convertCategoriesToMap(widget.event!.categories);
 
-      for (int i = 0; i < list.length; i++) {
-        if (list[i] == widget.event!.eventType) {
-          dropDownValue = list[i];
-          break;
-        }
-      }
+      // for (int i = 0; i < list.length; i++) {
+      //   if (list[i] == widget.event!.eventType) {
+      //     dropDownValue = list[i];
+      //     break;
+      //   }
+      // }
     } else {
       categories = {for (var interest in Interests.values) interest: false};
     }

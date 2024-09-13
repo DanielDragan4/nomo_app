@@ -9,14 +9,14 @@ class Event {
     required this.host,
     required this.location,
     required this.description,
-    required this.eventType,
+    //required this.eventType,
     required this.attendees,
-    required this.hostUsername,
-    required this.hostProfileUrl,
-    required this.profileName,
+    //required this.hostUsername,
+    //required this.hostProfileUrl,
+    //required this.profileName,
     required this.bookmarked,
     required this.attending,
-    required this.isHost,
+    //required this.isHost,
     required this.friends,
     required this.numOfComments,
     required this.isVirtual,
@@ -24,7 +24,7 @@ class Event {
     required this.isTicketed,
     this.distanceAway,
     this.categories,
-    this.otherHost,
+    //this.otherHost,
     this.otherAttend,
     this.otherBookmark,
     this.attendeeDates,
@@ -39,14 +39,14 @@ class Event {
   final host;
   final location;
   final String description;
-  final String eventType;
+  //final String eventType;
   final List attendees;
-  final String hostUsername;
-  late final hostProfileUrl;
-  final String profileName;
+  //final String hostUsername;
+  //late final hostProfileUrl;
+  //final String profileName;
   late bool bookmarked;
   late bool attending;
-  late bool isHost;
+  //late bool isHost;
   final friends;
   int numOfComments;
   final bool isVirtual;
@@ -54,7 +54,7 @@ class Event {
   final bool isTicketed;
   var distanceAway;
   var categories;
-  var otherHost;
+  //var otherHost;
   var otherAttend;
   var otherBookmark;
   var attendeeDates;

@@ -489,13 +489,13 @@ class ProfileScreenState extends ConsumerState<OtherProfileScreen> {
                         stream: ref.read(otherEventsProvider.notifier).stream,
                         builder: (context, snapshot) {
                           if (snapshot.data != null) {
-                            final hostingEvents = snapshot.data!.where((event) {
-                              if (showHosting && event.otherHost != null) {
-                                return true;
-                              } else {
-                                return false;
-                              }
-                            }).toList();
+                            // final hostingEvents = snapshot.data!.where((event) {
+                            //   // if (showHosting && event.otherHost != null) {
+                            //   //   return true;
+                            //   // } else {
+                            //   //   return false;
+                            //   // }
+                            // }).toList();
                             final attendingEvents = snapshot.data!.where((event) {
                               final now = DateTime.now();
                               if (showUpcoming &&
@@ -531,23 +531,25 @@ class ProfileScreenState extends ConsumerState<OtherProfileScreen> {
                                   childCount: attendingEvents.length,
                                 ),
                               );
-                            } else if (isSelected.last && hostingEvents.isNotEmpty) {
-                              return SliverList(
-                                delegate: SliverChildBuilderDelegate(
-                                  (context, index) {
-                                    final event = hostingEvents[index];
+                             } 
+                            // else if (isSelected.last && hostingEvents.isNotEmpty) {
+                            //   return SliverList(
+                            //     delegate: SliverChildBuilderDelegate(
+                            //       (context, index) {
+                            //         final event = hostingEvents[index];
 
-                                    preloadImages(context, hostingEvents, index, 4);
+                            //         preloadImages(context, hostingEvents, index, 4);
 
-                                    return EventTab(
-                                      eventData: event,
-                                      preloadedImage: NetworkImage(event.imageUrl),
-                                    );
-                                  },
-                                  childCount: hostingEvents.length,
-                                ),
-                              );
-                            } else {
+                            //         return EventTab(
+                            //           eventData: event,
+                            //           preloadedImage: NetworkImage(event.imageUrl),
+                            //         );
+                            //       },
+                            //       childCount: hostingEvents.length,
+                            //     ),
+                            //   );
+                            // } 
+                            else {
                               return const SliverFillRemaining(
                                 child: Center(
                                   child: Text("No Events Hosted"),
@@ -572,37 +574,37 @@ class ProfileScreenState extends ConsumerState<OtherProfileScreen> {
                           ),
                         ),
                       )
-                  else if ((private == false) || isFriend)
-                    StreamBuilder(
-                      stream: ref.read(otherEventsProvider.notifier).stream,
-                      builder: (context, snapshot) {
-                        if (snapshot.data != null) {
-                          // Only useful when viewing a profile through means other than an event header
-                          final hostingEvents = snapshot.data!.where((event) => event.otherHost).toList();
-                          if (hostingEvents.isEmpty) {
-                            return const SliverFillRemaining(
-                              child: Center(
-                                child: Text("This User Is Not Hosting Any Events at the Moment"),
-                              ),
-                            );
-                          } else {
-                            return SliverList(
-                              delegate: SliverChildListDelegate(
-                                hostingEvents.map((event) {
-                                  return EventTab(eventData: event, bookmarkSet: true);
-                                }).toList(),
-                              ),
-                            );
-                          }
-                        } else {
-                          return const SliverFillRemaining(
-                            child: Center(
-                              child: Text("No Data Retrieved"),
-                            ),
-                          );
-                        }
-                      },
-                    )
+                  // else if ((private == false) || isFriend)
+                  //   StreamBuilder(
+                  //     stream: ref.read(otherEventsProvider.notifier).stream,
+                  //     builder: (context, snapshot) {
+                  //       if (snapshot.data != null) {
+                  //         // Only useful when viewing a profile through means other than an event header
+                  //         final hostingEvents = snapshot.data!.where((event) => event.otherHost).toList();
+                  //         if (hostingEvents.isEmpty) {
+                  //           return const SliverFillRemaining(
+                  //             child: Center(
+                  //               child: Text("This User Is Not Hosting Any Events at the Moment"),
+                  //             ),
+                  //           );
+                  //         } else {
+                  //           return SliverList(
+                  //             delegate: SliverChildListDelegate(
+                  //               hostingEvents.map((event) {
+                  //                 return EventTab(eventData: event, bookmarkSet: true);
+                  //               }).toList(),
+                  //             ),
+                  //           );
+                  //         }
+                  //       } else {
+                  //         return const SliverFillRemaining(
+                  //           child: Center(
+                  //             child: Text("No Data Retrieved"),
+                  //           ),
+                  //         );
+                  //       }
+                  //     },
+                  //   )
                   else
                     SliverFillRemaining(
                       child: Center(

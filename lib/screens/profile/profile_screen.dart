@@ -466,8 +466,8 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
                                                         DateTime.parse(event.attendeeDates['time_start']);
                                                     final isUpcoming = eventStartDate.isAfter(now);
                                                     final isRelevant = widget.isUser
-                                                        ? (event.attending || event.isHost)
-                                                        : (event.otherAttend == true || event.otherHost == true);
+                                                        ? (event.attending /*|| event.isHost*/)
+                                                        : (event.otherAttend == true /*|| event.otherHost == true*/);
                                                     return isUpcoming && isRelevant;
                                                   }).length;
 
@@ -730,7 +730,7 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
                             final relevantEvents = snapshot.data!.where((event) {
                               bool upcoming = event.attendeeDates['time_start'].compareTo(now.toString()) > 0;
                               bool passed = event.attendeeDates['time_end'].compareTo(now.toString()) < 0;
-                              if (showHosting && !event.isHost) return false;
+                              //if (showHosting && !event.isHost) return false;
                               if (showUpcoming && showPassed) return true;
                               if (showUpcoming && !upcoming) return false;
                               if (showPassed && !passed) return false;
@@ -801,7 +801,7 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
                         builder: (context, snapshot) {
                           if (snapshot.data != null) {
                             final hostingEvents = snapshot.data!.where((event) {
-                              if (showHosting && event.otherHost != null) {
+                              if (showHosting  /*&& event.otherHost != null*/) {
                                 return true;
                               } else {
                                 return false;
@@ -918,22 +918,27 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
                             }
                           } else {
                             // Only useful when viewing a profile through means other than an event header
-                            final hostingEvents = snapshot.data!.where((event) => event.otherHost).toList();
-                            if (hostingEvents.isEmpty) {
-                              return const SliverFillRemaining(
-                                child: Center(
-                                  child: Text("This User Is Not Hosting Any Events at the Moment"),
-                                ),
-                              );
-                            } else {
-                              return SliverList(
-                                delegate: SliverChildListDelegate(
-                                  hostingEvents.map((event) {
-                                    return EventTab(eventData: event, bookmarkSet: true);
-                                  }).toList(),
-                                ),
-                              );
-                            }
+                            // final hostingEvents = snapshot.data!.where((event) => event.otherHost).toList();
+                            // if (hostingEvents.isEmpty) {
+                            //   return const SliverFillRemaining(
+                            //     child: Center(
+                            //       child: Text("This User Is Not Hosting Any Events at the Moment"),
+                            //     ),
+                            //   );
+                            // } else {
+                            //   return SliverList(
+                            //     delegate: SliverChildListDelegate(
+                            //       hostingEvents.map((event) {
+                            //         return EventTab(eventData: event, bookmarkSet: true);
+                            //       }).toList(),
+                            //     ),
+                            //   );
+                            // }
+                            return const SliverFillRemaining(
+                            child: Center(
+                              child: Text("No Data Retrieved"),
+                            ),
+                          );
                           }
                         } else {
                           return const SliverFillRemaining(

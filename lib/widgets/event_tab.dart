@@ -87,35 +87,18 @@ class _EventTabState extends ConsumerState<EventTab> {
 
   @override
   Widget build(BuildContext context) {
-    final bool isHostOrAttending = widget.eventData.isHost || widget.eventData.attending;
+    final bool isHostOrAttending = /*widget.eventData.isHost || */ widget.eventData.attending;
 
     return Card(
       elevation: 4,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
+      margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 10),
       color: Theme.of(context).cardColor,
       child: Stack(
         children: [
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Expanded(
-                    child: _buildHostInfo(context),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.fromLTRB(0, 0, 5, 0),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        _buildMoreOptionsButton(context),
-                      ],
-                    ),
-                  )
-                ],
-              ),
               _buildEventImage(context),
               Padding(
                 padding: const EdgeInsets.all(16),
@@ -133,8 +116,8 @@ class _EventTabState extends ConsumerState<EventTab> {
                     _buildDateTimeInfo(context),
                     ((widget.eventData.distanceAway != null) ||
                             (widget.eventData.isRecurring) ||
-                            _hasEventEnded() ||
-                            widget.eventData.isHost)
+                            _hasEventEnded() /*||
+                            widget.eventData.isHost*/)
                         ? Row(
                             children: [
                               if (_hasEventEnded()) _buildEventEndedIndicator(),
@@ -142,9 +125,9 @@ class _EventTabState extends ConsumerState<EventTab> {
                                 SizedBox(
                                   width: MediaQuery.of(context).size.width * .02,
                                 ),
-                              if (widget.eventData.isHost || widget.eventData.attending)
+                              if (/*widget.eventData.isHost ||*/ widget.eventData.attending)
                                 _buildHostOrAttendingIndicator(),
-                              if (widget.eventData.isHost || widget.eventData.attending)
+                              if (/*widget.eventData.isHost || */widget.eventData.attending)
                                 SizedBox(
                                   width: MediaQuery.of(context).size.width * .02,
                                 ),
@@ -248,24 +231,24 @@ class _EventTabState extends ConsumerState<EventTab> {
   }
 
   Widget _buildHostOrAttendingIndicator() {
-    var host = widget.eventData.isHost;
+    //var host = widget.eventData.isHost;
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       decoration: BoxDecoration(
-        color: host ? Colors.green : Color.fromARGB(255, 30, 42, 138),
+        color: /*host ? Colors.green : */Color.fromARGB(255, 30, 42, 138),
         borderRadius: BorderRadius.circular(4),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Text(host ? 'Hosting' : 'Attending',
-              style: host
-                  ? TextStyle(
-                      color: Colors.white,
-                      fontWeight: FontWeight.w500,
-                      fontSize: MediaQuery.of(context).size.width * .035,
-                    )
-                  : TextStyle(
+          Text(/*host ? 'Hosting' : */'Attending',
+               style: //host
+              //     ? TextStyle(
+              //         color: Colors.white,
+              //         fontWeight: FontWeight.w500,
+              //         fontSize: MediaQuery.of(context).size.width * .035,
+              //       ) :
+                  TextStyle(
                       color: Color.fromARGB(255, 98, 169, 255),
                       fontWeight: FontWeight.w500,
                       fontSize: MediaQuery.of(context).size.width * .035,
@@ -303,108 +286,117 @@ class _EventTabState extends ConsumerState<EventTab> {
     );
   }
 
-  Widget _buildHostInfo(BuildContext context) {
-    return Padding(
-      padding: EdgeInsets.all(MediaQuery.of(context).devicePixelRatio * 3),
-      child: GestureDetector(
-        onTap: () async {
-          String currentUser = await ref.read(profileProvider.notifier).getCurrentUserId();
-          if (widget.eventData.host != currentUser) {
-            await Navigator.of(context, rootNavigator: true).push(
-              MaterialPageRoute(
-                builder: (context) => OtherProfileScreen(userId: widget.eventData.host),
-              ),
-            );
-          } else {
-            await Navigator.of(context, rootNavigator: true).push(
-              MaterialPageRoute(
-                builder: (context) => ProfileScreen(isUser: true, userId: widget.eventData.host),
-              ),
-            );
-          }
-          //Refresh data when popping back to your profile
-          if (mounted) {
-            WidgetsBinding.instance.addPostFrameCallback((_) {
-              //context.findAncestorStateOfType<ProfileScreenState>()?.refreshData();
-            });
-          }
-        },
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            _buildHostAvatar(context),
-            SizedBox(width: MediaQuery.of(context).size.width * 0.0275),
-            Flexible(
-              child: Text(
-                widget.eventData.hostUsername,
-                style: TextStyle(
-                  fontWeight: FontWeight.w600,
-                  fontSize: MediaQuery.of(context).devicePixelRatio * 5,
-                  color: Theme.of(context).colorScheme.onSurface,
-                ),
-                overflow: TextOverflow.ellipsis,
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
+  // Widget _buildHostInfo(BuildContext context) {
+  //   return Padding(
+  //     padding: EdgeInsets.all(MediaQuery.of(context).devicePixelRatio * 3),
+  //     // child: GestureDetector(
+  //     //   onTap: () async {
+  //     //     String currentUser = await ref.read(profileProvider.notifier).getCurrentUserId();
+  //     //     if (widget.eventData.host != currentUser) {
+  //     //       await Navigator.of(context, rootNavigator: true).push(
+  //     //         MaterialPageRoute(
+  //     //           builder: (context) => OtherProfileScreen(userId: widget.eventData.host),
+  //     //         ),
+  //     //       );
+  //     //     } else {
+  //     //       await Navigator.of(context, rootNavigator: true).push(
+  //     //         MaterialPageRoute(
+  //     //           builder: (context) => ProfileScreen(isUser: true, userId: widget.eventData.host),
+  //     //         ),
+  //     //       );
+  //     //     }
+  //     //     //Refresh data when popping back to your profile
+  //     //     if (mounted) {
+  //     //       WidgetsBinding.instance.addPostFrameCallback((_) {
+  //     //         //context.findAncestorStateOfType<ProfileScreenState>()?.refreshData();
+  //     //       });
+  //     //     }
+  //     //   },
+  //       child: Row(
+  //         mainAxisSize: MainAxisSize.min,
+  //         children: [
+  //           //_buildHostAvatar(context),
+  //           SizedBox(width: MediaQuery.of(context).size.width * 0.0275),
+  //           Flexible(
+  //             child: Text(
+  //               widget.eventData.host,
+  //               style: TextStyle(
+  //                 fontWeight: FontWeight.w600,
+  //                 fontSize: MediaQuery.of(context).devicePixelRatio * 5,
+  //                 color: Theme.of(context).colorScheme.onSurface,
+  //               ),
+  //               overflow: TextOverflow.ellipsis,
+  //             ),
+  //           ),
+  //         ],
+  //       ),
+  //     //),
+  //   );
+  // }
 
-  Widget _buildHostAvatar(BuildContext context) {
-    return FutureBuilder(
-      future: ref.read(supabaseInstance),
-      builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.done) {
-          return CircleAvatar(
-            radius: MediaQuery.of(context).devicePixelRatio * 6,
-            backgroundColor: Colors.grey[200],
-            backgroundImage: NetworkImage(widget.eventData.hostProfileUrl),
-          );
-        } else {
-          return CircleAvatar(
-            radius: MediaQuery.of(context).devicePixelRatio * 6,
-            backgroundColor: Colors.grey,
-            child: const CircularProgressIndicator(),
-          );
-        }
-      },
-    );
-  }
+  // Widget _buildHostAvatar(BuildContext context) {
+  //   return FutureBuilder(
+  //     future: ref.read(supabaseInstance),
+  //     builder: (context, snapshot) {
+  //       if (snapshot.connectionState == ConnectionState.done) {
+  //         return CircleAvatar(
+  //           radius: MediaQuery.of(context).devicePixelRatio * 6,
+  //           backgroundColor: Colors.grey[200],
+  //           backgroundImage: NetworkImage(widget.eventData.hostProfileUrl),
+  //         );
+  //       } else {
+  //         return CircleAvatar(
+  //           radius: MediaQuery.of(context).devicePixelRatio * 6,
+  //           backgroundColor: Colors.grey,
+  //           child: const CircularProgressIndicator(),
+  //         );
+  //       }
+  //     },
+  //   );
+  // }
 
   Widget _buildEventImage(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(10, 2, 10, 0),
-      child: GestureDetector(
-        onTap: () => Navigator.of(context)
-            .push(MaterialPageRoute(
-              builder: (context) => DetailedEventScreen(eventData: widget.eventData),
-            ))
-            .whenComplete(newData),
-        child: ClipRRect(
-          borderRadius: BorderRadius.circular(16.0),
-          child: AspectRatio(
-            aspectRatio: 16 / 9,
-            child: (widget.preloadedImage != null)
-                ? Container(
-                    decoration: BoxDecoration(color: Colors.black),
-                    child: Image(image: widget.preloadedImage!, fit: BoxFit.cover))
-                : Container(
-                    decoration: BoxDecoration(color: Colors.black),
-                    child: CachedNetworkImage(
-                      imageUrl: widget.eventData.imageUrl,
-                      fit: BoxFit.cover,
-                      placeholder: (context, url) => Center(
-                        child: CircularProgressIndicator(),
+  return Padding(
+    padding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
+    child: GestureDetector(
+      onTap: () => Navigator.of(context)
+          .push(MaterialPageRoute(
+            builder: (context) => DetailedEventScreen(eventData: widget.eventData),
+          ))
+          .whenComplete(newData),
+      child: Stack(
+        children: [
+          ClipRRect(
+            borderRadius: BorderRadius.circular(16.0),
+            child: AspectRatio(
+              aspectRatio: 16 / 9,
+              child: (widget.preloadedImage != null)
+                  ? Container(
+                      decoration: BoxDecoration(color: Colors.black),
+                      child: Image(image: widget.preloadedImage!, fit: BoxFit.cover))
+                  : Container(
+                      decoration: BoxDecoration(color: Colors.black),
+                      child: CachedNetworkImage(
+                        imageUrl: widget.eventData.imageUrl,
+                        fit: BoxFit.cover,
+                        placeholder: (context, url) => Center(
+                          child: CircularProgressIndicator(),
+                        ),
+                        errorWidget: (context, url, error) => Icon(Icons.error),
                       ),
-                      errorWidget: (context, url, error) => Icon(Icons.error),
                     ),
-                  ),
+            ),
           ),
-        ),
+          Positioned(
+            top: 8,
+            right: 8,
+            child: _buildMoreOptionsButton(context),
+          ),
+        ],
       ),
-    );
-  }
+    ),
+  );
+}
 
   Widget _buildEventTitle(BuildContext context) {
     return GestureDetector(
@@ -784,9 +776,9 @@ class _EventTabState extends ConsumerState<EventTab> {
     if (!_isMounted) return;
 
     Event newEventData = await ref.read(eventsProvider.notifier).deCodeLinkEvent(widget.eventData.eventId);
-    if (widget.eventData.otherHost != null) {
+    if (widget.eventData.otherAttend != null) {
       newEventData.otherAttend = widget.eventData.attending;
-      newEventData.otherHost = widget.eventData.otherHost;
+      //newEventData.otherHost = widget.eventData.otherHost;
       newEventData.otherBookmark = widget.eventData.otherBookmark;
     }
     if (widget.eventData.distanceAway != null) {
@@ -854,25 +846,18 @@ class _EventTabState extends ConsumerState<EventTab> {
   }
 
   Widget _buildMoreOptionsButton(BuildContext context) {
-    return PopupMenuButton<Options>(
-      color: Theme.of(context).colorScheme.surface,
-      icon: const Icon(Icons.more_horiz),
-      iconColor: Theme.of(context).colorScheme.onSecondary,
-      iconSize: MediaQuery.of(context).size.width * .07,
-      onSelected: (Options item) {
-        if (item == Options.itemOne) {
-          _shareEventLink();
-        }
-      },
-      itemBuilder: (context) => <PopupMenuEntry<Options>>[
-        PopupMenuItem(
-            value: Options.itemOne,
-            child: Text(
-              "Share Link",
-              style: TextStyle(color: Theme.of(context).colorScheme.onSecondary),
-            )),
-      ],
-    );
+  return ElevatedButton(
+    onPressed: _shareEventLink,
+    style: ElevatedButton.styleFrom(
+      backgroundColor: Theme.of(context).colorScheme.primary,
+      shape: const CircleBorder(),
+    ),
+    child: Icon(
+      Icons.ios_share_sharp,
+      color: Theme.of(context).colorScheme.onPrimaryContainer,
+      size: MediaQuery.of(context).size.width * .05,
+    ),
+  );
   }
 
   Future<void> bookmarkEvent() async {

@@ -75,7 +75,7 @@ class SearchProvider extends StateNotifier<List<dynamic>> {
         description: eventData['description'],
         sdate: eventData['time_start'],
         eventId: eventData['event_id'],
-        eventType: eventData['invitationtype'],
+        //eventType: eventData['invitationtype'],
         host: eventData['host'],
         imageId: eventData['image_id'],
         imageUrl: eventUrl,
@@ -83,12 +83,12 @@ class SearchProvider extends StateNotifier<List<dynamic>> {
         title: eventData['title'],
         edate: eventData['time_end'],
         attendees: eventData['attendees'],
-        hostProfileUrl: profilePictureUrl,
-        hostUsername: eventData['username'],
-        profileName: eventData['profile_name'],
+        //hostProfileUrl: profilePictureUrl,
+        //hostUsername: eventData['username'],
+        //profileName: eventData['profile_name'],
         bookmarked: bookmarked,
         attending: false,
-        isHost: false,
+        //isHost: false,
         friends: eventData['friends_attending'] ?? [],
         numOfComments: eventData['comments_num'].length,
         isVirtual: eventData['is_virtual'],
@@ -102,7 +102,7 @@ class SearchProvider extends StateNotifier<List<dynamic>> {
       deCodedEvent.attending = deCodedEvent.attendees.contains(supabaseClient.auth.currentUser!.id);
 
       // Set isHost flag
-      deCodedEvent.isHost = deCodedEvent.host == supabaseClient.auth.currentUser!.id;
+      // deCodedEvent.isHost = deCodedEvent.host == supabaseClient.auth.currentUser!.id;
 
       // Set attendeeDates
       if (deCodedEvent.attending && (eventData['attendee_start'] != null)) {
@@ -139,7 +139,7 @@ class SearchProvider extends StateNotifier<List<dynamic>> {
     final supabaseClient = (await supabase).client;
 
     for (var eventData in codedList) {
-      String profilePictureUrl = supabaseClient.storage.from('Images').getPublicUrl(eventData['profile_path']);
+      //String profilePictureUrl = supabaseClient.storage.from('Images').getPublicUrl(eventData['profile_path']);
       String eventUrl = supabaseClient.storage.from('Images').getPublicUrl(eventData['event_path']);
       bool bookmarked = eventData['bookmarked']?.contains(supabaseClient.auth.currentUser!.id) ?? false;
 
@@ -152,7 +152,7 @@ class SearchProvider extends StateNotifier<List<dynamic>> {
         description: eventData['description'],
         sdate: startDates,
         eventId: eventData['event_id'],
-        eventType: eventData['invitationtype'],
+        //eventType: eventData['invitationtype'],
         host: eventData['host'],
         imageId: null, // Assuming this is not provided in the search results
         imageUrl: eventUrl,
@@ -160,12 +160,12 @@ class SearchProvider extends StateNotifier<List<dynamic>> {
         title: eventData['title'],
         edate: endDates,
         attendees: eventData['attendees'] ?? [],
-        hostProfileUrl: profilePictureUrl,
-        hostUsername: eventData['username'],
-        profileName: eventData['profile_name'],
+        //hostProfileUrl: profilePictureUrl,
+       // hostUsername: eventData['username'],
+        //profileName: eventData['profile_name'],
         bookmarked: bookmarked,
         attending: false,
-        isHost: false,
+        //isHost: false,
         friends: eventData['friends_attending'] ?? [],
         numOfComments: eventData['comments_num']?.length ?? 0,
         isVirtual: eventData['is_virtual'] ?? false,
@@ -179,7 +179,7 @@ class SearchProvider extends StateNotifier<List<dynamic>> {
       deCodedEvent.attending = deCodedEvent.attendees.contains(supabaseClient.auth.currentUser!.id);
 
       // Set isHost flag
-      deCodedEvent.isHost = deCodedEvent.host == supabaseClient.auth.currentUser!.id;
+      //deCodedEvent.isHost = deCodedEvent.host == supabaseClient.auth.currentUser!.id;
 
       // Set attendeeDates
       if (startDates.isNotEmpty && endDates.isNotEmpty) {

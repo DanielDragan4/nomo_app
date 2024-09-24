@@ -126,7 +126,7 @@ class _UniversityScreenState extends ConsumerState<UniversityScreen> {
       MaterialPageRoute(
         builder: (context) => CreateAccountScreen(
           isNew: true,
-          university: selectedUniversity,
+          //university: selectedUniversity,
         ),
       ),
     );

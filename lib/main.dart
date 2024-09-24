@@ -276,10 +276,10 @@ class _AppState extends ConsumerState<App> {
               builder: (context, snapshot) {
                 setSystemOverlay(Theme.of(context).bottomNavigationBarTheme.backgroundColor!);
                 if (ref.watch(onSignUp.notifier).state == 1) {
-                  // return CreateAccountScreen(
-                  //   isNew: true,
-                  // );
-                  return UniversityScreen();
+                  return CreateAccountScreen(
+                    isNew: true,
+                  );
+                  //return UniversityScreen();
                 } else if (snapshot.data != null ||
                     (ref.watch(savedSessionProvider) != null && ref.watch(savedSessionProvider)!.isNotEmpty)) {
                   loadData();

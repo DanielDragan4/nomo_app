@@ -14,21 +14,22 @@ import 'package:uuid/uuid.dart';
 import 'package:image/image.dart' as img;
 
 class CreateAccountScreen extends ConsumerStatefulWidget {
-  CreateAccountScreen(
-      {super.key,
-      required this.isNew,
-      this.avatar,
-      this.profilename,
-      this.username,
-      this.onUpdateProfile,
-      this.university});
+  CreateAccountScreen({
+    super.key,
+    required this.isNew,
+    this.avatar,
+    this.profilename,
+    this.username,
+    this.onUpdateProfile,
+    //this.university
+  });
 
   bool isNew;
   final String? avatar;
   final String? username;
   final String? profilename;
   final VoidCallback? onUpdateProfile;
-  final String? university;
+  //final String? university;
 
   @override
   ConsumerState<CreateAccountScreen> createState() {
@@ -139,7 +140,7 @@ class _CreateAccountScreenState extends ConsumerState<CreateAccountScreen> {
       'username': user,
       'profile_name': _profileName.text,
       'private': false,
-      if (widget.university != null) 'university': widget.university,
+      //if (widget.university != null) 'university': widget.university,
     };
 
     if (_profileName.text.replaceAll(' ', '') != '') {

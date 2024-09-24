@@ -6,6 +6,7 @@ class Profile {
   final List interests;
   final List availability;
   final bool private;
+  //final String? university;
 
   Profile({
     required this.profile_id,
@@ -15,6 +16,7 @@ class Profile {
     required this.interests,
     required this.availability,
     required this.private,
+    //this.university,
   });
 
   // Add this copyWith method
@@ -26,6 +28,7 @@ class Profile {
     List? interests,
     List? availability,
     bool? private,
+    //String? university,
   }) {
     return Profile(
       profile_id: profile_id ?? this.profile_id,
@@ -35,6 +38,7 @@ class Profile {
       interests: interests ?? this.interests,
       availability: availability ?? this.availability,
       private: private ?? this.private,
+      //university: university ?? this.university,
     );
   }
 }

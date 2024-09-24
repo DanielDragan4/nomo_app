@@ -14,7 +14,11 @@ import 'package:nomo/functions/image-handling.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class RecommendedScreen extends ConsumerStatefulWidget {
-  const RecommendedScreen({super.key});
+  const RecommendedScreen({
+    super.key,
+    //this.university
+  });
+  // final String? university;
 
   @override
   ConsumerState<RecommendedScreen> createState() => _RecommendedScreenState();

@@ -110,6 +110,7 @@ class ProfileProvider extends StateNotifier<Profile?> {
       interests: userProfile['Interests'],
       availability: availability,
       private: userProfile['private'],
+      //university: userProfile['university'],
     );
     state = profile;
   }

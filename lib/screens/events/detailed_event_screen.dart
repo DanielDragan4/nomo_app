@@ -185,7 +185,6 @@ class _DetailedEventScreenState extends ConsumerState<DetailedEventScreen> {
                 _shareEventLink();
               },
             ),
-
         ),
       ),
     );

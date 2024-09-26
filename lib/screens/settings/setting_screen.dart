@@ -348,7 +348,7 @@ class _SettingScreenState extends ConsumerState<SettingScreen> {
           ref.read(currentUserProvider.notifier).signOut();
           ref.read(savedSessionProvider.notifier).changeSessionDataList();
           Navigator.of(context).pushAndRemoveUntil(
-            MaterialPageRoute(builder: (context) => const LoginScreen()),
+            MaterialPageRoute(builder: (context) => LoginScreen()),
             (Route<dynamic> route) => false,
           );
         },
@@ -382,7 +382,7 @@ class _SettingScreenState extends ConsumerState<SettingScreen> {
                     ref.watch(currentUserProvider.notifier).signOut();
                     ref.read(savedSessionProvider.notifier).changeSessionDataList();
                     ref.read(currentUserProvider.notifier).deleteAccount();
-                    Navigator.of(context).push(MaterialPageRoute(builder: ((context) => const LoginScreen())));
+                    Navigator.of(context).push(MaterialPageRoute(builder: ((context) => LoginScreen())));
                     ScaffoldMessenger.of(context).hideCurrentSnackBar();
                     ScaffoldMessenger.of(context).showSnackBar(
                       const SnackBar(

@@ -5,15 +5,22 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:nomo/functions/make-fcm.dart';
+import 'package:nomo/providers/simplified_view_provider.dart';
 import 'package:nomo/providers/supabase-providers/saved_session_provider.dart';
 import 'package:nomo/providers/supabase-providers/supabase_provider.dart';
 import 'package:nomo/providers/supabase-providers/user_signup_provider.dart';
+import 'package:nomo/screens/NavBar.dart';
 import 'package:nomo/screens/password_handling/forgot_password_screen.dart';
 import 'package:sign_in_with_apple/sign_in_with_apple.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 class LoginScreen extends ConsumerStatefulWidget {
-  const LoginScreen({super.key});
+  LoginScreen({
+    super.key,
+    this.creating,
+  });
+
+  bool? creating;
 
   @override
   ConsumerState<LoginScreen> createState() {
@@ -50,6 +57,12 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
         _emailErrorText = '';
         _passwordErrorText = '';
       });
+
+      ref.read(guestModeProvider.notifier).setGuestMode(false);
+
+      Navigator.of(context).pushReplacement(
+        MaterialPageRoute(builder: (context) => const NavBar()),
+      );
     } on AuthException catch (error) {
       setState(() {
         if (error.message.contains('Invalid login credentials')) {
@@ -82,6 +95,14 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     ref.read(savedSessionProvider.notifier).changeSessionDataList();
   }
 
+  void _continueAsGuest() {
+    print('continuing as guest!_____________________________________');
+    ref.read(guestModeProvider.notifier).setGuestMode(true);
+    Navigator.of(context).pushReplacement(
+      MaterialPageRoute(builder: (context) => const NavBar()),
+    );
+  }
+
   var isLogin = true;
   TextEditingController emailC = TextEditingController();
   TextEditingController passC = TextEditingController();
@@ -96,6 +117,12 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
 
   @override
   Widget build(BuildContext context) {
+    if (widget.creating != null) {
+      setState(() {
+        isLogin = false;
+      });
+    }
+
     return Scaffold(
       backgroundColor: Theme.of(context).colorScheme.surface,
       body: Center(
@@ -282,6 +309,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                             ElevatedButton(
                               onPressed: () {
                                 _submit(emailC.text, isLogin, passC.text);
+                                FocusManager.instance.primaryFocus?.unfocus();
                               },
                               style: ElevatedButton.styleFrom(
                                 backgroundColor: Theme.of(context).primaryColor, // Background color
@@ -424,7 +452,16 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                                     ],
                                   ),
                                 ),
-                              ))
+                              )),
+                          if (!isAuthenticating)
+                            TextButton(
+                                onPressed: () {
+                                  _continueAsGuest();
+                                },
+                                child: Text(
+                                  'Continue as Guest',
+                                  style: TextStyle(color: Theme.of(context).colorScheme.onSurface),
+                                )),
                         ],
                       ),
                     ),

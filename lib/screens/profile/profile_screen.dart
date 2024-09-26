@@ -8,9 +8,11 @@ import 'package:nomo/providers/event-providers/attending_events_provider.dart';
 import 'package:nomo/providers/event-providers/other_attending_profile.dart';
 import 'package:nomo/providers/notification-providers/friend-notif-manager.dart';
 import 'package:nomo/providers/profile_provider.dart';
+import 'package:nomo/providers/simplified_view_provider.dart';
 import 'package:nomo/providers/supabase-providers/supabase_provider.dart';
 import 'package:nomo/screens/calendar/calendar_screen.dart';
 import 'package:nomo/screens/friends/chat_screen.dart';
+import 'package:nomo/screens/password_handling/login_screen.dart';
 import 'package:nomo/screens/profile/create_account_screen.dart';
 import 'package:nomo/screens/events/new_event_screen.dart';
 import 'package:nomo/widgets/event_tab.dart';
@@ -283,6 +285,8 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final isGuestMode = ref.watch(guestModeProvider);
+
     ref.read(attendEventsProvider.notifier).state;
     if (widget.isUser) {
       print('build');
@@ -308,6 +312,33 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
     //   profile = ref.watch(profileProvider.select((value) => value));
     // }
 
+    //TODO: Add 'Continue as guest' to Login Screen. When Login or Create Account, set isSimplified to false, when logout, set to true again.
+
+    if (isGuestMode) {
+      return Scaffold(
+        backgroundColor: Theme.of(context).colorScheme.surface,
+        body: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text(
+                "Sign Up or Login to access this screen.",
+                style: TextStyle(
+                    color: Theme.of(context).colorScheme.onSurface, fontSize: MediaQuery.of(context).size.width / 24),
+              ),
+              SizedBox(height: MediaQuery.of(context).size.height / 48),
+              ElevatedButton(
+                child: Text("Sign Up"),
+                onPressed: () => Navigator.of(context, rootNavigator: true).pushReplacement(MaterialPageRoute(
+                    builder: (context) => LoginScreen(
+                          creating: true,
+                        ))),
+              )
+            ],
+          ),
+        ),
+      );
+    }
     return Scaffold(
       backgroundColor: Theme.of(context).colorScheme.surface,
       body: _isLoading
@@ -801,7 +832,7 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
                         builder: (context, snapshot) {
                           if (snapshot.data != null) {
                             final hostingEvents = snapshot.data!.where((event) {
-                              if (showHosting  /*&& event.otherHost != null*/) {
+                              if (showHosting /*&& event.otherHost != null*/) {
                                 return true;
                               } else {
                                 return false;
@@ -935,10 +966,10 @@ class ProfileScreenState extends ConsumerState<ProfileScreen> {
                             //   );
                             // }
                             return const SliverFillRemaining(
-                            child: Center(
-                              child: Text("No Data Retrieved"),
-                            ),
-                          );
+                              child: Center(
+                                child: Text("No Data Retrieved"),
+                              ),
+                            );
                           }
                         } else {
                           return const SliverFillRemaining(

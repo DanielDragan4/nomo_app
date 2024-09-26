@@ -10,6 +10,7 @@ import 'package:nomo/models/events_model.dart';
 import 'package:nomo/providers/event-providers/events_provider.dart';
 import 'package:nomo/providers/location-providers/location_on_reload_service.dart';
 import 'package:nomo/providers/notification-providers/notification-provider.dart';
+import 'package:nomo/providers/simplified_view_provider.dart';
 import 'package:nomo/providers/supabase-providers/saved_session_provider.dart';
 import 'package:nomo/providers/supabase-providers/supabase_provider.dart';
 import 'package:nomo/providers/theme_provider.dart';
@@ -271,23 +272,24 @@ class _AppState extends ConsumerState<App> {
               primaryColorLight: const Color.fromARGB(255, 142, 57, 202), // seen on search toggle
               canvasColor: Color.fromARGB(255, 27, 27, 31), // scaffold color on all light mode screens
             ),
-            home: StreamBuilder(
-              stream: ref.watch(currentUserProvider.notifier).stream,
-              builder: (context, snapshot) {
-                setSystemOverlay(Theme.of(context).bottomNavigationBarTheme.backgroundColor!);
-                if (ref.watch(onSignUp.notifier).state == 1) {
-                  return CreateAccountScreen(
-                    isNew: true,
-                  );
-                  //return UniversityScreen();
-                } else if (snapshot.data != null ||
-                    (ref.watch(savedSessionProvider) != null && ref.watch(savedSessionProvider)!.isNotEmpty)) {
+            home: Consumer(
+              builder: (context, ref, _) {
+                final isGuestMode = ref.watch(guestModeProvider);
+                final currentUser = ref.watch(currentUserProvider);
+                final onSignUpState = ref.watch(onSignUp);
+                final savedSession = ref.watch(savedSessionProvider);
+
+                if (isGuestMode) {
+                  return const NavBar();
+                } else if (onSignUpState == 1) {
+                  return CreateAccountScreen(isNew: true);
+                } else if (currentUser != null || (savedSession != null && savedSession.isNotEmpty)) {
                   loadData();
                   makeFcm(client);
                   return const NavBar();
                 } else {
                   loadData();
-                  return const LoginScreen();
+                  return LoginScreen();
                 }
               },
             ),

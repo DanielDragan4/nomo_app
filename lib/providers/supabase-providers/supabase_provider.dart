@@ -80,11 +80,9 @@ class AuthProvider extends StateNotifier<Session?> {
 
     if (user.isEmpty) {
       return true;
-    }
-    else {
+    } else {
       return false;
     }
-    
   }
 
   Future<bool> signInWithIdTokenApple(idToken, nonce) async {

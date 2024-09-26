@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:nomo/providers/profile_provider.dart';
+import 'package:nomo/providers/simplified_view_provider.dart';
 import 'package:nomo/screens/calendar/calendar_screen.dart';
 import 'package:nomo/screens/events/event_creation.dart';
 import 'package:nomo/screens/events/event_creation.dart';
@@ -64,6 +65,7 @@ class _NavBarState extends ConsumerState<NavBar> {
 
   @override
   Widget build(BuildContext context) {
+    final isGuestMode = ref.watch(guestModeProvider);
     return PopScope(
       canPop: false,
       onPopInvoked: (didPop) {
@@ -83,7 +85,7 @@ class _NavBarState extends ConsumerState<NavBar> {
                   _buildNavItem(0, Icons.event_available_outlined, Icons.event_available, 'Events'),
                   _buildNavItem(1, Icons.search_rounded, Icons.search_rounded, 'Search'),
                   //SizedBox(width: 60), // Space for the center button
-                  _buildNavItem(2, Icons.people_alt_outlined, Icons.people, 'Friends'),
+                  if (!isGuestMode) _buildNavItem(2, Icons.people_alt_outlined, Icons.people, 'Friends'),
                   _buildNavItem(3, Icons.person_2_outlined, Icons.person_2, 'Profile'),
                 ],
               ),

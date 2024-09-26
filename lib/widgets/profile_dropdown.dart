@@ -109,8 +109,8 @@ class _ProfileDropdownState extends ConsumerState<ProfileDropdown> {
                   ref.read(currentUserProvider.notifier).signOut();
                   ref.read(savedSessionProvider.notifier).changeSessionDataList();
                   await Future.delayed(const Duration(milliseconds: 300));
-                  Navigator.of(context).pushAndRemoveUntil(
-                    MaterialPageRoute(builder: (context) => const LoginScreen()),
+                  Navigator.of(context, rootNavigator: true).pushAndRemoveUntil(
+                    MaterialPageRoute(builder: (context) => LoginScreen()),
                     (Route<dynamic> route) => false,
                   );
                 },

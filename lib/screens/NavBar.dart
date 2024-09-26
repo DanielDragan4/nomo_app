@@ -7,6 +7,7 @@ import 'package:nomo/screens/events/event_creation.dart';
 import 'package:nomo/screens/events/event_creation.dart';
 import 'package:nomo/screens/events/new_event_screen.dart';
 import 'package:nomo/screens/friends/friends_screen.dart';
+import 'package:nomo/screens/location/location_screen.dart';
 import 'package:nomo/screens/profile/profile_screen.dart';
 import 'package:nomo/screens/recommended_screen.dart';
 import 'package:nomo/screens/search_screen.dart';
@@ -85,7 +86,10 @@ class _NavBarState extends ConsumerState<NavBar> {
                   _buildNavItem(0, Icons.event_available_outlined, Icons.event_available, 'Events'),
                   _buildNavItem(1, Icons.search_rounded, Icons.search_rounded, 'Search'),
                   //SizedBox(width: 60), // Space for the center button
-                  if (!isGuestMode) _buildNavItem(2, Icons.people_alt_outlined, Icons.people, 'Friends'),
+                  if (!isGuestMode)
+                    _buildNavItem(2, Icons.people_alt_outlined, Icons.people, 'Friends')
+                  else
+                    _buildNavItem(2, Icons.location_on_outlined, Icons.location_on, 'Location'),
                   _buildNavItem(3, Icons.person_2_outlined, Icons.person_2, 'Profile'),
                 ],
               ),
@@ -100,7 +104,7 @@ class _NavBarState extends ConsumerState<NavBar> {
         ),
         body: Stack(
           children: List.generate(_navigatorKeys.length, (index) {
-            return _buildOffstageNavigator(index);
+            return _buildOffstageNavigator(index, isGuestMode);
           }),
         ),
       ),
@@ -166,21 +170,21 @@ class _NavBarState extends ConsumerState<NavBar> {
   //   );
   // }
 
-  Widget _buildOffstageNavigator(int index) {
+  Widget _buildOffstageNavigator(int index, bool guestMode) {
     return Offstage(
       offstage: _index != index,
       child: Navigator(
         key: _navigatorKeys[index],
         onGenerateRoute: (routeSettings) {
           return MaterialPageRoute(
-            builder: (context) => _buildPage(index),
+            builder: (context) => _buildPage(index, guestMode),
           );
         },
       ),
     );
   }
 
-  Widget _buildPage(int index) {
+  Widget _buildPage(int index, bool guestMode) {
     switch (index) {
       case 0:
         return RecommendedScreen();
@@ -189,7 +193,10 @@ class _NavBarState extends ConsumerState<NavBar> {
       // case 2:
       //   return EventCreateScreen(); //NewEventScreen();
       case 2:
-        return FriendsScreen(isGroupChats: false);
+        if (!guestMode)
+          return FriendsScreen(isGroupChats: false);
+        else
+          return LocationScreen(isCreation: true);
       case 3:
         return ProfileScreen(isUser: true);
       default:

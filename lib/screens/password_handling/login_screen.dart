@@ -11,6 +11,7 @@ import 'package:nomo/providers/supabase-providers/supabase_provider.dart';
 import 'package:nomo/providers/supabase-providers/user_signup_provider.dart';
 import 'package:nomo/screens/NavBar.dart';
 import 'package:nomo/screens/password_handling/forgot_password_screen.dart';
+import 'package:nomo/screens/profile/create_account_screen.dart';
 import 'package:sign_in_with_apple/sign_in_with_apple.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
@@ -48,7 +49,18 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
       await ref.read(currentUserProvider.notifier).submit(email, login, pass, isValid);
 
       if (!login) {
+        // This is a sign-up
+        ref.read(guestModeProvider.notifier).setGuestMode(false);
         ref.read(onSignUp.notifier).notifyAccountCreation();
+        Navigator.of(context).pushReplacement(
+          MaterialPageRoute(builder: (context) => CreateAccountScreen(isNew: true)),
+        );
+      } else {
+        // This is a login
+        ref.read(guestModeProvider.notifier).setGuestMode(false);
+        Navigator.of(context).pushReplacement(
+          MaterialPageRoute(builder: (context) => const NavBar()),
+        );
       }
 
       setState(() {
@@ -57,12 +69,6 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
         _emailErrorText = '';
         _passwordErrorText = '';
       });
-
-      ref.read(guestModeProvider.notifier).setGuestMode(false);
-
-      Navigator.of(context).pushReplacement(
-        MaterialPageRoute(builder: (context) => const NavBar()),
-      );
     } on AuthException catch (error) {
       setState(() {
         if (error.message.contains('Invalid login credentials')) {

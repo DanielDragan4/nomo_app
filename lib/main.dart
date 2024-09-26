@@ -282,12 +282,16 @@ class _AppState extends ConsumerState<App> {
                 if (isGuestMode) {
                   return const NavBar();
                 } else if (onSignUpState == 1) {
+                  // User has just signed up and needs to create their profile
                   return CreateAccountScreen(isNew: true);
-                } else if (currentUser != null || (savedSession != null && savedSession.isNotEmpty)) {
+                } else if (onSignUpState == 2 ||
+                    (currentUser != null && savedSession != null && savedSession.isNotEmpty)) {
+                  // User has completed profile creation or is already logged in
                   loadData();
                   makeFcm(client);
                   return const NavBar();
                 } else {
+                  // User is not logged in
                   loadData();
                   return LoginScreen();
                 }

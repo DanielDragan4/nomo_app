@@ -27,12 +27,12 @@ class _LocationScreenState extends ConsumerState<LocationScreen> {
 
   Future<void> getExistingLocation() async {
     final getLocation = await SharedPreferences.getInstance();
-    final exsistingLocation = getLocation.getStringList('savedLocation');
+    final existingLocation = getLocation.getStringList('savedLocation');
     final setRadius = getLocation.getStringList('savedRadius');
 
-    if (exsistingLocation != null) {
+    if (existingLocation != null) {
       setState(() {
-        _currentPosition = Position.fromMap(json.decode(exsistingLocation[0]));
+        _currentPosition = Position.fromMap(json.decode(existingLocation[0]));
         _getAddressFromLatLng(_currentPosition!);
         _preferredRadius = double.parse(setRadius!.first);
       });
@@ -368,7 +368,7 @@ class _LocationScreenState extends ConsumerState<LocationScreen> {
                       saveRadius.setStringList('savedRadius', [_preferredRadius.toString()]);
                       ref.read(eventsProvider.notifier).deCodeData();
                       if (widget.isCreation) {
-                        Navigator.of(context).pushReplacement(
+                        Navigator.of(context, rootNavigator: true).pushReplacement(
                           MaterialPageRoute(builder: (context) => const NavBar()),
                         );
                       } else {

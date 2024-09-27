@@ -109,7 +109,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     );
   }
 
-  var isLogin = true;
+  late bool isLogin = true;
   TextEditingController emailC = TextEditingController();
   TextEditingController passC = TextEditingController();
   TextEditingController passConfirmC = TextEditingController();
@@ -122,13 +122,15 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
   String _passwordErrorText = '';
 
   @override
-  Widget build(BuildContext context) {
+  void initState() {
     if (widget.creating != null) {
-      setState(() {
-        isLogin = false;
-      });
+      isLogin = false;
     }
+    super.initState();
+  }
 
+  @override
+  Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Theme.of(context).colorScheme.surface,
       body: Center(
